@@ -1,0 +1,7 @@
+<resources>
+    <array name="preloaded_fonts">
+        <item>@font/quicksand_light</item>
+        <item>@font/quicksand_bold</item>
+        <!-- Add more font items as needed -->
+    </array>
+</resources>
