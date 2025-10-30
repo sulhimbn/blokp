@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # Android Build Container
+  android-builder:
+    build:
+      context: .
+      dockerfile: Dockerfile.android
+    container_name: iuran-android-builder
+    volumes:
+      - ./:/workspace/app
+      - gradle-cache:/home/gradle/.gradle
+      - android-sdk-cache:/opt/android-sdk
+      - ~/.ssh:/root/.ssh  # For Git operations
+    working_dir: /workspace/app
+    environment:
+      - GRADLE_USER_HOME=/home/gradle/.gradle
+    networks:
+      - iuran-network
+    tty: true
+
+  # API Mock Container
+  api-mock:
+    build:
+      context: ./mock-api
+      dockerfile: Dockerfile.mock-api
+    container_name: iuran-api-mock
+    ports:
+      - "8080:5000"
+    volumes:
+      - ./mock-api:/app
+    networks:
+      - iuran-network
+    restart: unless-stopped
+
+  # Development Tools Container
+  dev-tools:
+    image: vscode-devcontainers/android:latest
+    container_name: iuran-dev-tools
+    volumes:
+      - ./:/workspace
+      - ~/.ssh:/home/vscode/.ssh
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8081:8080"
+    working_dir: /workspace/app
+    networks:
+      - iuran-network
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    depends_on:
+      - android-builder
+      - api-mock
+
+volumes:
+  gradle-cache:
+  android-sdk-cache:
+
+networks:
+  iuran-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

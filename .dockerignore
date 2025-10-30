@@ -1,0 +1,40 @@
+# Git files
+.git
+.gitignore
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+app/build/
+app/app/build/
+*.apk
+*.aab
+
+# Gradle files
+.gradle/
+build/
+
+# Local properties
+local.properties
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+
+# Docker files (to avoid recursion)
+Dockerfile*
+docker-compose*
+.dockerignore

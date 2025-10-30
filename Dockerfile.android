@@ -1,0 +1,46 @@
+# Android Build Environment Dockerfile for IuranKomplek
+# Based on official Android Docker images
+
+# Use the latest Android SDK image
+FROM androidsdk/android-sdk:34
+
+# Set working directory
+WORKDIR /workspace
+
+# Install additional required packages
+RUN apt-get update && apt-get install -y \
+    git \
+    wget \
+    curl \
+    unzip \
+    zip \
+    openjdk-8-jdk \
+    && rm -rf /var/lib/apt/lists/*
+
+# Download and install Android SDK build tools
+RUN echo "y" | sdkmanager --install "build-tools;34.0.0" "platform-tools" "platforms;android-34"
+
+# Set environment variables
+ENV ANDROID_SDK_ROOT=/opt/android-sdk
+ENV PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
+ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
+# Copy Gradle wrapper
+COPY gradle/ /workspace/gradle/
+COPY gradlew /workspace/
+COPY gradlew.bat /workspace/
+
+# Copy project files
+COPY . /workspace/app/
+
+# Set permissions for Gradle wrapper
+RUN chmod +x /workspace/gradlew
+
+# Create gradle.properties for Docker environment
+RUN echo 'org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8' > /workspace/gradle.properties
+
+# Expose build output directory
+VOLUME ["/workspace/app/build"]
+
+# Default command
+CMD ["/bin/bash"]

@@ -1,0 +1,18 @@
+{
+  "data": [
+    {
+      "id": "1",
+      "nama": "John Doe",
+      "alamat": "Jl. Contoh No. 1",
+      "no_hp": "081234567890",
+      "email": "john@example.com"
+    },
+    {
+      "id": "2",
+      "nama": "Jane Smith",
+      "alamat": "Jl. Contoh No. 2",
+      "no_hp": "081234567891",
+      "email": "jane@example.com"
+    }
+  ]
+}
