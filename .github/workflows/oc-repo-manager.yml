@@ -144,9 +144,10 @@ jobs:
             - Menghormati preferensi tim yang telah ditentukan dalam konfigurasi
             - Melaporkan aktivitas penting ke tim melalui issue atau komentar
             - Menjaga keseimbangan antara otomatisasi dan kontrol manual
+
+            --context "$(echo $GITHUB_CONTEXT | base64 -w0)" \
+            --input "${{ toJSON(github.event) }}"
           PROMPT
           )" \
             --model iflowcn/glm-4.6 \
             --share false \
-            --context "$(echo $GITHUB_CONTEXT | base64 -w0)" \
-            --input "${{ toJSON(github.event) }}"
