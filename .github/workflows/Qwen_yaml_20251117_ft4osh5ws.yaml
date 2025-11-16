@@ -220,6 +220,7 @@ jobs:
             - Jangan gunakan path absolut selain $GITHUB_WORKSPACE
             - Format semua output sebagai script yang dapat dieksekusi
             - Selalu sertakan penjelasan teknis singkat sebelum setiap blok kode
+            - output: agent_output.sh
             
             Sekarang, lakukan analisis Anda berdasarkan konteks repository ini dan hasilkan script eksekusi lengkap untuk memperbaiki masalah utama yang ditemukan.
           PROMPT
