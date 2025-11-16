@@ -235,14 +235,3 @@ jobs:
           echo "Executing agent recommendations:"
           cat agent_output.sh
           ./agent_output.sh || echo "Some recommendations failed but continuing workflow"
-          
-      - name: Upload findings as artifact
-        uses: actions/upload-artifact@v4
-        if: hashFiles('agent_output.sh') != ''
-        with:
-          name: research-findings-${{ github.run_id }}
-          path: |
-            agent_output.sh
-            *.md
-            *.diff
-            *.json
