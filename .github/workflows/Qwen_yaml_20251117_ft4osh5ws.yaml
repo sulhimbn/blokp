@@ -225,10 +225,7 @@ jobs:
           PROMPT
           )" \
             --model iflowcn/glm-4.6 \
-            --max-tokens 4096 \
-            --temperature 0.8 \
             --share false \
-            --output agent_output.sh
             
       - name: Execute agent recommendations
         if: steps.run_agent.outcome == 'success' && hashFiles('agent_output.sh') != ''
