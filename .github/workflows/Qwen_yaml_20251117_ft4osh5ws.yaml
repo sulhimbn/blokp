@@ -224,10 +224,10 @@ jobs:
             Sekarang, lakukan analisis Anda berdasarkan konteks repository ini dan hasilkan script eksekusi lengkap untuk memperbaiki masalah utama yang ditemukan.
           PROMPT
           )" \
-            --model "${OC_MODEL}" \
-            --max-tokens "${MAX_TOKENS}" \
-            --temperature "${TEMPERATURE}" \
-            --share "${OC_SHARE}" \
+            --model iflowcn/glm-4.6 \
+            --max-tokens 4096 \
+            --temperature 0.8 \
+            --share false \
             --output agent_output.sh
             
       - name: Execute agent recommendations
