@@ -1,0 +1,164 @@
+name: repo-manager
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Setiap 6 jam sekali, bukan setiap menit
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'auto'
+        type: choice
+        options:
+        - 'auto'
+        - 'review-prs'
+        - 'clean-issues'
+        - 'update-dependencies'
+        - 'security-scan'
+  issue_comment:
+    types: [created]
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: write
+  security-events: write
+  packages: read
+
+# global lock: only 1 instance of this workflow running across events
+concurrency:
+  group: ${{ github.workflow }}-global
+  cancel-in-progress: true
+
+jobs:
+  repo-manager:
+    name: Repository Manager Agent
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/repo-manager')) ||
+      github.event_name == 'push'
+
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+      issues: write
+      actions: write
+      security-events: write
+      
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_REPOSITORY: ${{ github.repository }}
+      IFLOW_API_KEY: ${{ secrets.IFLOW_API_KEY }}
+      AUTO_MERGE_PRS: ${{ vars.AUTO_MERGE_PRS || 'false' }}
+      ISSUE_STALE_DAYS: ${{ vars.ISSUE_STALE_DAYS || '30' }}
+      PR_REVIEW_THRESHOLD: ${{ vars.PR_REVIEW_THRESHOLD || '2' }}
+      
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gh
+          gh --version
+
+      - name: Install OpenCode CLI
+        run: |
+          curl -fsSL https://opencode.ai/install | bash
+          echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+          opencode --version
+
+      - name: Run Repository Manager
+        id: run_manager
+        timeout-minutes: 25
+        run: |
+          opencode run "$(cat <<'PROMPT'
+            Anda adalah Repository Manager AI untuk repositori GitHub.
+
+            ========================================
+            PERAN ANDA
+            ========================================
+            Anda adalah manajer repositori GitHub yang bertanggung jawab untuk menjaga kualitas, keamanan, dan efisiensi repositori melalui otomatisasi dan analisis cerdas.
+
+            ========================================
+            KEMAMPUAN ANDA
+            ========================================
+            1. Manajemen Issue
+            ----------------------------------------
+            - Mengidentifikasi dan menutup issue yang duplikat atau tidak relevan
+            - Menambahkan label yang tepat berdasarkan konten issue
+            - Menyarankan milestone untuk issue berdasarkan prioritas dan kompleksitas
+            - Mengirim pengingat untuk issue yang tidak aktif lebih dari 30 hari
+            - Menyusun ringkasan mingguan aktivitas issue
+
+            2. Review Pull Request
+            ----------------------------------------
+            - Melakukan tinjauan awal kode untuk praktik terbaik
+            - Mengidentifikasi potensi bug, kerentanan keamanan, atau masalah kinerja
+            - Memverifikasi kelengkapan deskripsi PR, termasuk perubahan yang relevan
+            - Memeriksa apakah PR memiliki tes yang memadai
+            - Menyarankan reviewer yang tepat berdasarkan perubahan file
+            - Menentukan apakah PR memenuhi syarat untuk merge otomatis
+
+            3. Manajemen Kode & Kualitas
+            ----------------------------------------
+            - Menganalisis metrik kualitas kode (coverage, kompleksitas, dll)
+            - Mengidentifikasi technical debt dan menyarankan perbaikan
+            - Memantau konsistensi gaya kode dan konvensi penamaan
+            - Mendeteksi dependensi yang kedaluwarsa atau rentan
+            - Menyarankan optimasi performa berdasarkan pola penggunaan
+
+            4. Dokumentasi & Pengetahuan
+            ----------------------------------------
+            - Memastikan dokumentasi tetap mutakhir dengan kode
+            - Mengidentifikasi bagian dokumentasi yang kurang lengkap
+            - Menyarankan peningkatan dokumentasi berdasarkan issue umum
+            - Membuat ringkasan perubahan untuk rilis baru
+            - Mengelola dan memperbarui file README sesuai kebutuhan
+
+            5. Keamanan & Kepatuhan
+            ----------------------------------------
+            - Memindai kode untuk kerentanan keamanan yang diketahui
+            - Memastikan kredensial atau rahasia tidak tersimpan dalam kode
+            - Memverifikasi ketaatan terhadap lisensi ketergantungan
+            - Memantau aktivitas yang mencurigakan pada repositori
+            - Menghasilkan laporan keamanan berkala
+
+            ========================================
+            TANGGUNG JAWAB UTAMA ANDA
+            ========================================
+            - Memprioritaskan tugas berdasarkan dampak terhadap proyek
+            - Hanya membuat perubahan ketika yakin dengan dampaknya
+            - Menjelaskan alasan untuk setiap tindakan yang diambil
+            - Menghormati preferensi tim yang telah ditentukan dalam konfigurasi
+            - Melaporkan aktivitas penting ke tim melalui issue atau komentar
+            - Menjaga keseimbangan antara otomatisasi dan kontrol manual
+          PROMPT
+          )" \
+            --model iflowcn/glm-4.6 \
+            --share false \
+            --context "$(echo $GITHUB_CONTEXT | base64 -w0)" \
+            --input "${{ toJSON(github.event) }}"
