@@ -60,7 +60,7 @@ jobs:
       security-events: write
       
     env:
-      GH_TOKEN: ${{ github.token }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
       GITHUB_REPOSITORY: ${{ github.repository }}
       IFLOW_API_KEY: ${{ secrets.IFLOW_API_KEY }}
       AUTO_MERGE_PRS: ${{ vars.AUTO_MERGE_PRS || 'false' }}
