@@ -49,8 +49,10 @@ jobs:
     steps:
       - name: Harden runner
         uses: step-security/harden-runner@v2
-        with:
+        with:          
           egress-policy: audit
+          disable-sudo: true
+          disable-file-monitoring: true
 
       - name: Checkout
         uses: actions/checkout@v5
