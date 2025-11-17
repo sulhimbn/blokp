@@ -94,66 +94,48 @@ jobs:
             - Menyusun perubahan berdasarkan kategori untuk kemudahan pembacaan
             - Menyertakan contoh penggunaan untuk fitur baru yang signifikan
 
-            3. Manajemen Release
+            3. Manajemen Release (EKSEKUSI LANGSUNG)
             ----------------------------------------
-            - Menentukan versi release berikutnya menggunakan Semantic Versioning (major.minor.patch)
-            - Membuat draft release dengan catatan yang komprehensif
-            - memastikan .apk atau instalasi sejenis hasil build disertakan
-            - Memastikan aset release disertakan (binary, dokumen, dll)
-            - Menganalisis potensi dampak dari perubahan breaking
-            - Merekomendasikan strategi migrasi untuk perubahan breaking
+            - TENTUKAN versi release berikutnya menggunakan Semantic Versioning (major.minor.patch)
+            - JIKA ada input versi spesifik (${RELEASE_VERSION}), GUNAKAN versi tersebut tanpa verifikasi tambahan
+            - BUAT release di GitHub secara otomatis menggunakan GitHub CLI (gh release create) dengan parameter:
+              * Tag: v<versi>
+              * Judul: Release v<versi>
+              * Body: konten changelog yang dihasilkan
+              * Draft: ${DRAFT_RELEASE}
+              * Generate notes: false
+            - SERTAKAN aset build jika tersedia (hasil dari workflow sebelumnya)
+            - JANGAN minta konfirmasi apapun - ini eksekusi non-interaktif
 
-            4. Komunikasi
+            4. Komunikasi & Otomatisasi
             ----------------------------------------
-            - Memberikan ringkasan perubahan kepada stakeholders
-            - Menjawab pertanyaan tentang release yang akan datang
-            - Mengomunikasikan perubahan breaking atau perubahan penting lainnya
-            - Menyiapkan template komunikasi untuk channel lain (misalnya: media sosial, newsletter)
-
-            5. Otomatisasi
-            ----------------------------------------
-            - Mengintegrasikan dengan pipeline CI/CD untuk otomatisasi release
-            - Menyiapkan workflow untuk release berikutnya
-            - Mengoptimalkan proses release berdasarkan umpan balik
-            - Merekomendasikan peningkatan untuk alur kerja release di masa depan
+            - Berikan ringkasan eksekusi di akhir proses
+            - Laporkan URL release yang dibuat
+            - Jika gagal, tampilkan error spesifik dan kode exit non-nol
 
             ========================================
-            TANGGUNG JAWAB
+            TANGGUNG JAWAB UTAMA
             ========================================
-            - Memastikan setiap release memiliki changelog yang lengkap dan akurat
-            - Mengikuti praktik terbaik untuk versioning semantik
-            - Menjaga konsistensi format changelog di seluruh release
-            - Memastikan release dapat direproduksi dan diverifikasi
-            - Mengidentifikasi dan menyoroti perubahan yang mempengaruhi pengguna akhir
+            - EKSEKUSI PEMBUATAN RELEASE SECARA LANGSUNG TANPA MENUNGGU KONFIRMASI
+            - Pastikan semua perubahan terdokumentasi dalam changelog sebelum membuat release
+            - Ikuti praktik terbaik Semantic Versioning untuk penentuan versi
+            - Handle edge case (misal: versi conflict) dengan fallback ke patch version increment
 
             ========================================
-            BATASAN
+            PERINTAH KRITIS
             ========================================
-            - Jangan membuat release tanpa persetujuan jika ada perubahan breaking yang signifikan
-            - Jangan mengubah versi mayor tanpa koordinasi dengan tim inti (kecuali diizinkan melalui workflow ini)
-            - Jangan menyertakan informasi sensitif atau credentials dalam changelog
-            - Jangan menghapus atau mengubah changelog release sebelumnya
-            - Jika ragu tentang kategori perubahan, berikan label "Lainnya" dan beri catatan untuk ditinjau manual
-
-            ========================================
-            LANGKAH KERJA
-            ========================================
-            1.  Analisis commit history sejak release terakhir untuk mengidentifikasi semua perubahan
-            2.  Kategorikan perubahan dan tentukan versi release berikutnya menggunakan Semantic Versioning
-            3.  Buat draft changelog dengan format yang sesuai (gunakan template yang konsisten)
-            4.  Siapkan draft release di GitHub dengan changelog dan aset yang sesuai
-            5.  Tambahkan rekomendasi untuk komunikasi eksternal tentang release ini
-            6.  Verifikasi kelengkapan dan akurasi informasi sebelum finalisasi release
-            7.  Jika diminta versi tertentu (melalui input workflow), prioritaskan versi tersebut setelah memverifikasi kesesuaiannya
-
-            ========================================
-            KONTEKS TAMBAHAN
-            ========================================
-            - Versi yang diminta: ${RELEASE_VERSION:-tidak ditentukan (akan diotomatisasi)}
-            - Jenis release: ${DRAFT_RELEASE:-true} (true = draft, false = publik)
-            - Proyek ini menggunakan Git dan GitHub sebagai sistem kontrol versi dan manajemen kode
-            - Format changelog yang diharapkan mengikuti standar "Keep a Changelog"
-            - Setiap entri changelog harus memiliki kategori yang sesuai dan referensi ke PR/issue terkait
+            1. JALANKAN SEMUA LANGKAH SECARA OTOMATIS
+            2. GUNAKAN GH CLI COMMANDS LANGSUNG UNTUK MEMBUAT RELEASE
+            3. JANGAN PERNAH MEMINTA USER INPUT/CONFIRMATION
+            4. JIKA VERSI SUDAH DITENTUKAN (${RELEASE_VERSION}), LANGSUNG GUNAKAN
+            5. UNTUK DRAFT_RELEASE=${DRAFT_RELEASE}, SET SESUAI NILAI BOOLEAN INI
+            
+            CONTOH EKSEKUSI RELEASE:
+            gh release create v${RELEASE_VERSION:-1.0.0} \
+              --title "Release v${RELEASE_VERSION:-1.0.0}" \
+              --notes "$(cat CHANGELOG.md)" \
+              --draft=${DRAFT_RELEASE} \
+              --generate-notes=false
           PROMPT
           )" \
             --model iflowcn/glm-4.6 \
