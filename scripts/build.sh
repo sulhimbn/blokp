@@ -1,13 +1,13 @@
 #!/bin/bash
-# Build script for IuranKomplek using Docker
+# Script build untuk IuranKomplek menggunakan Docker
 
-echo "Building IuranKomplek with Docker..."
+echo "Building IuranKomplek dengan Docker..."
 
-# Build the Android app
+# Build aplikasi Android
 docker-compose exec android-builder ./gradlew assembleDebug
 
-# Copy the APK to local directory
-echo "Copying APK to local directory..."
+# Salin APK ke direktori lokal
+echo "Menyalin APK ke direktori lokal..."
 docker-compose cp android-builder:/workspace/app/app/build/outputs/apk/debug/app-debug.apk .
 
-echo "Build complete! APK available at: app-debug.apk"
+echo "Build selesai! APK tersedia di: app-debug.apk"

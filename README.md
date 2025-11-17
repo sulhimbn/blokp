@@ -1,37 +1,51 @@
 # IuranKomplek
 
-IuranKomplek adalah aplikasi Android yang dirancang untuk mengelola dan mengatur pembayaran iuran atau biaya-biaya yang diperlukan dalam suatu komplek perumahan/apartemen. Aplikasi ini memungkinkan pengelola komplek untuk mengelola data pembayaran iuran warga atau penghuni.
+Aplikasi Android untuk mengelola pembayaran iuran komplek perumahan/apartemen. Memungkinkan pengelola komplek mengatur data pembayaran iuran warga atau penghuni dengan mudah dan efisien.
 
-## Deskripsi
+## Deskripsi Singkat
 
-Aplikasi ini dibangun dengan teknologi Android modern menggunakan Kotlin sebagai bahasa pemrograman utama. Aplikasi ini mendukung fitur-fitur dasar manajemen iuran komplek, termasuk pengelolaan data pembayaran, pengguna, dan transaksi iuran.
+Aplikasi IuranKomplek adalah solusi lengkap untuk mengelola pembayaran iuran komplek perumahan/apartemen. Aplikasi ini dibangun dengan teknologi Android modern menggunakan Kotlin sebagai bahasa pemrograman utama, dilengkapi dengan Java untuk kompatibilitas. Aplikasi menyediakan interface yang intuitif untuk pengelola komplek dalam mengatur data pembayaran iuran warga secara efisien.
 
-## Fitur
+## Fitur Utama
 
-- Pengelolaan data iuran
-- Manajemen pengguna/penghuni
-- Catatan pembayaran
-- Sinkronisasi data online
-- Pemrosesan data JSON
+### 1. Manajemen Pengguna/Warga
+- **Tampilan Daftar Pengguna**: Menampilkan informasi lengkap warga termasuk nama, email, alamat, dan avatar
+- **Data Iuran Perwarga**: Melacak jumlah iuran yang harus dibayar per warga
+- **Total Iuran Individu**: Menghitung total iuran yang telah terkumpul per individu
+- **Avatar Pengguna**: Fitur tampilan gambar profil dengan transformasi lingkaran
+
+### 2. Laporan Keuangan Iuran
+- **Perhitungan Iuran Bulanan**: Menghitung total iuran yang terkumpul dari semua warga
+- **Tracking Pengeluaran**: Mencatat semua pengeluaran dari dana iuran
+- **Rekap Total Iuran**: Menghitung saldo akhir setelah dikurangi pengeluaran
+- **Laporan Pemanfaatan**: Menampilkan detail penggunaan dana iuran
+
+### 3. Sistem Navigasi
+- **Menu Utama**: Interface navigasi sederhana dengan dua opsi utama
+- **Aktivitas Terpisah**: Screen khusus untuk daftar warga dan laporan keuangan
+- **Navigasi Intuitif**: Mudah berpindah antara fitur-fitur aplikasi
+
+### 4. Integrasi Data Online
+- **API Integration**: Sinkronisasi data real-time dengan server eksternal
+- **Mock API Support**: Environment development dengan mock API lokal
+- **Error Handling**: Penanganan error yang robust dengan pesan toast
+- **Network Debugging**: Fitur debug network untuk development
 
 ## Teknologi
 
-- **Android SDK**: API level 34
+- **Platform**: Android SDK API level 34
 - **Bahasa Pemrograman**: Kotlin
 - **Minimum SDK**: Android 7.0 (API 24)
-- **Dependency Management**: Gradle
+- **Build System**: Gradle
 
-### Library yang Digunakan
+### Dependencies Utama
 
-- **Kotlin Extensions**: androidx.core:core-ktx
-- **AppCompat**: androidx.appcompat
-- **Material Design**: com.google.android.material
-- **UI Layout**: androidx.constraintlayout
-- **RecyclerView**: untuk menampilkan data dalam bentuk list
-- **Image Loading**: Glide
-- **Networking**: Retrofit, OkHttp3, Android Async HTTP
-- **JSON Parsing**: Gson
-- **Debugging**: Chucker (untuk debugging network)
+- **AndroidX Libraries**: Core KTX, AppCompat, Material Design Components, ConstraintLayout
+- **UI Components**: RecyclerView dengan LinearLayoutManager untuk daftar data
+- **Networking**: Retrofit 2 dengan OkHttp3 untuk komunikasi API REST
+- **Image Loading**: Glide dengan transformasi CircleCrop untuk avatar pengguna
+- **JSON Processing**: Gson Converter untuk parsing response API
+- **Debugging**: Chucker interceptor untuk inspeksi network traffic (hanya di debug mode)
 
 ## Struktur Proyek
 
@@ -40,7 +54,19 @@ IuranKomplek/
 ├── app/
 │   ├── src/
 │   │   ├── main/
-│   │   │   ├── java/com/example/iurankomplek/     # Source code utama
+│   │   │   ├── java/com/example/iurankomplek/     # Kode sumber utama
+│   │   │   │   ├── MainActivity.kt                 # Activity daftar pengguna
+│   │   │   │   ├── LaporanActivity.kt              # Activity laporan keuangan
+│   │   │   │   ├── MenuActivity.java               # Activity menu utama
+│   │   │   │   ├── UserAdapter.kt                  # Adapter RecyclerView untuk pengguna
+│   │   │   │   ├── PemanfaatanAdapter.kt           # Adapter RecyclerView untuk pemanfaatan
+│   │   │   │   ├── LaporanAdapter.kt               # Adapter RecyclerView untuk laporan
+│   │   │   │   └── network/                        # Networking layer
+│   │   │   │       ├── ApiConfig.kt                # Konfigurasi Retrofit
+│   │   │   │       └── ApiService.kt               # Interface API endpoints
+│   │   │   │   └── model/                          # Data models
+│   │   │   │       ├── DataItem.kt                 # Model data item pengguna
+│   │   │   │       └── ResponseUser.kt             # Model response API
 │   │   │   ├── res/                                # Resources (layout, drawable, values)
 │   │   │   └── AndroidManifest.xml                 # Konfigurasi aplikasi
 │   │   ├── androidTest/                            # UI tests
@@ -49,19 +75,21 @@ IuranKomplek/
 ├── build.gradle                                    # Konfigurasi build global
 ├── settings.gradle                                 # Konfigurasi modul yang disertakan
 ├── gradle.properties                               # Properti global Gradle
-└── README.md                                       # Dokumentasi ini
+├── docs/                                           # Dokumentasi tambahan
+│   ├── docker-setup.md                             # Setup lingkungan Docker
+└── README.md                                       # Dokumentasi utama
 ```
 
-## Build & Run
+## Lingkungan Pengembangan
 
-### Prasyarat
+### Setup Manual dengan Android Studio
+**Prasyarat:**
 - Android Studio Flamingo atau versi terbaru
 - JDK 8 atau lebih baru
 - Android SDK API level 34
 - Koneksi internet untuk mengunduh dependencies
 
-### Langkah-langkah Build
-
+**Langkah-langkah:**
 1. Clone repository ini:
    ```bash
    git clone <url-repository>
@@ -77,13 +105,83 @@ IuranKomplek/
    - Klik tombol Run (▶) di Android Studio
    - Atau via terminal: `./gradlew installDebug`
 
-### Konfigurasi API
+### Setup dengan Docker (Direkomendasikan)
 
-Aplikasi ini dirancang untuk berkomunikasi dengan API server eksternal. Untuk menjalankan secara penuh:
+Untuk lingkungan pengembangan yang konsisten, gunakan Docker:
 
-1. Pastikan API server tersedia
-2. Konfigurasi base URL di file konfigurasi aplikasi
-3. Setup credentials jika diperlukan
+1. Jalankan setup Docker:
+   ```bash
+   ./scripts/setup-dev-env.sh
+   ```
+
+2. Akses VS Code di: http://localhost:8081
+
+3. Build aplikasi:
+   ```bash
+   ./scripts/build.sh
+   ```
+
+Lihat [`docs/docker-setup.md`](docs/docker-setup.md) untuk instruksi lengkap setup Docker.
+
+## Konfigurasi API
+
+### Endpoints API
+
+Aplikasi menggunakan API Spreadsheet untuk mengambil data pengguna dan pemanfaatan iuran:
+
+- **Base URL**: `https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/`
+- **Endpoint Pengguna**: `GET /` - Mengambil data pengguna/warga
+- **Endpoint Pemanfaatan**: `GET /` - Mengambil data pemanfaatan iuran
+
+### Model Data
+
+#### DataItem
+Data class yang merepresentasikan item data pengguna:
+
+```kotlin
+data class DataItem(
+    val first_name: String,           // Nama depan
+    val last_name: String,            // Nama belakang
+    val email: String,                // Email pengguna
+    val alamat: String,               // Alamat tempat tinggal
+    val iuran_perwarga: Int,          // Jumlah iuran per warga
+    val total_iuran_rekap: Int,       // Total rekap iuran
+    val jumlah_iuran_bulanan: Int,    // Jumlah iuran bulanan
+    val total_iuran_individu: Int,    // Total iuran individu
+    val pengeluaran_iuran_warga: Int, // Pengeluaran dari iuran
+    val pemanfaatan_iuran: String,    // Deskripsi pemanfaatan
+    val avatar: String                // URL avatar pengguna
+)
+```
+
+#### ResponseUser
+Model response dari API:
+
+```kotlin
+data class ResponseUser(val data: List<DataItem>)
+```
+
+### Environment Configuration
+
+- **Development**: Menggunakan mock API server lokal (`http://api-mock:5000`)
+- **Production**: Menggunakan API Spreadsheet eksternal
+- **Auto-switching**: Berdasarkan `BuildConfig.DEBUG` atau environment variable `DOCKER_ENV`
+
+## Testing
+
+### Menjalankan Tests
+```bash
+# Unit tests
+./gradlew test
+
+# Instrumented tests
+./gradlew connectedAndroidTest
+
+# Dengan Docker
+./scripts/test.sh
+```
+
+Lihat [`AGENTS.md`](AGENTS.md) untuk perintah build dan test lengkap.
 
 ## Kontribusi
 
@@ -97,12 +195,41 @@ Aplikasi ini dirancang untuk berkomunikasi dengan API server eksternal. Untuk me
 
 Proyek ini tidak memiliki lisensi spesifik. Gunakan sesuai dengan kebijakan pengembangan internal Anda.
 
-## Pengembang
+## Aktivitas Aplikasi
 
-Proyek ini dikembangkan sebagai aplikasi manajemen iuran komplek.
+### MenuActivity (Java)
+Aktivitas utama yang menampilkan menu navigasi aplikasi dengan dua opsi:
+- **Tombol Menu 1**: Navigasi ke MainActivity (Daftar Pengguna)
+- **Tombol Menu 2**: Navigasi ke LaporanActivity (Laporan Keuangan)
+- **Fullscreen Mode**: Interface immersif tanpa status bar
 
-## Catatan
+### MainActivity (Kotlin)
+Aktivitas yang menampilkan daftar pengguna/warga komplek:
+- **RecyclerView**: Daftar pengguna dengan informasi lengkap
+- **UserAdapter**: Adapter untuk menampilkan data pengguna dengan avatar
+- **Data Fetching**: Mengambil data dari API menggunakan Retrofit
+- **Error Handling**: Toast messages untuk error network dan data kosong
 
-- Pastikan untuk menyesuaikan URL API sebelum menjalankan aplikasi secara penuh
-- Aplikasi ini saat ini dalam tahap pengembangan
-- Beberapa fitur mungkin belum sepenuhnya selesai
+### LaporanActivity (Kotlin)
+Aktivitas yang menampilkan laporan keuangan iuran:
+- **Perhitungan Otomatis**: Menghitung total iuran bulanan, pengeluaran, dan rekap
+- **PemanfaatanAdapter**: Adapter untuk menampilkan detail pemanfaatan dana
+- **Formula Khusus**: `total_iuran_individu * 3` untuk perhitungan rekap
+- **Real-time Updates**: Data diperbarui langsung dari API
+
+## Arsitektur Kode
+
+### Mixed Language
+- **Kotlin**: MainActivity.kt, LaporanActivity.kt, adapters, network layer
+- **Java**: MenuActivity.java untuk kompatibilitas dan legacy support
+
+### Design Patterns
+- **MVVM Light**: Activity sebagai View, Adapter sebagai View Holder
+- **Repository Pattern**: ApiConfig dan ApiService untuk data access
+- **Adapter Pattern**: RecyclerView adapters untuk UI binding
+
+## Status Proyek
+
+Aplikasi ini dalam tahap pengembangan aktif dengan fitur-fitur inti yang telah berfungsi. Arsitektur hybrid Kotlin-Java memungkinkan transisi bertahap ke Kotlin sepenuhnya.
+
+**Catatan:** Pastikan untuk mengkonfigurasi URL API sebelum menjalankan aplikasi di environment production.

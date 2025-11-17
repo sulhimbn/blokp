@@ -1,29 +1,29 @@
 #!/bin/bash
-# Setup Docker development environment for IuranKomplek
+# Setup lingkungan pengembangan Docker untuk IuranKomplek
 
-echo "Setting up Docker development environment for IuranKomplek..."
+echo "Menyiapkan lingkungan pengembangan Docker untuk IuranKomplek..."
 
-# Create necessary directories
+# Membuat direktori yang diperlukan
 mkdir -p mock-api/mock-data
 mkdir -p scripts
 
-# Build and start containers
-echo "Building and starting Docker containers..."
+# Build dan mulai container
+echo "Building dan memulai container Docker..."
 docker-compose up --build -d
 
-# Wait for services to be ready
-echo "Waiting for services to be ready..."
+# Tunggu layanan siap
+echo "Menunggu layanan siap..."
 sleep 10
 
-# Initialize Android SDK
-echo "Initializing Android SDK..."
+# Inisialisasi Android SDK
+echo "Menginisialisasi Android SDK..."
 docker-compose exec android-builder /workspace/gradlew --version
 
-# Download Android SDK components
-echo "Downloading Android SDK components..."
+# Unduh komponen Android SDK
+echo "Mengunduh komponen Android SDK..."
 docker-compose exec android-builder sdkmanager --install "platforms;android-34" "build-tools;34.0.0"
 
-echo "Setup complete! You can now:"
-echo "1. Access VS Code at http://localhost:8081"
-echo "2. Access mock API at http://localhost:8080"
-echo "3. Run builds with: docker-compose exec android-builder ./gradlew build"
+echo "Setup selesai! Anda sekarang dapat:"
+echo "1. Mengakses VS Code di http://localhost:8081"
+echo "2. Mengakses mock API di http://localhost:8080"
+echo "3. Menjalankan build dengan: docker-compose exec android-builder ./gradlew build"

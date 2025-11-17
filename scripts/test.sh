@@ -1,14 +1,14 @@
 #!/bin/bash
-# Test script for IuranKomplek using Docker
+# Script test untuk IuranKomplek menggunakan Docker
 
-echo "Running tests for IuranKomplek..."
+echo "Menjalankan test untuk IuranKomplek..."
 
-# Run unit tests
-echo "Running unit tests..."
+# Jalankan unit tests
+echo "Menjalankan unit tests..."
 docker-compose exec android-builder ./gradlew test
 
-# Run instrumented tests (if emulator is available)
-echo "Running instrumented tests..."
+# Jalankan instrumented tests (jika emulator tersedia)
+echo "Menjalankan instrumented tests..."
 docker-compose exec android-builder ./gradlew connectedAndroidTest
 
-echo "Tests completed!"
+echo "Test selesai!"

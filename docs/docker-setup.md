@@ -125,7 +125,7 @@ IuranKomplek/
 │       ├── users.json
 │       └── pemanfaatan.json
 ├── app/src/main/java/...           # Android application source
-└── README-DOCKER.md                # This file
+└── README.md                       # Main documentation
 ```
 
 ## Development Workflow
@@ -286,18 +286,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    
+
     - name: Set up Docker
       run: |
         docker-compose up -d
         sleep 30
-        
+
     - name: Build APK
       run: ./scripts/build.sh
-      
+
     - name: Run Tests
       run: ./scripts/test.sh
-      
+
     - name: Upload APK
       uses: actions/upload-artifact@v2
       with:
