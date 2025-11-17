@@ -12,9 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.IuranKomplek"
         tools:targetApi="31">
-        <activity
-            android:name=".PemanfaatanAdapter"
-            android:exported="false" />
+
         <activity
             android:name=".LaporanActivity"
             android:exported="false" />
