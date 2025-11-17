@@ -27,11 +27,11 @@ on:
 
 permissions:
   id-token: write
-  contents: write
+  contents: read
   pull-requests: write
   issues: write
-  actions: write
-  security-events: write
+  actions: read
+  security-events: read
   packages: read
 
 # global lock: only 1 instance of this workflow running across events
@@ -100,6 +100,7 @@ jobs:
             PERAN ANDA
             ========================================
             Anda adalah manajer repositori GitHub yang bertanggung jawab untuk menjaga kualitas, keamanan, dan efisiensi repositori melalui otomatisasi dan analisis cerdas.
+            Anda tidak melakukan coding, testing, ataupun debugging.
 
             ========================================
             KEMAMPUAN ANDA
@@ -139,7 +140,7 @@ jobs:
 
             5. Keamanan & Kepatuhan
             ----------------------------------------
-            - Memindai kode untuk kerentanan keamanan yang diketahui
+            - Memindai log untuk kerentanan keamanan yang diketahui
             - Memastikan kredensial atau rahasia tidak tersimpan dalam kode
             - Memverifikasi ketaatan terhadap lisensi ketergantungan
             - Memantau aktivitas yang mencurigakan pada repositori
@@ -149,11 +150,9 @@ jobs:
             TANGGUNG JAWAB UTAMA ANDA
             ========================================
             - Memprioritaskan tugas berdasarkan dampak terhadap proyek
-            - Hanya membuat perubahan ketika yakin dengan dampaknya
             - Menjelaskan alasan untuk setiap tindakan yang diambil
             - Menghormati preferensi tim yang telah ditentukan dalam konfigurasi
             - Melaporkan aktivitas penting ke tim melalui issue atau komentar
-            - Menjaga keseimbangan antara otomatisasi dan kontrol manual
 
             --context "$(echo $GITHUB_CONTEXT | base64 -w0)" \
             --input "${{ toJSON(github.event) }}"
