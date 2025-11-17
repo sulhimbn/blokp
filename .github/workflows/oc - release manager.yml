@@ -38,7 +38,7 @@ jobs:
       actions: write
       
     env:
-      GH_TOKEN: ${{ github.token }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
       IFLOW_API_KEY: ${{ secrets.IFLOW_API_KEY }}
       RELEASE_VERSION: ${{ github.event.inputs.version }}
       DRAFT_RELEASE: ${{ github.event.inputs.draft }}
