@@ -43,9 +43,13 @@ class LaporanActivity : AppCompatActivity() {
                         var totalPengeluaran = 0
                         var totalIuranIndividu = 0
 
+                        // Ensure proper accumulation of financial values to avoid taking only the last item
                         for (dataItem in dataArray) {
+                            // Accumulate monthly dues per resident
                             totalIuranBulanan += dataItem.iuran_perwarga
+                            // Accumulate expenditure per resident
                             totalPengeluaran += dataItem.pengeluaran_iuran_warga
+                            // Accumulate individual dues with multiplication factor (business logic)
                             totalIuranIndividu += dataItem.total_iuran_individu * 3
                         }
 
