@@ -46,6 +46,7 @@ class LaporanActivity : AppCompatActivity() {
                         for (dataItem in dataArray) {
                             totalIuranBulanan += dataItem.iuran_perwarga
                             totalPengeluaran += dataItem.pengeluaran_iuran_warga
+                            // Accumulate individual contribution totals (multiplied by 3 for quarterly calculation)
                             totalIuranIndividu += dataItem.total_iuran_individu * 3
                         }
 
