@@ -1,7 +1,7 @@
 #!/bin/bash
-# Script test untuk IuranKomplek menggunakan Docker
+# Script test untuk Iuran BlokP menggunakan Docker
 
-echo "Menjalankan test untuk IuranKomplek..."
+echo "Menjalankan test untuk Iuran BlokP..."
 
 # Jalankan unit tests
 echo "Menjalankan unit tests..."

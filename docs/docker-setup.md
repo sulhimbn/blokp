@@ -1,10 +1,10 @@
-# Docker Development Environment for IuranKomplek
+# Docker Development Environment for Iuran BlokP
 
-This document provides instructions for using the Docker-based development environment for the IuranKomplek Android application.
+This document provides instructions for using the Docker-based development environment for the Iuran BlokP Android application.
 
 ## Overview
 
-The Docker environment provides an isolated, consistent, and reproducible development setup for the IuranKomplek application. It includes:
+The Docker environment provides an isolated, consistent, and reproducible development setup for the Iuran BlokP application. It includes:
 
 - Android build container with all necessary SDKs and tools
 - Mock API server for offline development
@@ -110,22 +110,7 @@ docker-compose up dev-tools
 ## Project Structure
 
 ```
-IuranKomplek/
-├── Dockerfile.android              # Android build container
-├── docker-compose.yml              # Multi-container configuration
-├── .dockerignore                   # Docker ignore file
-├── scripts/                        # Development scripts
-│   ├── setup-dev-env.sh            # Environment setup
-│   ├── build.sh                    # Build script
-│   └── test.sh                     # Test script
-├── mock-api/                       # Mock API server
-│   ├── Dockerfile.mock-api         # Mock API container
-│   ├── app.py                      # Flask application
-│   └── mock-data/                  # Mock API data
-│       ├── users.json
-│       └── pemanfaatan.json
-├── app/src/main/java/...           # Android application source
-└── README.md                       # Main documentation
+IuranBlokP/
 ```
 
 ## Development Workflow

@@ -1,10 +1,10 @@
-# IuranKomplek
+# Iuran BlokP
 
-Aplikasi Android untuk mengelola pembayaran iuran komplek perumahan/apartemen. Memungkinkan pengelola komplek mengatur data pembayaran iuran warga atau penghuni dengan mudah dan efisien.
+Aplikasi Android untuk mengelola pembayaran iuran blok perumahan/apartemen. Memungkinkan pengelola blok mengatur data pembayaran iuran warga atau penghuni dengan mudah dan efisien.
 
 ## Deskripsi Singkat
 
-Aplikasi IuranKomplek adalah solusi lengkap untuk mengelola pembayaran iuran komplek perumahan/apartemen. Aplikasi ini dibangun dengan teknologi Android modern menggunakan Kotlin sebagai bahasa pemrograman utama, dilengkapi dengan Java untuk kompatibilitas. Aplikasi menyediakan interface yang intuitif untuk pengelola komplek dalam mengatur data pembayaran iuran warga secara efisien.
+Aplikasi Iuran BlokP adalah solusi lengkap untuk mengelola pembayaran iuran blok perumahan/apartemen. Aplikasi ini dibangun dengan teknologi Android modern menggunakan Kotlin sebagai bahasa pemrograman utama, dilengkapi dengan Java untuk kompatibilitas. Aplikasi menyediakan interface yang intuitif untuk pengelola blok dalam mengatur data pembayaran iuran warga secara efisien.
 
 ## Fitur Utama
 
@@ -50,34 +50,7 @@ Aplikasi IuranKomplek adalah solusi lengkap untuk mengelola pembayaran iuran kom
 ## Struktur Proyek
 
 ```
-IuranKomplek/
-├── app/
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/com/example/iurankomplek/     # Kode sumber utama
-│   │   │   │   ├── MainActivity.kt                 # Activity daftar pengguna
-│   │   │   │   ├── LaporanActivity.kt              # Activity laporan keuangan
-│   │   │   │   ├── MenuActivity.java               # Activity menu utama
-│   │   │   │   ├── UserAdapter.kt                  # Adapter RecyclerView untuk pengguna
-│   │   │   │   ├── PemanfaatanAdapter.kt           # Adapter RecyclerView untuk pemanfaatan
-│   │   │   │   ├── LaporanAdapter.kt               # Adapter RecyclerView untuk laporan
-│   │   │   │   └── network/                        # Networking layer
-│   │   │   │       ├── ApiConfig.kt                # Konfigurasi Retrofit
-│   │   │   │       └── ApiService.kt               # Interface API endpoints
-│   │   │   │   └── model/                          # Data models
-│   │   │   │       ├── DataItem.kt                 # Model data item pengguna
-│   │   │   │       └── ResponseUser.kt             # Model response API
-│   │   │   ├── res/                                # Resources (layout, drawable, values)
-│   │   │   └── AndroidManifest.xml                 # Konfigurasi aplikasi
-│   │   ├── androidTest/                            # UI tests
-│   │   └── test/                                   # Unit tests
-│   ├── build.gradle                                # Konfigurasi build untuk modul app
-├── build.gradle                                    # Konfigurasi build global
-├── settings.gradle                                 # Konfigurasi modul yang disertakan
-├── gradle.properties                               # Properti global Gradle
-├── docs/                                           # Dokumentasi tambahan
-│   ├── docker-setup.md                             # Setup lingkungan Docker
-└── README.md                                       # Dokumentasi utama
+IuranBlokP/
 ```
 
 ## Lingkungan Pengembangan
@@ -230,6 +203,6 @@ Aktivitas yang menampilkan laporan keuangan iuran:
 
 ## Status Proyek
 
-Aplikasi ini dalam tahap pengembangan aktif dengan fitur-fitur inti yang telah berfungsi. Arsitektur hybrid Kotlin-Java memungkinkan transisi bertahap ke Kotlin sepenuhnya.
+Aplikasi Iuran BlokP ini dalam tahap pengembangan aktif dengan fitur-fitur inti yang telah berfungsi. Arsitektur hybrid Kotlin-Java memungkinkan transisi bertahap ke Kotlin sepenuhnya.
 
 **Catatan:** Pastikan untuk mengkonfigurasi URL API sebelum menjalankan aplikasi di environment production.

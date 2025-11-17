@@ -1,7 +1,7 @@
 #!/bin/bash
-# Script build untuk IuranKomplek menggunakan Docker
+# Script build untuk Iuran BlokP menggunakan Docker
 
-echo "Building IuranKomplek dengan Docker..."
+echo "Building Iuran BlokP dengan Docker..."
 
 # Build aplikasi Android
 docker-compose exec android-builder ./gradlew assembleDebug
