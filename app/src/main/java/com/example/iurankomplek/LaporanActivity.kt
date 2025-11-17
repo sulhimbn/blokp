@@ -40,19 +40,12 @@ class LaporanActivity : AppCompatActivity() {
                     if (dataArray != null) {
 
                         var totalIuranBulanan = 0 // Variabel untuk menyimpan total iuran bulanan
+                        var totalPengeluaran = 0
+                        var totalIuranIndividu = 0
 
                         for (dataItem in dataArray) {
-
                             totalIuranBulanan += dataItem.iuran_perwarga
-                        }
-                        var totalPengeluaran = 0
-                        for(dataItem in dataArray) {
-
                             totalPengeluaran += dataItem.pengeluaran_iuran_warga
-                        }
-                        var totalIuranIndividu = 0
-                        for(dataItem in dataArray) {
-
                             totalIuranIndividu += dataItem.total_iuran_individu * 3
                         }
 
