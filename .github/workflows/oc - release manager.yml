@@ -10,7 +10,7 @@ on:
       draft:
         description: 'Buat sebagai draft release'
         required: false
-        default: 'true'
+        default: true
         type: boolean
 
 permissions:
@@ -48,11 +48,21 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0  # Fetch semua history untuk analisis changelog
-      
+
+      - name: Cache OpenCode CLI
+        uses: actions/cache@v4
+        id: cache-opencode
+        with:
+          path: ~/.opencode
+          key: opencode-cli-${{ runner.os }}-v1
+
       - name: Install OpenCode CLI
+        if: steps.cache-opencode.outputs.cache-hit != 'true'
         run: |
           curl -fsSL https://opencode.ai/install | bash
-          echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+
+      - name: Setup OpenCode CLI Path
+        run: echo "$HOME/.opencode/bin" >> $GITHUB_PATH
       
       - name: Run Release Manager Agent
         id: run_agent

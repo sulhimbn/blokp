@@ -57,11 +57,22 @@ jobs:
         if: steps.check_issues.outputs.no_issues == 'true'
         run: echo "No open issues, skipping workflow."
 
-      - name: Install OpenCode CLI
+      - name: Cache OpenCode CLI
         if: steps.check_issues.outputs.no_issues == 'false'
+        uses: actions/cache@v4
+        id: cache-opencode
+        with:
+          path: ~/.opencode
+          key: opencode-cli-${{ runner.os }}-v1
+
+      - name: Install OpenCode CLI
+        if: steps.check_issues.outputs.no_issues == 'false' && steps.cache-opencode.outputs.cache-hit != 'true'
         run: |
           curl -fsSL https://opencode.ai/install | bash
-          echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+
+      - name: Setup OpenCode CLI Path
+        if: steps.check_issues.outputs.no_issues == 'false'
+        run: echo "$HOME/.opencode/bin" >> $GITHUB_PATH
 
       - name: Run OpenCode1
         if: steps.check_issues.outputs.no_issues == 'false'

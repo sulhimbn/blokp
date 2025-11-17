@@ -73,11 +73,21 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
-          
+
+      - name: Cache OpenCode CLI
+        uses: actions/cache@v4
+        id: cache-opencode
+        with:
+          path: ~/.opencode
+          key: opencode-cli-${{ runner.os }}-v1
+
       - name: Install OpenCode CLI
+        if: steps.cache-opencode.outputs.cache-hit != 'true'
         run: |
           curl -fsSL https://opencode.ai/install | bash
-          echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+
+      - name: Setup OpenCode CLI Path
+        run: echo "$HOME/.opencode/bin" >> $GITHUB_PATH
 
       - name: Run Repository Manager
         id: run_manager
