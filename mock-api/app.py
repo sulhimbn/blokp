@@ -12,6 +12,15 @@ def load_mock_data(filename):
         return json.load(f)
 
 @app.route('/data/QjX6hB1ST2IDKaxB/', methods=['GET'])
+def get_data():
+    try:
+        # Default to users data for backward compatibility
+        users = load_mock_data('users.json')
+        return jsonify(users)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/data/QjX6hB1ST2IDKaxB/users', methods=['GET'])
 def get_users():
     try:
         users = load_mock_data('users.json')
@@ -19,13 +28,11 @@ def get_users():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/data/<spreadsheet_id>/', methods=['GET'])
-def get_pemanfaatan(spreadsheet_id):
+@app.route('/data/QjX6hB1ST2IDKaxB/pemanfaatan', methods=['GET'])
+def get_pemanfaatan():
     try:
-        if spreadsheet_id == "QjX6hB1ST2IDKaxB":
-            data = load_mock_data('pemanfaatan.json')
-            return jsonify(data)
-        return jsonify({"error": "Spreadsheet not found"}), 404
+        pemanfaatan = load_mock_data('pemanfaatan.json')
+        return jsonify(pemanfaatan)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
