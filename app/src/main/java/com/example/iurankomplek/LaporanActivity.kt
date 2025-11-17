@@ -50,11 +50,12 @@ class LaporanActivity : AppCompatActivity() {
 
                             totalPengeluaran += dataItem.pengeluaran_iuran_warga
                         }
-                        var totalIuranIndividu = 0
-                        for(dataItem in dataArray) {
+                         var totalIuranIndividu = 0
+                         for(dataItem in dataArray) {
 
-                            totalIuranIndividu += dataItem.total_iuran_individu * 3
-                        }
+                             totalIuranIndividu += dataItem.total_iuran_individu * 3
+                         }
+
 
                         var rekapIuran = totalIuranIndividu - totalPengeluaran
                         jumlahIuranBulananTextView.text = "1. Jumlah Iuran Bulanan : $totalIuranBulanan"
