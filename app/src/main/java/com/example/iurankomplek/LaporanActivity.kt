@@ -53,7 +53,7 @@ class LaporanActivity : AppCompatActivity() {
                         var totalIuranIndividu = 0
                         for(dataItem in dataArray) {
 
-                            totalIuranIndividu = dataItem.total_iuran_individu * 3
+                            totalIuranIndividu += dataItem.total_iuran_individu * 3
                         }
 
                         var rekapIuran = totalIuranIndividu - totalPengeluaran
