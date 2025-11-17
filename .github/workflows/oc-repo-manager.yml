@@ -36,7 +36,7 @@ permissions:
 
 # global lock: only 1 instance of this workflow running across events
 concurrency:
-  group: ${{ github.workflow }}-global
+  group: ${{ github.repository }}-global-workflow
   cancel-in-progress: true
 
 jobs:
