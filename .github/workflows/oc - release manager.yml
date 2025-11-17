@@ -98,6 +98,7 @@ jobs:
             ----------------------------------------
             - Menentukan versi release berikutnya menggunakan Semantic Versioning (major.minor.patch)
             - Membuat draft release dengan catatan yang komprehensif
+            - memastikan .apk atau instalasi sejenis hasil build disertakan
             - Memastikan aset release disertakan (binary, dokumen, dll)
             - Menganalisis potensi dampak dari perubahan breaking
             - Merekomendasikan strategi migrasi untuk perubahan breaking
