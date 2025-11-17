@@ -43,9 +43,12 @@ class LaporanActivity : AppCompatActivity() {
                         var totalPengeluaran = 0
                         var totalIuranIndividu = 0
 
+                        // Calculate total iuran individu by summing all individual items and applying multiplier
+                        // Each data item's total_iuran_individu is multiplied by 3 and accumulated to the total
                         for (dataItem in dataArray) {
                             totalIuranBulanan += dataItem.iuran_perwarga
                             totalPengeluaran += dataItem.pengeluaran_iuran_warga
+                            // Accumulate total_iuran_individu with multiplier applied to each item
                             totalIuranIndividu += dataItem.total_iuran_individu * 3
                         }
 
