@@ -30,7 +30,7 @@ jobs:
       actions: write
       
     env:
-      GH_TOKEN: ${{ github.token }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
       IFLOW_API_KEY: ${{ secrets.IFLOW_API_KEY }}
       
     steps:
