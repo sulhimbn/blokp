@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script test untuk memverifikasi fungsionalitas lingkungan Docker
 
-echo "Testing lingkungan Docker untuk IuranKomplek..."
+echo "Testing lingkungan Docker untuk BlokP..."
 
 # Periksa apakah Docker terinstal
 if ! command -v docker &> /dev/null; then

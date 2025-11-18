@@ -6,7 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.android
-    container_name: iuran-android-builder
+    container_name: blokp-android-builder
     volumes:
       - ./:/workspace/app
       - gradle-cache:/home/gradle/.gradle
@@ -16,7 +16,7 @@ services:
     environment:
       - GRADLE_USER_HOME=/home/gradle/.gradle
     networks:
-      - iuran-network
+      - blokp-network
     tty: true
 
   # API Mock Container
@@ -24,19 +24,19 @@ services:
     build:
       context: ./mock-api
       dockerfile: Dockerfile.mock-api
-    container_name: iuran-api-mock
+    container_name: blokp-api-mock
     ports:
       - "8080:5000"
     volumes:
       - ./mock-api:/app
     networks:
-      - iuran-network
+      - blokp-network
     restart: unless-stopped
 
   # Development Tools Container
   dev-tools:
     image: vscode-devcontainers/android:latest
-    container_name: iuran-dev-tools
+    container_name: blokp-dev-tools
     volumes:
       - ./:/workspace
       - ~/.ssh:/home/vscode/.ssh
@@ -45,7 +45,7 @@ services:
       - "8081:8080"
     working_dir: /workspace/app
     networks:
-      - iuran-network
+      - blokp-network
     environment:
       - DOCKER_HOST=unix:///var/run/docker.sock
     depends_on:
@@ -57,7 +57,7 @@ volumes:
   android-sdk-cache:
 
 networks:
-  iuran-network:
+  blokp-network:
     driver: bridge
     ipam:
       config:
