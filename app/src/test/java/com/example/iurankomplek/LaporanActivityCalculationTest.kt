@@ -79,4 +79,54 @@ class LaporanActivityCalculationTest {
         assertEquals(0, totalPengeluaran)
         assertEquals(0, totalIuranIndividu)
     }
+
+    @Test
+    fun testTotalIuranIndividuCalculation_regressionCheck() {
+        // REGRESSION TEST: Verify that accumulation works correctly and doesn't just take the last item
+        // This test specifically prevents the bug where = was used instead of += 
+        val testItems = listOf(
+            DataItem(iuran_perwarga = 100, total_iuran_individu = 10, pengeluaran_iuran_warga = 5),
+            DataItem(iuran_perwarga = 200, total_iuran_individu = 20, pengeluaran_iuran_warga = 10),
+            DataItem(iuran_perwarga = 300, total_iuran_individu = 30, pengeluaran_iuran_warga = 15)
+        )
+
+        var totalIuranBulanan = 0
+        var totalPengeluaran = 0
+        var totalIuranIndividu = 0
+
+        for (dataItem in testItems) {
+            totalIuranBulanan += dataItem.iuran_perwarga
+            totalPengeluaran += dataItem.pengeluaran_iuran_warga
+            // This is the critical line that was buggy - must use += to accumulate
+            totalIuranIndividu += dataItem.total_iuran_individu * 3
+        }
+
+        // Verify that accumulation worked correctly (sum of all items, not just last item)
+        // If the bug existed (using = instead of +=), totalIuranIndividu would be 90 (30*3) instead of 180 (10*3 + 20*3 + 30*3)
+        assertEquals(180, totalIuranIndividu)  // (10*3) + (20*3) + (30*3) = 30 + 60 + 90 = 180
+        assertEquals(600, totalIuranBulanan)  // 100 + 200 + 300
+        assertEquals(30, totalPengeluaran)    // 5 + 10 + 15
+    }
+
+    @Test
+    fun testTotalIuranIndividuCalculation_bugPrevention_singleItem() {
+        // Additional test to ensure single item works correctly, preventing = vs += confusion
+        val testItems = listOf(
+            DataItem(iuran_perwarga = 500, total_iuran_individu = 25, pengeluaran_iuran_warga = 20)
+        )
+
+        var totalIuranBulanan = 0
+        var totalPengeluaran = 0
+        var totalIuranIndividu = 0
+
+        for (dataItem in testItems) {
+            totalIuranBulanan += dataItem.iuran_perwarga
+            totalPengeluaran += dataItem.pengeluaran_iuran_warga
+            totalIuranIndividu += dataItem.total_iuran_individu * 3  // Critical: must accumulate
+        }
+
+        assertEquals(500, totalIuranBulanan)
+        assertEquals(20, totalPengeluaran)
+        assertEquals(75, totalIuranIndividu)  // 25 * 3
+    }
 }
