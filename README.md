@@ -66,7 +66,8 @@ BlokP/
  │   │   │   │       └── ApiService.kt               # Interface API endpoints
  │   │   │   │   └── model/                          # Data models
  │   │   │   │       ├── DataItem.kt                 # Model data item pengguna
- │   │   │   │       └── ResponseUser.kt             # Model response API
+ │   │   │   │       ├── UserResponse.kt             # User API response model
+│   │   │   │       └── PemanfaatanResponse.kt      # Pemanfaatan API response model
  │   │   │   ├── res/                                # Resources (layout, drawable, values)
  │   │   │   └── AndroidManifest.xml                 # Konfigurasi aplikasi
  │   │   ├── androidTest/                            # UI tests
@@ -154,11 +155,15 @@ data class DataItem(
 )
 ```
 
-#### ResponseUser
+#### API Response Models
 Model response dari API:
 
 ```kotlin
-data class ResponseUser(val data: List<DataItem>)
+// Untuk endpoint users
+data class UserResponse(val data: List<DataItem>)
+
+// Untuk endpoint pemanfaatan
+data class PemanfaatanResponse(val data: List<DataItem>)
 ```
 
 ### Environment Configuration
