@@ -7,7 +7,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.iurankomplek.model.ResponseUser
+import com.example.iurankomplek.model.PemanfaatanResponse
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.utils.NetworkUtils
 import retrofit2.Call
@@ -47,8 +47,8 @@ class LaporanActivity : AppCompatActivity() {
         
         val apiService = ApiConfig.getApiService()
         val client = apiService.getPemanfaatan()
-        client.enqueue(object : Callback<ResponseUser> {
-            override fun onResponse(call: Call<ResponseUser>, response: Response<ResponseUser>) {
+        client.enqueue(object : Callback<PemanfaatanResponse> {
+            override fun onResponse(call: Call<PemanfaatanResponse>, response: Response<PemanfaatanResponse>) {
                  if (response.isSuccessful) {
                      val dataArray = response.body()?.data
 
@@ -87,7 +87,7 @@ class LaporanActivity : AppCompatActivity() {
                      }
                  }
             }
-            override fun onFailure(call: Call<ResponseUser>, t: Throwable) {
+            override fun onFailure(call: Call<PemanfaatanResponse>, t: Throwable) {
                 if (currentRetryCount < maxRetries) {
                     Handler(Looper.getMainLooper()).postDelayed({
                         getPemanfaatan(currentRetryCount + 1)
