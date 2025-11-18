@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
         
-        val apiService = ApiConfig.getApiService()
+        val apiService = ApiConfig.getUserApiService()
         val client = apiService.getUsers()
         client.enqueue(object : Callback<UserResponse> {
             override fun onResponse(call: Call<UserResponse>, response: Response<UserResponse>) {

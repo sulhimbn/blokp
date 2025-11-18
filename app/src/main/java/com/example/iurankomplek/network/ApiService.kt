@@ -4,9 +4,9 @@ import com.example.iurankomplek.model.UserResponse
 import retrofit2.Call
 import retrofit2.http.GET
 interface ApiService {
-    @GET("users")
+    @GET(".")
     fun getUsers(): Call<UserResponse>
     
-    @GET("pemanfaatan")
+    @GET(".")
     fun getPemanfaatan(): Call<PemanfaatanResponse>
 }

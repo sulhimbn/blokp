@@ -45,7 +45,7 @@ class LaporanActivity : AppCompatActivity() {
             return
         }
         
-        val apiService = ApiConfig.getApiService()
+        val apiService = ApiConfig.getPemanfaatanApiService()
         val client = apiService.getPemanfaatan()
         client.enqueue(object : Callback<PemanfaatanResponse> {
             override fun onResponse(call: Call<PemanfaatanResponse>, response: Response<PemanfaatanResponse>) {
