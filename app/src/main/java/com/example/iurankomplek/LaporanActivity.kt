@@ -1,5 +1,7 @@
 package com.example.iurankomplek
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -7,9 +9,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.model.ResponseUser
 import com.example.iurankomplek.network.ApiConfig
+import com.example.iurankomplek.utils.NetworkUtils
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+
 class LaporanActivity : AppCompatActivity() {
     private lateinit var adapter: PemanfaatanAdapter
     private lateinit var rv_laporan: RecyclerView
@@ -17,6 +21,9 @@ class LaporanActivity : AppCompatActivity() {
     private lateinit var jumlahIuranBulananTextView: TextView
     private lateinit var totalIuranTextView: TextView
     private lateinit var pengeluaranTextView: TextView
+    
+    private var retryCount = 0
+    private val maxRetries = 3
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_laporan)
@@ -29,7 +36,15 @@ class LaporanActivity : AppCompatActivity() {
         rv_laporan.adapter = adapter
         getPemanfaatan()
     }
-    private fun getPemanfaatan() {
+    private fun getPemanfaatan(currentRetryCount: Int = 0) {
+        // Check network connectivity before making API call
+        if (!NetworkUtils.isNetworkAvailable(this)) {
+            if (currentRetryCount == 0) {
+                Toast.makeText(this, "No internet connection. Please check your network settings.", Toast.LENGTH_LONG).show()
+            }
+            return
+        }
+        
         val apiService = ApiConfig.getApiService()
         val client = apiService.getPemanfaatan()
         client.enqueue(object : Callback<ResponseUser> {
@@ -60,16 +75,33 @@ class LaporanActivity : AppCompatActivity() {
                         adapter.setPemanfaatan(dataArray)
 
                     } else {
-                        Toast.makeText(this@LaporanActivity, "Data not found", Toast.LENGTH_SHORT).show()
+                        if (currentRetryCount < maxRetries) {
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                getPemanfaatan(currentRetryCount + 1)
+                            }, 1000L * (currentRetryCount + 1)) // Exponential backoff
+                        } else {
+                            Toast.makeText(this@LaporanActivity, "Data not found after ${maxRetries + 1} attempts. Please check your connection and try again.", Toast.LENGTH_LONG).show()
+                        }
                     }
                 } else {
-                    Toast.makeText(this@LaporanActivity, "Failed to retrieve data",
-                        Toast.LENGTH_SHORT).show()
+                    if (currentRetryCount < maxRetries) {
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            getPemanfaatan(currentRetryCount + 1)
+                        }, 1000L * (currentRetryCount + 1)) // Exponential backoff
+                    } else {
+                        Toast.makeText(this@LaporanActivity, "Failed to retrieve data after ${maxRetries + 1} attempts. Please check your connection and try again.", Toast.LENGTH_LONG).show()
+                    }
                 }
             }
             override fun onFailure(call: Call<ResponseUser>, t: Throwable) {
-                Toast.makeText(this@LaporanActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
-                t.printStackTrace()
+                if (currentRetryCount < maxRetries) {
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        getPemanfaatan(currentRetryCount + 1)
+                    }, 1000L * (currentRetryCount + 1)) // Exponential backoff
+                } else {
+                    Toast.makeText(this@LaporanActivity, "Network error: ${t.message}. Failed after ${maxRetries + 1} attempts. Please check your connection and try again.", Toast.LENGTH_LONG).show()
+                    t.printStackTrace()
+                }
             }
         })
     }
