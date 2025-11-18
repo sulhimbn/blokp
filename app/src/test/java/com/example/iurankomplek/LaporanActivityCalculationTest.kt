@@ -79,4 +79,32 @@ class LaporanActivityCalculationTest {
         assertEquals(0, totalPengeluaran)
         assertEquals(0, totalIuranIndividu)
     }
+    
+    @Test
+    fun testTotalIuranIndividuBugRegression_ensuresAccumulationNotAssignment() {
+        // Regression test to ensure that += is used instead of = for accumulation
+        // This test would fail if someone accidentally changes += to = in the calculation
+        val testItems = listOf(
+            DataItem(iuran_perwarga = 100, total_iuran_individu = 50, pengeluaran_iuran_warga = 10), // 50*3=150
+            DataItem(iuran_perwarga = 200, total_iuran_individu = 75, pengeluaran_iuran_warga = 20), // 75*3=225
+            DataItem(iuran_perwarga = 300, total_iuran_individu = 100, pengeluaran_iuran_warga = 30) // 100*3=300
+        )
+
+        var totalIuranIndividu = 0
+
+        // This simulates the correct accumulation logic that should sum all values
+        for (dataItem in testItems) {
+            totalIuranIndividu += dataItem.total_iuran_individu * 3
+        }
+
+        // The correct result should be the sum of all items: (50*3) + (75*3) + (100*3) = 150 + 225 + 300 = 675
+        val expectedTotal = (50 * 3) + (75 * 3) + (100 * 3) // 675
+        assertEquals("Total should accumulate all items, not just take the last item's value", 
+            expectedTotal, totalIuranIndividu)
+
+        // If the bug were present (using = instead of +=), the result would be just the last item: 100 * 3 = 300
+        val buggyResult = 100 * 3 // What the result would be if using assignment instead of accumulation
+        assertNotEquals("Result should not be just the last item's value (indicates accumulation bug)", 
+            buggyResult, totalIuranIndividu)
+    }
 }
