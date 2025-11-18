@@ -58,10 +58,9 @@ BlokP/
  │   │   │   │   ├── MainActivity.kt                 # Activity daftar pengguna
  │   │   │   │   ├── LaporanActivity.kt              # Activity laporan keuangan
  │   │   │   │   ├── MenuActivity.java               # Activity menu utama
- │   │   │   │   ├── UserAdapter.kt                  # Adapter RecyclerView untuk pengguna
- │   │   │   │   ├── PemanfaatanAdapter.kt           # Adapter RecyclerView untuk pemanfaatan
- │   │   │   │   ├── LaporanAdapter.kt               # Adapter RecyclerView untuk laporan
- │   │   │   │   └── network/                        # Networking layer
+│   │   │   │   ├── UserAdapter.kt                  # Adapter RecyclerView untuk pengguna
+│   │   │   │   └── PemanfaatanAdapter.kt           # Adapter RecyclerView untuk pemanfaatan
+│   │   │   │   └── network/                        # Networking layer
  │   │   │   │       ├── ApiConfig.kt                # Konfigurasi Retrofit
  │   │   │   │       └── ApiService.kt               # Interface API endpoints
  │   │   │   │   └── model/                          # Data models
