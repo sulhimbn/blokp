@@ -2,6 +2,8 @@ package com.example.iurankomplek
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.View
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -21,6 +23,7 @@ class LaporanActivity : AppCompatActivity() {
     private lateinit var jumlahIuranBulananTextView: TextView
     private lateinit var totalIuranTextView: TextView
     private lateinit var pengeluaranTextView: TextView
+    private lateinit var progressBar: ProgressBar
     
     private var retryCount = 0
     private val maxRetries = 3
@@ -31,16 +34,23 @@ class LaporanActivity : AppCompatActivity() {
         jumlahIuranBulananTextView = findViewById(R.id.jumlahIuranBulananTextView)
         totalIuranTextView = findViewById(R.id.totalIuranTextView)
         pengeluaranTextView = findViewById(R.id.pengeluaranTextView)
+        progressBar = findViewById(R.id.progressBar)
         adapter = PemanfaatanAdapter(mutableListOf())
         rv_laporan.layoutManager = LinearLayoutManager(this)
         rv_laporan.adapter = adapter
         getPemanfaatan()
     }
     private fun getPemanfaatan(currentRetryCount: Int = 0) {
+        // Show progress bar when starting the API call
+        if (currentRetryCount == 0) {
+            progressBar.visibility = View.VISIBLE
+        }
+        
         // Check network connectivity before making API call
         if (!NetworkUtils.isNetworkAvailable(this)) {
             if (currentRetryCount == 0) {
                 Toast.makeText(this, "No internet connection. Please check your network settings.", Toast.LENGTH_LONG).show()
+                progressBar.visibility = View.GONE
             }
             return
         }
@@ -69,7 +79,7 @@ class LaporanActivity : AppCompatActivity() {
 
                          var rekapIuran = totalIuranIndividu - totalPengeluaran
                          jumlahIuranBulananTextView.text = "1. Jumlah Iuran Bulanan : $totalIuranBulanan"
-                         pengeluaranTextView.text = "3. Total Pengeluaran : $totalPengeluaran"
+                         pengeluaranTextView.text = "3. Total Pengeluraan : $totalPengeluaran"
                          totalIuranTextView.text = "4. Rekap Total Iuran : $rekapIuran"
  // Set data pemanfaatan pada adapter
                          adapter.setPemanfaatan(dataArray)
@@ -82,21 +92,27 @@ class LaporanActivity : AppCompatActivity() {
                          Handler(Looper.getMainLooper()).postDelayed({
                              getPemanfaatan(currentRetryCount + 1)
                          }, 1000L * (currentRetryCount + 1)) // Exponential backoff
+                         return
                      } else {
                          Toast.makeText(this@LaporanActivity, "Failed to retrieve data after ${maxRetries + 1} attempts. Please check your connection and try again.", Toast.LENGTH_LONG).show()
                      }
                  }
+                 // Hide progress bar after completing the API call
+                 progressBar.visibility = View.GONE
             }
             override fun onFailure(call: Call<ResponseUser>, t: Throwable) {
                 if (currentRetryCount < maxRetries) {
                     Handler(Looper.getMainLooper()).postDelayed({
                         getPemanfaatan(currentRetryCount + 1)
                     }, 1000L * (currentRetryCount + 1)) // Exponential backoff
+                    return
                 } else {
                     Toast.makeText(this@LaporanActivity, "Network error: ${t.message}. Failed after ${maxRetries + 1} attempts. Please check your connection and try again.", Toast.LENGTH_LONG).show()
                     t.printStackTrace()
                 }
+                // Hide progress bar after completing the API call
+                progressBar.visibility = View.GONE
             }
         })
     }
-}
+ }
