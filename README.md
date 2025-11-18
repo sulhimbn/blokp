@@ -64,8 +64,9 @@ BlokP/
  │   │   │   │       ├── ApiConfig.kt                # Konfigurasi Retrofit
  │   │   │   │       └── ApiService.kt               # Interface API endpoints
  │   │   │   │   └── model/                          # Data models
- │   │   │   │       ├── DataItem.kt                 # Model data item pengguna
- │   │   │   │       └── ResponseUser.kt             # Model response API
+  │   │   │   │       ├── DataItem.kt                 # Model data item pengguna
+  │   │   │   │       ├── UserResponse.kt             # Model response API for user endpoint
+  │   │   │   │       └── PemanfaatanResponse.kt      # Model response API for pemanfaatan endpoint
  │   │   │   ├── res/                                # Resources (layout, drawable, values)
  │   │   │   └── AndroidManifest.xml                 # Konfigurasi aplikasi
  │   │   ├── androidTest/                            # UI tests
@@ -153,11 +154,18 @@ data class DataItem(
 )
 ```
 
-#### ResponseUser
-Model response dari API:
+#### UserResponse
+Model response dari endpoint pengguna:
 
 ```kotlin
-data class ResponseUser(val data: List<DataItem>)
+data class UserResponse(val data: List<DataItem>)
+```
+
+#### PemanfaatanResponse
+Model response dari endpoint pemanfaatan iuran:
+
+```kotlin
+data class PemanfaatanResponse(val data: List<DataItem>)
 ```
 
 ### Environment Configuration
