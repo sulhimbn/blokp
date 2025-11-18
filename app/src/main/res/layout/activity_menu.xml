@@ -84,5 +84,41 @@
 
             </LinearLayout>
         </LinearLayout>
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_marginLeft="40dp"
+            android:layout_marginTop="100dp">
+            
+            <LinearLayout
+                android:id="@+id/cdMenu3"
+                android:layout_width="380dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_view"
+                android:orientation="vertical"
+                android:layout_gravity="center">
+                <ImageView
+                    android:id="@+id/imageView3"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/profile" />
+
+                <TextView
+                    android:id="@+id/textView4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font"
+                    android:text="Komunikasi"
+                    android:textAlignment="center"
+                    android:textColor="@color/teal_200"
+                    android:textSize="15dp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

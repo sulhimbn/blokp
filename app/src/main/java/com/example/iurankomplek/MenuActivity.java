@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class MenuActivity extends AppCompatActivity {
     LinearLayout tombolSatu;
     LinearLayout tombolDua;
+    LinearLayout tombolTiga;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +32,15 @@ public class MenuActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MenuActivity.this, LaporanActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        tombolTiga = findViewById(R.id.cdMenu3);
+        tombolTiga.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MenuActivity.this, CommunicationActivity.class);
                 startActivity(intent);
             }
         });
