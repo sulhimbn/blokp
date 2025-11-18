@@ -1,11 +1,12 @@
 package com.example.iurankomplek.network
-import com.example.iurankomplek.model.ResponseUser
+import com.example.iurankomplek.model.PemanfaatanResponse
+import com.example.iurankomplek.model.UserResponse
 import retrofit2.Call
 import retrofit2.http.GET
 interface ApiService {
     @GET("users")
-    fun getUsers(): Call<ResponseUser>
+    fun getUsers(): Call<UserResponse>
     
     @GET("pemanfaatan")
-    fun getPemanfaatan(): Call<ResponseUser>
+    fun getPemanfaatan(): Call<PemanfaatanResponse>
 }
