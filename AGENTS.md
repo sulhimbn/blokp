@@ -17,6 +17,12 @@ This file provides guidance to agents when working with code in this repository.
 - Glide image loading dengan CircleCrop transform untuk menampilkan avatar pengguna berbentuk bulat
 - UserAdapter dan PemanfaatanAdapter menggunakan notifyDataSetChanged() sebagai pengganti DiffUtil untuk kemudahan implementasi
 
+## Documentation
+- Complete API documentation available in docs/API.md
+- Architecture documentation in docs/ARCHITECTURE.md
+- Development guidelines in docs/DEVELOPMENT.md
+- Troubleshooting guide in docs/TROUBLESHOOTING.md
+
 ## Code Style
 - Kotlin menggunakan "official" code style (kotlin.code.style=official)
 - Proyek mixed language: prefer Kotlin untuk fitur baru tapi maintain kompatibilitas Java
