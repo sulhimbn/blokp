@@ -41,21 +41,23 @@ class MainActivity : AppCompatActivity() {
         val client = apiService.getUsers()
         client.enqueue(object : Callback<ResponseUser> {
             override fun onResponse(call: Call<ResponseUser>, response: Response<ResponseUser>) {
-                if (response.isSuccessful) {
-                    val dataArray = response.body()?.data
+                 if (response.isSuccessful) {
+                     val dataArray = response.body()?.data
 
-                    if (dataArray != null) {
-                        adapter.setUsers(dataArray)
-                    }
-                } else {
-                    if (currentRetryCount < maxRetries) {
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            getUser(currentRetryCount + 1)
-                        }, 1000L * (currentRetryCount + 1)) // Exponential backoff
-                    } else {
-                        Toast.makeText(this@MainActivity, "Failed to retrieve data after ${maxRetries + 1} attempts. Please check your connection and try again.", Toast.LENGTH_LONG).show()
-                    }
-                }
+                     if (dataArray != null) {
+                         adapter.setUsers(dataArray)
+                     } else {
+                         Toast.makeText(this@MainActivity, "No data available", Toast.LENGTH_LONG).show()
+                     }
+                 } else {
+                     if (currentRetryCount < maxRetries) {
+                         Handler(Looper.getMainLooper()).postDelayed({
+                             getUser(currentRetryCount + 1)
+                         }, 1000L * (currentRetryCount + 1)) // Exponential backoff
+                     } else {
+                         Toast.makeText(this@MainActivity, "Failed to retrieve data after ${maxRetries + 1} attempts. Please check your connection and try again.", Toast.LENGTH_LONG).show()
+                     }
+                 }
             }
             override fun onFailure(call: Call<ResponseUser>, t: Throwable) {
                 if (currentRetryCount < maxRetries) {

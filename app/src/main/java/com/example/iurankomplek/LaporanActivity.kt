@@ -49,49 +49,43 @@ class LaporanActivity : AppCompatActivity() {
         val client = apiService.getPemanfaatan()
         client.enqueue(object : Callback<ResponseUser> {
             override fun onResponse(call: Call<ResponseUser>, response: Response<ResponseUser>) {
-                if (response.isSuccessful) {
-                    val dataArray = response.body()?.data
+                 if (response.isSuccessful) {
+                     val dataArray = response.body()?.data
 
-                    if (dataArray != null) {
+                     if (dataArray != null) {
 
-                        var totalIuranBulanan = 0 // Variabel untuk menyimpan total iuran bulanan
-                        var totalPengeluaran = 0
-                        var totalIuranIndividu = 0
+                         var totalIuranBulanan = 0 // Variabel untuk menyimpan total iuran bulanan
+                         var totalPengeluaran = 0
+                         var totalIuranIndividu = 0
 
-                        // Calculate total iuran individu by summing all individual items and applying multiplier
-                        // Each data item's total_iuran_individu is multiplied by 3 and accumulated to the total
-                        for (dataItem in dataArray) {
-                            totalIuranBulanan += dataItem.iuran_perwarga
-                            totalPengeluaran += dataItem.pengeluaran_iuran_warga
-                            // Accumulate total_iuran_individu with multiplier applied to each item
-                            totalIuranIndividu += dataItem.total_iuran_individu * 3
-                        }
+                         // Calculate total iuran individu by summing all individual items and applying multiplier
+                         // Each data item's total_iuran_individu is multiplied by 3 and accumulated to the total
+                         for (dataItem in dataArray) {
+                             totalIuranBulanan += dataItem.iuran_perwarga
+                             totalPengeluaran += dataItem.pengeluaran_iuran_warga
+                             // Accumulate total_iuran_individu with multiplier applied to each item
+                             totalIuranIndividu += dataItem.total_iuran_individu * 3
+                         }
 
-                        var rekapIuran = totalIuranIndividu - totalPengeluaran
-                        jumlahIuranBulananTextView.text = "1. Jumlah Iuran Bulanan : $totalIuranBulanan"
-                        pengeluaranTextView.text = "3. Total Pengeluaran : $totalPengeluaran"
-                        totalIuranTextView.text = "4. Rekap Total Iuran : $rekapIuran"
-// Set data pemanfaatan pada adapter
-                        adapter.setPemanfaatan(dataArray)
+                         var rekapIuran = totalIuranIndividu - totalPengeluaran
+                         jumlahIuranBulananTextView.text = "1. Jumlah Iuran Bulanan : $totalIuranBulanan"
+                         pengeluaranTextView.text = "3. Total Pengeluaran : $totalPengeluaran"
+                         totalIuranTextView.text = "4. Rekap Total Iuran : $rekapIuran"
+ // Set data pemanfaatan pada adapter
+                         adapter.setPemanfaatan(dataArray)
 
-                    } else {
-                        if (currentRetryCount < maxRetries) {
-                            Handler(Looper.getMainLooper()).postDelayed({
-                                getPemanfaatan(currentRetryCount + 1)
-                            }, 1000L * (currentRetryCount + 1)) // Exponential backoff
-                        } else {
-                            Toast.makeText(this@LaporanActivity, "Data not found after ${maxRetries + 1} attempts. Please check your connection and try again.", Toast.LENGTH_LONG).show()
-                        }
-                    }
-                } else {
-                    if (currentRetryCount < maxRetries) {
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            getPemanfaatan(currentRetryCount + 1)
-                        }, 1000L * (currentRetryCount + 1)) // Exponential backoff
-                    } else {
-                        Toast.makeText(this@LaporanActivity, "Failed to retrieve data after ${maxRetries + 1} attempts. Please check your connection and try again.", Toast.LENGTH_LONG).show()
-                    }
-                }
+                     } else {
+                         Toast.makeText(this@LaporanActivity, "No data available", Toast.LENGTH_LONG).show()
+                     }
+                 } else {
+                     if (currentRetryCount < maxRetries) {
+                         Handler(Looper.getMainLooper()).postDelayed({
+                             getPemanfaatan(currentRetryCount + 1)
+                         }, 1000L * (currentRetryCount + 1)) // Exponential backoff
+                     } else {
+                         Toast.makeText(this@LaporanActivity, "Failed to retrieve data after ${maxRetries + 1} attempts. Please check your connection and try again.", Toast.LENGTH_LONG).show()
+                     }
+                 }
             }
             override fun onFailure(call: Call<ResponseUser>, t: Throwable) {
                 if (currentRetryCount < maxRetries) {
