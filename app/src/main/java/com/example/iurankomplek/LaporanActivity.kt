@@ -21,6 +21,7 @@ class LaporanActivity : AppCompatActivity() {
     private lateinit var jumlahIuranBulananTextView: TextView
     private lateinit var totalIuranTextView: TextView
     private lateinit var pengeluaranTextView: TextView
+    private lateinit var progressBar: ProgressBar
     
     private var retryCount = 0
     private val maxRetries = 3
@@ -31,17 +32,87 @@ class LaporanActivity : AppCompatActivity() {
         jumlahIuranBulananTextView = findViewById(R.id.jumlahIuranBulananTextView)
         totalIuranTextView = findViewById(R.id.totalIuranTextView)
         pengeluaranTextView = findViewById(R.id.pengeluaranTextView)
+        progressBar = findViewById(R.id.progressBar)
         adapter = PemanfaatanAdapter(mutableListOf())
         rv_laporan.layoutManager = LinearLayoutManager(this)
         rv_laporan.adapter = adapter
         getPemanfaatan()
     }
     private fun getPemanfaatan(currentRetryCount: Int = 0) {
+        // Show progress bar when starting the API call (only on the first attempt)
+        if (currentRetryCount == 0) {
+            progressBar.visibility = android.view.View.VISIBLE
+        }
+        
         // Check network connectivity before making API call
         if (!NetworkUtils.isNetworkAvailable(this)) {
             if (currentRetryCount == 0) {
                 Toast.makeText(this, "No internet connection. Please check your network settings.", Toast.LENGTH_LONG).show()
+                progressBar.visibility = android.view.View.GONE
             }
+            return
+        }
+        
+        val apiService = ApiConfig.getApiService()
+        val client = apiService.getPemanfaatan()
+        client.enqueue(object : Callback<ResponseUser> {
+            override fun onResponse(call: Call<ResponseUser>, response: Response<ResponseUser>) {
+                 if (response.isSuccessful) {
+                     val dataArray = response.body()?.data
+
+                     if (dataArray != null) {
+
+                         var totalIuranBulanan = 0 // Variabel untuk menyimpan total iuran bulanan
+                         var totalPengeluaran = 0
+                         var totalIuranIndividu = 0
+
+                         // Calculate total iuran individu by summing all individual items and applying multiplier
+                         // Each data item's total_iuran_individu is multiplied by 3 and accumulated to the total
+                         for (dataItem in dataArray) {
+                             totalIuranBulanan += dataItem.iuran_perwarga
+                             totalPengeluaran += dataItem.pengeluaran_iuran_warga
+                             // Accumulate total_iuran_individu with multiplier applied to each item
+                             totalIuranIndividu += dataItem.total_iuran_individu * 3
+                         }
+
+                         var rekapIuran = totalIuranIndividu - totalPengeluaran
+                         jumlahIuranBulananTextView.text = "1. Jumlah Iuran Bulanan : $totalIuranBulanan"
+                         pengeluaranTextView.text = "3. Total Pengeluraan : $totalPengeluaran"
+                         totalIuranTextView.text = "4. Rekap Total Iuran : $rekapIuran"
+ // Set data pemanfaatan pada adapter
+                         adapter.setPemanfaatan(dataArray)
+
+                     } else {
+                         Toast.makeText(this@LaporanActivity, "No data available", Toast.LENGTH_LONG).show()
+                     }
+                 } else {
+                     if (currentRetryCount < maxRetries) {
+                         Handler(Looper.getMainLooper()).postDelayed({
+                             getPemanfaatan(currentRetryCount + 1)
+                         }, 1000L * (currentRetryCount + 1)) // Exponential backoff
+                         return // Don't hide progress bar if retrying
+                     } else {
+                         Toast.makeText(this@LaporanActivity, "Failed to retrieve data after ${maxRetries + 1} attempts. Please check your connection and try again.", Toast.LENGTH_LONG).show()
+                     }
+                 }
+                 // Hide progress bar after successful response or final failure
+                 progressBar.visibility = android.view.View.GONE
+            }
+            override fun onFailure(call: Call<ResponseUser>, t: Throwable) {
+                if (currentRetryCount < maxRetries) {
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        getPemanfaatan(currentRetryCount + 1)
+                    }, 1000L * (currentRetryCount + 1)) // Exponential backoff
+                    return // Don't hide progress bar if retrying
+                } else {
+                    Toast.makeText(this@LaporanActivity, "Network error: ${t.message}. Failed after ${maxRetries + 1} attempts. Please check your connection and try again.", Toast.LENGTH_LONG).show()
+                    t.printStackTrace()
+                }
+                // Hide progress bar after final failure
+                progressBar.visibility = android.view.View.GONE
+            }
+        })
+    }
             return
         }
         
