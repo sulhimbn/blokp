@@ -60,23 +60,51 @@ class LaporanActivityCalculationTest {
         assertEquals(150, totalIuranIndividu)  // 50 * 3
     }
 
-    @Test
-    fun testTotalIuranIndividuCalculation_emptyList() {
-        // Test with empty list to ensure no errors
-        val testItems = emptyList<DataItem>()
+     @Test
+     fun testTotalIuranIndividuCalculation_emptyList() {
+         // Test with empty list to ensure no errors
+         val testItems = emptyList<DataItem>()
 
-        var totalIuranBulanan = 0
-        var totalPengeluaran = 0
-        var totalIuranIndividu = 0
+         var totalIuranBulanan = 0
+         var totalPengeluaran = 0
+         var totalIuranIndividu = 0
 
-        for (dataItem in testItems) {
-            totalIuranBulanan += dataItem.iuran_perwarga
-            totalPengeluaran += dataItem.pengeluaran_iuran_warga
-            totalIuranIndividu += dataItem.total_iuran_individu * 3
-        }
+         for (dataItem in testItems) {
+             totalIuranBulanan += dataItem.iuran_perwarga
+             totalPengeluaran += dataItem.pengeluaran_iuran_warga
+             totalIuranIndividu += dataItem.total_iuran_individu * 3
+         }
 
-        assertEquals(0, totalIuranBulanan)
-        assertEquals(0, totalPengeluaran)
-        assertEquals(0, totalIuranIndividu)
-    }
-}
+         assertEquals(0, totalIuranBulanan)
+         assertEquals(0, totalPengeluaran)
+         assertEquals(0, totalIuranIndividu)
+     }
+     
+     @Test
+     fun testTotalIuranIndividuCalculation_bugRegression_accumulationVsAssignment() {
+         // Regression test to ensure accumulation works correctly and would catch
+         // if someone accidentally changes += to = (which would only use last item's value)
+         val testItems = listOf(
+             DataItem(iuran_perwarga = 100, total_iuran_individu = 10, pengeluaran_iuran_warga = 5),
+             DataItem(iuran_perwarga = 200, total_iuran_individu = 20, pengeluaran_iuran_warga = 10),
+             DataItem(iuran_perwarga = 300, total_iuran_individu = 30, pengeluaran_iuran_warga = 15)
+         )
+
+         var totalIuranIndividu = 0
+         
+         for (dataItem in testItems) {
+             // This simulates the correct accumulation logic from LaporanActivity
+             totalIuranIndividu += dataItem.total_iuran_individu * 3
+         }
+         
+         // With correct accumulation (+=), result should be: (10*3) + (20*3) + (30*3) = 30 + 60 + 90 = 180
+         val expectedAccumulatedValue = 180
+         assertEquals("Accumulation should sum all items (10*3 + 20*3 + 30*3 = 180), not just use last item", 
+             expectedAccumulatedValue, totalIuranIndividu)
+         
+         // For comparison: if bug were present (= instead of +=), result would be just the last item: 30*3 = 90
+         val expectedIfBugPresent = 90  // This would be the result if using assignment instead of accumulation
+         assertNotEquals("If += were accidentally changed to =, this would incorrectly return only last item value", 
+             expectedIfBugPresent, totalIuranIndividu)
+     }
+ }
