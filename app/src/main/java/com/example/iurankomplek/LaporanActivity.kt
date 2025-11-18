@@ -63,8 +63,9 @@ class LaporanActivity : AppCompatActivity() {
                          for (dataItem in dataArray) {
                              totalIuranBulanan += dataItem.iuran_perwarga
                              totalPengeluaran += dataItem.pengeluaran_iuran_warga
-                             // Accumulate total_iuran_individu with multiplier applied to each item
-                             totalIuranIndividu += dataItem.total_iuran_individu * 3
+                              // CRITICAL: Use += to accumulate total_iuran_individu (not = which would only take last item)
+                              // This prevents the financial calculation bug where only the last item's value was used
+                              totalIuranIndividu += dataItem.total_iuran_individu * 3
                          }
 
                          var rekapIuran = totalIuranIndividu - totalPengeluaran
