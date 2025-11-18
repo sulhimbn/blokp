@@ -1,7 +1,7 @@
 #!/bin/bash
-# Setup lingkungan pengembangan Docker untuk IuranKomplek
+# Setup lingkungan pengembangan Docker untuk BlokP
 
-echo "Menyiapkan lingkungan pengembangan Docker untuk IuranKomplek..."
+echo "Menyiapkan lingkungan pengembangan Docker untuk BlokP..."
 
 # Membuat direktori yang diperlukan
 mkdir -p mock-api/mock-data
