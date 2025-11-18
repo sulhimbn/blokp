@@ -58,14 +58,17 @@ class LaporanActivity : AppCompatActivity() {
                          var totalPengeluaran = 0
                          var totalIuranIndividu = 0
 
-                         // Calculate total iuran individu by summing all individual items and applying multiplier
-                         // Each data item's total_iuran_individu is multiplied by 3 and accumulated to the total
-                         for (dataItem in dataArray) {
-                             totalIuranBulanan += dataItem.iuran_perwarga
-                             totalPengeluaran += dataItem.pengeluaran_iuran_warga
-                             // Accumulate total_iuran_individu with multiplier applied to each item
-                             totalIuranIndividu += dataItem.total_iuran_individu * 3
-                         }
+                          // Calculate total iuran individu by summing all individual items and applying multiplier
+                          // Each data item's total_iuran_individu is multiplied by 3 and accumulated to the total
+                          for (dataItem in dataArray) {
+                              totalIuranBulanan += dataItem.iuran_perwarga
+                              totalPengeluaran += dataItem.pengeluaran_iuran_warga
+                              // CRITICAL: Use += to accumulate (sum all items) rather than = (which would only take last item)
+                              // BUG PREVENTION: Using = instead of += would cause only the last item's value to be used
+                              // This was a previously identified critical bug where total_iuran_individu would only 
+                              // reflect the value from the final iteration of the loop instead of summing all values
+                              totalIuranIndividu += dataItem.total_iuran_individu * 3
+                          }
 
                          var rekapIuran = totalIuranIndividu - totalPengeluaran
                          jumlahIuranBulananTextView.text = "1. Jumlah Iuran Bulanan : $totalIuranBulanan"
