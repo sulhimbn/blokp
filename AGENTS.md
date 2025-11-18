@@ -16,7 +16,6 @@ This file provides guidance to agents when working with code in this repository.
 - Network debugging menggunakan Chucker (hanya di debugImplementation) untuk inspeksi traffic API
 - Glide image loading dengan CircleCrop transform untuk menampilkan avatar pengguna berbentuk bulat
 - UserAdapter dan PemanfaatanAdapter menggunakan notifyDataSetChanged() sebagai pengganti DiffUtil untuk kemudahan implementasi
-- API base URL mengandung karakter newline yang harus dipertahankan: "https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/\n\n"
 
 ## Code Style
 - Kotlin menggunakan "official" code style (kotlin.code.style=official)
