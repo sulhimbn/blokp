@@ -11,7 +11,6 @@ object ApiConfig {
     } else {
         "https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/"
     }
-    
     fun getApiService(): ApiService {
         val retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
