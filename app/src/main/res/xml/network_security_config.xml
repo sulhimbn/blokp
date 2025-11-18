@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">api.apispreadsheets.com</domain>
+        <pin-set expiration="2026-12-31">
+            <pin algorithm="sha256">PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=</pin>
+        </pin-set>
+    </domain-config>
+    
+    <!-- Allow HTTP only for debug builds and local mock API -->
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </debug-overrides>
+</network-security-config>
