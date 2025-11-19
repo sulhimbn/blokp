@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal">
-    <TextView
+<TextView
         android:id="@+id/itemPemanfaatan"
         android:layout_width="268dp"
         android:layout_height="wrap_content"
@@ -11,7 +11,7 @@
         android:padding="16dp"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
-        android:text="- Biaya Kebersihan Lingkungan : "
+        android:text="- Pemanfaatan : "
         android:fontFamily="@font/font"
         android:textColor="@color/white"
         android:textSize="17sp"
