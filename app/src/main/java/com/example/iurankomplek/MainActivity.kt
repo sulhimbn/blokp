@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.model.UserResponse
 import com.example.iurankomplek.network.ApiConfig
+import com.example.iurankomplek.utils.DataValidator
 import com.example.iurankomplek.utils.NetworkUtils
 import retrofit2.Call
 import retrofit2.Callback

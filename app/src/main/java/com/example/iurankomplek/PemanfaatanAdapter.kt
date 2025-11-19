@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 
 import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.utils.DataValidator
 
 class PemanfaatanAdapter(private var pemanfaatan: MutableList<DataItem>) :
     RecyclerView.Adapter<PemanfaatanAdapter.ListViewHolder>() {
@@ -30,11 +31,11 @@ class PemanfaatanAdapter(private var pemanfaatan: MutableList<DataItem>) :
     
     override fun getItemCount(): Int = pemanfaatan.size
     
-    override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
-        val item = pemanfaatan[position]
-        holder.tvPemanfaatan.text = "-" + item.pemanfaatan_iuran + ":"
-        holder.tvTotalIuranRekap.text = item.pengeluaran_iuran_warga.toString()
-    }
+     override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
+         val item = pemanfaatan[position]
+         holder.tvPemanfaatan.text = "-" + DataValidator.sanitizePemanfaatan(item.pemanfaatan_iuran) + ":"
+         holder.tvTotalIuranRekap.text = DataValidator.formatCurrency(item.pengeluaran_iuran_warga)
+     }
     
     class ListViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
         var tvPemanfaatan: TextView = itemView.findViewById(R.id.itemPemanfaatan)
