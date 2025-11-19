@@ -1,25 +1,20 @@
 package com.example.iurankomplek
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
+import com.example.iurankomplek.databinding.ItemListBinding
 import com.example.iurankomplek.model.DataItem
 
 class UserAdapter(private var users: MutableList<DataItem>):
     RecyclerView.Adapter<UserAdapter.ListViewHolder>(){
     
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
-        val view: View =
-            LayoutInflater.from(parent.context).inflate(R.layout.item_list, parent,false)
-        return ListViewHolder(
-            view
-        )
+        val binding = ItemListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ListViewHolder(binding)
     }
     
     fun setUsers(newUsers: List<DataItem>) {
@@ -49,47 +44,40 @@ class UserAdapter(private var users: MutableList<DataItem>):
     
     override fun getItemCount(): Int = users.size
     
-     override fun onBindViewHolder(holder: ListViewHolder, position: Int){
-         val user = users[position]
-         
-         // Load avatar image with error handling
-         val avatarUrl = user.avatar.takeIf { it.isNotBlank() }
-         Glide.with(holder.itemView.context)
-             .load(avatarUrl)
-             .apply(RequestOptions().override(80, 80).placeholder(R.drawable.icon_avatar).error(R.drawable.icon_avatar))
-             .transform(CircleCrop())
-             .into(holder.tvAvatar)
-         
-         // Safely construct and display user name
-         val userName = mutableListOf<String>().apply {
-             if (user.first_name.isNotBlank()) add(user.first_name)
-             if (user.last_name.isNotBlank()) add(user.last_name)
-         }.joinToString(" ")
-         holder.tvUserName.text = userName.ifEmpty { "Unknown User" }
-         
-         // Safely display email
-         holder.tvEmail.text = user.email.takeIf { it.isNotBlank() } ?: "No email"
-         
-         // Safely display address
-         holder.tvAddress.text = user.alamat.takeIf { it.isNotBlank() } ?: "No address"
-         
-         // Safely display iuran perwarga with validation
-         val iuranPerwargaValue = if (user.iuran_perwarga >= 0) user.iuran_perwarga else 0
-         holder.tvIuranPerwarga.text = "Iuran Perwarga Rp.$iuranPerwargaValue"
-         
-         // Safely display total iuran individu with validation
-         val totalIuranIndividuValue = if (user.total_iuran_individu >= 0) user.total_iuran_individu else 0
-         holder.tvTotalIuranIndividu.text = "Total Iuran Individu Rp.$totalIuranIndividuValue"
-     }
-
-    class ListViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
-        var tvUserName: TextView = itemView.findViewById(R.id.itemName)
-        var tvEmail: TextView = itemView.findViewById(R.id.itemEmail)
-        var tvAvatar: ImageView = itemView.findViewById(R.id.itemAvatar)
-        var tvAddress: TextView = itemView.findViewById(R.id.itemAddress)
-        var tvIuranPerwarga: TextView = itemView.findViewById(R.id.itemIuranPerwarga)
-        var tvTotalIuranIndividu: TextView = itemView.findViewById(R.id.itemIuranIndividu)
+    override fun onBindViewHolder(holder: ListViewHolder, position: Int){
+        val user = users[position]
+        
+        // Load avatar image with error handling
+        val avatarUrl = user.avatar.takeIf { it.isNotBlank() }
+        Glide.with(holder.binding.root.context)
+            .load(avatarUrl)
+            .apply(RequestOptions().override(80, 80).placeholder(R.drawable.icon_avatar).error(R.drawable.icon_avatar))
+            .transform(CircleCrop())
+            .into(holder.binding.itemAvatar)
+        
+        // Safely construct and display user name
+        val userName = mutableListOf<String>().apply {
+            if (user.first_name.isNotBlank()) add(user.first_name)
+            if (user.last_name.isNotBlank()) add(user.last_name)
+        }.joinToString(" ")
+        holder.binding.itemName.text = userName.ifEmpty { "Unknown User" }
+        
+        // Safely display email
+        holder.binding.itemEmail.text = user.email.takeIf { it.isNotBlank() } ?: "No email"
+        
+        // Safely display address
+        holder.binding.itemAddress.text = user.alamat.takeIf { it.isNotBlank() } ?: "No address"
+        
+        // Safely display iuran perwarga with validation
+        val iuranPerwargaValue = if (user.iuran_perwarga >= 0) user.iuran_perwarga else 0
+        holder.binding.itemIuranPerwarga.text = "Iuran Perwarga Rp.$iuranPerwargaValue"
+        
+        // Safely display total iuran individu with validation
+        val totalIuranIndividuValue = if (user.total_iuran_individu >= 0) user.total_iuran_individu else 0
+        holder.binding.itemIuranIndividu.text = "Total Iuran Individu Rp.$totalIuranIndividuValue"
     }
+
+    class ListViewHolder(val binding: ItemListBinding): RecyclerView.ViewHolder(binding.root)
     
     class UserDiffCallback(
         private val oldList: List<DataItem>,
