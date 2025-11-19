@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.model.UserResponse
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.utils.NetworkUtils
+import com.example.iurankomplek.utils.DataValidator
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -42,17 +43,30 @@ class MainActivity : AppCompatActivity() {
          client.enqueue(object : Callback<UserResponse> {
              override fun onResponse(call: Call<UserResponse>, response: Response<UserResponse>) {
                   if (response.isSuccessful) {
-                      val responseBody = response.body()
-                      if (responseBody != null && responseBody.data != null) {
-                          val dataArray = responseBody.data
-                          if (dataArray.isNotEmpty()) {
-                              adapter.setUsers(dataArray)
-                          } else {
-                              Toast.makeText(this@MainActivity, "No users available", Toast.LENGTH_LONG).show()
-                          }
-                      } else {
-                          Toast.makeText(this@MainActivity, "Invalid response format", Toast.LENGTH_LONG).show()
-                      }
+                       val responseBody = response.body()
+                       if (responseBody != null && responseBody.data != null) {
+                           val dataArray = responseBody.data
+                           if (dataArray.isNotEmpty()) {
+                               // Validate the data for potential security issues before setting it to the adapter
+                               val hasInvalidData = dataArray.any { user ->
+                                   user.first_name.contains("<script") || user.first_name.contains("javascript:") ||
+                                   user.last_name.contains("<script") || user.last_name.contains("javascript:") ||
+                                   user.alamat.contains("<script") || user.alamat.contains("javascript:") ||
+                                   user.email.contains("<script") || user.email.contains("javascript:")
+                               }
+                               
+                               if (hasInvalidData) {
+                                   Toast.makeText(this@MainActivity, "Security validation failed: Invalid data detected", Toast.LENGTH_LONG).show()
+                                   return@onResponse
+                               }
+                               
+                               adapter.setUsers(dataArray)
+                           } else {
+                               Toast.makeText(this@MainActivity, "No users available", Toast.LENGTH_LONG).show()
+                           }
+                       } else {
+                           Toast.makeText(this@MainActivity, "Invalid response format", Toast.LENGTH_LONG).show()
+                       }
                   } else {
                       if (currentRetryCount < maxRetries) {
                           Handler(Looper.getMainLooper()).postDelayed({
