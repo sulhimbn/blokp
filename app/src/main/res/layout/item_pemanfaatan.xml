@@ -11,7 +11,7 @@
         android:padding="16dp"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
-        android:text="- Biaya Kebersihan Lingkungan : "
+        android:text="- Item Pemanfaatan : "
         android:fontFamily="@font/font"
         android:textColor="@color/white"
         android:textSize="17sp"
