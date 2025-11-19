@@ -21,7 +21,7 @@ concurrency:
 jobs:
   opencode:
     name: opencode - pr handler
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 40
     
 
@@ -39,10 +39,6 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
       IFLOW_API_KEY: ${{ secrets.IFLOW_API_KEY }}
-      GIT_AUTHOR_NAME: maskom_team
-      GIT_AUTHOR_EMAIL: maskom_team@ma-malnukananga.sch.id
-      GIT_COMMITTER_NAME: maskom_team
-      GIT_COMMITTER_EMAIL: maskom_team@ma-malnukananga.sch.id
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       
@@ -124,6 +120,7 @@ jobs:
                - PRs explicitly labeled or assigned for bot/automation handling.
                - PRs with requested changes and unresolved review comments.
                - PRs with failing required checks (build/tests) that appear fixable by code changes.
+               - Oldest PR
                - Otherwise, PRs that are closest to being merge-ready (fewest open conversations and green checks).
             3. Once a PR is selected, commit to it for the rest of this run and ignore other PRs and branches.
             4. If there is no suitable open PR (for example none exist or all have already been fully processed), select at most one non-default, non-protected branch without an open PR that:
