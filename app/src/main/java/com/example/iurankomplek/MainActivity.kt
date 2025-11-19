@@ -40,25 +40,29 @@ class MainActivity : AppCompatActivity() {
         val apiService = ApiConfig.getApiService()
         val client = apiService.getUsers()
         client.enqueue(object : Callback<UserResponse> {
-            override fun onResponse(call: Call<UserResponse>, response: Response<UserResponse>) {
-                 if (response.isSuccessful) {
-                     val dataArray = response.body()?.data
-
-                     if (dataArray != null) {
-                         adapter.setUsers(dataArray)
-                     } else {
-                         Toast.makeText(this@MainActivity, "No data available", Toast.LENGTH_LONG).show()
-                     }
-                 } else {
-                     if (currentRetryCount < maxRetries) {
-                         Handler(Looper.getMainLooper()).postDelayed({
-                             getUser(currentRetryCount + 1)
-                         }, 1000L * (currentRetryCount + 1)) // Exponential backoff
-                     } else {
-                         Toast.makeText(this@MainActivity, "Failed to retrieve data after ${maxRetries + 1} attempts. Please check your connection and try again.", Toast.LENGTH_LONG).show()
-                     }
-                 }
-            }
+override fun onResponse(call: Call<UserResponse>, response: Response<UserResponse>) {
+                  if (response.isSuccessful) {
+                      val responseBody = response.body()
+                      if (responseBody != null && responseBody.data != null) {
+                          val dataArray = responseBody.data
+                          if (dataArray.isNotEmpty()) {
+                              adapter.setUsers(dataArray)
+                          } else {
+                              Toast.makeText(this@MainActivity, "No users available", Toast.LENGTH_LONG).show()
+                          }
+                      } else {
+                          Toast.makeText(this@MainActivity, "Invalid response format", Toast.LENGTH_LONG).show()
+                      }
+                  } else {
+                      if (currentRetryCount < maxRetries) {
+                          Handler(Looper.getMainLooper()).postDelayed({
+                              getUser(currentRetryCount + 1)
+                          }, 1000L * (currentRetryCount + 1)) // Exponential backoff
+                      } else {
+                          Toast.makeText(this@MainActivity, "Failed to retrieve data after ${maxRetries + 1} attempts. Please check your connection and try again.", Toast.LENGTH_LONG).show()
+                      }
+                  }
+             }
             override fun onFailure(call: Call<UserResponse>, t: Throwable) {
                 if (currentRetryCount < maxRetries) {
                     Handler(Looper.getMainLooper()).postDelayed({

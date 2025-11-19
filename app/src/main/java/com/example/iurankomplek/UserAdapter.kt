@@ -32,9 +32,11 @@ class UserAdapter(private var users: MutableList<DataItem>):
     }
     
     fun addUser(newUser: DataItem?) {
-        newUser?.let {
-            users.add(it)
-            notifyItemInserted(users.lastIndex)
+        newUser?.let { user ->
+            if (user.email.isNotBlank() && user.first_name.isNotBlank()) {
+                users.add(user)
+                notifyItemInserted(users.lastIndex)
+            }
         }
     }
     
