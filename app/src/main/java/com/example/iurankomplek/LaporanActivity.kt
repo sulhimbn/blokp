@@ -16,11 +16,10 @@ import retrofit2.Response
 
 class LaporanActivity : AppCompatActivity() {
     private lateinit var adapter: PemanfaatanAdapter
-    private lateinit var rv_laporan: RecyclerView
-    private lateinit var IuranPerwargaTextView: TextView
-    private lateinit var jumlahIuranBulananTextView: TextView
-    private lateinit var totalIuranTextView: TextView
-    private lateinit var pengeluaranTextView: TextView
+     private lateinit var rv_laporan: RecyclerView
+     private lateinit var jumlahIuranBulananTextView: TextView
+     private lateinit var totalIuranTextView: TextView
+     private lateinit var pengeluaranTextView: TextView
     
     private var retryCount = 0
     private val maxRetries = 3
