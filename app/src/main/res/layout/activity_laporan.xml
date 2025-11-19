@@ -55,22 +55,23 @@
         app:layout_constraintTop_toBottomOf="@id/jumlahIuranBulananTextView"
         android:paddingStart="16dp"
         android:paddingEnd="16dp" />
-    <!-- TextView untuk Pengeluaran -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_laporan"
-        android:layout_width="404dp"
-        android:layout_height="60dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:background="@color/peach"
         android:fontFamily="@font/font"
         android:padding="2dp"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/pemanfaatanTextView"
+        app:layout_constraintBottom_toTopOf="@id/pengeluaranTextView"
         tools:listitem="@layout/item_pemanfaatan" />
     <TextView
         android:id="@+id/pengeluaranTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="3. Total Pengeluraan : "
+        android:text="3. Total Pengeluaran : "
         android:fontFamily="@font/font"
         android:textSize="16sp"
         android:textStyle="bold"
