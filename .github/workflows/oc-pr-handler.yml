@@ -23,8 +23,6 @@ jobs:
     name: opencode - pr handler
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 40
-    
-
     permissions:
       id-token: write
       contents: write
@@ -53,15 +51,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Cache OpenCode CLI
-        uses: actions/cache@v4
-        id: cache-opencode
-        with:
-          path: ~/.opencode
-          key: opencode-cli-${{ runner.os }}-v1
-
       - name: Install OpenCode CLI
-        if: steps.cache-opencode.outputs.cache-hit != 'true'
         run: |
           curl -fsSL https://opencode.ai/install | bash
 
