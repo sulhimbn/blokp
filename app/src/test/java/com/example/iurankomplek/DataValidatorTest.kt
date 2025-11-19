@@ -149,30 +149,90 @@ class DataValidatorTest {
     @Test
     fun `formatCurrency should return formatted currency for valid positive amount`() {
         val result = DataValidator.formatCurrency(1000)
-        assertEquals("Iuran Perwarga Rp.1,000", result)
+        assertEquals("Rp.1,000", result)
     }
 
     @Test
     fun `formatCurrency should return formatted currency for zero amount`() {
         val result = DataValidator.formatCurrency(0)
-        assertEquals("Iuran Perwarga Rp.0", result)
+        assertEquals("Rp.0", result)
     }
 
     @Test
     fun `formatCurrency should return formatted currency for zero when amount is null`() {
         val result = DataValidator.formatCurrency(null)
-        assertEquals("Iuran Perwarga Rp.0", result)
+        assertEquals("Rp.0", result)
     }
 
     @Test
     fun `formatCurrency should return formatted currency for zero when amount is negative`() {
         val result = DataValidator.formatCurrency(-100)
-        assertEquals("Iuran Perwarga Rp.0", result)
+        assertEquals("Rp.0", result)
     }
 
     @Test
     fun `formatCurrency should return formatted currency for zero when amount exceeds max safe value`() {
         val result = DataValidator.formatCurrency(1000000000) // 1 billion, exceeds 999999999
+        assertEquals("Rp.0", result)
+    }
+    
+    @Test
+    fun `formatIuranPerwarga should return formatted currency with iuran perwarga label for valid positive amount`() {
+        val result = DataValidator.formatIuranPerwarga(1000)
+        assertEquals("Iuran Perwarga Rp.1,000", result)
+    }
+    
+    @Test
+    fun `formatIuranPerwarga should return formatted currency with iuran perwarga label for zero amount`() {
+        val result = DataValidator.formatIuranPerwarga(0)
         assertEquals("Iuran Perwarga Rp.0", result)
+    }
+    
+    @Test
+    fun `formatIuranPerwarga should return formatted currency with iuran perwarga label for zero when amount is null`() {
+        val result = DataValidator.formatIuranPerwarga(null)
+        assertEquals("Iuran Perwarga Rp.0", result)
+    }
+    
+    @Test
+    fun `formatIuranPerwarga should return formatted currency with iuran perwarga label for zero when amount is negative`() {
+        val result = DataValidator.formatIuranPerwarga(-100)
+        assertEquals("Iuran Perwarga Rp.0", result)
+    }
+    
+    @Test
+    fun `formatIuranPerwarga should return formatted currency with iuran perwarga label for zero when amount exceeds max safe value`() {
+        val result = DataValidator.formatIuranPerwarga(1000000000) // 1 billion, exceeds 999999999
+        assertEquals("Iuran Perwarga Rp.0", result)
+    }
+    
+    @Test
+    fun `formatTotalIuranIndividu should return formatted currency with total iuran individu label for valid positive amount`() {
+        val result = DataValidator.formatTotalIuranIndividu(1000)
+        assertEquals("Total Iuran Individu Rp.1,000", result)
+    }
+    
+    @Test
+    fun `formatTotalIuranIndividu should return formatted currency with total iuran individu label for zero amount`() {
+        val result = DataValidator.formatTotalIuranIndividu(0)
+        assertEquals("Total Iuran Individu Rp.0", result)
+    }
+    
+    @Test
+    fun `formatTotalIuranIndividu should return formatted currency with total iuran individu label for zero when amount is null`() {
+        val result = DataValidator.formatTotalIuranIndividu(null)
+        assertEquals("Total Iuran Individu Rp.0", result)
+    }
+    
+    @Test
+    fun `formatTotalIuranIndividu should return formatted currency with total iuran individu label for zero when amount is negative`() {
+        val result = DataValidator.formatTotalIuranIndividu(-100)
+        assertEquals("Total Iuran Individu Rp.0", result)
+    }
+    
+    @Test
+    fun `formatTotalIuranIndividu should return formatted currency with total iuran individu label for zero when amount exceeds max safe value`() {
+        val result = DataValidator.formatTotalIuranIndividu(1000000000) // 1 billion, exceeds 999999999
+        assertEquals("Total Iuran Individu Rp.0", result)
     }
 }

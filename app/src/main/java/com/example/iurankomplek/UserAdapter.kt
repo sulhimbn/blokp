@@ -73,11 +73,11 @@ override fun onBindViewHolder(holder: ListViewHolder, position: Int){
           // Safely display address using validator
           holder.tvAddress.text = DataValidator.sanitizeAddress(user.alamat)
           
-          // Safely display iuran perwarga with validation
-          holder.tvIuranPerwarga.text = DataValidator.formatCurrency(user.iuran_perwarga)
+           // Safely display iuran perwarga with validation
+           holder.tvIuranPerwarga.text = DataValidator.formatIuranPerwarga(user.iuran_perwarga)
           
-          // Safely display total iuran individu with validation
-          holder.tvTotalIuranIndividu.text = DataValidator.formatCurrency(user.total_iuran_individu)
+           // Safely display total iuran individu with validation
+           holder.tvTotalIuranIndividu.text = DataValidator.formatTotalIuranIndividu(user.total_iuran_individu)
       }
 
     class ListViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
