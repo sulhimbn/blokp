@@ -52,13 +52,12 @@ class UserAdapter(private var users: MutableList<DataItem>):
      override fun onBindViewHolder(holder: ListViewHolder, position: Int){
          val user = users[position]
          
-         // Load avatar image with error handling
-         val avatarUrl = user.avatar.takeIf { it.isNotBlank() }
-         Glide.with(holder.itemView.context)
-             .load(avatarUrl)
-             .apply(RequestOptions().override(80, 80).placeholder(R.drawable.icon_avatar).error(R.drawable.icon_avatar))
-             .transform(CircleCrop())
-             .into(holder.tvAvatar)
+          // Load avatar image with proper caching and error handling using ImageLoader utility
+          com.example.iurankomplek.utils.ImageLoader.loadCircularImage(
+              context = holder.itemView.context,
+              imageView = holder.tvAvatar,
+              url = user.avatar
+          )
          
          // Safely construct and display user name
          val userName = mutableListOf<String>().apply {
