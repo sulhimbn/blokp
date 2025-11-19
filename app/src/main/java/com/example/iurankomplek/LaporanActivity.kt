@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.model.PemanfaatanResponse
 import com.example.iurankomplek.network.ApiConfig
+import com.example.iurankomplek.utils.DataValidator
 import com.example.iurankomplek.utils.NetworkUtils
 import retrofit2.Call
 import retrofit2.Callback
@@ -59,27 +60,35 @@ class LaporanActivity : AppCompatActivity() {
                               return
                           }
                           
-                          // Validate financial data to prevent calculations with invalid values
-                          var totalIuranBulanan = 0
-                          var totalPengeluaran = 0
-                          var totalIuranIndividu = 0
+// Validate financial data to prevent calculations with invalid values
+                           var totalIuranBulanan = 0
+                           var totalPengeluaran = 0
+                           var totalIuranIndividu = 0
 
-                          for (dataItem in dataArray) {
-                              // Validate that financial values are non-negative
-                              if (dataItem.iuran_perwarga < 0 || dataItem.pengeluaran_iuran_warga < 0 || dataItem.total_iuran_individu < 0) {
-                                  Toast.makeText(this@LaporanActivity, "Invalid financial data detected", Toast.LENGTH_LONG).show()
-                                  return
-                              }
-                              
-                              totalIuranBulanan += dataItem.iuran_perwarga
-                              totalPengeluaran += dataItem.pengeluaran_iuran_warga
-                              totalIuranIndividu += dataItem.total_iuran_individu * 3
-                          }
+                           for (dataItem in dataArray) {
+                               // Validate that financial values are within safe ranges
+                               if (dataItem.iuran_perwarga < 0 || dataItem.pengeluaran_iuran_warga < 0 || 
+                                   dataItem.total_iuran_individu < 0 || dataItem.iuran_perwarga > 999999999 || 
+                                   dataItem.pengeluaran_iuran_warga > 999999999 || dataItem.total_iuran_individu > 999999999) {
+                                   Toast.makeText(this@LaporanActivity, "Invalid financial data detected", Toast.LENGTH_LONG).show()
+                                   return
+                               }
+                               
+                               totalIuranBulanan += dataItem.iuran_perwarga
+                               totalPengeluaran += dataItem.pengeluaran_iuran_warga
+                               totalIuranIndividu += dataItem.total_iuran_individu * 3
+                           }
 
-                          val rekapIuran = totalIuranIndividu - totalPengeluaran
-                          jumlahIuranBulananTextView.text = "1. Jumlah Iuran Bulanan : $totalIuranBulanan"
-                          pengeluaranTextView.text = "3. Total Pengeluaran : $totalPengeluaran"
-                          totalIuranTextView.text = "4. Rekap Total Iuran : $rekapIuran"
+                           // Additional validation for calculated values to prevent overflow
+                           if (totalIuranBulanan > 999999999 || totalPengeluaran > 999999999 || totalIuranIndividu > 999999999) {
+                               Toast.makeText(this@LaporanActivity, "Financial calculation overflow detected", Toast.LENGTH_LONG).show()
+                               return
+                           }
+
+                           val rekapIuran = totalIuranIndividu - totalPengeluaran
+                           jumlahIuranBulananTextView.text = "1. Jumlah Iuran Bulanan : " + DataValidator.formatCurrency(totalIuranBulanan)
+                           pengeluaranTextView.text = "3. Total Pengeluaran : " + DataValidator.formatCurrency(totalPengeluaran)
+                           totalIuranTextView.text = "4. Rekap Total Iuran : " + DataValidator.formatCurrency(rekapIuran)
                           // Set data pemanfaatan pada adapter
                           adapter.setPemanfaatan(dataArray)
 
