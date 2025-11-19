@@ -58,13 +58,16 @@
     <!-- TextView untuk Pengeluaran -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_laporan"
-        android:layout_width="404dp"
-        android:layout_height="60dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:background="@color/peach"
         android:fontFamily="@font/font"
         android:padding="2dp"
+        android:minHeight="60dp"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/pemanfaatanTextView"
+        app:layout_constraintBottom_toTopOf="@id/pengeluaranTextView"
         tools:listitem="@layout/item_pemanfaatan" />
     <TextView
         android:id="@+id/pengeluaranTextView"
