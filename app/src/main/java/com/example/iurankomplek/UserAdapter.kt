@@ -10,6 +10,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
 import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.utils.ImageLoader
 
 class UserAdapter(private var users: MutableList<DataItem>):
     RecyclerView.Adapter<UserAdapter.ListViewHolder>(){
@@ -49,16 +50,15 @@ class UserAdapter(private var users: MutableList<DataItem>):
     
     override fun getItemCount(): Int = users.size
     
-     override fun onBindViewHolder(holder: ListViewHolder, position: Int){
-         val user = users[position]
-         
-         // Load avatar image with error handling
-         val avatarUrl = user.avatar.takeIf { it.isNotBlank() }
-         Glide.with(holder.itemView.context)
-             .load(avatarUrl)
-             .apply(RequestOptions().override(80, 80).placeholder(R.drawable.icon_avatar).error(R.drawable.icon_avatar))
-             .transform(CircleCrop())
-             .into(holder.tvAvatar)
+override fun onBindViewHolder(holder: ListViewHolder, position: Int){
+          val user = users[position]
+          
+          // Load avatar image with proper caching and error handling
+          ImageLoader.loadCircularImage(
+              context = holder.itemView.context,
+              imageView = holder.tvAvatar,
+              url = user.avatar
+          )
          
          // Safely construct and display user name
          val userName = mutableListOf<String>().apply {
