@@ -44,16 +44,28 @@ class MainActivity : AppCompatActivity() {
              override fun onResponse(call: Call<UserResponse>, response: Response<UserResponse>) {
                   if (response.isSuccessful) {
                       val responseBody = response.body()
-                      if (responseBody != null && responseBody.data != null) {
-                          val dataArray = responseBody.data
-                          if (dataArray.isNotEmpty()) {
-                              adapter.setUsers(dataArray)
-                          } else {
-                              Toast.makeText(this@MainActivity, "No users available", Toast.LENGTH_LONG).show()
-                          }
-                      } else {
-                          Toast.makeText(this@MainActivity, "Invalid response format", Toast.LENGTH_LONG).show()
-                      }
+                       if (responseBody != null && responseBody.data != null) {
+                           val dataArray = responseBody.data
+                           // Validate the data array before passing to adapter to prevent potential security issues
+                           val validatedData = dataArray.map { user ->
+                               // Ensure required fields are properly formatted to prevent injection attacks
+                               user.copy(
+                                   first_name = DataValidator.sanitizeName(user.first_name),
+                                   last_name = DataValidator.sanitizeName(user.last_name),
+                                   email = DataValidator.sanitizeEmail(user.email),
+                                   alamat = DataValidator.sanitizeAddress(user.alamat),
+                                   avatar = if (DataValidator.isValidUrl(user.avatar)) user.avatar else ""
+                               )
+                           }
+                           
+                           if (validatedData.isNotEmpty()) {
+                               adapter.setUsers(validatedData)
+                           } else {
+                               Toast.makeText(this@MainActivity, "No users available", Toast.LENGTH_LONG).show()
+                           }
+                       } else {
+                           Toast.makeText(this@MainActivity, "Invalid response format", Toast.LENGTH_LONG).show()
+                       }
                   } else {
                       if (currentRetryCount < maxRetries) {
                           Handler(Looper.getMainLooper()).postDelayed({
