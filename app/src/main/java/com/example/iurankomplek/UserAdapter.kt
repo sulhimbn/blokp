@@ -31,12 +31,14 @@ class UserAdapter(private var users: MutableList<DataItem>):
         diffResult.dispatchUpdatesTo(this)
     }
     
-    fun addUser(newUser: DataItem?) {
-        newUser?.let {
-            users.add(it)
-            notifyItemInserted(users.lastIndex)
-        }
-    }
+     fun addUser(newUser: DataItem?) {
+         newUser?.let { user ->
+             if (user.email.isNotBlank() && user.first_name.isNotBlank()) {
+                 users.add(user)
+                 notifyItemInserted(users.lastIndex)
+             }
+         }
+     }
     
     fun clear(){
         val size = users.size
