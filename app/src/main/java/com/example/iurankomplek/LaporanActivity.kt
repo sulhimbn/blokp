@@ -15,12 +15,10 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class LaporanActivity : AppCompatActivity() {
-    private lateinit var adapter: PemanfaatanAdapter
+    private lateinit var pemanfaatanAdapter: PemanfaatanAdapter
+    private lateinit var summaryAdapter: LaporanSummaryAdapter
     private lateinit var rv_laporan: RecyclerView
-    private lateinit var IuranPerwargaTextView: TextView
-    private lateinit var jumlahIuranBulananTextView: TextView
-    private lateinit var totalIuranTextView: TextView
-    private lateinit var pengeluaranTextView: TextView
+    private lateinit var rv_summary: RecyclerView
     
     private var retryCount = 0
     private val maxRetries = 3
@@ -28,12 +26,13 @@ class LaporanActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_laporan)
         rv_laporan = findViewById(R.id.rv_laporan)
-        jumlahIuranBulananTextView = findViewById(R.id.jumlahIuranBulananTextView)
-        totalIuranTextView = findViewById(R.id.totalIuranTextView)
-        pengeluaranTextView = findViewById(R.id.pengeluaranTextView)
-        adapter = PemanfaatanAdapter(mutableListOf())
+        rv_summary = findViewById(R.id.rv_summary)
+        pemanfaatanAdapter = PemanfaatanAdapter(mutableListOf())
+        summaryAdapter = LaporanSummaryAdapter(null)
         rv_laporan.layoutManager = LinearLayoutManager(this)
-        rv_laporan.adapter = adapter
+        rv_laporan.adapter = pemanfaatanAdapter
+        rv_summary.layoutManager = LinearLayoutManager(this)
+        rv_summary.adapter = summaryAdapter
         getPemanfaatan()
     }
     private fun getPemanfaatan(currentRetryCount: Int = 0) {
@@ -76,12 +75,20 @@ class LaporanActivity : AppCompatActivity() {
                               totalIuranIndividu += dataItem.total_iuran_individu * 3
                           }
 
-                          val rekapIuran = totalIuranIndividu - totalPengeluaran
-                          jumlahIuranBulananTextView.text = "1. Jumlah Iuran Bulanan : $totalIuranBulanan"
-                          pengeluaranTextView.text = "3. Total Pengeluaran : $totalPengeluaran"
-                          totalIuranTextView.text = "4. Rekap Total Iuran : $rekapIuran"
-                          // Set data pemanfaatan pada adapter
-                          adapter.setPemanfaatan(dataArray)
+                           val rekapIuran = totalIuranIndividu - totalPengeluaran
+                           val summaryData = LaporanSummaryData(
+                               iuranPerwargaText = "1. Iuran Perwarga : ${dataArray.size} warga",
+                               jumlahIuranBulananText = "2. Jumlah Iuran Bulanan : $totalIuranBulanan",
+                               totalIuranRekapText = "3. Total Iuran (Rekap) : $rekapIuran",
+                               pengeluaranText = "4. Pengeluaran Iuran : $totalPengeluaran",
+                               pemanfaatanText = "5. Pemanfaatan Iuran : ${dataArray.size} item"
+                           )
+                           
+                           // Update the summary adapter with new data
+                           summaryAdapter.setSummaryData(summaryData)
+                           
+                           // Set data pemanfaatan pada adapter
+                           pemanfaatanAdapter.setPemanfaatan(dataArray)
 
                       } else {
                           Toast.makeText(this@LaporanActivity, "Invalid response format", Toast.LENGTH_LONG).show()

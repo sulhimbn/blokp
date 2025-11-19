@@ -21,79 +21,27 @@
         android:background="@color/green"
         android:textColor="@android:color/white"
         app:layout_constraintTop_toTopOf="parent" />
-    <!-- TextView untuk Jumlah Iuran Bulanan -->
-    <TextView
-        android:id="@+id/jumlahIuranBulananTextView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="1. Jumlah Iuran Bulanan : "
-        android:fontFamily="@font/font"
-        android:textSize="16sp"
-        android:padding="15dp"
-        android:textStyle="bold"
-        android:gravity="start"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textView1"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp" />
-    <!-- RecyclerView untuk menampilkan daftar -->
-    <!-- TextView untuk Pemanfaatan -->
-    <TextView
-        android:id="@+id/pemanfaatanTextView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="2. Pemanfaatan : "
-        android:fontFamily="@font/font"
-        android:textSize="16sp"
-        android:paddingBottom="10dp"
-
-        android:textStyle="bold"
-        android:gravity="start"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/jumlahIuranBulananTextView"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp" />
-    <!-- TextView untuk Pengeluaran -->
+    <!-- RecyclerView untuk menampilkan summary laporan -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_laporan"
-        android:layout_width="404dp"
-        android:layout_height="60dp"
+        android:id="@+id/rv_summary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:background="@color/peach"
         android:fontFamily="@font/font"
         android:padding="2dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/pemanfaatanTextView"
+        app:layout_constraintTop_toBottomOf="@id/textView1"
+        tools:listitem="@layout/item_laporan" />
+    <!-- RecyclerView untuk menampilkan daftar pemanfaatan -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_laporan"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/peach"
+        android:fontFamily="@font/font"
+        android:padding="2dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rv_summary"
+        app:layout_constraintBottom_toBottomOf="parent"
         tools:listitem="@layout/item_pemanfaatan" />
-    <TextView
-        android:id="@+id/pengeluaranTextView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="3. Total Pengeluraan : "
-        android:fontFamily="@font/font"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:gravity="start"
-        android:padding="20dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/rv_laporan"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp" />
-    <!-- TextView untuk Total Iuran -->
-    <TextView
-        android:id="@+id/totalIuranTextView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/font"
-        android:gravity="start"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:text="4. Rekap Total Iuran : "
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/pengeluaranTextView" />
 </androidx.constraintlayout.widget.ConstraintLayout>
