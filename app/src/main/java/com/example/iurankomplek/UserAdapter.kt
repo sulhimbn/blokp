@@ -10,6 +10,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
 import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.utils.DataValidator
 
 class UserAdapter(private var users: MutableList<DataItem>):
     RecyclerView.Adapter<UserAdapter.ListViewHolder>(){
@@ -49,38 +50,32 @@ class UserAdapter(private var users: MutableList<DataItem>):
     
     override fun getItemCount(): Int = users.size
     
-     override fun onBindViewHolder(holder: ListViewHolder, position: Int){
-         val user = users[position]
-         
-         // Load avatar image with error handling
-         val avatarUrl = user.avatar.takeIf { it.isNotBlank() }
-         Glide.with(holder.itemView.context)
-             .load(avatarUrl)
-             .apply(RequestOptions().override(80, 80).placeholder(R.drawable.icon_avatar).error(R.drawable.icon_avatar))
-             .transform(CircleCrop())
-             .into(holder.tvAvatar)
-         
-         // Safely construct and display user name
-         val userName = mutableListOf<String>().apply {
-             if (user.first_name.isNotBlank()) add(user.first_name)
-             if (user.last_name.isNotBlank()) add(user.last_name)
-         }.joinToString(" ")
-         holder.tvUserName.text = userName.ifEmpty { "Unknown User" }
-         
-         // Safely display email
-         holder.tvEmail.text = user.email.takeIf { it.isNotBlank() } ?: "No email"
-         
-         // Safely display address
-         holder.tvAddress.text = user.alamat.takeIf { it.isNotBlank() } ?: "No address"
-         
-         // Safely display iuran perwarga with validation
-         val iuranPerwargaValue = if (user.iuran_perwarga >= 0) user.iuran_perwarga else 0
-         holder.tvIuranPerwarga.text = "Iuran Perwarga Rp.$iuranPerwargaValue"
-         
-         // Safely display total iuran individu with validation
-         val totalIuranIndividuValue = if (user.total_iuran_individu >= 0) user.total_iuran_individu else 0
-         holder.tvTotalIuranIndividu.text = "Total Iuran Individu Rp.$totalIuranIndividuValue"
-     }
+override fun onBindViewHolder(holder: ListViewHolder, position: Int){
+          val user = users[position]
+          
+          // Load avatar image with error handling
+          val avatarUrl = user.avatar.takeIf { it.isNotBlank() } ?: R.drawable.icon_avatar
+          Glide.with(holder.itemView.context)
+              .load(avatarUrl)
+              .apply(RequestOptions().override(80, 80).placeholder(R.drawable.icon_avatar).error(R.drawable.icon_avatar))
+              .transform(CircleCrop())
+              .into(holder.tvAvatar)
+          
+          // Safely display user name with validation
+          holder.tvUserName.text = "${DataValidator.sanitizeName(user.first_name)} ${DataValidator.sanitizeName(user.last_name)}"
+          
+          // Safely display email with validation
+          holder.tvEmail.text = DataValidator.sanitizeEmail(user.email)
+          
+          // Safely display address with validation
+          holder.tvAddress.text = DataValidator.sanitizeAddress(user.alamat)
+          
+          // Safely display iuran perwarga with validation
+          holder.tvIuranPerwarga.text = DataValidator.formatCurrency(user.iuran_perwarga)
+          
+          // Safely display total iuran individu with validation
+          holder.tvTotalIuranIndividu.text = DataValidator.formatCurrency(user.total_iuran_individu)
+      }
 
     class ListViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
         var tvUserName: TextView = itemView.findViewById(R.id.itemName)
