@@ -13,12 +13,10 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
     private lateinit var adapter: UserAdapter
     private lateinit var rv_users: RecyclerView
     
-    private var retryCount = 0
-    private val maxRetries = 3
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -28,51 +26,24 @@ class MainActivity : AppCompatActivity() {
         rv_users.adapter = adapter
         getUser()
     }
-    private fun getUser(currentRetryCount: Int = 0) {
-        // Check network connectivity before making API call
-        if (!NetworkUtils.isNetworkAvailable(this)) {
-            if (currentRetryCount == 0) {
-                Toast.makeText(this, "No internet connection. Please check your network settings.", Toast.LENGTH_LONG).show()
-            }
-            return
-        }
-        
-        val apiService = ApiConfig.getApiService()
-        val client = apiService.getUsers()
-         client.enqueue(object : Callback<UserResponse> {
-             override fun onResponse(call: Call<UserResponse>, response: Response<UserResponse>) {
-                  if (response.isSuccessful) {
-                      val responseBody = response.body()
-                      if (responseBody != null && responseBody.data != null) {
-                          val dataArray = responseBody.data
-                          if (dataArray.isNotEmpty()) {
-                              adapter.setUsers(dataArray)
-                          } else {
-                              Toast.makeText(this@MainActivity, "No users available", Toast.LENGTH_LONG).show()
-                          }
-                      } else {
-                          Toast.makeText(this@MainActivity, "Invalid response format", Toast.LENGTH_LONG).show()
-                      }
-                  } else {
-                      if (currentRetryCount < maxRetries) {
-                          Handler(Looper.getMainLooper()).postDelayed({
-                              getUser(currentRetryCount + 1)
-                          }, 1000L * (currentRetryCount + 1)) // Exponential backoff
-                      } else {
-                          Toast.makeText(this@MainActivity, "Failed to retrieve data after ${maxRetries + 1} attempts. Please check your connection and try again.", Toast.LENGTH_LONG).show()
-                      }
-                  }
-             }
-            override fun onFailure(call: Call<UserResponse>, t: Throwable) {
-                if (currentRetryCount < maxRetries) {
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        getUser(currentRetryCount + 1)
-                    }, 1000L * (currentRetryCount + 1)) // Exponential backoff
-                } else {
-                    Toast.makeText(this@MainActivity, "Network error: ${t.message}. Failed after ${maxRetries + 1} attempts. Please check your connection and try again.", Toast.LENGTH_LONG).show()
-                    t.printStackTrace()
+    
+    private fun getUser() {
+        executeWithRetry(
+            operation = { ApiConfig.getApiService().getUsers() },
+            onSuccess = { response ->
+                response.data?.let { users ->
+                    if (users.isNotEmpty()) {
+                        adapter.setUsers(users)
+                    } else {
+                        Toast.makeText(this, "No users available", Toast.LENGTH_LONG).show()
+                    }
+                } ?: run {
+                    Toast.makeText(this, "Invalid response format", Toast.LENGTH_LONG).show()
                 }
+            },
+            onError = { error ->
+                Toast.makeText(this, error, Toast.LENGTH_LONG).show()
             }
-        })
+        )
     }
 }
