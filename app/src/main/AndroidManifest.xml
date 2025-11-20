@@ -22,9 +22,6 @@
             android:name=".MainActivity"
             android:exported="false" />
         <activity
-            android:name=".CommunicationActivity"
-            android:exported="false" />
-        <activity
             android:name=".MenuActivity"
             android:exported="true">
             <intent-filter>
@@ -32,6 +29,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".PaymentActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CommunicationActivity"
+            android:exported="false" />
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

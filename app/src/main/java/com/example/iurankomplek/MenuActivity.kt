@@ -1,0 +1,39 @@
+package com.example.iurankomplek
+
+import android.content.Intent
+import android.os.Build
+import android.os.Bundle
+import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowInsetsControllerCompat
+import com.example.iurankomplek.databinding.ActivityMenuBinding
+
+class MenuActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMenuBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMenuBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        setupFullscreenMode()
+        setupClickListeners()
+    }
+
+    private fun setupFullscreenMode() {
+        WindowInsetsControllerCompat(window, window.decorView).let { controller ->
+            controller.hide(WindowInsetsControllerCompat.Type.statusBars())
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+    }
+
+    private fun setupClickListeners() {
+        binding.cdMenu1.setOnClickListener {
+            startActivity(Intent(this, MainActivity::class.java))
+        }
+
+        binding.cdMenu2.setOnClickListener {
+            startActivity(Intent(this, LaporanActivity::class.java))
+        }
+    }
+}
