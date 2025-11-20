@@ -30,12 +30,13 @@ class PaymentActivity : AppCompatActivity() {
     }
     
     private fun setupPaymentProcessing() {
-        // Note: In a real app, these would be properly injected
+        // Note: In a real app, these would be properly injected via DI framework
         // For this implementation, we're creating simplified versions
-        val mockPaymentGateway = MockPaymentGateway()
+        val apiService = com.example.iurankomplek.network.ApiConfig.getApiService()
+        val realPaymentGateway = com.example.iurankomplek.payment.RealPaymentGateway(apiService)
         val transactionDatabase = com.example.iurankomplek.transaction.TransactionDatabase.getDatabase(this)
         val transactionDao = transactionDatabase.transactionDao()
-        transactionRepository = TransactionRepository(mockPaymentGateway, transactionDao)
+        transactionRepository = TransactionRepository(realPaymentGateway, transactionDao)
         receiptGenerator = ReceiptGenerator()
         paymentViewModel = PaymentViewModel(transactionRepository, receiptGenerator)
     }

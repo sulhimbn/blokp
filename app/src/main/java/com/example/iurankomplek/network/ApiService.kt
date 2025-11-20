@@ -4,6 +4,9 @@ import com.example.iurankomplek.model.PemanfaatanResponse
 import com.example.iurankomplek.model.Announcement
 import com.example.iurankomplek.model.Message
 import com.example.iurankomplek.model.CommunityPost
+import com.example.iurankomplek.model.PaymentResponse
+import com.example.iurankomplek.model.PaymentStatusResponse
+import com.example.iurankomplek.model.PaymentConfirmationResponse
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -35,4 +38,19 @@ interface ApiService {
     
     @POST("community-posts")
     fun createCommunityPost(@Query("authorId") authorId: String, @Query("title") title: String, @Query("content") content: String, @Query("category") category: String): Call<CommunityPost>
+    
+    // Payment endpoints
+    @POST("payments/initiate")
+    fun initiatePayment(
+        @Query("amount") amount: String,
+        @Query("description") description: String,
+        @Query("customerId") customerId: String,
+        @Query("paymentMethod") paymentMethod: String
+    ): Call<PaymentResponse>
+    
+    @GET("payments/{id}/status")
+    fun getPaymentStatus(@Path("id") id: String): Call<PaymentStatusResponse>
+    
+    @POST("payments/{id}/confirm")
+    fun confirmPayment(@Path("id") id: String): Call<PaymentConfirmationResponse>
 }
