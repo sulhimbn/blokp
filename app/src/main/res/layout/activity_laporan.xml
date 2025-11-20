@@ -21,6 +21,7 @@
         android:background="@color/green"
         android:textColor="@android:color/white"
         app:layout_constraintTop_toTopOf="parent" />
+
     <!-- RecyclerView for summary items -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_summary"
