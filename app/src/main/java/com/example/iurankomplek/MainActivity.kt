@@ -3,64 +3,63 @@ package com.example.iurankomplek
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityMainBinding
+import com.example.iurankomplek.data.repository.UserRepositoryImpl
 import com.example.iurankomplek.network.ApiConfig
-import com.example.iurankomplek.utils.DataValidator
+import com.example.iurankomplek.utils.UiState
+import com.example.iurankomplek.viewmodel.UserViewModel
+import kotlinx.coroutines.launch
 
 class MainActivity : BaseActivity() {
     private lateinit var adapter: UserAdapter
     private lateinit var binding: ActivityMainBinding
+    private lateinit var viewModel: UserViewModel
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         
+        // Initialize ViewModel with repository
+        val userRepository = UserRepositoryImpl(ApiConfig.getApiService())
+        viewModel = ViewModelProvider(this, UserViewModel.Factory(userRepository))[UserViewModel::class.java]
+        
         adapter = UserAdapter(mutableListOf())
         binding.rvUsers.layoutManager = LinearLayoutManager(this)
         binding.rvUsers.adapter = adapter
         
-        // Load users with retry logic from BaseActivity and progress indicator
-        getUser()
+        observeUserState()
+        viewModel.loadUsers()
     }
     
-    private fun getUser() {
-        // Show progress bar when starting the API call
-        binding.progressBar.visibility = View.VISIBLE
-        
-        executeWithRetry(
-            operation = { ApiConfig.getApiService().getUsers() },
-            onSuccess = { response ->
-                // Hide progress bar after successful response
-                binding.progressBar.visibility = View.GONE
-                
-                response.data?.let { users ->
-                    if (users.isNotEmpty()) {
-                        // Validate the data array before passing to adapter to prevent potential security issues
-                        val validatedData = users.map { user ->
-                            // Ensure required fields are properly formatted to prevent injection attacks
-                            user.copy(
-                                first_name = DataValidator.sanitizeName(user.first_name),
-                                last_name = DataValidator.sanitizeName(user.last_name),
-                                email = DataValidator.sanitizeEmail(user.email),
-                                alamat = DataValidator.sanitizeAddress(user.alamat),
-                                avatar = if (DataValidator.isValidUrl(user.avatar)) user.avatar else ""
-                            )
-                        }
-                        adapter.setUsers(validatedData)
-                    } else {
-                         Toast.makeText(this, getString(R.string.no_users_available), Toast.LENGTH_LONG).show()
+    private fun observeUserState() {
+        lifecycleScope.launch {
+            viewModel.usersState.collect { state ->
+                when (state) {
+                    is UiState.Loading -> {
+                        binding.progressBar.visibility = View.VISIBLE
                     }
-                } ?: run {
-                     Toast.makeText(this, getString(R.string.invalid_response_format), Toast.LENGTH_LONG).show()
+                    is UiState.Success -> {
+                        binding.progressBar.visibility = View.GONE
+                        state.data.data?.let { users ->
+                            if (users.isNotEmpty()) {
+                                adapter.setUsers(users)
+                            } else {
+                                Toast.makeText(this@MainActivity, getString(R.string.no_users_available), Toast.LENGTH_LONG).show()
+                            }
+                        } ?: run {
+                            Toast.makeText(this@MainActivity, getString(R.string.invalid_response_format), Toast.LENGTH_LONG).show()
+                        }
+                    }
+                    is UiState.Error -> {
+                        binding.progressBar.visibility = View.GONE
+                        Toast.makeText(this@MainActivity, state.error, Toast.LENGTH_LONG).show()
+                    }
                 }
-            },
-            onError = { error ->
-                // Hide progress bar after final failure
-                binding.progressBar.visibility = View.GONE
-                Toast.makeText(this, error, Toast.LENGTH_LONG).show()
             }
-        )
+        }
     }
 }
