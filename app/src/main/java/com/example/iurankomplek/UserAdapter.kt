@@ -48,29 +48,31 @@ class UserAdapter(private var users: MutableList<DataItem>):
     override fun onBindViewHolder(holder: ListViewHolder, position: Int){
         val user = users[position]
         
-        // Load avatar image with error handling
-        val avatarUrl = user.avatar.takeIf { it.isNotBlank() }
+        // Load avatar image with error handling and validation
+        val avatarUrl = if (DataValidator.isValidUrl(user.avatar)) user.avatar else null
         Glide.with(holder.binding.root.context)
             .load(avatarUrl)
             .apply(RequestOptions().override(80, 80).placeholder(R.drawable.icon_avatar).error(R.drawable.icon_avatar))
             .transform(CircleCrop())
             .into(holder.binding.itemAvatar)
         
-        // Safely construct and display user name
-        val userName = "${DataValidator.sanitizeName(user.first_name)} ${DataValidator.sanitizeName(user.last_name)}"
-        holder.binding.itemName.text = userName.ifEmpty { "Unknown User" }
+        // Safely construct and display user name using validator
+        val userName = DataValidator.sanitizeName("${DataValidator.sanitizeName(user.first_name)} ${DataValidator.sanitizeName(user.last_name)}".trim())
+        holder.binding.itemName.text = userName
         
-        // Safely display email
+        // Safely display email using validator
         holder.binding.itemEmail.text = DataValidator.sanitizeEmail(user.email)
         
-        // Safely display address
+        // Safely display address using validator
         holder.binding.itemAddress.text = DataValidator.sanitizeAddress(user.alamat)
         
         // Safely display iuran perwarga with validation
-        holder.binding.itemIuranPerwarga.text = DataValidator.formatCurrency(user.iuran_perwarga)
+        val iuranPerwargaValue = DataValidator.formatCurrency(user.iuran_perwarga)
+        holder.binding.itemIuranPerwarga.text = "Iuran Perwarga $iuranPerwargaValue"
         
         // Safely display total iuran individu with validation
-        holder.binding.itemIuranIndividu.text = DataValidator.formatCurrency(user.total_iuran_individu)
+        val totalIuranIndividuValue = DataValidator.formatCurrency(user.total_iuran_individu)
+        holder.binding.itemIuranIndividu.text = "Total Iuran Individu $totalIuranIndividuValue"
     }
     }
 

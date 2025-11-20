@@ -42,19 +42,23 @@ class MainActivity : AppCompatActivity() {
         val client = apiService.getUsers()
          client.enqueue(object : Callback<UserResponse> {
              override fun onResponse(call: Call<UserResponse>, response: Response<UserResponse>) {
-if (response.isSuccessful) {
-                       val responseBody = response.body()
+                  if (response.isSuccessful) {
+                      val responseBody = response.body()
                        if (responseBody != null && responseBody.data != null) {
                            val dataArray = responseBody.data
-                           if (dataArray.isNotEmpty()) {
-                               // Validate data before setting to adapter
-                               val validatedData = dataArray.map { user ->
-                                   // Basic validation to prevent null or invalid data
-                                   if (user.email.isBlank() || !user.email.contains("@")) {
-                                       Toast.makeText(this@MainActivity, "Invalid user data detected", Toast.LENGTH_LONG).show()
-                                   }
-                                   user
-                               }
+                           // Validate the data array before passing to adapter to prevent potential security issues
+                           val validatedData = dataArray.map { user ->
+                               // Ensure required fields are properly formatted to prevent injection attacks
+                               user.copy(
+                                   first_name = DataValidator.sanitizeName(user.first_name),
+                                   last_name = DataValidator.sanitizeName(user.last_name),
+                                   email = DataValidator.sanitizeEmail(user.email),
+                                   alamat = DataValidator.sanitizeAddress(user.alamat),
+                                   avatar = if (DataValidator.isValidUrl(user.avatar)) user.avatar else ""
+                               )
+                           }
+                           
+                           if (validatedData.isNotEmpty()) {
                                adapter.setUsers(validatedData)
                            } else {
                                Toast.makeText(this@MainActivity, "No users available", Toast.LENGTH_LONG).show()
@@ -62,7 +66,7 @@ if (response.isSuccessful) {
                        } else {
                            Toast.makeText(this@MainActivity, "Invalid response format", Toast.LENGTH_LONG).show()
                        }
-                   } else {
+                  } else {
                       if (currentRetryCount < maxRetries) {
                           Handler(Looper.getMainLooper()).postDelayed({
                               getUser(currentRetryCount + 1)

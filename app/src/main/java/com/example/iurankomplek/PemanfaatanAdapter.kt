@@ -32,9 +32,9 @@ class PemanfaatanAdapter(private var pemanfaatan: MutableList<DataItem>) :
     override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
         val item = pemanfaatan[position]
         holder.binding.itemPemanfaatan.text = "-" + DataValidator.sanitizePemanfaatan(item.pemanfaatan_iuran) + ":"
-        // Validate that financial values are non-negative before displaying
+        // Validate that financial values are non-negative before displaying and apply security formatting
         val pengeluaranValue = if (item.pengeluaran_iuran_warga >= 0) item.pengeluaran_iuran_warga else 0
-        holder.binding.itemDanaPemanfaatan.text = "Rp.${String.format("%,d", pengeluaranValue)}"
+        holder.binding.itemDanaPemanfaatan.text = DataValidator.formatCurrency(pengeluaranValue)
     }
     
     class ListViewHolder(val binding: ItemPemanfaatanBinding): RecyclerView.ViewHolder(binding.root)
