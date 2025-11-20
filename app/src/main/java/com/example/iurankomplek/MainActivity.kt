@@ -10,6 +10,7 @@ import com.example.iurankomplek.databinding.ActivityMainBinding
 import com.example.iurankomplek.data.repository.UserRepositoryImpl
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.utils.UiState
+import com.example.iurankomplek.utils.DataValidator
 import com.example.iurankomplek.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 
@@ -46,7 +47,28 @@ class MainActivity : BaseActivity() {
                         binding.progressBar.visibility = View.GONE
                         state.data.data?.let { users ->
                             if (users.isNotEmpty()) {
-                                adapter.setUsers(users)
+                                // Validate the data array before passing to adapter to prevent potential security issues
+                                val validatedData = users.map { user ->
+                                    // Use ValidatedDataItem for enhanced validation
+                                    com.example.iurankomplek.model.ValidatedDataItem.fromDataItem(user)
+                                }
+                                // Convert back to regular DataItem for the adapter
+                                val validatedUsers = validatedData.map { item ->
+                                    com.example.iurankomplek.model.DataItem(
+                                        first_name = item.first_name,
+                                        last_name = item.last_name,
+                                        email = item.email,
+                                        alamat = item.alamat,
+                                        iuran_perwarga = item.iuran_perwarga,
+                                        total_iuran_rekap = item.total_iuran_rekap,
+                                        jumlah_iuran_bulanan = item.jumlah_iuran_bulanan,
+                                        total_iuran_individu = item.total_iuran_individu,
+                                        pengeluaran_iuran_warga = item.pengeluaran_iuran_warga,
+                                        pemanfaatan_iuran = item.pemanfaatan_iuran,
+                                        avatar = item.avatar
+                                    )
+                                }
+                                adapter.setUsers(validatedUsers)
                             } else {
                                 Toast.makeText(this@MainActivity, getString(R.string.no_users_available), Toast.LENGTH_LONG).show()
                             }
