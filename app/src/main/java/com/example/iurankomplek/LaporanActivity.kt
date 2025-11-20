@@ -19,25 +19,23 @@ import retrofit2.Response
 class LaporanActivity : AppCompatActivity() {
     private lateinit var adapter: PemanfaatanAdapter
     private lateinit var summaryAdapter: LaporanSummaryAdapter
-    private lateinit var rv_laporan: RecyclerView
-    private lateinit var rv_summary: RecyclerView
+    private lateinit var binding: ActivityLaporanBinding
     
     private var retryCount = 0
     private val maxRetries = 3
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_laporan)
-        rv_laporan = findViewById(R.id.rv_laporan)
-        rv_summary = findViewById(R.id.rv_summary)
+        binding = ActivityLaporanBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         
         adapter = PemanfaatanAdapter(mutableListOf())
         summaryAdapter = LaporanSummaryAdapter(mutableListOf())
         
-        rv_laporan.layoutManager = LinearLayoutManager(this)
-        rv_laporan.adapter = adapter
+        binding.rvLaporan.layoutManager = LinearLayoutManager(this)
+        binding.rvLaporan.adapter = adapter
         
-        rv_summary.layoutManager = LinearLayoutManager(this)
-        rv_summary.adapter = summaryAdapter
+        binding.rvSummary.layoutManager = LinearLayoutManager(this)
+        binding.rvSummary.adapter = summaryAdapter
         getPemanfaatan()
     }
     private fun getPemanfaatan(currentRetryCount: Int = 0) {
@@ -124,51 +122,9 @@ class LaporanActivity : AppCompatActivity() {
                                LaporanSummaryItem("4. Rekap Total Iuran", DataValidator.formatCurrency(rekapIuran))
                            )
                            
-                           summaryAdapter.setItems(summaryItems)
-                           // Set data pemanfaatan pada adapter
-                           adapter.setPemanfaatan(validatedData)
-                          val dataArray = responseBody.data
-                          
-                          if (dataArray.isEmpty()) {
-                              Toast.makeText(this@LaporanActivity, "No financial data available", Toast.LENGTH_LONG).show()
-                              return
-                          }
-                          
-// Validate financial data to prevent calculations with invalid values
-                           var totalIuranBulanan = 0
-                           var totalPengeluaran = 0
-                           var totalIuranIndividu = 0
-
-                           for (dataItem in dataArray) {
-                               // Validate that financial values are non-negative
-                               if (dataItem.iuran_perwarga < 0 || dataItem.pengeluaran_iuran_warga < 0 || dataItem.total_iuran_individu < 0) {
-                                   Toast.makeText(this@LaporanActivity, "Invalid financial data detected", Toast.LENGTH_LONG).show()
-                                   return
-                               }
-                               
-                               totalIuranBulanan += dataItem.iuran_perwarga
-                               totalPengeluaran += dataItem.pengeluaran_iuran_warga
-                               totalIuranIndividu += dataItem.total_iuran_individu * 3
-                           }
-                           
-                           // Additional validation for calculated values
-                           if (totalIuranBulanan < 0 || totalPengeluaran < 0 || totalIuranIndividu < 0) {
-                               Toast.makeText(this@LaporanActivity, "Invalid financial data detected", Toast.LENGTH_LONG).show()
-                               return
-                           }
-
-                           val rekapIuran = totalIuranIndividu - totalPengeluaran
-                           
-                           // Create summary items for the RecyclerView
-                           val summaryItems = listOf(
-                               LaporanSummaryItem("1. Jumlah Iuran Bulanan", "Rp. ${String.format("%,d", totalIuranBulanan)}"),
-                               LaporanSummaryItem("3. Total Pengeluaran", "Rp. ${String.format("%,d", totalPengeluaran)}"),
-                               LaporanSummaryItem("4. Rekap Total Iuran", "Rp. ${String.format("%,d", rekapIuran)}")
-                           )
-                           
-                           summaryAdapter.setItems(summaryItems)
-                           // Set data pemanfaatan pada adapter
-                           adapter.setPemanfaatan(dataArray)
+                            summaryAdapter.setItems(summaryItems)
+                            // Set data pemanfaatan pada adapter
+                            adapter.setPemanfaatan(validatedData)
                       } else {
                           Toast.makeText(this@LaporanActivity, "Invalid response format", Toast.LENGTH_LONG).show()
                       }
