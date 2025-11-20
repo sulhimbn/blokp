@@ -8,7 +8,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import com.example.iurankomplek.BuildConfig
 
 object SecurityConfig {
-    private const val CERTIFICATE_PINNER = "sha256/PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0="
+    private const val CERTIFICATE_PINNER = "sha256/PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=;sha256/BACKUP_CERTIFICATE_PIN_HERE"
     private const val CONNECT_TIMEOUT = 30L
     private const val READ_TIMEOUT = 30L
     
