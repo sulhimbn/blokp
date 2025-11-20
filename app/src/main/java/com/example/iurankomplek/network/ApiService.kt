@@ -7,7 +7,7 @@ import com.example.iurankomplek.model.CommunityPost
 import com.example.iurankomplek.model.PaymentResponse
 import com.example.iurankomplek.model.PaymentStatusResponse
 import com.example.iurankomplek.model.PaymentConfirmationResponse
-import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -15,42 +15,42 @@ import retrofit2.http.Query
 
 interface ApiService {
     @GET("users")
-    fun getUsers(): Call<UserResponse>
+    suspend fun getUsers(): Response<UserResponse>
     
     @GET("pemanfaatan")
-    fun getPemanfaatan(): Call<PemanfaatanResponse>
+    suspend fun getPemanfaatan(): Response<PemanfaatanResponse>
     
     // Communication endpoints
     @GET("announcements")
-    fun getAnnouncements(): Call<List<Announcement>>
+    suspend fun getAnnouncements(): Response<List<Announcement>>
     
     @GET("messages")
-    fun getMessages(@Query("userId") userId: String): Call<List<Message>>
+    suspend fun getMessages(@Query("userId") userId: String): Response<List<Message>>
     
     @GET("messages/{receiverId}")
-    fun getMessagesWithUser(@Path("receiverId") receiverId: String, @Query("senderId") senderId: String): Call<List<Message>>
+    suspend fun getMessagesWithUser(@Path("receiverId") receiverId: String, @Query("senderId") senderId: String): Response<List<Message>>
     
     @POST("messages")
-    fun sendMessage(@Query("senderId") senderId: String, @Query("receiverId") receiverId: String, @Query("content") content: String): Call<Message>
+    suspend fun sendMessage(@Query("senderId") senderId: String, @Query("receiverId") receiverId: String, @Query("content") content: String): Response<Message>
     
     @GET("community-posts")
-    fun getCommunityPosts(): Call<List<CommunityPost>>
+    suspend fun getCommunityPosts(): Response<List<CommunityPost>>
     
     @POST("community-posts")
-    fun createCommunityPost(@Query("authorId") authorId: String, @Query("title") title: String, @Query("content") content: String, @Query("category") category: String): Call<CommunityPost>
+    suspend fun createCommunityPost(@Query("authorId") authorId: String, @Query("title") title: String, @Query("content") content: String, @Query("category") category: String): Response<CommunityPost>
     
     // Payment endpoints
     @POST("payments/initiate")
-    fun initiatePayment(
+    suspend fun initiatePayment(
         @Query("amount") amount: String,
         @Query("description") description: String,
         @Query("customerId") customerId: String,
         @Query("paymentMethod") paymentMethod: String
-    ): Call<PaymentResponse>
+    ): Response<PaymentResponse>
     
     @GET("payments/{id}/status")
-    fun getPaymentStatus(@Path("id") id: String): Call<PaymentStatusResponse>
+    suspend fun getPaymentStatus(@Path("id") id: String): Response<PaymentStatusResponse>
     
     @POST("payments/{id}/confirm")
-    fun confirmPayment(@Path("id") id: String): Call<PaymentConfirmationResponse>
+    suspend fun confirmPayment(@Path("id") id: String): Response<PaymentConfirmationResponse>
 }

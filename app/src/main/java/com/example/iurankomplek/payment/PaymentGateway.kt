@@ -59,3 +59,16 @@ enum class RefundStatus {
     REJECTED,
     COMPLETED
 }
+
+// Extension function to convert PaymentResponse to API model
+fun PaymentResponse.toApiPaymentResponse(): com.example.iurankomplek.model.PaymentResponse {
+    return com.example.iurankomplek.model.PaymentResponse(
+        transactionId = this.transactionId,
+        status = this.status.name,
+        paymentMethod = this.paymentMethod.name,
+        amount = this.amount.toString(),
+        currency = this.currency,
+        transactionTime = this.transactionTime,
+        referenceNumber = this.referenceNumber
+    )
+}
