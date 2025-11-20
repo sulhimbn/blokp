@@ -1,0 +1,68 @@
+[versions]
+agp = "8.1.0"
+kotlin = "1.9.20"
+core-ktx = "1.7.0"
+appcompat = "1.6.1"
+material = "1.12.0"
+constraintlayout = "2.1.4"
+junit = "4.13.2"
+mockito-core = "5.1.1"
+mockito-kotlin = "5.0.0"
+arch-core = "2.2.0"
+kotlinx-coroutines-test = "1.7.3"
+robolectric = "4.10.3"
+androidx-test-ext-junit = "1.1.5"
+espresso-core = "3.5.1"
+espresso-intents = "3.5.1"
+androidx-test-runner = "1.5.2"
+androidx-test-rules = "1.5.0"
+mockwebserver = "4.12.0"
+recyclerview = "1.3.2"
+glide = "4.16.0"
+gson = "2.10.1"
+retrofit = "2.9.0"
+okhttp3 = "4.12.0"
+chucker = "3.3.0"
+room = "2.6.1"
+hilt = "2.48"
+kotlinx-coroutines-android = "1.7.3"
+lifecycle = "2.7.0"
+
+[libraries]
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito-core" }
+mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
+arch-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "arch-core" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-test" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-ext-junit" }
+espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }
+espresso-contrib = { group = "androidx.test.espresso", name = "espresso-contrib", version.ref = "espresso-core" }
+espresso-intents = { group = "androidx.test.espresso", name = "espresso-intents", version.ref = "espresso-intents" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidx-test-runner" }
+androidx-test-rules = { group = "androidx.test", name = "rules", version.ref = "androidx-test-rules" }
+mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "mockwebserver" }
+androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
+glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+okhttp3-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp3" }
+chucker = { group = "com.github.chuckerteam.chucker", name = "library", version.ref = "chucker" }
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinx-coroutines-android" }
+lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
+lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
