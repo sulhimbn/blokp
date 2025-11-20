@@ -8,6 +8,7 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
 import com.example.iurankomplek.databinding.ItemListBinding
 import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.utils.DataValidator
 
 class UserAdapter(private var users: MutableList<DataItem>):
     RecyclerView.Adapter<UserAdapter.ListViewHolder>(){
@@ -56,25 +57,21 @@ class UserAdapter(private var users: MutableList<DataItem>):
             .into(holder.binding.itemAvatar)
         
         // Safely construct and display user name
-        val userName = mutableListOf<String>().apply {
-            if (user.first_name.isNotBlank()) add(user.first_name)
-            if (user.last_name.isNotBlank()) add(user.last_name)
-        }.joinToString(" ")
+        val userName = "${DataValidator.sanitizeName(user.first_name)} ${DataValidator.sanitizeName(user.last_name)}"
         holder.binding.itemName.text = userName.ifEmpty { "Unknown User" }
         
         // Safely display email
-        holder.binding.itemEmail.text = user.email.takeIf { it.isNotBlank() } ?: "No email"
+        holder.binding.itemEmail.text = DataValidator.sanitizeEmail(user.email)
         
         // Safely display address
-        holder.binding.itemAddress.text = user.alamat.takeIf { it.isNotBlank() } ?: "No address"
+        holder.binding.itemAddress.text = DataValidator.sanitizeAddress(user.alamat)
         
         // Safely display iuran perwarga with validation
-        val iuranPerwargaValue = if (user.iuran_perwarga >= 0) user.iuran_perwarga else 0
-        holder.binding.itemIuranPerwarga.text = "Iuran Perwarga Rp.$iuranPerwargaValue"
+        holder.binding.itemIuranPerwarga.text = DataValidator.formatCurrency(user.iuran_perwarga)
         
         // Safely display total iuran individu with validation
-        val totalIuranIndividuValue = if (user.total_iuran_individu >= 0) user.total_iuran_individu else 0
-        holder.binding.itemIuranIndividu.text = "Total Iuran Individu Rp.$totalIuranIndividuValue"
+        holder.binding.itemIuranIndividu.text = DataValidator.formatCurrency(user.total_iuran_individu)
+    }
     }
 
     class ListViewHolder(val binding: ItemListBinding): RecyclerView.ViewHolder(binding.root)
