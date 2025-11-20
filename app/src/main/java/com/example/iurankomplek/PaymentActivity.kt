@@ -1,24 +1,19 @@
 package com.example.iurankomplek
 
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.iurankomplek.databinding.ActivityPaymentBinding
 import com.example.iurankomplek.payment.PaymentMethod
 import com.example.iurankomplek.payment.PaymentRequest
 import com.example.iurankomplek.payment.PaymentViewModel
 import com.example.iurankomplek.receipt.ReceiptGenerator
 import com.example.iurankomplek.payment.MockPaymentGateway
-import com.example.iurankomplek.transaction.TransactionDao
 import com.example.iurankomplek.transaction.TransactionRepository
 import java.math.BigDecimal
 
 class PaymentActivity : AppCompatActivity() {
-    private lateinit var amountEditText: EditText
-    private lateinit var paymentMethodSpinner: Spinner
-    private lateinit var payButton: Button
+    private lateinit var binding: ActivityPaymentBinding
     
     // In a real implementation, these would be injected via Hilt or similar
     private lateinit var transactionRepository: TransactionRepository
@@ -27,17 +22,11 @@ class PaymentActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_payment)
+        binding = ActivityPaymentBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         
-        initViews()
         setupPaymentProcessing()
         setupClickListeners()
-    }
-    
-    private fun initViews() {
-        amountEditText = findViewById(R.id.et_amount)
-        paymentMethodSpinner = findViewById(R.id.spinner_payment_method)
-        payButton = findViewById(R.id.btn_pay)
     }
     
     private fun setupPaymentProcessing() {
@@ -52,13 +41,13 @@ class PaymentActivity : AppCompatActivity() {
     }
     
     private fun setupClickListeners() {
-        payButton.setOnClickListener {
+        binding.btnPay.setOnClickListener {
             processPayment()
         }
     }
     
     private fun processPayment() {
-        val amountText = amountEditText.text.toString()
+        val amountText = binding.etAmount.text.toString()
         if (amountText.isEmpty()) {
             Toast.makeText(this, "Please enter an amount", Toast.LENGTH_SHORT).show()
             return
@@ -66,7 +55,7 @@ class PaymentActivity : AppCompatActivity() {
         
         try {
             val amount = BigDecimal(amountText)
-            val selectedMethod = when (paymentMethodSpinner.selectedItemPosition) {
+            val selectedMethod = when (binding.spinnerPaymentMethod.selectedItemPosition) {
                 0 -> PaymentMethod.CREDIT_CARD
                 1 -> PaymentMethod.BANK_TRANSFER
                 2 -> PaymentMethod.E_WALLET
