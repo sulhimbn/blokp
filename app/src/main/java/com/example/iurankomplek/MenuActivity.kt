@@ -35,5 +35,13 @@ class MenuActivity : AppCompatActivity() {
         binding.cdMenu2.setOnClickListener {
             startActivity(Intent(this, LaporanActivity::class.java))
         }
+        
+        binding.cdMenu3.setOnClickListener {
+            startActivity(Intent(this, CommunicationActivity::class.java))
+        }
+        
+        binding.cdMenu4.setOnClickListener {
+            startActivity(Intent(this, PaymentActivity::class.java))
+        }
     }
 }

@@ -44,6 +44,10 @@ class PaymentActivity : AppCompatActivity() {
         binding.btnPay.setOnClickListener {
             processPayment()
         }
+        
+        binding.btnViewHistory.setOnClickListener {
+            startActivity(android.content.Intent(this, TransactionHistoryActivity::class.java))
+        }
     }
     
     private fun processPayment() {

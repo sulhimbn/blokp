@@ -33,6 +33,9 @@
             android:name=".PaymentActivity"
             android:exported="false" />
         <activity
+            android:name=".TransactionHistoryActivity"
+            android:exported="false" />
+        <activity
             android:name=".CommunicationActivity"
             android:exported="false" />
 

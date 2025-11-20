@@ -30,10 +30,13 @@ class MockPaymentGateway : PaymentGateway {
 
     override suspend fun refundPayment(transactionId: String): Result<RefundResponse> {
         return try {
+            // In a real implementation, this would get the original transaction amount
+            // For mock, we'll generate a refund amount based on the transaction ID
+            val refundAmount = calculateRefundAmount(transactionId)
             val response = RefundResponse(
                 refundId = UUID.randomUUID().toString(),
                 transactionId = transactionId,
-                amount = BigDecimal("0.00"), // Would be actual refund amount in real implementation
+                amount = refundAmount,
                 status = RefundStatus.COMPLETED,
                 refundTime = System.currentTimeMillis(),
                 reason = "Mock refund"
@@ -43,6 +46,15 @@ class MockPaymentGateway : PaymentGateway {
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    private fun calculateRefundAmount(transactionId: String): BigDecimal {
+        // In a real implementation, this would look up the original transaction
+        // For mock, we'll return a value based on the transaction ID
+        val hash = transactionId.hashCode().toString()
+        val amountDigits = hash.takeLast(4) // Take last 4 digits of the hash
+        val amount = if (amountDigits.toIntOrNull() ?: 0 > 0) amountDigits.toInt() else 1000
+        return BigDecimal(amount.toString())
     }
 
     override suspend fun getPaymentStatus(transactionId: String): Result<PaymentStatus> {

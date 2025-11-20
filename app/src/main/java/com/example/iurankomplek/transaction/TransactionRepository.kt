@@ -53,6 +53,28 @@ class TransactionRepository @Inject constructor(
         transactionDao.update(transaction)
     }
 
+    suspend fun refundPayment(transactionId: String, reason: String?): Result<com.example.iurankomplek.payment.RefundResponse> {
+        return try {
+            val refundResult = paymentGateway.refundPayment(transactionId)
+            
+            refundResult.onSuccess { response ->
+                // Update the original transaction status to REFUNDED
+                val originalTransaction = getTransactionById(transactionId)
+                if (originalTransaction != null) {
+                    val refundedTransaction = originalTransaction.copy(
+                        status = com.example.iurankomplek.payment.PaymentStatus.REFUNDED,
+                        updatedAt = java.util.Date()
+                    )
+                    transactionDao.update(refundedTransaction)
+                }
+            }
+            
+            refundResult
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun deleteTransaction(transaction: Transaction) {
         transactionDao.delete(transaction)
     }
