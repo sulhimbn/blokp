@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityLaporanBinding
 import com.example.iurankomplek.model.LaporanSummaryItem
 import com.example.iurankomplek.utils.DataValidator
+import com.example.iurankomplek.utils.FinancialValidator
+import com.example.iurankomplek.utils.ValidationResult
 import com.example.iurankomplek.network.ApiConfig
 
 class LaporanActivity : BaseActivity() {
@@ -56,44 +58,72 @@ class LaporanActivity : BaseActivity() {
                         )
                     }
                     
-                    // Validate financial data to prevent calculations with invalid values
-                    var totalIuranBulanan = 0
-                    var totalPengeluaran = 0
-                    var totalIuranIndividu = 0
+                     // Validate financial data to prevent calculations with invalid values
+                     // Use the new FinancialValidator for comprehensive validation
+                     val validation = FinancialValidator.validateDataItems(validatedData)
+                     if (validation is ValidationResult.Invalid) {
+                         Toast.makeText(this, "Financial data validation failed: ${validation.message}", Toast.LENGTH_LONG).show()
+                         return@let
+                     }
+                     
+                     var totalIuranBulanan = 0
+                     var totalPengeluaran = 0
+                     var totalIuranIndividu = 0
 
-                    for (dataItem in validatedData) {
-                        // Validate that financial values are non-negative
-                        if (dataItem.iuran_perwarga < 0 || dataItem.pengeluaran_iuran_warga < 0 || dataItem.total_iuran_individu < 0) {
-                             Toast.makeText(this, getString(R.string.invalid_financial_data_detected), Toast.LENGTH_LONG).show()
-                            return@let
-                        }
-                        
-                         // Check for potential integer overflow before adding
-                         if (totalIuranBulanan > Int.MAX_VALUE - dataItem.iuran_perwarga) {
-                             Toast.makeText(this, getString(R.string.financial_data_exceeds_maximum), Toast.LENGTH_LONG).show()
+                     for (dataItem in validatedData) {
+                         // Additional validation per item using FinancialValidator
+                         val itemValidation = FinancialValidator.validateDataItem(dataItem)
+                         if (itemValidation is ValidationResult.Invalid) {
+                             Toast.makeText(this, "Invalid data item: ${itemValidation.message}", Toast.LENGTH_LONG).show()
                              return@let
                          }
-                        
-                         if (totalPengeluaran > Int.MAX_VALUE - dataItem.pengeluaran_iuran_warga) {
-                             Toast.makeText(this, getString(R.string.financial_data_exceeds_maximum), Toast.LENGTH_LONG).show()
+                         
+                         // Validate addition to prevent integer overflow before adding
+                         val iuranValidation = FinancialValidator.validateCalculationOverflow(
+                             totalIuranBulanan, 
+                             dataItem.iuran_perwarga, 
+                             "iuran_perwarga accumulation"
+                         )
+                         if (iuranValidation is ValidationResult.Invalid) {
+                             Toast.makeText(this, "Calculation error: ${iuranValidation.message}", Toast.LENGTH_LONG).show()
                              return@let
                          }
-                        
+                         
+                         val pengeluaranValidation = FinancialValidator.validateCalculationOverflow(
+                             totalPengeluaran, 
+                             dataItem.pengeluaran_iuran_warga, 
+                             "pengeluaran_iuran_warga accumulation"
+                         )
+                         if (pengeluaranValidation is ValidationResult.Invalid) {
+                             Toast.makeText(this, "Calculation error: ${pengeluaranValidation.message}", Toast.LENGTH_LONG).show()
+                             return@let
+                         }
+                         
                          // Check for potential overflow when multiplying by 3
-                         if (dataItem.total_iuran_individu > Int.MAX_VALUE / 3) {
-                             Toast.makeText(this, getString(R.string.financial_data_exceeds_maximum), Toast.LENGTH_LONG).show()
+                         val multiplicationValidation = FinancialValidator.validateMultiplicationOverflow(
+                             dataItem.total_iuran_individu, 
+                             3, 
+                             "total_iuran_individu * 3"
+                         )
+                         if (multiplicationValidation is ValidationResult.Invalid) {
+                             Toast.makeText(this, "Calculation error: ${multiplicationValidation.message}", Toast.LENGTH_LONG).show()
                              return@let
                          }
-                        
-                         if (totalIuranIndividu > Int.MAX_VALUE - (dataItem.total_iuran_individu * 3)) {
-                             Toast.makeText(this, getString(R.string.financial_data_exceeds_maximum), Toast.LENGTH_LONG).show()
+                         
+                         val individuValidation = FinancialValidator.validateCalculationOverflow(
+                             totalIuranIndividu, 
+                             dataItem.total_iuran_individu * 3, 
+                             "total_iuran_individu accumulation"
+                         )
+                         if (individuValidation is ValidationResult.Invalid) {
+                             Toast.makeText(this, "Calculation error: ${individuValidation.message}", Toast.LENGTH_LONG).show()
                              return@let
                          }
-                        
-                        totalIuranBulanan += dataItem.iuran_perwarga
-                        totalPengeluaran += dataItem.pengeluaran_iuran_warga
-                        totalIuranIndividu += dataItem.total_iuran_individu * 3
-                    }
+                         
+                         totalIuranBulanan += dataItem.iuran_perwarga
+                         totalPengeluaran += dataItem.pengeluaran_iuran_warga
+                         totalIuranIndividu += dataItem.total_iuran_individu * 3
+                     }
 
                     val rekapIuran = totalIuranIndividu - totalPengeluaran
                      // Validate financial calculations before displaying
