@@ -96,11 +96,11 @@ class LaporanActivity : BaseActivity() {
                     }
 
                     val rekapIuran = totalIuranIndividu - totalPengeluaran
-                    // Validate financial calculations before displaying
-                    if (totalIuranBulanan < 0 || totalPengeluaran < 0 || totalIuranIndividu < 0 || rekapIuran < 0) {
-                        Toast.makeText(this, "Invalid financial data detected", Toast.LENGTH_LONG).show()
-                        return@let
-                    }
+                     // Validate financial calculations before displaying
+                     if (totalIuranBulanan < 0 || totalPengeluaran < 0 || totalIuranIndividu < 0 || rekapIuran < 0) {
+                         Toast.makeText(this, getString(R.string.invalid_financial_data_detected), Toast.LENGTH_LONG).show()
+                         return@let
+                     }
                     
                      // Create summary items for the RecyclerView with security validation
                      val summaryItems = listOf(
