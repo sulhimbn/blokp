@@ -2,9 +2,11 @@ package com.example.iurankomplek.network
 
 import okhttp3.CertificatePinner
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import com.example.iurankomplek.BuildConfig
+import java.util.concurrent.TimeUnit
 
 object ApiConfig {
     // Use mock API in debug mode or when running in Docker
@@ -15,26 +17,55 @@ object ApiConfig {
         "https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/"
     }
     
-    private fun getCertificatePinner(): CertificatePinner {
-        return CertificatePinner.Builder()
-            .add("api.apispreadsheets.com", "sha256/PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=")
-            .build()
+    private const val CERTIFICATE_PINNER = "sha256/PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0="
+    private const val CONNECT_TIMEOUT = 30L
+    private const val READ_TIMEOUT = 30L
+    
+    private fun getSecureOkHttpClient(): OkHttpClient {
+        val okHttpClientBuilder = OkHttpClient.Builder()
+            .certificatePinner(
+                CertificatePinner.Builder()
+                    .add("api.apispreadsheets.com", CERTIFICATE_PINNER)
+                    .build()
+            )
+            .connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)
+            .readTimeout(READ_TIMEOUT, TimeUnit.SECONDS)
+            .writeTimeout(30L, TimeUnit.SECONDS)
+        
+        // Add logging in debug mode only for security analysis
+        if (BuildConfig.DEBUG) {
+            val loggingInterceptor = HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            }
+            okHttpClientBuilder.addInterceptor(loggingInterceptor)
+        }
+        
+        return okHttpClientBuilder.build()
     }
     
     fun getApiService(): ApiService {
-        val okHttpClientBuilder = OkHttpClient.Builder()
-        
-        // Apply certificate pinning for production API and warn about mock API usage
-        if (!USE_MOCK_API) {
-            okHttpClientBuilder.certificatePinner(getCertificatePinner())
+        val okHttpClient = if (!USE_MOCK_API) {
+            getSecureOkHttpClient()
         } else {
-            // In debug builds, log warning about cleartext traffic
-            android.util.Log.w("ApiConfig", "Using mock API with potential cleartext traffic - NOT FOR PRODUCTION")
+            // In debug builds, use less restrictive client but with proper timeouts
+            OkHttpClient.Builder()
+                .connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)
+                .readTimeout(READ_TIMEOUT, TimeUnit.SECONDS)
+                .writeTimeout(30L, TimeUnit.SECONDS)
+                .apply {
+                    if (BuildConfig.DEBUG) {
+                        val loggingInterceptor = HttpLoggingInterceptor().apply {
+                            level = HttpLoggingInterceptor.Level.BODY
+                        }
+                        addInterceptor(loggingInterceptor)
+                    }
+                }
+                .build()
         }
         
         val retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(okHttpClientBuilder.build())
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         return retrofit.create(ApiService::class.java)
