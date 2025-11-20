@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.example.iurankomplek.databinding.FragmentCommunityBinding
 import com.example.iurankomplek.model.CommunityPost
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.utils.NetworkUtils
@@ -18,27 +18,31 @@ import retrofit2.Response
 class CommunityFragment : Fragment() {
 
     private lateinit var adapter: CommunityPostAdapter
-    private lateinit var rv_community: RecyclerView
+    private lateinit var binding: FragmentCommunityBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_community, container, false)
+    ): View {
+        binding = FragmentCommunityBinding.inflate(inflater, container, false)
 
-        rv_community = view.findViewById(R.id.rv_community)
         adapter = CommunityPostAdapter()
-        rv_community.layoutManager = LinearLayoutManager(context)
-        rv_community.adapter = adapter
+        binding.rvCommunity.layoutManager = LinearLayoutManager(context)
+        binding.rvCommunity.adapter = adapter
 
         loadCommunityPosts()
 
-        return view
+        return binding.root
     }
 
     private fun loadCommunityPosts() {
+        // Show progress bar when starting the API call
+        binding.progressBar.visibility = View.VISIBLE
+
         if (!NetworkUtils.isNetworkAvailable(requireContext())) {
+            // Hide progress bar after failure
+            binding.progressBar.visibility = View.GONE
             Toast.makeText(context, "No internet connection", Toast.LENGTH_LONG).show()
             return
         }
@@ -48,6 +52,9 @@ class CommunityFragment : Fragment() {
 
         call.enqueue(object : Callback<List<CommunityPost>> {
             override fun onResponse(call: Call<List<CommunityPost>>, response: Response<List<CommunityPost>>) {
+                // Hide progress bar after response
+                binding.progressBar.visibility = View.GONE
+                
                 if (response.isSuccessful) {
                     val posts = response.body()
                     if (posts != null) {
@@ -61,6 +68,8 @@ class CommunityFragment : Fragment() {
             }
 
             override fun onFailure(call: Call<List<CommunityPost>>, t: retrofit2.Call<List<CommunityPost>>) {
+                // Hide progress bar after failure
+                binding.progressBar.visibility = View.GONE
                 Toast.makeText(context, "Network error: ${t.message}", Toast.LENGTH_LONG).show()
             }
         })
