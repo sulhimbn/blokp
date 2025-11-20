@@ -43,7 +43,12 @@ class PaymentActivity : AppCompatActivity() {
     private fun setupPaymentProcessing() {
         // Note: In a real app, these would be properly injected
         // For this implementation, we're creating simplified versions
+        val mockPaymentGateway = MockPaymentGateway()
+        val transactionDatabase = com.example.iurankomplek.transaction.TransactionDatabase.getDatabase(this)
+        val transactionDao = transactionDatabase.transactionDao()
+        transactionRepository = TransactionRepository(mockPaymentGateway, transactionDao)
         receiptGenerator = ReceiptGenerator()
+        paymentViewModel = PaymentViewModel(transactionRepository, receiptGenerator)
     }
     
     private fun setupClickListeners() {
@@ -69,16 +74,21 @@ class PaymentActivity : AppCompatActivity() {
                 else -> PaymentMethod.CREDIT_CARD
             }
             
-            val request = PaymentRequest(
-                amount = amount,
-                description = "HOA Fee Payment",
-                customerId = "current_user_id", // Would come from auth system
-                paymentMethod = selectedMethod
-            )
+            // Update the ViewModel with the amount and selected method
+            paymentViewModel.setAmount(amount)
+            paymentViewModel.selectPaymentMethod(selectedMethod)
             
-            // In a real implementation, we would call the repository to process the payment
-            // For now, we'll just show a success message
-            Toast.makeText(this, "Payment processing initiated", Toast.LENGTH_SHORT).show()
+            // Set up observer for UI state changes
+            paymentViewModel.uiState.observe(this) { uiState ->
+                if (!uiState.isProcessing && uiState.errorMessage != null && uiState.errorMessage.isNotEmpty()) {
+                    Toast.makeText(this, "Payment failed: ${uiState.errorMessage}", Toast.LENGTH_LONG).show()
+                } else if (!uiState.isProcessing && uiState.errorMessage == null && uiState.amount > BigDecimal.ZERO) {
+                    Toast.makeText(this, "Payment processed successfully!", Toast.LENGTH_LONG).show()
+                }
+            }
+            
+            // Process the payment using the ViewModel
+            paymentViewModel.processPayment()
             
         } catch (e: NumberFormatException) {
             Toast.makeText(this, "Invalid amount", Toast.LENGTH_SHORT).show()

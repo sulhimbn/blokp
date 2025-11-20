@@ -8,6 +8,7 @@ This file provides guidance to agents when working with code in this repository.
 - Run instrumented tests: `./gradlew connectedAndroidTest`
 - Install debug: `./gradlew installDebug`
 - Single test execution: `./gradlew test --tests "com.example.iurankomplek.ExampleUnitTest"`
+- Compile Kotlin: `./gradlew :app:compileDebugKotlin`
 
 ## Project-Specific Patterns
 - Mixed Kotlin/Java codebase: MainActivity.kt, LaporanActivity.kt, MenuActivity.kt, adapters, dan network layer menggunakan Kotlin
