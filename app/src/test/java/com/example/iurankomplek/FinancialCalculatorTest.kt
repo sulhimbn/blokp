@@ -395,4 +395,58 @@ class FinancialCalculatorTest {
 
         FinancialCalculator.calculateTotalIuranBulanan(itemsWithLargeValues)
     }
+    
+    @Test
+    fun testCalculateTotalIuranIndividu_preventsBugWhereOnlyLastItemIsUsed() {
+        // This test specifically verifies that the bug mentioned in issue #18 is fixed
+        // The bug was that totalIuranIndividu only took the value from the last item in a loop
+        // instead of summing all items. This test ensures accumulation works correctly.
+        val testItems = listOf(
+            DataItem(
+                first_name = "User1",
+                last_name = "Test1",
+                email = "user1@example.com",
+                alamat = "Jl. Test 1",
+                iuran_perwarga = 0,
+                total_iuran_rekap = 0,
+                jumlah_iuran_bulanan = 0,
+                total_iuran_individu = 10, // First item: 10 * 3 = 30
+                pengeluaran_iuran_warga = 0,
+                pemanfaatan_iuran = "Test",
+                avatar = ""
+            ),
+            DataItem(
+                first_name = "User2",
+                last_name = "Test2",
+                email = "user2@example.com",
+                alamat = "Jl. Test 2",
+                iuran_perwarga = 0,
+                total_iuran_rekap = 0,
+                jumlah_iuran_bulanan = 0,
+                total_iuran_individu = 20, // Second item: 20 * 3 = 60
+                pengeluaran_iuran_warga = 0,
+                pemanfaatan_iuran = "Test",
+                avatar = ""
+            ),
+            DataItem(
+                first_name = "User3", 
+                last_name = "Test3",
+                email = "user3@example.com",
+                alamat = "Jl. Test 3",
+                iuran_perwarga = 0,
+                total_iuran_rekap = 0,
+                jumlah_iuran_bulanan = 0,
+                total_iuran_individu = 30, // Third item: 30 * 3 = 90
+                pengeluaran_iuran_warga = 0,
+                pemanfaatan_iuran = "Test",
+                avatar = ""
+            )
+        )
+
+        val totalIuranIndividu = FinancialCalculator.calculateTotalIuranIndividu(testItems)
+
+        // If the bug existed (only last item used), result would be 30 * 3 = 90
+        // But with proper accumulation: (10*3) + (20*3) + (30*3) = 30 + 60 + 90 = 180
+        assertEquals(180, totalIuranIndividu, "Bug fix verification: totalIuranIndividu should accumulate all items, not just take the last item value")
+    }
 }
