@@ -18,17 +18,26 @@ import retrofit2.Response
 
 class LaporanActivity : AppCompatActivity() {
     private lateinit var adapter: PemanfaatanAdapter
-    private lateinit var binding: ActivityLaporanBinding
+    private lateinit var summaryAdapter: LaporanSummaryAdapter
+    private lateinit var rv_laporan: RecyclerView
+    private lateinit var rv_summary: RecyclerView
     
     private var retryCount = 0
     private val maxRetries = 3
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityLaporanBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_laporan)
+        rv_laporan = findViewById(R.id.rv_laporan)
+        rv_summary = findViewById(R.id.rv_summary)
+        
         adapter = PemanfaatanAdapter(mutableListOf())
-        binding.rvLaporan.layoutManager = LinearLayoutManager(this)
-        binding.rvLaporan.adapter = adapter
+        summaryAdapter = LaporanSummaryAdapter(mutableListOf())
+        
+        rv_laporan.layoutManager = LinearLayoutManager(this)
+        rv_laporan.adapter = adapter
+        
+        rv_summary.layoutManager = LinearLayoutManager(this)
+        rv_summary.adapter = summaryAdapter
         getPemanfaatan()
     }
     private fun getPemanfaatan(currentRetryCount: Int = 0) {
@@ -78,9 +87,15 @@ class LaporanActivity : AppCompatActivity() {
                            }
 
                            val rekapIuran = totalIuranIndividu - totalPengeluaran
-                           binding.jumlahIuranBulananTextView.text = "1. Jumlah Iuran Bulanan : Rp.${String.format("%,d", totalIuranBulanan)}"
-                           binding.pengeluaranTextView.text = "3. Total Pengeluaran : Rp.${String.format("%,d", totalPengeluaran)}"
-                           binding.totalIuranTextView.text = "4. Rekap Total Iuran : Rp.${String.format("%,d", rekapIuran)}"
+                           
+                           // Create summary items for the RecyclerView
+                           val summaryItems = listOf(
+                               LaporanSummaryItem("1. Jumlah Iuran Bulanan", "Rp. ${String.format("%,d", totalIuranBulanan)}"),
+                               LaporanSummaryItem("3. Total Pengeluaran", "Rp. ${String.format("%,d", totalPengeluaran)}"),
+                               LaporanSummaryItem("4. Rekap Total Iuran", "Rp. ${String.format("%,d", rekapIuran)}")
+                           )
+                           
+                           summaryAdapter.setItems(summaryItems)
                            // Set data pemanfaatan pada adapter
                            adapter.setPemanfaatan(dataArray)
 
