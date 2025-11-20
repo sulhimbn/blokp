@@ -32,20 +32,30 @@ class MainActivity : BaseActivity() {
         binding.rvUsers.layoutManager = LinearLayoutManager(this)
         binding.rvUsers.adapter = adapter
         
-        observeUserState()
-        viewModel.loadUsers()
-    }
-    
-    private fun observeUserState() {
+        setupSwipeRefresh()
+         setupSwipeRefresh()
+         observeUserState()
+         viewModel.loadUsers()
+     }
+     
+     private fun setupSwipeRefresh() {
+         binding.swipeRefreshLayout.setOnRefreshListener {
+             viewModel.loadUsers()
+         }
+     }
+     
+     private fun observeUserState() {
         lifecycleScope.launch {
             viewModel.usersState.collect { state ->
                 when (state) {
-                    is UiState.Loading -> {
-                        binding.progressBar.visibility = View.VISIBLE
-                    }
-                    is UiState.Success -> {
-                        binding.progressBar.visibility = View.GONE
-                        state.data.data?.let { users ->
+                     is UiState.Loading -> {
+                         binding.progressBar.visibility = View.VISIBLE
+                         binding.swipeRefreshLayout.isRefreshing = true
+                     }
+                     is UiState.Success -> {
+                         binding.progressBar.visibility = View.GONE
+                         binding.swipeRefreshLayout.isRefreshing = false
+                         state.data.data?.let { users ->
                             if (users.isNotEmpty()) {
                                 // Validate the data array before passing to adapter to prevent potential security issues
                                 val validatedData = users.map { user ->
@@ -76,10 +86,11 @@ class MainActivity : BaseActivity() {
                             Toast.makeText(this@MainActivity, getString(R.string.invalid_response_format), Toast.LENGTH_LONG).show()
                         }
                     }
-                    is UiState.Error -> {
-                        binding.progressBar.visibility = View.GONE
-                        Toast.makeText(this@MainActivity, state.error, Toast.LENGTH_LONG).show()
-                    }
+                     is UiState.Error -> {
+                         binding.progressBar.visibility = View.GONE
+                         binding.swipeRefreshLayout.isRefreshing = false
+                         Toast.makeText(this@MainActivity, state.error, Toast.LENGTH_LONG).show()
+                     }
                 }
             }
         }

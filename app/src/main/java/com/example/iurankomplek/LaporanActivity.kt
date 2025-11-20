@@ -48,20 +48,29 @@ class LaporanActivity : BaseActivity() {
         binding.rvSummary.layoutManager = LinearLayoutManager(this)
         binding.rvSummary.adapter = summaryAdapter
 
-        observeFinancialState()
-        viewModel.loadFinancialData()
-    }
+         setupSwipeRefresh()
+         observeFinancialState()
+         viewModel.loadFinancialData()
+     }
+     
+     private fun setupSwipeRefresh() {
+         binding.swipeRefreshLayout.setOnRefreshListener {
+             viewModel.loadFinancialData()
+         }
+     }
     
     private fun observeFinancialState() {
         lifecycleScope.launch {
             viewModel.financialState.collect { state ->
                 when (state) {
-                    is UiState.Loading -> {
-                        binding.progressBar.visibility = View.VISIBLE
-                    }
-                    is UiState.Success -> {
-                        binding.progressBar.visibility = View.GONE
-                        state.data.data?.let { dataArray ->
+                     is UiState.Loading -> {
+                         binding.progressBar.visibility = View.VISIBLE
+                         binding.swipeRefreshLayout.isRefreshing = true
+                     }
+                     is UiState.Success -> {
+                         binding.progressBar.visibility = View.GONE
+                         binding.swipeRefreshLayout.isRefreshing = false
+                         state.data.data?.let { dataArray ->
                             if (dataArray.isEmpty()) {
                                 Toast.makeText(this@LaporanActivity, getString(R.string.no_financial_data_available), Toast.LENGTH_LONG).show()
                                 return@let
@@ -76,10 +85,11 @@ class LaporanActivity : BaseActivity() {
                             Toast.makeText(this@LaporanActivity, getString(R.string.invalid_response_format), Toast.LENGTH_LONG).show()
                         }
                     }
-                    is UiState.Error -> {
-                        binding.progressBar.visibility = View.GONE
-                        Toast.makeText(this@LaporanActivity, state.error, Toast.LENGTH_LONG).show()
-                    }
+                     is UiState.Error -> {
+                         binding.progressBar.visibility = View.GONE
+                         binding.swipeRefreshLayout.isRefreshing = false
+                         Toast.makeText(this@LaporanActivity, state.error, Toast.LENGTH_LONG).show()
+                     }
                 }
             }
         }
