@@ -125,4 +125,42 @@ class PaymentProcessingTest {
         assertEquals(PaymentMethod.E_WALLET, request.paymentMethod)
         assertTrue(request.metadata.isEmpty())
     }
+
+    @Test
+    fun `refundPayment successfully processes refund and updates transaction status`() = runBlocking {
+        // Arrange
+        val transactionId = "test_transaction_id"
+        val mockResponse = RefundResponse(
+            refundId = "test_refund_id",
+            transactionId = transactionId,
+            amount = BigDecimal("100.00"),
+            status = RefundStatus.COMPLETED,
+            refundTime = System.currentTimeMillis(),
+            reason = "Test refund"
+        )
+
+        `when`(mockPaymentGateway.refundPayment(transactionId)).thenReturn(Result.success(mockResponse))
+
+        // Act
+        val result = transactionRepository.refundPayment(transactionId, "Test refund")
+
+        // Assert
+        assertTrue(result.isSuccess)
+        verify(mockTransactionDao).update(any(Transaction::class.java))
+    }
+
+    @Test
+    fun `refundPayment handles failure gracefully`() = runBlocking {
+        // Arrange
+        val transactionId = "test_transaction_id"
+        val exception = Exception("Refund gateway error")
+        `when`(mockPaymentGateway.refundPayment(transactionId)).thenReturn(Result.failure(exception))
+
+        // Act
+        val result = transactionRepository.refundPayment(transactionId, "Test refund")
+
+        // Assert
+        assertTrue(result.isFailure)
+        assertEquals("Refund gateway error", result.exceptionOrNull()?.message)
+    }
 }

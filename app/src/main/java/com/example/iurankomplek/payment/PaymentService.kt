@@ -39,4 +39,23 @@ class PaymentService(
             )
         }
     }
+    
+    fun refundPayment(
+        transactionId: String,
+        reason: String? = null,
+        onSuccess: (RefundResponse) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val result = transactionRepository.refundPayment(transactionId, reason)
+            result.fold(
+                onSuccess = { response ->
+                    onSuccess(response)
+                },
+                onFailure = { error ->
+                    onError(error.message ?: "Unknown error occurred")
+                }
+            )
+        }
+    }
 }
