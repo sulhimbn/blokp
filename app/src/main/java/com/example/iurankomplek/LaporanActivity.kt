@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityLaporanBinding
 import com.example.iurankomplek.model.PemanfaatanResponse
 import com.example.iurankomplek.network.ApiConfig
+import com.example.iurankomplek.utils.DataValidator
 import com.example.iurankomplek.utils.NetworkUtils
 import retrofit2.Call
 import retrofit2.Callback
@@ -51,27 +52,33 @@ class LaporanActivity : AppCompatActivity() {
                               return
                           }
                           
-                          // Validate financial data to prevent calculations with invalid values
-                          var totalIuranBulanan = 0
-                          var totalPengeluaran = 0
-                          var totalIuranIndividu = 0
+// Validate financial data to prevent calculations with invalid values
+                           var totalIuranBulanan = 0
+                           var totalPengeluaran = 0
+                           var totalIuranIndividu = 0
 
-                          for (dataItem in dataArray) {
-                              // Validate that financial values are non-negative
-                              if (dataItem.iuran_perwarga < 0 || dataItem.pengeluaran_iuran_warga < 0 || dataItem.total_iuran_individu < 0) {
-                                  Toast.makeText(this@LaporanActivity, "Invalid financial data detected", Toast.LENGTH_LONG).show()
-                                  return
-                              }
-                              
-                              totalIuranBulanan += dataItem.iuran_perwarga
-                              totalPengeluaran += dataItem.pengeluaran_iuran_warga
-                              totalIuranIndividu += dataItem.total_iuran_individu * 3
-                          }
+                           for (dataItem in dataArray) {
+                               // Validate that financial values are non-negative
+                               if (dataItem.iuran_perwarga < 0 || dataItem.pengeluaran_iuran_warga < 0 || dataItem.total_iuran_individu < 0) {
+                                   Toast.makeText(this@LaporanActivity, "Invalid financial data detected", Toast.LENGTH_LONG).show()
+                                   return
+                               }
+                               
+                               totalIuranBulanan += dataItem.iuran_perwarga
+                               totalPengeluaran += dataItem.pengeluaran_iuran_warga
+                               totalIuranIndividu += dataItem.total_iuran_individu * 3
+                           }
+                           
+                           // Additional validation for calculated values
+                           if (totalIuranBulanan < 0 || totalPengeluaran < 0 || totalIuranIndividu < 0) {
+                               Toast.makeText(this@LaporanActivity, "Invalid financial data detected", Toast.LENGTH_LONG).show()
+                               return
+                           }
 
                            val rekapIuran = totalIuranIndividu - totalPengeluaran
-                           binding.jumlahIuranBulananTextView.text = "1. Jumlah Iuran Bulanan : $totalIuranBulanan"
-                           binding.pengeluaranTextView.text = "3. Total Pengeluaran : $totalPengeluaran"
-                           binding.totalIuranTextView.text = "4. Rekap Total Iuran : $rekapIuran"
+                           binding.jumlahIuranBulananTextView.text = "1. Jumlah Iuran Bulanan : Rp.${String.format("%,d", totalIuranBulanan)}"
+                           binding.pengeluaranTextView.text = "3. Total Pengeluaran : Rp.${String.format("%,d", totalPengeluaran)}"
+                           binding.totalIuranTextView.text = "4. Rekap Total Iuran : Rp.${String.format("%,d", rekapIuran)}"
                            // Set data pemanfaatan pada adapter
                            adapter.setPemanfaatan(dataArray)
 
