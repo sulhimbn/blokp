@@ -8,9 +8,10 @@ This file provides guidance to agents when working with code in this repository.
 - Run instrumented tests: `./gradlew connectedAndroidTest`
 - Install debug: `./gradlew installDebug`
 - Single test execution: `./gradlew test --tests "com.example.iurankomplek.ExampleUnitTest"`
+- Compile Kotlin: `./gradlew :app:compileDebugKotlin`
 
 ## Project-Specific Patterns
-- Mixed Kotlin/Java codebase: MainActivity.kt, LaporanActivity.kt, adapters, dan network layer menggunakan Kotlin; MenuActivity.java menggunakan Java untuk kompatibilitas
+- Mixed Kotlin/Java codebase: MainActivity.kt, LaporanActivity.kt, MenuActivity.kt, adapters, dan network layer menggunakan Kotlin
 - API endpoints now use distinct paths: `@GET("users")` and `@GET("pemanfaatan")` in ApiService.kt for better clarity and maintainability
 - API responses use specific models: UserResponse for user endpoint and PemanfaatanResponse for financial data endpoint to improve type safety
 - Data model memiliki logika perhitungan khusus: `total_iuran_individu * 3` di LaporanActivity.kt line 56 untuk menghitung rekap iuran

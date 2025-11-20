@@ -4,4 +4,11 @@
         <item>@font/quicksand_bold</item>
         <!-- Add more font items as needed -->
     </array>
+    
+    <string-array name="payment_methods">
+        <item>Credit Card</item>
+        <item>Bank Transfer</item>
+        <item>E-Wallet</item>
+        <item>Virtual Account</item>
+    </string-array>
 </resources>
