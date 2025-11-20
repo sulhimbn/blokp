@@ -1,6 +1,7 @@
 package com.example.iurankomplek
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -43,16 +44,25 @@ class TransactionHistoryActivity : AppCompatActivity() {
     }
 
     private fun loadTransactionHistory() {
+        // Show progress bar when starting the data load
+        runOnUiThread {
+            binding.progressBar.visibility = View.VISIBLE
+        }
+        
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 // For now, we'll get all transactions - in a real app, we'd filter by actual user ID
                 // Using a placeholder user ID for demo purposes
                 val transactions = transactionRepository.getTransactionsByStatus(PaymentStatus.COMPLETED).value
                 runOnUiThread {
+                    // Hide progress bar after successful load
+                    binding.progressBar.visibility = View.GONE
                     transactionAdapter.submitList(transactions)
                 }
             } catch (e: Exception) {
                 runOnUiThread {
+                    // Hide progress bar after error
+                    binding.progressBar.visibility = View.GONE
                     Toast.makeText(this@TransactionHistoryActivity, 
                         "Failed to load transaction history: ${e.message}", 
                         Toast.LENGTH_LONG).show()

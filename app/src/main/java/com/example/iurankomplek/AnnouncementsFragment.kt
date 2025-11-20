@@ -1,15 +1,13 @@
 package com.example.iurankomplek
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.example.iurankomplek.databinding.FragmentAnnouncementsBinding
 import com.example.iurankomplek.model.Announcement
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.utils.NetworkUtils
@@ -20,27 +18,31 @@ import retrofit2.Response
 class AnnouncementsFragment : Fragment() {
 
     private lateinit var adapter: AnnouncementAdapter
-    private lateinit var rv_announcements: RecyclerView
+    private lateinit var binding: FragmentAnnouncementsBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_announcements, container, false)
+    ): View {
+        binding = FragmentAnnouncementsBinding.inflate(inflater, container, false)
 
-        rv_announcements = view.findViewById(R.id.rv_announcements)
         adapter = AnnouncementAdapter()
-        rv_announcements.layoutManager = LinearLayoutManager(context)
-        rv_announcements.adapter = adapter
+        binding.rvAnnouncements.layoutManager = LinearLayoutManager(context)
+        binding.rvAnnouncements.adapter = adapter
 
         loadAnnouncements()
 
-        return view
+        return binding.root
     }
 
     private fun loadAnnouncements() {
+        // Show progress bar when starting the API call
+        binding.progressBar.visibility = View.VISIBLE
+
         if (!NetworkUtils.isNetworkAvailable(requireContext())) {
+            // Hide progress bar after failure
+            binding.progressBar.visibility = View.GONE
             Toast.makeText(context, "No internet connection", Toast.LENGTH_LONG).show()
             return
         }
@@ -50,6 +52,9 @@ class AnnouncementsFragment : Fragment() {
 
         call.enqueue(object : Callback<List<Announcement>> {
             override fun onResponse(call: Call<List<Announcement>>, response: Response<List<Announcement>>) {
+                // Hide progress bar after response
+                binding.progressBar.visibility = View.GONE
+                
                 if (response.isSuccessful) {
                     val announcements = response.body()
                     if (announcements != null) {
@@ -63,6 +68,8 @@ class AnnouncementsFragment : Fragment() {
             }
 
             override fun onFailure(call: Call<List<Announcement>>, t: retrofit2.Call<List<Announcement>>) {
+                // Hide progress bar after failure
+                binding.progressBar.visibility = View.GONE
                 Toast.makeText(context, "Network error: ${t.message}", Toast.LENGTH_LONG).show()
             }
         })
