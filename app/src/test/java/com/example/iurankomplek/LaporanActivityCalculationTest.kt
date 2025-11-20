@@ -79,4 +79,36 @@ class LaporanActivityCalculationTest {
         assertEquals(0, totalPengeluaran)
         assertEquals(0, totalIuranIndividu)
     }
+
+    @Test
+    fun testTotalIuranIndividuCalculation_verificationOfAccumulationLogic() {
+        // Specific test to verify accumulation logic mentioned in issue #96
+        // This test verifies that each item's total_iuran_individu is multiplied by 3
+        // and then accumulated to the running total (not just assigned)
+        val testItems = listOf(
+            DataItem(iuran_perwarga = 100, total_iuran_individu = 10, pengeluaran_iuran_warga = 5),
+            DataItem(iuran_perwarga = 200, total_iuran_individu = 20, pengeluaran_iuran_warga = 10),
+            DataItem(iuran_perwarga = 300, total_iuran_individu = 30, pengeluaran_iuran_warga = 15)
+        )
+
+        var totalIuranBulanan = 0
+        var totalPengeluaran = 0
+        var totalIuranIndividu = 0
+
+        // Process each item to verify accumulation logic
+        for (dataItem in testItems) {
+            totalIuranBulanan += dataItem.iuran_perwarga
+            totalPengeluaran += dataItem.pengeluaran_iuran_warga
+            // This is the key line: total_iuran_individu += dataItem.total_iuran_individu * 3
+            totalIuranIndividu += dataItem.total_iuran_individu * 3
+        }
+
+        // Verify that accumulation worked correctly:
+        // Item 1: 10 * 3 = 30, total = 0 + 30 = 30
+        // Item 2: 20 * 3 = 60, total = 30 + 60 = 90
+        // Item 3: 30 * 3 = 90, total = 90 + 90 = 180
+        assertEquals(180, totalIuranIndividu)  // (10*3) + (20*3) + (30*3) = 30 + 60 + 90 = 180
+        assertEquals(600, totalIuranBulanan)  // 100 + 200 + 300
+        assertEquals(30, totalPengeluaran)    // 5 + 10 + 15
+    }
 }

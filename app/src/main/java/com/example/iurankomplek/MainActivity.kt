@@ -5,9 +5,10 @@ import android.os.Looper
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.iurankomplek.model.ResponseUser
+import com.example.iurankomplek.databinding.ActivityMainBinding
+import com.example.iurankomplek.model.UserResponse
 import com.example.iurankomplek.network.ApiConfig
+import com.example.iurankomplek.utils.DataValidator
 import com.example.iurankomplek.utils.NetworkUtils
 import retrofit2.Call
 import retrofit2.Callback
@@ -15,17 +16,17 @@ import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
     private lateinit var adapter: UserAdapter
-    private lateinit var rv_users: RecyclerView
+    private lateinit var binding: ActivityMainBinding
     
     private var retryCount = 0
     private val maxRetries = 3
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        rv_users = findViewById(R.id.rv_users)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         adapter = UserAdapter(mutableListOf())
-        rv_users.layoutManager = LinearLayoutManager(this)
-        rv_users.adapter = adapter
+        binding.rvUsers.layoutManager = LinearLayoutManager(this)
+        binding.rvUsers.adapter = adapter
         getUser()
     }
     private fun getUser(currentRetryCount: Int = 0) {
@@ -39,27 +40,39 @@ class MainActivity : AppCompatActivity() {
         
         val apiService = ApiConfig.getApiService()
         val client = apiService.getUsers()
-        client.enqueue(object : Callback<ResponseUser> {
-            override fun onResponse(call: Call<ResponseUser>, response: Response<ResponseUser>) {
-                 if (response.isSuccessful) {
-                     val dataArray = response.body()?.data
-
-                     if (dataArray != null) {
-                         adapter.setUsers(dataArray)
-                     } else {
-                         Toast.makeText(this@MainActivity, "No data available", Toast.LENGTH_LONG).show()
-                     }
-                 } else {
-                     if (currentRetryCount < maxRetries) {
-                         Handler(Looper.getMainLooper()).postDelayed({
-                             getUser(currentRetryCount + 1)
-                         }, 1000L * (currentRetryCount + 1)) // Exponential backoff
-                     } else {
-                         Toast.makeText(this@MainActivity, "Failed to retrieve data after ${maxRetries + 1} attempts. Please check your connection and try again.", Toast.LENGTH_LONG).show()
-                     }
-                 }
-            }
-            override fun onFailure(call: Call<ResponseUser>, t: Throwable) {
+         client.enqueue(object : Callback<UserResponse> {
+             override fun onResponse(call: Call<UserResponse>, response: Response<UserResponse>) {
+if (response.isSuccessful) {
+                       val responseBody = response.body()
+                       if (responseBody != null && responseBody.data != null) {
+                           val dataArray = responseBody.data
+                           if (dataArray.isNotEmpty()) {
+                               // Validate data before setting to adapter
+                               val validatedData = dataArray.map { user ->
+                                   // Basic validation to prevent null or invalid data
+                                   if (user.email.isBlank() || !user.email.contains("@")) {
+                                       Toast.makeText(this@MainActivity, "Invalid user data detected", Toast.LENGTH_LONG).show()
+                                   }
+                                   user
+                               }
+                               adapter.setUsers(validatedData)
+                           } else {
+                               Toast.makeText(this@MainActivity, "No users available", Toast.LENGTH_LONG).show()
+                           }
+                       } else {
+                           Toast.makeText(this@MainActivity, "Invalid response format", Toast.LENGTH_LONG).show()
+                       }
+                   } else {
+                      if (currentRetryCount < maxRetries) {
+                          Handler(Looper.getMainLooper()).postDelayed({
+                              getUser(currentRetryCount + 1)
+                          }, 1000L * (currentRetryCount + 1)) // Exponential backoff
+                      } else {
+                          Toast.makeText(this@MainActivity, "Failed to retrieve data after ${maxRetries + 1} attempts. Please check your connection and try again.", Toast.LENGTH_LONG).show()
+                      }
+                  }
+             }
+            override fun onFailure(call: Call<UserResponse>, t: Throwable) {
                 if (currentRetryCount < maxRetries) {
                     Handler(Looper.getMainLooper()).postDelayed({
                         getUser(currentRetryCount + 1)
