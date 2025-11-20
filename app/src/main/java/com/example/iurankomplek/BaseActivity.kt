@@ -4,12 +4,14 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.iurankomplek.utils.ErrorHandler
 import com.example.iurankomplek.utils.NetworkUtils
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 abstract class BaseActivity : AppCompatActivity() {
+    private val errorHandler = ErrorHandler()
     
     protected fun <T> executeWithRetry(
         maxRetries: Int = 3,
@@ -38,10 +40,12 @@ abstract class BaseActivity : AppCompatActivity() {
             }
             
             override fun onFailure(call: Call<T>, t: Throwable) {
+                val errorMessage = errorHandler.handleError(t)
+                
                 if (currentRetry < maxRetries) {
                     scheduleRetry(operation, onSuccess, onError, currentRetry + 1)
                 } else {
-                     onError(getString(R.string.network_error, t.message ?: "Unknown error"))
+                     onError(errorMessage)
                     t.printStackTrace()
                 }
             }
@@ -54,8 +58,10 @@ abstract class BaseActivity : AppCompatActivity() {
         onError: (String) -> Unit,
         retryCount: Int
     ) {
+        // Implement exponential backoff: 1s, 2s, 4s, 8s, etc.
+        val delay = (1000L * Math.pow(2.0, (retryCount - 1).toDouble())).toLong()
         Handler(Looper.getMainLooper()).postDelayed({
             executeWithRetry(operation, onSuccess, onError, retryCount)
-        }, 1000L * retryCount)
+        }, delay)
     }
 }
