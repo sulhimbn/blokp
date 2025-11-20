@@ -2,11 +2,12 @@ package com.example.iurankomplek
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.iurankomplek.model.ResponseUser
+import com.example.iurankomplek.model.UserResponse
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.utils.NetworkUtils
 import retrofit2.Call
@@ -46,9 +47,9 @@ class MainActivity : AppCompatActivity() {
         }
         
         val apiService = ApiConfig.getApiService()
-        val client = apiService.getUsers()
-        client.enqueue(object : Callback<ResponseUser> {
-            override fun onResponse(call: Call<ResponseUser>, response: Response<ResponseUser>) {
+         val client = apiService.getUsers()
+         client.enqueue(object : Callback<UserResponse> {
+             override fun onResponse(call: Call<UserResponse>, response: Response<UserResponse>) {
                  if (response.isSuccessful) {
                      val dataArray = response.body()?.data
 
@@ -69,8 +70,8 @@ class MainActivity : AppCompatActivity() {
                  }
                  // Hide progress bar after successful response or final failure
                  progressBar.visibility = android.view.View.GONE
-            }
-            override fun onFailure(call: Call<ResponseUser>, t: Throwable) {
+             }
+             override fun onFailure(call: Call<UserResponse>, t: Throwable) {
                 if (currentRetryCount < maxRetries) {
                     Handler(Looper.getMainLooper()).postDelayed({
                         getUser(currentRetryCount + 1)
