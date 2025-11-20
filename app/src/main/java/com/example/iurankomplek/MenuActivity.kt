@@ -1,9 +1,11 @@
 package com.example.iurankomplek
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowInsetsControllerCompat
 import com.example.iurankomplek.databinding.ActivityMenuBinding
 
 class MenuActivity : AppCompatActivity() {
@@ -19,7 +21,10 @@ class MenuActivity : AppCompatActivity() {
     }
 
     private fun setupFullscreenMode() {
-        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
+        WindowInsetsControllerCompat(window, window.decorView).let { controller ->
+            controller.hide(WindowInsetsControllerCompat.Type.statusBars())
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
     }
 
     private fun setupClickListeners() {
