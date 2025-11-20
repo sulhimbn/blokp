@@ -65,7 +65,8 @@ BlokP/
  │   │   │   │       └── ApiService.kt               # Interface API endpoints
  │   │   │   │   └── model/                          # Data models
  │   │   │   │       ├── DataItem.kt                 # Model data item pengguna
- │   │   │   │       └── ResponseUser.kt             # Model response API
+ │   │   │   │       ├── UserResponse.kt             # Model response API for user endpoint
+│   │   │   │       ├── PemanfaatanResponse.kt      # Model response API for pemanfaatan endpoint
  │   │   │   ├── res/                                # Resources (layout, drawable, values)
  │   │   │   └── AndroidManifest.xml                 # Konfigurasi aplikasi
  │   │   ├── androidTest/                            # UI tests
@@ -153,11 +154,18 @@ data class DataItem(
 )
 ```
 
-#### ResponseUser
-Model response dari API:
+#### UserResponse
+Model response dari endpoint pengguna:
 
 ```kotlin
-data class ResponseUser(val data: List<DataItem>)
+data class UserResponse(val data: List<DataItem>)
+```
+
+#### PemanfaatanResponse
+Model response dari endpoint pemanfaatan iuran:
+
+```kotlin
+data class PemanfaatanResponse(val data: List<DataItem>)
 ```
 
 ### Environment Configuration
@@ -232,3 +240,34 @@ Aktivitas yang menampilkan laporan keuangan iuran:
 Aplikasi ini dalam tahap pengembangan aktif dengan fitur-fitur inti yang telah berfungsi. Arsitektur hybrid Kotlin-Java memungkinkan transisi bertahap ke Kotlin sepenuhnya.
 
 **Catatan:** Pastikan untuk mengkonfigurasi URL API sebelum menjalankan aplikasi di environment production.
+
+## For Developers
+
+### Documentation
+- [API Documentation](docs/API.md) - Complete API endpoint specifications
+- [Architecture Documentation](docs/ARCHITECTURE.md) - System architecture and component relationships  
+- [Development Guidelines](docs/DEVELOPMENT.md) - Coding standards and development workflow
+- [Troubleshooting Guide](docs/TROUBLESHOOTING.md) - Common issues and solutions
+
+### Project Structure
+This project follows a simplified MVVM pattern with the following key components:
+
+**Activities (View Layer):**
+- `MainActivity.kt` - Displays user list with UserAdapter
+- `LaporanActivity.kt` - Displays financial reports with PemanfaatanAdapter
+- `MenuActivity.java` - Main menu navigation (Java for compatibility)
+
+**Network Layer:**
+- `ApiConfig.kt` - Retrofit configuration with conditional base URLs
+- `ApiService.kt` - API interface definitions
+
+**Data Models:**
+- `DataItem.kt` - Core data structure for user/iuran information
+- `UserResponse.kt` - Response wrapper for user data
+- `PemanfaatanResponse.kt` - Response wrapper for financial data
+
+### Development Workflow
+1. Check the [Development Guidelines](docs/DEVELOPMENT.md) for coding standards
+2. Refer to [Architecture Documentation](docs/ARCHITECTURE.md) for system design patterns
+3. Use the [Troubleshooting Guide](docs/TROUBLESHOOTING.md) for common issues
+4. Follow the Git workflow: create feature branches, submit PRs with issue references
