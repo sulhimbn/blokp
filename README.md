@@ -1,10 +1,10 @@
-# IuranKomplek
+# Iuran BlokP
 
-Aplikasi Android untuk mengelola pembayaran iuran komplek perumahan/apartemen. Memungkinkan pengelola komplek mengatur data pembayaran iuran warga atau penghuni dengan mudah dan efisien.
+Aplikasi Android untuk mengelola pembayaran iuran blok perumahan/apartemen. Memungkinkan pengelola blok mengatur data pembayaran iuran warga atau penghuni dengan mudah dan efisien.
 
 ## Deskripsi Singkat
 
-Aplikasi IuranKomplek adalah solusi lengkap untuk mengelola pembayaran iuran komplek perumahan/apartemen. Aplikasi ini dibangun dengan teknologi Android modern menggunakan Kotlin sebagai bahasa pemrograman utama, dilengkapi dengan Java untuk kompatibilitas. Aplikasi menyediakan interface yang intuitif untuk pengelola komplek dalam mengatur data pembayaran iuran warga secara efisien.
+Aplikasi Iuran BlokP adalah solusi lengkap untuk mengelola pembayaran iuran blok perumahan/apartemen. Aplikasi ini dibangun dengan teknologi Android modern menggunakan Kotlin sebagai bahasa pemrograman utama, dilengkapi dengan Java untuk kompatibilitas. Aplikasi menyediakan interface yang intuitif untuk pengelola blok dalam mengatur data pembayaran iuran warga secara efisien.
 
 ## Fitur Utama
 
@@ -50,34 +50,34 @@ Aplikasi IuranKomplek adalah solusi lengkap untuk mengelola pembayaran iuran kom
 ## Struktur Proyek
 
 ```
-IuranKomplek/
+BlokP/
 ├── app/
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/com/example/iurankomplek/     # Kode sumber utama
-│   │   │   │   ├── MainActivity.kt                 # Activity daftar pengguna
-│   │   │   │   ├── LaporanActivity.kt              # Activity laporan keuangan
-│   │   │   │   ├── MenuActivity.java               # Activity menu utama
+ │   ├── src/
+ │   │   ├── main/
+ │   │   │   ├── java/com/example/iurankomplek/     # Kode sumber utama
+ │   │   │   │   ├── MainActivity.kt                 # Activity daftar pengguna
+ │   │   │   │   ├── LaporanActivity.kt              # Activity laporan keuangan
+ │   │   │   │   ├── MenuActivity.java               # Activity menu utama
 │   │   │   │   ├── UserAdapter.kt                  # Adapter RecyclerView untuk pengguna
-│   │   │   │   ├── PemanfaatanAdapter.kt           # Adapter RecyclerView untuk pemanfaatan
-│   │   │   │   ├── LaporanAdapter.kt               # Adapter RecyclerView untuk laporan
+│   │   │   │   └── PemanfaatanAdapter.kt           # Adapter RecyclerView untuk pemanfaatan
 │   │   │   │   └── network/                        # Networking layer
-│   │   │   │       ├── ApiConfig.kt                # Konfigurasi Retrofit
-│   │   │   │       └── ApiService.kt               # Interface API endpoints
-│   │   │   │   └── model/                          # Data models
-│   │   │   │       ├── DataItem.kt                 # Model data item pengguna
-│   │   │   │       └── ResponseUser.kt             # Model response API
-│   │   │   ├── res/                                # Resources (layout, drawable, values)
-│   │   │   └── AndroidManifest.xml                 # Konfigurasi aplikasi
-│   │   ├── androidTest/                            # UI tests
-│   │   └── test/                                   # Unit tests
-│   ├── build.gradle                                # Konfigurasi build untuk modul app
-├── build.gradle                                    # Konfigurasi build global
-├── settings.gradle                                 # Konfigurasi modul yang disertakan
-├── gradle.properties                               # Properti global Gradle
-├── docs/                                           # Dokumentasi tambahan
-│   ├── docker-setup.md                             # Setup lingkungan Docker
-└── README.md                                       # Dokumentasi utama
+ │   │   │   │       ├── ApiConfig.kt                # Konfigurasi Retrofit
+ │   │   │   │       └── ApiService.kt               # Interface API endpoints
+ │   │   │   │   └── model/                          # Data models
+ │   │   │   │       ├── DataItem.kt                 # Model data item pengguna
+ │   │   │   │       ├── UserResponse.kt             # Model response API for user endpoint
+│   │   │   │       ├── PemanfaatanResponse.kt      # Model response API for pemanfaatan endpoint
+ │   │   │   ├── res/                                # Resources (layout, drawable, values)
+ │   │   │   └── AndroidManifest.xml                 # Konfigurasi aplikasi
+ │   │   ├── androidTest/                            # UI tests
+ │   │   └── test/                                   # Unit tests
+ │   ├── build.gradle                                # Konfigurasi build untuk modul app
+ ├── build.gradle                                    # Konfigurasi build global
+ ├── settings.gradle                                 # Konfigurasi modul yang disertakan
+ ├── gradle.properties                               # Propeti global Gradle
+ ├── docs/                                           # Dokumentasi tambahan
+ │   ├── docker-setup.md                             # Setup lingkungan Docker
+ └── README.md                                       # Dokumentasi utama
 ```
 
 ## Lingkungan Pengembangan
@@ -154,11 +154,18 @@ data class DataItem(
 )
 ```
 
-#### ResponseUser
-Model response dari API:
+#### UserResponse
+Model response dari endpoint pengguna:
 
 ```kotlin
-data class ResponseUser(val data: List<DataItem>)
+data class UserResponse(val data: List<DataItem>)
+```
+
+#### PemanfaatanResponse
+Model response dari endpoint pemanfaatan iuran:
+
+```kotlin
+data class PemanfaatanResponse(val data: List<DataItem>)
 ```
 
 ### Environment Configuration
@@ -233,3 +240,34 @@ Aktivitas yang menampilkan laporan keuangan iuran:
 Aplikasi ini dalam tahap pengembangan aktif dengan fitur-fitur inti yang telah berfungsi. Arsitektur hybrid Kotlin-Java memungkinkan transisi bertahap ke Kotlin sepenuhnya.
 
 **Catatan:** Pastikan untuk mengkonfigurasi URL API sebelum menjalankan aplikasi di environment production.
+
+## For Developers
+
+### Documentation
+- [API Documentation](docs/API.md) - Complete API endpoint specifications
+- [Architecture Documentation](docs/ARCHITECTURE.md) - System architecture and component relationships  
+- [Development Guidelines](docs/DEVELOPMENT.md) - Coding standards and development workflow
+- [Troubleshooting Guide](docs/TROUBLESHOOTING.md) - Common issues and solutions
+
+### Project Structure
+This project follows a simplified MVVM pattern with the following key components:
+
+**Activities (View Layer):**
+- `MainActivity.kt` - Displays user list with UserAdapter
+- `LaporanActivity.kt` - Displays financial reports with PemanfaatanAdapter
+- `MenuActivity.java` - Main menu navigation (Java for compatibility)
+
+**Network Layer:**
+- `ApiConfig.kt` - Retrofit configuration with conditional base URLs
+- `ApiService.kt` - API interface definitions
+
+**Data Models:**
+- `DataItem.kt` - Core data structure for user/iuran information
+- `UserResponse.kt` - Response wrapper for user data
+- `PemanfaatanResponse.kt` - Response wrapper for financial data
+
+### Development Workflow
+1. Check the [Development Guidelines](docs/DEVELOPMENT.md) for coding standards
+2. Refer to [Architecture Documentation](docs/ARCHITECTURE.md) for system design patterns
+3. Use the [Troubleshooting Guide](docs/TROUBLESHOOTING.md) for common issues
+4. Follow the Git workflow: create feature branches, submit PRs with issue references

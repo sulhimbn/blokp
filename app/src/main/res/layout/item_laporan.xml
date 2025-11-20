@@ -1,56 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:background="@color/cream">
+
     <TextView
-        android:id="@+id/IuranPerwargaTextView"
-        android:layout_width="wrap_content"
+        android:id="@+id/itemLaporanTitle"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:fontFamily="@font/font"
-        android:text="1. Iuran Perwarga : "
-        android:textSize="17sp"
+        android:textSize="16sp"
         android:textStyle="bold"
-        android:gravity="center"
-        android:padding="16dp"/>
+        android:textColor="@color/black"
+        android:gravity="start" />
+
     <TextView
-        android:id="@+id/jumlahIuranBulananTextView"
-        android:layout_width="wrap_content"
+        android:id="@+id/itemLaporanValue"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:fontFamily="@font/font"
-        android:text="2. Jumlah Iuran Bulanan : "
-        android:textSize="17sp"
+        android:textSize="16sp"
         android:textStyle="bold"
-        android:gravity="center"
-        android:padding="16dp"/>
-    <TextView
-        android:id="@+id/totalIuranRekapTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/font"
-        android:text="3. Total Iuran (Rekap) : "
-        android:textSize="17sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:padding="16dp"/>
-    <TextView
-        android:id="@+id/pengeluaranTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/font"
-        android:text="4. Pengeluraan Iuran : "
-        android:textSize="17sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:padding="16dp"/>
-    <TextView
-        android:id="@+id/pemanfaatanTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/font"
-        android:text="5. Pemanfaatan Iuran : "
-        android:textSize="17sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:padding="16dp"/>
+        android:textColor="@color/black"
+        android:gravity="end" />
+
 </LinearLayout>

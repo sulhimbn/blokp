@@ -1,4 +1,4 @@
-# Android Build Environment Dockerfile for IuranKomplek
+# Android Build Environment Dockerfile for BlokP
 # Based on official Android Docker images
 
 # Use the latest Android SDK image

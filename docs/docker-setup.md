@@ -1,10 +1,10 @@
-# Docker Development Environment for IuranKomplek
+# Docker Development Environment for BlokP
 
-This document provides instructions for using the Docker-based development environment for the IuranKomplek Android application.
+This document provides instructions for using the Docker-based development environment for the BlokP Android application.
 
 ## Overview
 
-The Docker environment provides an isolated, consistent, and reproducible development setup for the IuranKomplek application. It includes:
+The Docker environment provides an isolated, consistent, and reproducible development setup for the BlokP application. It includes:
 
 - Android build container with all necessary SDKs and tools
 - Mock API server for offline development
@@ -110,7 +110,7 @@ docker-compose up dev-tools
 ## Project Structure
 
 ```
-IuranKomplek/
+BlokP/
 ├── Dockerfile.android              # Android build container
 ├── docker-compose.yml              # Multi-container configuration
 ├── .dockerignore                   # Docker ignore file
@@ -196,7 +196,7 @@ The Docker environment uses several volumes for persistence:
 
 ## Networking
 
-Containers are connected to a dedicated Docker network (`iuran-network`) with:
+Containers are connected to a dedicated Docker network (`blokp-network`) with:
 
 - Internal DNS resolution between containers
 - Isolated from host network for security
@@ -217,7 +217,7 @@ Containers are connected to a dedicated Docker network (`iuran-network`) with:
    - Change the host port mappings
 
 3. **Gradle build failures**
-   - Clear Gradle cache: `docker volume rm iuran_gradle-cache`
+   - Clear Gradle cache: `docker volume rm blokp_gradle-cache`
    - Rebuild containers: `docker-compose up --build -d`
 
 4. **Mock API not responding**
