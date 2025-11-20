@@ -4,6 +4,36 @@
 
 IuranKomplek API menyediakan endpoints untuk mengambil data pengguna dan informasi pemanfaatan iuran komplek. API menggunakan layanan pihak ketiga (API Spreadsheets) untuk penyimpanan data.
 
+## Payment Processing System
+
+### Overview
+The application implements a flexible payment processing system with the following components:
+
+#### Payment Methods
+- CREDIT_CARD
+- BANK_TRANSFER
+- E_WALLET
+- VIRTUAL_ACCOUNT
+
+#### Core Components
+- `PaymentGateway` - Interface for payment processing operations
+- `MockPaymentGateway` - Development/testing implementation
+- `Transaction` - Room entity for storing payment transactions
+- `TransactionDao` - Data access object for transaction operations
+- `TransactionRepository` - Business logic layer for transaction management
+- `Receipt` - Receipt data model
+- `ReceiptGenerator` - Receipt generation utility
+- `PaymentViewModel` - UI state management for payment operations
+- `PaymentActivity` - Payment processing UI
+
+#### Payment Flow
+1. User enters payment amount and selects payment method
+2. Payment request is sent to the payment gateway
+3. Transaction is created with PENDING status and stored in database
+4. Payment gateway processes the payment
+5. Transaction status is updated to COMPLETED or FAILED based on result
+6. Receipt is generated for successful payments
+
 ## Base URLs
 
 ### Production
