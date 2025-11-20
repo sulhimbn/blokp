@@ -1,39 +1,24 @@
 package com.example.iurankomplek
 
 import android.os.Bundle
-<<<<<<< HEAD
 import android.view.View
-import android.widget.ProgressBar
-=======
->>>>>>> origin/main
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityLaporanBinding
 import com.example.iurankomplek.model.LaporanSummaryItem
 import com.example.iurankomplek.utils.DataValidator
 import com.example.iurankomplek.network.ApiConfig
-import retrofit2.Response
 
 class LaporanActivity : BaseActivity() {
     private lateinit var adapter: PemanfaatanAdapter
     private lateinit var summaryAdapter: LaporanSummaryAdapter
     private lateinit var binding: ActivityLaporanBinding
-<<<<<<< HEAD
-    private lateinit var progressBar: ProgressBar
-=======
->>>>>>> origin/main
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLaporanBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-<<<<<<< HEAD
-        // Find the progress bar from the layout
-        progressBar = findViewById(R.id.progressBar)
-
-=======
->>>>>>> origin/main
         adapter = PemanfaatanAdapter(mutableListOf())
         summaryAdapter = LaporanSummaryAdapter(mutableListOf())
         
@@ -43,24 +28,20 @@ class LaporanActivity : BaseActivity() {
         binding.rvSummary.layoutManager = LinearLayoutManager(this)
         binding.rvSummary.adapter = summaryAdapter
 
-<<<<<<< HEAD
         // Load financial data with retry logic from BaseActivity and progress indicator
-=======
-        // Load financial data with retry logic from BaseActivity
->>>>>>> origin/main
         getPemanfaatan()
     }
     
     private fun getPemanfaatan() {
+        // Show progress bar when starting the API call
+        binding.progressBar.visibility = View.VISIBLE
+        
         executeWithRetry(
             operation = { ApiConfig.getApiService().getPemanfaatan() },
             onSuccess = { response ->
-<<<<<<< HEAD
                 // Hide progress bar after successful response
-                progressBar.visibility = View.GONE
+                binding.progressBar.visibility = View.GONE
                 
-=======
->>>>>>> origin/main
                 response.data?.let { dataArray ->
                     if (dataArray.isEmpty()) {
                         Toast.makeText(this, "No financial data available", Toast.LENGTH_LONG).show()
@@ -136,19 +117,10 @@ class LaporanActivity : BaseActivity() {
                 }
             },
             onError = { error ->
-<<<<<<< HEAD
                 // Hide progress bar after final failure
-                progressBar.visibility = View.GONE
+                binding.progressBar.visibility = View.GONE
                 Toast.makeText(this, error, Toast.LENGTH_LONG).show()
             }
         )
-        
-        // Show progress bar when starting the API call
-        progressBar.visibility = View.VISIBLE
-=======
-                Toast.makeText(this, error, Toast.LENGTH_LONG).show()
-            }
-        )
->>>>>>> origin/main
     }
 }
