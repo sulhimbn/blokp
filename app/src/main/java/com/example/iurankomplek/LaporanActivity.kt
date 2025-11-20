@@ -133,7 +133,7 @@ class LaporanActivity : BaseActivity() {
         }
     }
     
-    private fun integratePaymentTransactions(
+     private fun integratePaymentTransactions(
         validatedDataItems: List<com.example.iurankomplek.model.DataItem>,
         currentTotalIuranBulanan: Int,
         currentTotalPengeluaran: Int,
@@ -155,25 +155,31 @@ class LaporanActivity : BaseActivity() {
                 }
                 
                  withContext(Dispatchers.Main) {
-                     // If there are completed transactions, update the summary to show payment integration
-                     if (completedTransactions.isNotEmpty()) {
-                         // Update financial calculations to include actual payment data
-                         val updatedTotalIuranBulanan = currentTotalIuranBulanan + paymentTotal
-                         val updatedRekapIuran = updatedTotalIuranBulanan - currentTotalPengeluaran
-                         
-                         // Update summary with integrated data
-                         val updatedSummaryItems = listOf(
-                             LaporanSummaryItem(getString(R.string.jumlah_iuran_bulanan), DataValidator.formatCurrency(updatedTotalIuranBulanan)),
+                     // Calculate summary based on payment data
+                     val summaryItems = if (completedTransactions.isNotEmpty()) {
+                         // If there are completed transactions, update the summary to show payment integration
+                         listOf(
+                             LaporanSummaryItem(getString(R.string.jumlah_iuran_bulanan), DataValidator.formatCurrency(currentTotalIuranBulanan)),
                              LaporanSummaryItem(getString(R.string.total_pengeluaran), DataValidator.formatCurrency(currentTotalPengeluaran)),
-                             LaporanSummaryItem(getString(R.string.rekap_total_iuran), DataValidator.formatCurrency(updatedRekapIuran)),
+                             LaporanSummaryItem(getString(R.string.rekap_total_iuran), DataValidator.formatCurrency(currentRekapIuran)),
                              LaporanSummaryItem("Total Payments Processed", DataValidator.formatCurrency(paymentTotal))
                          )
-                         
-                         summaryAdapter.setItems(updatedSummaryItems)
-                         
+                     } else {
+                         // If no payment transactions, show original summary
+                         listOf(
+                             LaporanSummaryItem(getString(R.string.jumlah_iuran_bulanan), DataValidator.formatCurrency(currentTotalIuranBulanan)),
+                             LaporanSummaryItem(getString(R.string.total_pengeluaran), DataValidator.formatCurrency(currentTotalPengeluaran)),
+                             LaporanSummaryItem(getString(R.string.rekap_total_iuran), DataValidator.formatCurrency(currentRekapIuran))
+                         )
+                     }
+                     
+                     summaryAdapter.setItems(summaryItems)
+                     
+                     // Show appropriate message based on payment data
+                     if (completedTransactions.isNotEmpty()) {
                          Toast.makeText(
                              this@LaporanActivity,
-                             "Integrated ${completedTransactions.size} payment transactions (+${DataValidator.formatCurrency(paymentTotal)})",
+                             "Integrated ${completedTransactions.size} payment transactions (Total: ${DataValidator.formatCurrency(paymentTotal)})",
                              Toast.LENGTH_LONG
                          ).show()
                      }
