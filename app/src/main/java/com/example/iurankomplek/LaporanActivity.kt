@@ -1,37 +1,34 @@
 package com.example.iurankomplek
+
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.iurankomplek.model.PemanfaatanResponse
+import com.example.iurankomplek.databinding.ActivityLaporanBinding
+import com.example.iurankomplek.model.LaporanSummaryItem
+import com.example.iurankomplek.utils.DataValidator
 import com.example.iurankomplek.network.ApiConfig
-import com.example.iurankomplek.utils.NetworkUtils
-import retrofit2.Call
-import retrofit2.Callback
 import retrofit2.Response
 
 class LaporanActivity : BaseActivity() {
     private lateinit var adapter: PemanfaatanAdapter
-    private lateinit var rv_laporan: RecyclerView
-    private lateinit var IuranPerwargaTextView: TextView
-    private lateinit var jumlahIuranBulananTextView: TextView
-    private lateinit var totalIuranTextView: TextView
-    private lateinit var pengeluaranTextView: TextView
-    
+    private lateinit var summaryAdapter: LaporanSummaryAdapter
+    private lateinit var binding: ActivityLaporanBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_laporan)
-        rv_laporan = findViewById(R.id.rv_laporan)
-        jumlahIuranBulananTextView = findViewById(R.id.jumlahIuranBulananTextView)
-        totalIuranTextView = findViewById(R.id.totalIuranTextView)
-        pengeluaranTextView = findViewById(R.id.pengeluaranTextView)
+        binding = ActivityLaporanBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         adapter = PemanfaatanAdapter(mutableListOf())
-        rv_laporan.layoutManager = LinearLayoutManager(this)
-        rv_laporan.adapter = adapter
+        summaryAdapter = LaporanSummaryAdapter(mutableListOf())
+        
+        binding.rvLaporan.layoutManager = LinearLayoutManager(this)
+        binding.rvLaporan.adapter = adapter
+        
+        binding.rvSummary.layoutManager = LinearLayoutManager(this)
+        binding.rvSummary.adapter = summaryAdapter
+
+        // Load financial data with retry logic from BaseActivity
         getPemanfaatan()
     }
     
@@ -45,15 +42,45 @@ class LaporanActivity : BaseActivity() {
                         return@let
                     }
                     
+                    // Validate the data array before processing to prevent potential security issues
+                    val validatedData = dataArray.map { item ->
+                        // Validate and sanitize data fields to prevent injection attacks
+                        item.copy(
+                            pemanfaatan_iuran = DataValidator.sanitizePemanfaatan(item.pemanfaatan_iuran)
+                        )
+                    }
+                    
                     // Validate financial data to prevent calculations with invalid values
                     var totalIuranBulanan = 0
                     var totalPengeluaran = 0
                     var totalIuranIndividu = 0
 
-                    for (dataItem in dataArray) {
+                    for (dataItem in validatedData) {
                         // Validate that financial values are non-negative
                         if (dataItem.iuran_perwarga < 0 || dataItem.pengeluaran_iuran_warga < 0 || dataItem.total_iuran_individu < 0) {
                             Toast.makeText(this, "Invalid financial data detected", Toast.LENGTH_LONG).show()
+                            return@let
+                        }
+                        
+                        // Check for potential integer overflow before adding
+                        if (totalIuranBulanan > Int.MAX_VALUE - dataItem.iuran_perwarga) {
+                            Toast.makeText(this, "Financial data exceeds maximum allowed value", Toast.LENGTH_LONG).show()
+                            return@let
+                        }
+                        
+                        if (totalPengeluaran > Int.MAX_VALUE - dataItem.pengeluaran_iuran_warga) {
+                            Toast.makeText(this, "Financial data exceeds maximum allowed value", Toast.LENGTH_LONG).show()
+                            return@let
+                        }
+                        
+                        // Check for potential overflow when multiplying by 3
+                        if (dataItem.total_iuran_individu > Int.MAX_VALUE / 3) {
+                            Toast.makeText(this, "Financial data exceeds maximum allowed value", Toast.LENGTH_LONG).show()
+                            return@let
+                        }
+                        
+                        if (totalIuranIndividu > Int.MAX_VALUE - (dataItem.total_iuran_individu * 3)) {
+                            Toast.makeText(this, "Financial data exceeds maximum allowed value", Toast.LENGTH_LONG).show()
                             return@let
                         }
                         
@@ -63,11 +90,22 @@ class LaporanActivity : BaseActivity() {
                     }
 
                     val rekapIuran = totalIuranIndividu - totalPengeluaran
-                    jumlahIuranBulananTextView.text = "1. Jumlah Iuran Bulanan : $totalIuranBulanan"
-                    pengeluaranTextView.text = "3. Total Pengeluaran : $totalPengeluaran"
-                    totalIuranTextView.text = "4. Rekap Total Iuran : $rekapIuran"
+                    // Validate financial calculations before displaying
+                    if (totalIuranBulanan < 0 || totalPengeluaran < 0 || totalIuranIndividu < 0 || rekapIuran < 0) {
+                        Toast.makeText(this, "Invalid financial data detected", Toast.LENGTH_LONG).show()
+                        return@let
+                    }
+                    
+                    // Create summary items for the RecyclerView with security validation
+                    val summaryItems = listOf(
+                        LaporanSummaryItem("1. Jumlah Iuran Bulanan", DataValidator.formatCurrency(totalIuranBulanan)),
+                        LaporanSummaryItem("2. Total Pengeluaran", DataValidator.formatCurrency(totalPengeluaran)),
+                        LaporanSummaryItem("3. Rekap Total Iuran", DataValidator.formatCurrency(rekapIuran))
+                    )
+                    
+                    summaryAdapter.setItems(summaryItems)
                     // Set data pemanfaatan pada adapter
-                    adapter.setPemanfaatan(dataArray)
+                    adapter.setPemanfaatan(validatedData)
                 } ?: run {
                     Toast.makeText(this, "Invalid response format", Toast.LENGTH_LONG).show()
                 }

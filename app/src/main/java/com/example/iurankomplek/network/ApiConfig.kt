@@ -24,9 +24,12 @@ object ApiConfig {
     fun getApiService(): ApiService {
         val okHttpClientBuilder = OkHttpClient.Builder()
         
-        // Only apply certificate pinning for production API (not mock API)
+        // Apply certificate pinning for production API and warn about mock API usage
         if (!USE_MOCK_API) {
             okHttpClientBuilder.certificatePinner(getCertificatePinner())
+        } else {
+            // In debug builds, log warning about cleartext traffic
+            android.util.Log.w("ApiConfig", "Using mock API with potential cleartext traffic - NOT FOR PRODUCTION")
         }
         
         val retrofit = Retrofit.Builder()

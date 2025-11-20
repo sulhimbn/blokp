@@ -1,29 +1,26 @@
 package com.example.iurankomplek
+
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.iurankomplek.model.UserResponse
+import com.example.iurankomplek.databinding.ActivityMainBinding
 import com.example.iurankomplek.network.ApiConfig
-import com.example.iurankomplek.utils.NetworkUtils
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.example.iurankomplek.utils.DataValidator
 
 class MainActivity : BaseActivity() {
     private lateinit var adapter: UserAdapter
-    private lateinit var rv_users: RecyclerView
+    private lateinit var binding: ActivityMainBinding
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        rv_users = findViewById(R.id.rv_users)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        
         adapter = UserAdapter(mutableListOf())
-        rv_users.layoutManager = LinearLayoutManager(this)
-        rv_users.adapter = adapter
+        binding.rvUsers.layoutManager = LinearLayoutManager(this)
+        binding.rvUsers.adapter = adapter
+        
+        // Load users with retry logic from BaseActivity
         getUser()
     }
     
@@ -33,7 +30,18 @@ class MainActivity : BaseActivity() {
             onSuccess = { response ->
                 response.data?.let { users ->
                     if (users.isNotEmpty()) {
-                        adapter.setUsers(users)
+                        // Validate the data array before passing to adapter to prevent potential security issues
+                        val validatedData = users.map { user ->
+                            // Ensure required fields are properly formatted to prevent injection attacks
+                            user.copy(
+                                first_name = DataValidator.sanitizeName(user.first_name),
+                                last_name = DataValidator.sanitizeName(user.last_name),
+                                email = DataValidator.sanitizeEmail(user.email),
+                                alamat = DataValidator.sanitizeAddress(user.alamat),
+                                avatar = if (DataValidator.isValidUrl(user.avatar)) user.avatar else ""
+                            )
+                        }
+                        adapter.setUsers(validatedData)
                     } else {
                         Toast.makeText(this, "No users available", Toast.LENGTH_LONG).show()
                     }

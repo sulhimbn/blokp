@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
+    <!-- Production API with certificate pinning -->
     <domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="true">api.apispreadsheets.com</domain>
         <pin-set expiration="2026-12-31">
@@ -7,11 +8,21 @@
         </pin-set>
     </domain-config>
     
-    <!-- Allow HTTP only for debug builds and local mock API -->
+    <!-- Local development server configuration -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+        <domain includeSubdomains="true">10.0.2.2</domain>
+        <domain includeSubdomains="true">api-mock</domain>
+    </domain-config>
+    
+    <!-- Debug overrides to allow cleartext traffic for local development -->
     <debug-overrides>
         <trust-anchors>
             <certificates src="system" />
             <certificates src="user" />
         </trust-anchors>
+        <!-- Allow cleartext traffic in debug builds -->
+        <cleartextTrafficPermitted>true</cleartextTrafficPermitted>
     </debug-overrides>
 </network-security-config>
