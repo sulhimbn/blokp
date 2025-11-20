@@ -72,3 +72,29 @@ fun PaymentResponse.toApiPaymentResponse(): com.example.iurankomplek.model.Payme
         referenceNumber = this.referenceNumber
     )
 }
+
+fun com.example.iurankomplek.model.PaymentResponse.toDomainPaymentResponse(): PaymentResponse {
+    return PaymentResponse(
+        transactionId = this.transactionId,
+        status = when(this.status.uppercase()) {
+            "PENDING" -> PaymentStatus.PENDING
+            "PROCESSING" -> PaymentStatus.PROCESSING
+            "COMPLETED", "SUCCESS" -> PaymentStatus.COMPLETED
+            "FAILED", "ERROR" -> PaymentStatus.FAILED
+            "REFUNDED" -> PaymentStatus.REFUNDED
+            "CANCELLED" -> PaymentStatus.CANCELLED
+            else -> PaymentStatus.PENDING
+        },
+        paymentMethod = when(this.paymentMethod.uppercase()) {
+            "CREDIT_CARD" -> PaymentMethod.CREDIT_CARD
+            "BANK_TRANSFER" -> PaymentMethod.BANK_TRANSFER
+            "E_WALLET" -> PaymentMethod.E_WALLET
+            "VIRTUAL_ACCOUNT" -> PaymentMethod.VIRTUAL_ACCOUNT
+            else -> PaymentMethod.CREDIT_CARD
+        },
+        amount = java.math.BigDecimal(this.amount),
+        currency = this.currency,
+        transactionTime = this.transactionTime,
+        referenceNumber = this.referenceNumber
+    )
+}
