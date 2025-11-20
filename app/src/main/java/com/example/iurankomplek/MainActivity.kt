@@ -36,8 +36,15 @@ class MainActivity : AppCompatActivity() {
         // Observe ViewModel state
         observeUserState()
         
-        // Load users
-        userViewModel.loadUsers()
+        // Check network connectivity before loading users
+        if (NetworkUtils.isNetworkAvailable(this)) {
+            userViewModel.loadUsers()
+        } else {
+            Toast.makeText(this, "No internet connection. Please check your network settings.", Toast.LENGTH_LONG).show()
+            // We still try to load data as the repository has retry logic, 
+            // but we notify the user about the network status
+            userViewModel.loadUsers()
+        }
     }
     
     private fun observeUserState() {

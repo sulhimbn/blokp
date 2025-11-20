@@ -36,8 +36,15 @@ class LaporanActivity : AppCompatActivity() {
         // Observe ViewModel state
         observeFinancialState()
 
-        // Load financial data
-        financialViewModel.loadFinancialData()
+        // Check network connectivity before loading financial data
+        if (NetworkUtils.isNetworkAvailable(this)) {
+            financialViewModel.loadFinancialData()
+        } else {
+            Toast.makeText(this, "No internet connection. Please check your network settings.", Toast.LENGTH_LONG).show()
+            // We still try to load data as the repository has retry logic, 
+            // but we notify the user about the network status
+            financialViewModel.loadFinancialData()
+        }
     }
 
     private fun observeFinancialState() {
