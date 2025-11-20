@@ -1,12 +1,12 @@
 package com.example.iurankomplek
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 
+import com.example.iurankomplek.databinding.ItemPemanfaatanBinding
 import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.utils.DataValidator
 
 class PemanfaatanAdapter(private var pemanfaatan: MutableList<DataItem>) :
     RecyclerView.Adapter<PemanfaatanAdapter.ListViewHolder>() {
@@ -14,9 +14,8 @@ class PemanfaatanAdapter(private var pemanfaatan: MutableList<DataItem>) :
     constructor() : this(mutableListOf())
     
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
-        val view: View =
-            LayoutInflater.from(parent.context).inflate(R.layout.item_pemanfaatan, parent, false)
-        return ListViewHolder(view)
+        val binding = ItemPemanfaatanBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ListViewHolder(binding)
     }
     
     fun setPemanfaatan(dataItems: List<DataItem>) {
@@ -32,14 +31,13 @@ class PemanfaatanAdapter(private var pemanfaatan: MutableList<DataItem>) :
     
     override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
         val item = pemanfaatan[position]
-        holder.tvPemanfaatan.text = "-" + item.pemanfaatan_iuran + ":"
-        holder.tvTotalIuranRekap.text = item.pengeluaran_iuran_warga.toString()
+        holder.binding.itemPemanfaatan.text = "-" + DataValidator.sanitizePemanfaatan(item.pemanfaatan_iuran) + ":"
+        // Validate that financial values are non-negative before displaying and apply security formatting
+        val pengeluaranValue = if (item.pengeluaran_iuran_warga >= 0) item.pengeluaran_iuran_warga else 0
+        holder.binding.itemDanaPemanfaatan.text = DataValidator.formatCurrency(pengeluaranValue)
     }
     
-    class ListViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
-        var tvPemanfaatan: TextView = itemView.findViewById(R.id.itemPemanfaatan)
-        var tvTotalIuranRekap: TextView = itemView.findViewById(R.id.itemDanaPemanfaatan)
-    }
+    class ListViewHolder(val binding: ItemPemanfaatanBinding): RecyclerView.ViewHolder(binding.root)
     
     class PemanfaatanDiffCallback(
         private val oldList: List<DataItem>,
