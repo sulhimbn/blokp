@@ -1,6 +1,5 @@
 package com.example.iurankomplek.payment
 
-import com.example.iurankomplek.model.PaymentResponse as ModelPaymentResponse
 import com.example.iurankomplek.network.ApiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
