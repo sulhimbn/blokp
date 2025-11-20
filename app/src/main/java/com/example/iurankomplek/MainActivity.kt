@@ -2,6 +2,7 @@ package com.example.iurankomplek
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -30,11 +31,16 @@ class MainActivity : AppCompatActivity() {
         getUser()
     }
     private fun getUser(currentRetryCount: Int = 0) {
+        // Show progress bar when starting the API call
+        binding.progressBar.visibility = View.VISIBLE
+        
         // Check network connectivity before making API call
         if (!NetworkUtils.isNetworkAvailable(this)) {
             if (currentRetryCount == 0) {
                 Toast.makeText(this, "No internet connection. Please check your network settings.", Toast.LENGTH_LONG).show()
             }
+            // Hide progress bar since we're not making an API call
+            binding.progressBar.visibility = View.GONE
             return
         }
         
@@ -66,6 +72,8 @@ class MainActivity : AppCompatActivity() {
                        } else {
                            Toast.makeText(this@MainActivity, "Invalid response format", Toast.LENGTH_LONG).show()
                        }
+                       // Hide progress bar after successful response
+                       binding.progressBar.visibility = View.GONE
                   } else {
                       if (currentRetryCount < maxRetries) {
                           Handler(Looper.getMainLooper()).postDelayed({
@@ -73,6 +81,8 @@ class MainActivity : AppCompatActivity() {
                           }, 1000L * (currentRetryCount + 1)) // Exponential backoff
                       } else {
                           Toast.makeText(this@MainActivity, "Failed to retrieve data after ${maxRetries + 1} attempts. Please check your connection and try again.", Toast.LENGTH_LONG).show()
+                          // Hide progress bar after final failure
+                          binding.progressBar.visibility = View.GONE
                       }
                   }
              }
@@ -83,6 +93,8 @@ class MainActivity : AppCompatActivity() {
                     }, 1000L * (currentRetryCount + 1)) // Exponential backoff
                 } else {
                     Toast.makeText(this@MainActivity, "Network error: ${t.message}. Failed after ${maxRetries + 1} attempts. Please check your connection and try again.", Toast.LENGTH_LONG).show()
+                    // Hide progress bar after final failure
+                    binding.progressBar.visibility = View.GONE
                     t.printStackTrace()
                 }
             }

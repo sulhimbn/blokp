@@ -50,17 +50,29 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp" />
 
+    <!-- Progress bar for loading indication -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/pemanfaatanTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
     <!-- RecyclerView for pemanfaatan details -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_laporan"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:background="@color/peach"
         android:fontFamily="@font/font"
         android:padding="2dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/pemanfaatanTextView"
+        app:layout_constraintBottom_toBottomOf="parent"
         tools:listitem="@layout/item_pemanfaatan" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

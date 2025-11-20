@@ -2,6 +2,7 @@ package com.example.iurankomplek
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -38,11 +39,16 @@ class LaporanActivity : AppCompatActivity() {
         getPemanfaatan()
     }
     private fun getPemanfaatan(currentRetryCount: Int = 0) {
+        // Show progress bar when starting the API call
+        binding.progressBar.visibility = View.VISIBLE
+        
         // Check network connectivity before making API call
         if (!NetworkUtils.isNetworkAvailable(this)) {
             if (currentRetryCount == 0) {
                 Toast.makeText(this, "No internet connection. Please check your network settings.", Toast.LENGTH_LONG).show()
             }
+            // Hide progress bar since we're not making an API call
+            binding.progressBar.visibility = View.GONE
             return
         }
         
@@ -57,6 +63,8 @@ class LaporanActivity : AppCompatActivity() {
                            
                            if (dataArray.isEmpty()) {
                                Toast.makeText(this@LaporanActivity, "No financial data available", Toast.LENGTH_LONG).show()
+                               // Hide progress bar after response
+                               binding.progressBar.visibility = View.GONE
                                return
                            }
                            
@@ -77,28 +85,38 @@ class LaporanActivity : AppCompatActivity() {
                                 // Validate that financial values are non-negative
                                 if (dataItem.iuran_perwarga < 0 || dataItem.pengeluaran_iuran_warga < 0 || dataItem.total_iuran_individu < 0) {
                                     Toast.makeText(this@LaporanActivity, "Invalid financial data detected", Toast.LENGTH_LONG).show()
+                                    // Hide progress bar after error
+                                    binding.progressBar.visibility = View.GONE
                                     return
                                 }
                                 
                                 // Check for potential integer overflow before adding
                                 if (totalIuranBulanan > Int.MAX_VALUE - dataItem.iuran_perwarga) {
                                     Toast.makeText(this@LaporanActivity, "Financial data exceeds maximum allowed value", Toast.LENGTH_LONG).show()
+                                    // Hide progress bar after error
+                                    binding.progressBar.visibility = View.GONE
                                     return
                                 }
                                 
                                 if (totalPengeluaran > Int.MAX_VALUE - dataItem.pengeluaran_iuran_warga) {
                                     Toast.makeText(this@LaporanActivity, "Financial data exceeds maximum allowed value", Toast.LENGTH_LONG).show()
+                                    // Hide progress bar after error
+                                    binding.progressBar.visibility = View.GONE
                                     return
                                 }
                                 
                                 // Check for potential overflow when multiplying by 3
                                 if (dataItem.total_iuran_individu > Int.MAX_VALUE / 3) {
                                     Toast.makeText(this@LaporanActivity, "Financial data exceeds maximum allowed value", Toast.LENGTH_LONG).show()
+                                    // Hide progress bar after error
+                                    binding.progressBar.visibility = View.GONE
                                     return
                                 }
                                 
                                 if (totalIuranIndividu > Int.MAX_VALUE - (dataItem.total_iuran_individu * 3)) {
                                     Toast.makeText(this@LaporanActivity, "Financial data exceeds maximum allowed value", Toast.LENGTH_LONG).show()
+                                    // Hide progress bar after error
+                                    binding.progressBar.visibility = View.GONE
                                     return
                                 }
                                 
@@ -111,6 +129,8 @@ class LaporanActivity : AppCompatActivity() {
                            // Validate financial calculations before displaying
                            if (totalIuranBulanan < 0 || totalPengeluaran < 0 || totalIuranIndividu < 0 || rekapIuran < 0) {
                                Toast.makeText(this@LaporanActivity, "Invalid financial data detected", Toast.LENGTH_LONG).show()
+                               // Hide progress bar after error
+                               binding.progressBar.visibility = View.GONE
                                return
                            }
                            
@@ -124,8 +144,12 @@ class LaporanActivity : AppCompatActivity() {
                             summaryAdapter.setItems(summaryItems)
                             // Set data pemanfaatan pada adapter
                             adapter.setPemanfaatan(validatedData)
+                            // Hide progress bar after successful processing
+                            binding.progressBar.visibility = View.GONE
                       } else {
                           Toast.makeText(this@LaporanActivity, "Invalid response format", Toast.LENGTH_LONG).show()
+                          // Hide progress bar after error
+                          binding.progressBar.visibility = View.GONE
                       }
                   } else {
                       if (currentRetryCount < maxRetries) {
@@ -134,6 +158,8 @@ class LaporanActivity : AppCompatActivity() {
                           }, 1000L * (currentRetryCount + 1)) // Exponential backoff
                       } else {
                           Toast.makeText(this@LaporanActivity, "Failed to retrieve data after ${maxRetries + 1} attempts. Please check your connection and try again.", Toast.LENGTH_LONG).show()
+                          // Hide progress bar after final failure
+                          binding.progressBar.visibility = View.GONE
                       }
                   }
              }
@@ -144,6 +170,8 @@ class LaporanActivity : AppCompatActivity() {
                     }, 1000L * (currentRetryCount + 1)) // Exponential backoff
                 } else {
                     Toast.makeText(this@LaporanActivity, "Network error: ${t.message}. Failed after ${maxRetries + 1} attempts. Please check your connection and try again.", Toast.LENGTH_LONG).show()
+                    // Hide progress bar after final failure
+                    binding.progressBar.visibility = View.GONE
                     t.printStackTrace()
                 }
             }
