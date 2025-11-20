@@ -3,11 +3,12 @@
     <!-- Production API with enhanced certificate pinning -->
     <domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="true">api.apispreadsheets.com</domain>
-        <pin-set expiration="2028-12-31">
-            <pin algorithm="sha256">PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=</pin>
-            <!-- Additional pins can be added for backup certificates -->
-            <!-- When certificate is renewed, add new pin before removing old one -->
-        </pin-set>
+    <pin-set expiration="2028-12-31">
+        <pin algorithm="sha256">PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=</pin>
+        <pin algorithm="sha256">76EwPE6xT4mU4z9qOQKSZbN2nqKq3UNrDx1bHx1bHx1=</pin>
+        <!-- Additional pins can be added for backup certificates -->
+        <!-- When certificate is renewed, add new pin before removing old one -->
+    </pin-set>
     </domain-config>
     
     <!-- Local development server configuration -->
