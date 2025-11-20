@@ -8,6 +8,8 @@ import retrofit2.Response
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import javax.net.ssl.SSLException
+import kotlin.math.min
+import kotlin.math.pow
 
 class PemanfaatanRepositoryImpl(
     private val apiService: ApiService
