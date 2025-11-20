@@ -44,7 +44,7 @@ class LaporanActivity : BaseActivity() {
                 
                 response.data?.let { dataArray ->
                     if (dataArray.isEmpty()) {
-                        Toast.makeText(this, "No financial data available", Toast.LENGTH_LONG).show()
+                         Toast.makeText(this, getString(R.string.no_financial_data_available), Toast.LENGTH_LONG).show()
                         return@let
                     }
                     
@@ -64,31 +64,31 @@ class LaporanActivity : BaseActivity() {
                     for (dataItem in validatedData) {
                         // Validate that financial values are non-negative
                         if (dataItem.iuran_perwarga < 0 || dataItem.pengeluaran_iuran_warga < 0 || dataItem.total_iuran_individu < 0) {
-                            Toast.makeText(this, "Invalid financial data detected", Toast.LENGTH_LONG).show()
+                             Toast.makeText(this, getString(R.string.invalid_financial_data_detected), Toast.LENGTH_LONG).show()
                             return@let
                         }
                         
-                        // Check for potential integer overflow before adding
-                        if (totalIuranBulanan > Int.MAX_VALUE - dataItem.iuran_perwarga) {
-                            Toast.makeText(this, "Financial data exceeds maximum allowed value", Toast.LENGTH_LONG).show()
-                            return@let
-                        }
+                         // Check for potential integer overflow before adding
+                         if (totalIuranBulanan > Int.MAX_VALUE - dataItem.iuran_perwarga) {
+                             Toast.makeText(this, getString(R.string.financial_data_exceeds_maximum), Toast.LENGTH_LONG).show()
+                             return@let
+                         }
                         
-                        if (totalPengeluaran > Int.MAX_VALUE - dataItem.pengeluaran_iuran_warga) {
-                            Toast.makeText(this, "Financial data exceeds maximum allowed value", Toast.LENGTH_LONG).show()
-                            return@let
-                        }
+                         if (totalPengeluaran > Int.MAX_VALUE - dataItem.pengeluaran_iuran_warga) {
+                             Toast.makeText(this, getString(R.string.financial_data_exceeds_maximum), Toast.LENGTH_LONG).show()
+                             return@let
+                         }
                         
-                        // Check for potential overflow when multiplying by 3
-                        if (dataItem.total_iuran_individu > Int.MAX_VALUE / 3) {
-                            Toast.makeText(this, "Financial data exceeds maximum allowed value", Toast.LENGTH_LONG).show()
-                            return@let
-                        }
+                         // Check for potential overflow when multiplying by 3
+                         if (dataItem.total_iuran_individu > Int.MAX_VALUE / 3) {
+                             Toast.makeText(this, getString(R.string.financial_data_exceeds_maximum), Toast.LENGTH_LONG).show()
+                             return@let
+                         }
                         
-                        if (totalIuranIndividu > Int.MAX_VALUE - (dataItem.total_iuran_individu * 3)) {
-                            Toast.makeText(this, "Financial data exceeds maximum allowed value", Toast.LENGTH_LONG).show()
-                            return@let
-                        }
+                         if (totalIuranIndividu > Int.MAX_VALUE - (dataItem.total_iuran_individu * 3)) {
+                             Toast.makeText(this, getString(R.string.financial_data_exceeds_maximum), Toast.LENGTH_LONG).show()
+                             return@let
+                         }
                         
                         totalIuranBulanan += dataItem.iuran_perwarga
                         totalPengeluaran += dataItem.pengeluaran_iuran_warga
@@ -96,24 +96,24 @@ class LaporanActivity : BaseActivity() {
                     }
 
                     val rekapIuran = totalIuranIndividu - totalPengeluaran
-                    // Validate financial calculations before displaying
-                    if (totalIuranBulanan < 0 || totalPengeluaran < 0 || totalIuranIndividu < 0 || rekapIuran < 0) {
-                        Toast.makeText(this, "Invalid financial data detected", Toast.LENGTH_LONG).show()
-                        return@let
-                    }
+                     // Validate financial calculations before displaying
+                     if (totalIuranBulanan < 0 || totalPengeluaran < 0 || totalIuranIndividu < 0 || rekapIuran < 0) {
+                         Toast.makeText(this, getString(R.string.invalid_financial_data_detected), Toast.LENGTH_LONG).show()
+                         return@let
+                     }
                     
-                    // Create summary items for the RecyclerView with security validation
-                    val summaryItems = listOf(
-                        LaporanSummaryItem("1. Jumlah Iuran Bulanan", DataValidator.formatCurrency(totalIuranBulanan)),
-                        LaporanSummaryItem("2. Total Pengeluaran", DataValidator.formatCurrency(totalPengeluaran)),
-                        LaporanSummaryItem("3. Rekap Total Iuran", DataValidator.formatCurrency(rekapIuran))
-                    )
+                     // Create summary items for the RecyclerView with security validation
+                     val summaryItems = listOf(
+                         LaporanSummaryItem(getString(R.string.jumlah_iuran_bulanan), DataValidator.formatCurrency(totalIuranBulanan)),
+                         LaporanSummaryItem(getString(R.string.total_pengeluaran), DataValidator.formatCurrency(totalPengeluaran)),
+                         LaporanSummaryItem(getString(R.string.rekap_total_iuran), DataValidator.formatCurrency(rekapIuran))
+                     )
                     
                     summaryAdapter.setItems(summaryItems)
                     // Set data pemanfaatan pada adapter
                     adapter.setPemanfaatan(validatedData)
                 } ?: run {
-                    Toast.makeText(this, "Invalid response format", Toast.LENGTH_LONG).show()
+                     Toast.makeText(this, getString(R.string.invalid_response_format), Toast.LENGTH_LONG).show()
                 }
             },
             onError = { error ->

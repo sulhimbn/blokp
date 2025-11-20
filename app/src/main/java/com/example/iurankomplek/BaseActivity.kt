@@ -18,22 +18,22 @@ abstract class BaseActivity : AppCompatActivity() {
         onError: (String) -> Unit,
         currentRetry: Int = 0
     ) {
-        if (!NetworkUtils.isNetworkAvailable(this)) {
-            if (currentRetry == 0) {
-                onError("No internet connection. Please check your network settings.")
-            }
-            return
-        }
+         if (!NetworkUtils.isNetworkAvailable(this)) {
+             if (currentRetry == 0) {
+                 onError(getString(R.string.no_internet_connection))
+             }
+             return
+         }
         
         operation(currentRetry).enqueue(object : Callback<T> {
             override fun onResponse(call: Call<T>, response: Response<T>) {
                 if (response.isSuccessful) {
-                    response.body()?.let { onSuccess(it) }
-                        ?: onError("Invalid response format")
+                     response.body()?.let { onSuccess(it) }
+                         ?: onError(getString(R.string.invalid_response_format))
                 } else if (currentRetry < maxRetries) {
                     scheduleRetry(operation, onSuccess, onError, currentRetry + 1)
                 } else {
-                    onError("Failed after ${maxRetries + 1} attempts")
+                     onError(getString(R.string.failed_after_attempts, maxRetries + 1))
                 }
             }
             
@@ -41,7 +41,7 @@ abstract class BaseActivity : AppCompatActivity() {
                 if (currentRetry < maxRetries) {
                     scheduleRetry(operation, onSuccess, onError, currentRetry + 1)
                 } else {
-                    onError("Network error: ${t.message}")
+                     onError(getString(R.string.network_error, t.message ?: "Unknown error"))
                     t.printStackTrace()
                 }
             }
