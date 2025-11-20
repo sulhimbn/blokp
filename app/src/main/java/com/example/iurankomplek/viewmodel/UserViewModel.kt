@@ -1,6 +1,7 @@
 package com.example.iurankomplek.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.iurankomplek.data.repository.UserRepository
 import com.example.iurankomplek.model.UserResponse
@@ -28,6 +29,16 @@ class UserViewModel(
                 .onFailure { exception ->
                     _usersState.value = UiState.Error(exception.message ?: "Unknown error occurred")
                 }
+        }
+    }
+    
+    class Factory(private val userRepository: UserRepository) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(UserViewModel::class.java)) {
+                @Suppress("UNCHECKED_CAST")
+                return UserViewModel(userRepository) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
 }

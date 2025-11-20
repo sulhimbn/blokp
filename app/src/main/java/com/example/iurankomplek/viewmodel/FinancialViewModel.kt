@@ -1,6 +1,7 @@
 package com.example.iurankomplek.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.iurankomplek.data.repository.PemanfaatanRepository
 import com.example.iurankomplek.model.PemanfaatanResponse
@@ -28,6 +29,16 @@ class FinancialViewModel(
                 .onFailure { exception ->
                     _financialState.value = UiState.Error(exception.message ?: "Unknown error occurred")
                 }
+        }
+    }
+    
+    class Factory(private val pemanfaatanRepository: PemanfaatanRepository) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(FinancialViewModel::class.java)) {
+                @Suppress("UNCHECKED_CAST")
+                return FinancialViewModel(pemanfaatanRepository) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
 }
