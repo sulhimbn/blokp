@@ -6,7 +6,9 @@ import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityLaporanBinding
 import com.example.iurankomplek.model.LaporanSummaryItem
+import com.example.iurankomplek.model.ValidatedDataItem
 import com.example.iurankomplek.utils.DataValidator
+import com.example.iurankomplek.utils.FinancialCalculator
 import com.example.iurankomplek.network.ApiConfig
 
 class LaporanActivity : BaseActivity() {
@@ -48,70 +50,59 @@ class LaporanActivity : BaseActivity() {
                         return@let
                     }
                     
-                    // Validate the data array before processing to prevent potential security issues
-                    val validatedData = dataArray.map { item ->
-                        // Validate and sanitize data fields to prevent injection attacks
-                        item.copy(
-                            pemanfaatan_iuran = DataValidator.sanitizePemanfaatan(item.pemanfaatan_iuran)
-                        )
-                    }
-                    
-                    // Validate financial data to prevent calculations with invalid values
-                    var totalIuranBulanan = 0
-                    var totalPengeluaran = 0
-                    var totalIuranIndividu = 0
+                     try {
+                         // Validate the data array before processing to prevent potential security issues
+                         val validatedData = dataArray.map { item ->
+                             // Use ValidatedDataItem for enhanced validation
+                             ValidatedDataItem.fromDataItem(item)
+                         }
+                         
+                         // Convert back to regular DataItem for the FinancialCalculator
+                         val validatedDataItems = validatedData.map { item ->
+                             com.example.iurankomplek.model.DataItem(
+                                 first_name = item.first_name,
+                                 last_name = item.last_name,
+                                 email = item.email,
+                                 alamat = item.alamat,
+                                 iuran_perwarga = item.iuran_perwarga,
+                                 total_iuran_rekap = item.total_iuran_rekap,
+                                 jumlah_iuran_bulanan = item.jumlah_iuran_bulanan,
+                                 total_iuran_individu = item.total_iuran_individu,
+                                 pengeluaran_iuran_warga = item.pengeluaran_iuran_warga,
+                                 pemanfaatan_iuran = item.pemanfaatan_iuran,
+                                 avatar = item.avatar
+                             )
+                         }
+                         
+                         // Use FinancialCalculator for all financial calculations
+                         val totalIuranBulanan = FinancialCalculator.calculateTotalIuranBulanan(validatedDataItems)
+                         val totalPengeluaran = FinancialCalculator.calculateTotalPengeluaran(validatedDataItems)
+                         val totalIuranIndividu = FinancialCalculator.calculateTotalIuranIndividu(validatedDataItems)
+                         val rekapIuran = FinancialCalculator.calculateRekapIuran(validatedDataItems)
 
-                    for (dataItem in validatedData) {
-                        // Validate that financial values are non-negative
-                        if (dataItem.iuran_perwarga < 0 || dataItem.pengeluaran_iuran_warga < 0 || dataItem.total_iuran_individu < 0) {
+                         // Validate financial calculations before displaying
+                         if (!FinancialCalculator.validateFinancialCalculations(validatedDataItems)) {
                              Toast.makeText(this, getString(R.string.invalid_financial_data_detected), Toast.LENGTH_LONG).show()
-                            return@let
-                        }
-                        
-                         // Check for potential integer overflow before adding
-                         if (totalIuranBulanan > Int.MAX_VALUE - dataItem.iuran_perwarga) {
-                             Toast.makeText(this, getString(R.string.financial_data_exceeds_maximum), Toast.LENGTH_LONG).show()
                              return@let
                          }
-                        
-                         if (totalPengeluaran > Int.MAX_VALUE - dataItem.pengeluaran_iuran_warga) {
-                             Toast.makeText(this, getString(R.string.financial_data_exceeds_maximum), Toast.LENGTH_LONG).show()
-                             return@let
-                         }
-                        
-                         // Check for potential overflow when multiplying by 3
-                         if (dataItem.total_iuran_individu > Int.MAX_VALUE / 3) {
-                             Toast.makeText(this, getString(R.string.financial_data_exceeds_maximum), Toast.LENGTH_LONG).show()
-                             return@let
-                         }
-                        
-                         if (totalIuranIndividu > Int.MAX_VALUE - (dataItem.total_iuran_individu * 3)) {
-                             Toast.makeText(this, getString(R.string.financial_data_exceeds_maximum), Toast.LENGTH_LONG).show()
-                             return@let
-                         }
-                        
-                        totalIuranBulanan += dataItem.iuran_perwarga
-                        totalPengeluaran += dataItem.pengeluaran_iuran_warga
-                        totalIuranIndividu += dataItem.total_iuran_individu * 3
-                    }
-
-                    val rekapIuran = totalIuranIndividu - totalPengeluaran
-                     // Validate financial calculations before displaying
-                     if (totalIuranBulanan < 0 || totalPengeluaran < 0 || totalIuranIndividu < 0 || rekapIuran < 0) {
+                     } catch (e: ArithmeticException) {
+                         Toast.makeText(this, getString(R.string.financial_calculation_overflow_error), Toast.LENGTH_LONG).show()
+                         return@let
+                     } catch (e: IllegalArgumentException) {
                          Toast.makeText(this, getString(R.string.invalid_financial_data_detected), Toast.LENGTH_LONG).show()
                          return@let
                      }
-                    
-                     // Create summary items for the RecyclerView with security validation
-                     val summaryItems = listOf(
-                         LaporanSummaryItem(getString(R.string.jumlah_iuran_bulanan), DataValidator.formatCurrency(totalIuranBulanan)),
-                         LaporanSummaryItem(getString(R.string.total_pengeluaran), DataValidator.formatCurrency(totalPengeluaran)),
-                         LaporanSummaryItem(getString(R.string.rekap_total_iuran), DataValidator.formatCurrency(rekapIuran))
-                     )
-                    
-                    summaryAdapter.setItems(summaryItems)
-                    // Set data pemanfaatan pada adapter
-                    adapter.setPemanfaatan(validatedData)
+                     
+                      // Create summary items for the RecyclerView with security validation
+                      val summaryItems = listOf(
+                          LaporanSummaryItem(getString(R.string.jumlah_iuran_bulanan), DataValidator.formatCurrency(totalIuranBulanan)),
+                          LaporanSummaryItem(getString(R.string.total_pengeluaran), DataValidator.formatCurrency(totalPengeluaran)),
+                          LaporanSummaryItem(getString(R.string.rekap_total_iuran), DataValidator.formatCurrency(rekapIuran))
+                      )
+                     
+                     summaryAdapter.setItems(summaryItems)
+                     // Set data pemanfaatan pada adapter
+                     adapter.setPemanfaatan(validatedDataItems)
                 } ?: run {
                      Toast.makeText(this, getString(R.string.invalid_response_format), Toast.LENGTH_LONG).show()
                 }
