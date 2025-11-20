@@ -1,6 +1,5 @@
 package com.example.iurankomplek.network
 
-import okhttp3.CertificatePinner
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -15,26 +14,30 @@ object ApiConfig {
         "https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/"
     }
     
-    private fun getCertificatePinner(): CertificatePinner {
-        return CertificatePinner.Builder()
-            .add("api.apispreadsheets.com", "sha256/PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=")
-            .build()
-    }
-    
     fun getApiService(): ApiService {
-        val okHttpClientBuilder = OkHttpClient.Builder()
-        
-        // Apply certificate pinning for production API and warn about mock API usage
-        if (!USE_MOCK_API) {
-            okHttpClientBuilder.certificatePinner(getCertificatePinner())
+        val okHttpClient = if (!USE_MOCK_API) {
+            // Use secure client for production
+            SecurityConfig.getSecureOkHttpClient()
         } else {
-            // In debug builds, log warning about cleartext traffic
-            android.util.Log.w("ApiConfig", "Using mock API with potential cleartext traffic - NOT FOR PRODUCTION")
+            // For debug/mock, use basic client but log warning
+            val clientBuilder = OkHttpClient.Builder()
+                .connectTimeout(30L, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(30L, java.util.concurrent.TimeUnit.SECONDS)
+            
+            // Add logging interceptor only for debug builds
+            if (BuildConfig.DEBUG) {
+                val loggingInterceptor = okhttp3.logging.HttpLoggingInterceptor().apply {
+                    level = okhttp3.logging.HttpLoggingInterceptor.Level.BODY
+                }
+                clientBuilder.addInterceptor(loggingInterceptor)
+            }
+            
+            clientBuilder.build()
         }
         
         val retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(okHttpClientBuilder.build())
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         return retrofit.create(ApiService::class.java)
