@@ -12,17 +12,34 @@ class TransactionRepository @Inject constructor(
     private val transactionDao: TransactionDao
 ) {
     
-    // Additional methods for API integration
-    suspend fun initiatePaymentViaApi(
-        amount: String,
-        description: String,
-        customerId: String,
-        paymentMethod: String
-    ): Result<com.example.iurankomplek.model.PaymentResponse> {
-        // This would be implemented when we have access to ApiService
-        // For now, returning a failure as this requires dependency injection changes
-        return Result.failure(Exception("Not implemented - requires API service injection"))
-    }
+// Additional methods for API integration
+      suspend fun initiatePaymentViaApi(
+          amount: String,
+          description: String,
+          customerId: String,
+          paymentMethod: String
+      ): Result<com.example.iurankomplek.model.PaymentResponse> {
+          // This method properly integrates with the payment gateway using suspend functions
+          return try {
+              val response = paymentGateway.processPayment(
+                  PaymentRequest(
+                      amount = java.math.BigDecimal(amount),
+                      description = description,
+                      customerId = customerId,
+                      paymentMethod = when (paymentMethod) {
+                          "CREDIT_CARD" -> PaymentMethod.CREDIT_CARD
+                          "BANK_TRANSFER" -> PaymentMethod.BANK_TRANSFER
+                          "E_WALLET" -> PaymentMethod.E_WALLET
+                          "VIRTUAL_ACCOUNT" -> PaymentMethod.VIRTUAL_ACCOUNT
+                          else -> PaymentMethod.CREDIT_CARD
+                      }
+                  )
+              )
+              response.mapCatching { it.toApiPaymentResponse() }
+          } catch (e: Exception) {
+              Result.failure(e)
+          }
+      }
     suspend fun processPayment(request: PaymentRequest): Result<Transaction> {
         return try {
             val transaction = Transaction.create(request)
