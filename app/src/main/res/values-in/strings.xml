@@ -13,5 +13,6 @@
      <string name="no_internet_connection">Tidak ada koneksi internet. Silakan periksa pengaturan jaringan Anda.</string>
      <string name="failed_after_attempts">Gagal setelah %d percobaan</string>
      <string name="network_error">Kesalahan jaringan: %s</string>
+     <string name="request_failed_with_status">Permintaan gagal dengan kode status: %d</string>
      <string name="financial_calculation_overflow_error">Kesalahan perhitungan keuangan karena data overflow</string>
 </resources>
