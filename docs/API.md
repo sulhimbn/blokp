@@ -1,13 +1,38 @@
 # API Documentation
 
+## Overview
+
+IuranKomplek API menyediakan endpoints untuk mengambil data pengguna dan informasi pemanfaatan iuran komplek. API menggunakan layanan pihak ketiga (API Spreadsheets) untuk penyimpanan data.
+
 ## Base URLs
-- Production: https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/
-- Development: http://api-mock:5000/data/QjX6hB1ST2IDKaxB/
+
+### Production
+```
+https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/
+```
+
+### Development (Docker)
+```
+http://api-mock:5000/data/QjX6hB1ST2IDKaxB/
+```
+
+### Environment Switching
+Aplikasi secara otomatis beralih antara production dan development API berdasarkan:
+- `BuildConfig.DEBUG` flag
+- `DOCKER_ENV` environment variable
 
 ## Endpoints
 
-### GET /data/QjX6hB1ST2IDKaxB/ (users)
-Mengambil data pengguna untuk ditampilkan di MainActivity
+### GET /data/QjX6hB1ST2IDKaxB/
+
+Mengambil data pengguna dan pemanfaatan iuran.
+
+#### Request
+```http
+GET /data/QjX6hB1ST2IDKaxB/ HTTP/1.1
+Host: api.apispreadsheets.com
+Accept: application/json
+```
 
 #### Response Format
 ```json
@@ -15,9 +40,9 @@ Mengambil data pengguna untuk ditampilkan di MainActivity
   "data": [
     {
       "first_name": "John",
-      "last_name": "Smith", 
-      "email": "john@example.com",
-      "alamat": "Jl. Contoh No. 1",
+      "last_name": "Doe",
+      "email": "john.doe@example.com",
+      "alamat": "Jl. Contoh No. 123, Jakarta",
       "iuran_perwarga": 150000,
       "total_iuran_rekap": 1800000,
       "jumlah_iuran_bulanan": 150000,
@@ -30,38 +55,356 @@ Mengambil data pengguna untuk ditampilkan di MainActivity
 }
 ```
 
-### GET /data/QjX6hB1ST2IDKaxB/ (pemanfaatan)
-Mengambil data pemanfaatan iuran untuk ditampilkan di LaporanActivity
+#### Data Fields
 
-#### Response Format
-```json
-{
-  "data": [
-    {
-      "first_name": "John",
-      "last_name": "Smith", 
-      "email": "john@example.com",
-      "alamat": "Jl. Contoh No. 1",
-      "iuran_perwarga": 150000,
-      "total_iuran_rekap": 1800000,
-      "jumlah_iuran_bulanan": 150000,
-      "total_iuran_individu": 150000,
-      "pengeluaran_iuran_warga": 50000,
-      "pemanfaatan_iuran": "Perbaikan jalan komplek",
-      "avatar": "https://example.com/avatar.jpg"
+| Field | Type | Description | Example |
+|-------|------|-------------|---------|
+| `first_name` | String | Nama depan pengguna | "John" |
+| `last_name` | String | Nama belakang pengguna | "Doe" |
+| `email` | String | Email pengguna | "john@example.com" |
+| `alamat` | String | Alamat lengkap | "Jl. Contoh No. 123" |
+| `iuran_perwarga` | Integer | Jumlah iuran per warga per bulan | 150000 |
+| `total_iuran_rekap` | Integer | Total rekap iuran (setahun) | 1800000 |
+| `jumlah_iuran_bulanan` | Integer | Jumlah iuran bulanan | 150000 |
+| `total_iuran_individu` | Integer | Total iuran individu | 150000 |
+| `pengeluaran_iuran_warga` | Integer | Jumlah pengeluaran | 50000 |
+| `pemanfaatan_iuran` | String | Deskripsi pemanfaatan | "Perbaikan jalan" |
+| `avatar` | String | URL foto profil | "https://..." |
+
+## Client Implementation
+
+### Android (Kotlin)
+
+#### Service Interface
+```kotlin
+interface ApiService {
+    @GET(".")
+    fun getUsers(): Call<ResponseUser>
+    
+    @GET(".")
+    fun getPemanfaatan(): Call<ResponseUser>
+}
+```
+
+#### Configuration
+```kotlin
+object ApiConfig {
+    private const val USE_MOCK_API = BuildConfig.DEBUG || System.getenv("DOCKER_ENV") != null
+    private const val BASE_URL = if (USE_MOCK_API) {
+        "http://api-mock:5000/data/QjX6hB1ST2IDKaxB/\n\n"
+    } else {
+        "https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/\n\n"
     }
-  ]
+    
+    fun getApiService(): ApiService {
+        val retrofit = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+        return retrofit.create(ApiService::class.java)
+    }
+}
+```
+
+#### Usage Example
+```kotlin
+class MainActivity : AppCompatActivity() {
+    private fun getUser() {
+        val apiService = ApiConfig.getApiService()
+        val client = apiService.getUsers()
+        client.enqueue(object : Callback<ResponseUser> {
+            override fun onResponse(call: Call<ResponseUser>, response: Response<ResponseUser>) {
+                if (response.isSuccessful) {
+                    val dataArray = response.body()?.data
+                    if (dataArray != null) {
+                        adapter.setUsers(dataArray)
+                    }
+                } else {
+                    Toast.makeText(this@MainActivity, "Failed to retrieve data", Toast.LENGTH_SHORT).show()
+                }
+            }
+            
+            override fun onFailure(call: Call<ResponseUser>, t: Throwable) {
+                Toast.makeText(this@MainActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+                t.printStackTrace()
+            }
+        })
+    }
 }
 ```
 
 ## Error Handling
-- 200: Success - Data successfully retrieved
-- 404: Data not found - No data available at the requested endpoint
-- 500: Server error - Internal server error occurred
-- Network errors: Connection timeout, no internet connection
 
-## Authentication
-This API does not require authentication at the moment.
+### HTTP Status Codes
 
-## Rate Limiting
-No specific rate limiting is documented for this API.
+| Status | Description | Client Action |
+|--------|-------------|---------------|
+| 200 | Success | Process response data |
+| 400 | Bad Request | Check request parameters |
+| 404 | Not Found | Verify endpoint URL |
+| 500 | Server Error | Retry with backoff |
+| 503 | Service Unavailable | Display offline message |
+
+### Error Response Format
+```json
+{
+  "error": "Data not found",
+  "message": "Spreadsheet not found or inaccessible"
+}
+```
+
+### Client Error Handling
+```kotlin
+override fun onResponse(call: Call<ResponseUser>, response: Response<ResponseUser>) {
+    when (response.code()) {
+        200 -> {
+            // Success handling
+            val data = response.body()?.data
+            if (data != null) {
+                adapter.setUsers(data)
+            } else {
+                showEmptyState()
+            }
+        }
+        404 -> {
+            showErrorMessage("Data tidak ditemukan")
+        }
+        500 -> {
+            showErrorMessage("Server error, coba lagi nanti")
+        }
+        else -> {
+            showErrorMessage("Terjadi kesalahan: ${response.code()}")
+        }
+    }
+}
+```
+
+## Data Models
+
+### ResponseUser
+```kotlin
+data class ResponseUser(
+    val data: List<DataItem>
+)
+```
+
+### DataItem
+```kotlin
+data class DataItem(
+    val first_name: String,
+    val last_name: String,
+    val email: String,
+    val alamat: String,
+    val iuran_perwarga: Int,
+    val total_iuran_rekap: Int,
+    val jumlah_iuran_bulanan: Int,
+    val total_iuran_individu: Int,
+    val pengeluaran_iuran_warga: Int,
+    val pemanfaatan_iuran: String,
+    val avatar: String
+)
+```
+
+## Mock API (Development)
+
+### Setup with Docker
+```bash
+# Start mock API
+docker-compose up api-mock
+
+# Access mock API
+curl http://localhost:8080/data/QjX6hB1ST2IDKaxB/
+```
+
+### Mock Data Structure
+Mock API harus mengembalikan data dengan struktur yang sama seperti production API:
+
+```json
+{
+  "data": [
+    {
+      "first_name": "Test",
+      "last_name": "User",
+      "email": "test@example.com",
+      "alamat": "Test Address",
+      "iuran_perwarga": 100000,
+      "total_iuran_rekap": 1200000,
+      "jumlah_iuran_bulanan": 100000,
+      "total_iuran_individu": 100000,
+      "pengeluaran_iuran_warga": 25000,
+      "pemanfaatan_iuran": "Test pemanfaatan",
+      "avatar": "https://via.placeholder.com/80"
+    }
+  ]
+}
+```
+
+## Security Considerations
+
+### Current Security Measures
+- HTTPS for production endpoints
+- Basic error message sanitization
+- Debug-only network inspection
+
+### Security Recommendations
+1. **Certificate Pinning**: Implement SSL certificate pinning
+2. **API Key Authentication**: Add API key if supported by provider
+3. **Request Validation**: Validate all incoming data
+4. **Rate Limiting**: Implement client-side rate limiting
+5. **Data Encryption**: Encrypt sensitive data at rest
+
+### Network Security Configuration
+```xml
+<!-- res/xml/network_security_config.xml -->
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">api.apispreadsheets.com</domain>
+        <pin-set expiration="2024-12-31">
+            <pin algorithm="sha256">CERTIFICATE_PIN_HERE</pin>
+        </pin-set>
+    </domain-config>
+</network-security_config>
+```
+
+## Performance Optimization
+
+### Caching Strategy
+```kotlin
+// Add OkHttp caching
+val cacheSize = 10 * 1024 * 1024 // 10 MB
+val cache = Cache(context.cacheDir, cacheSize)
+
+val okHttpClient = OkHttpClient.Builder()
+    .cache(cache)
+    .build()
+```
+
+### Request Optimization
+- Use conditional requests (ETag, Last-Modified)
+- Implement request deduplication
+- Add request timeouts
+- Use connection pooling
+
+### Response Optimization
+- Implement response compression
+- Use efficient JSON parsing
+- Cache parsed responses
+- Lazy load large datasets
+
+## Testing
+
+### Unit Tests
+```kotlin
+@Test
+fun `test API response parsing`() {
+    val json = """{"data":[{"first_name":"Test","last_name":"User"}]}"""
+    val response = Gson().fromJson(json, ResponseUser::class.java)
+    assertEquals("Test", response.data[0].first_name)
+}
+```
+
+### Integration Tests
+```kotlin
+@Test
+fun `test API connectivity`() {
+    val apiService = ApiConfig.getApiService()
+    val response = apiService.getUsers().execute()
+    assertTrue(response.isSuccessful)
+    assertNotNull(response.body())
+}
+```
+
+### Mock Server Testing
+```kotlin
+// Use MockWebServer for local testing
+val mockServer = MockWebServer()
+mockServer.enqueue(MockResponse().setBody(mockJsonResponse))
+
+// Update base URL for testing
+val retrofit = Retrofit.Builder()
+    .baseUrl(mockServer.url("/"))
+    .build()
+```
+
+## Troubleshooting
+
+### Common Issues
+
+#### 1. Connection Timeout
+**Symptoms**: Request hangs or times out
+**Solutions**:
+- Check network connectivity
+- Verify base URL correctness
+- Increase timeout values
+- Check DNS resolution
+
+#### 2. JSON Parsing Error
+**Symptoms**: Crashes on response parsing
+**Solutions**:
+- Validate JSON structure
+- Check field names and types
+- Add null safety checks
+- Use JSON schema validation
+
+#### 3. Mock API Not Working
+**Symptoms**: Development environment fails
+**Solutions**:
+- Verify Docker container is running
+- Check mock data structure
+- Validate endpoint URLs
+- Review network configuration
+
+#### 4. SSL Certificate Issues
+**Symptoms**: HTTPS requests fail
+**Solutions**:
+- Update certificate pinning
+- Check system time
+- Verify certificate validity
+- Use proper security configuration
+
+### Debug Tools
+
+#### Network Inspection
+```kotlin
+// Chucker for debug builds
+debugImplementation("com.github.chuckerteam.chucker:library:3.3.0")
+```
+
+#### Logging
+```kotlin
+// Add OkHttp logging interceptor
+val logging = HttpLoggingInterceptor()
+logging.setLevel(HttpLoggingInterceptor.Level.BODY)
+
+val okHttpClient = OkHttpClient.Builder()
+    .addInterceptor(logging)
+    .build()
+```
+
+## Version History
+
+### v1.0.0 (Current)
+- Initial API implementation
+- Single endpoint for user data
+- Basic error handling
+- Mock API support
+
+### Planned Updates
+- v1.1.0: Add pagination support
+- v1.2.0: Implement data filtering
+- v1.3.0: Add real-time updates
+- v2.0.0: Multiple endpoint support
+
+## Support
+
+For API-related issues:
+1. Check the troubleshooting section
+2. Review GitHub issues
+3. Contact development team
+4. Check API provider documentation
+
+---
+
+*Last Updated: November 2025*
+*API Version: 1.0.0*
