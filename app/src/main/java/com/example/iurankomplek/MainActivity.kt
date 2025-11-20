@@ -50,10 +50,10 @@ class MainActivity : BaseActivity() {
                         }
                         adapter.setUsers(validatedData)
                     } else {
-                        Toast.makeText(this, "No users available", Toast.LENGTH_LONG).show()
+                         Toast.makeText(this, getString(R.string.no_users_available), Toast.LENGTH_LONG).show()
                     }
                 } ?: run {
-                    Toast.makeText(this, "Invalid response format", Toast.LENGTH_LONG).show()
+                     Toast.makeText(this, getString(R.string.invalid_response_format), Toast.LENGTH_LONG).show()
                 }
             },
             onError = { error ->

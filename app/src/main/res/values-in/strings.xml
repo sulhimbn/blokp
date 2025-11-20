@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">BlokP</string>
+    <string name="no_users_available">Tidak ada pengguna tersedia</string>
+    <string name="invalid_response_format">Format respons tidak valid</string>
+    <string name="no_financial_data_available">Tidak ada data keuangan tersedia</string>
+    <string name="invalid_financial_data_detected">Data keuangan tidak valid terdeteksi</string>
+    <string name="financial_data_exceeds_maximum">Data keuangan melebihi nilai maksimum yang diizinkan</string>
+    <string name="error_loading_data">Kesalahan saat memuat data</string>
+    <string name="retry_failed">Gagal memuat data setelah beberapa percobaan</string>
+    <string name="jumlah_iuran_bulanan">1. Jumlah Iuran Bulanan</string>
+    <string name="total_pengeluaran">2. Total Pengeluaran</string>
+    <string name="rekap_total_iuran">3. Rekap Total Iuran</string>
+    <string name="no_internet_connection">Tidak ada koneksi internet. Silakan periksa pengaturan jaringan Anda.</string>
+    <string name="failed_after_attempts">Gagal setelah %d percobaan</string>
+    <string name="network_error">Kesalahan jaringan: %s</string>
+</resources>
