@@ -11,6 +11,18 @@ class TransactionRepository @Inject constructor(
     private val paymentGateway: PaymentGateway,
     private val transactionDao: TransactionDao
 ) {
+    
+    // Additional methods for API integration
+    suspend fun initiatePaymentViaApi(
+        amount: String,
+        description: String,
+        customerId: String,
+        paymentMethod: String
+    ): Result<com.example.iurankomplek.model.PaymentResponse> {
+        // This would be implemented when we have access to ApiService
+        // For now, returning a failure as this requires dependency injection changes
+        return Result.failure(Exception("Not implemented - requires API service injection"))
+    }
     suspend fun processPayment(request: PaymentRequest): Result<Transaction> {
         return try {
             val transaction = Transaction.create(request)
