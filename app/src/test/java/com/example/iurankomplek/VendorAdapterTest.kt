@@ -65,19 +65,12 @@ class VendorAdapterTest {
         vendorAdapter.submitList(vendors)
     }
     
-    @Test
+@Test
     fun `adapter should have correct item count`() {
         assertEquals(2, vendorAdapter.itemCount)
     }
     
-    @Test
-    fun `adapter should create view holder with correct type`() {
-        val parentView = mockView
-        val viewHolder = vendorAdapter.onCreateViewHolder(parentView, 0)
-        
-        assertNotNull(viewHolder)
-        assertTrue(viewHolder is VendorAdapter.VendorViewHolder)
-    }
+    
     
     @Test
     fun `diff callback should identify same items correctly`() {

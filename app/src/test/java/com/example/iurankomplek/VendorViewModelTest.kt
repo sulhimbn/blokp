@@ -31,12 +31,18 @@ class VendorViewModelTest {
     
     private lateinit var vendorViewModel: VendorViewModel
     
-    private val testDispatcher = TestDispatcherProvider()
+    private val testDispatcher = StandardTestDispatcher()
     
     @Before
     fun setup() {
+        Dispatchers.setMain(testDispatcher)
         MockitoAnnotations.openMocks(this)
         vendorViewModel = VendorViewModel(mockRepository)
+    }
+    
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
     
     @After
@@ -73,6 +79,7 @@ class VendorViewModelTest {
         vendorViewModel.loadVendors()
         
         // Then
+        advanceUntilIdle()
         val state = vendorViewModel.vendorState.value
         assertTrue(state is UiState.Success)
         assertEquals(mockVendors, (state as UiState.Success).data.data)
@@ -111,12 +118,10 @@ class VendorViewModelTest {
         vendorViewModel.loadWorkOrders()
         
         // Then
+        advanceUntilIdle()
         val state = vendorViewModel.workOrderState.value
         assertTrue(state is UiState.Success)
         assertEquals(mockWorkOrders, (state as UiState.Success).data.data)
     }
 }
 
-// Helper class for test dispatcher
-@OptIn(ExperimentalCoroutinesApi::class)
-class TestDispatcherProvider : kotlinx.coroutines.test.TestDispatcherProvider by TestDispatchers()
