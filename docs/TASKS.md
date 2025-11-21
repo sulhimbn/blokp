@@ -1,8 +1,372 @@
-# Actionable Task List - IuranKomplek Development
+# IuranKomplek - Comprehensive Task Management
 
-## Phase 1: Critical Issues (Week 1-2)
+## Executive Summary
 
-### Issue #47: Mock API Data Structure Mismatch [CRITICAL]
+Dokumen ini mengelola **16 granular tasks** untuk repositori IuranKomplek berdasarkan analisis komprehensif November 2025. Tasks diprioritaskan dengan timeline 12 minggu dan total effort 80.5-105.5 hours.
+
+## Priority Overview
+
+| Priority | Tasks | Hours | Timeline |
+|----------|-------|-------|----------|
+| **CRITICAL** | 6 tasks | 8.5-11.5 | Week 1-2 |
+| **HIGH** | 4 tasks | 32-42 | Week 2-4 |
+| **MEDIUM** | 3 tasks | 22-28 | Week 4-8 |
+| **LOW** | 3 tasks | 18-24 | Week 8-12 |
+
+---
+
+## 🚨 CRITICAL TASKS (WEEK 1-2) - START IMMEDIATELY
+
+### Task #1: Fix Duplicate Swipe Refresh Setup (#209)
+**Status**: Ready to Start  
+**Priority**: CRITICAL  
+**Assignee**: Android Developer  
+**Estimated Time**: 30 minutes
+
+#### Action Items:
+- [ ] Remove duplicate setupSwipeRefresh() call in MainActivity.kt line 36
+- [ ] Test swipe refresh functionality
+- [ ] Verify no memory leaks with memory profiler
+- [ ] Add unit test for MainActivity setup
+
+#### Acceptance Criteria:
+- Only one setupSwipeRefresh() call exists
+- Swipe refresh works correctly
+- No memory leaks detected
+
+---
+
+### Task #2: Certificate Pinning Maintenance (#210)
+**Status**: Ready to Start  
+**Priority**: CRITICAL  
+**Assignee**: Android Developer + DevOps  
+**Estimated Time**: 2 hours
+
+#### Action Items:
+- [ ] Obtain current certificate from api.apispreadsheets.com
+- [ ] Generate backup certificate pin using OpenSSL
+- [ ] Add backup pin to network_security_config.xml
+- [ ] Update SecurityConfig.kt with backup pin
+- [ ] Implement certificate expiration monitoring
+
+#### Acceptance Criteria:
+- Backup certificate pin added and working
+- Monitoring system in place
+- Rotation procedure documented
+
+---
+
+### Task #3: Fix Package Declaration (#213)
+**Status**: Ready to Start  
+**Priority**: CRITICAL  
+**Assignee**: Android Developer  
+**Estimated Time**: 15 minutes
+
+#### Action Items:
+- [ ] Add package declaration to LaporanActivity.kt
+- [ ] Verify build recognizes file correctly
+- [ ] Test IDE features (auto-import, refactoring)
+- [ ] Run full build to ensure no issues
+
+#### Acceptance Criteria:
+- Package declaration added
+- Build completes successfully
+- IDE features work properly
+
+---
+
+### Task #4: Optimize Data Conversion Performance (#211)
+**Status**: Ready to Start  
+**Priority**: CRITICAL  
+**Assignee**: Android Developer  
+**Estimated Time**: 1.5 hours
+
+#### Action Items:
+- [ ] Analyze DataItem ↔ ValidatedDataItem conversion flow
+- [ ] Implement direct validation without conversion
+- [ ] Create DataValidator.isValidUser() method
+- [ ] Profile memory usage before and after
+- [ ] Add performance benchmarks
+
+#### Acceptance Criteria:
+- Eliminate double conversion
+- Memory usage reduced by 20%+
+- Performance benchmarks show improvement
+
+---
+
+### Task #5: Language Migration - MenuActivity to Kotlin (#214)
+**Status**: Ready to Start  
+**Priority**: CRITICAL  
+**Assignee**: Android Developer  
+**Estimated Time**: 2 hours
+
+#### Action Items:
+- [ ] Convert MenuActivity.java to Kotlin syntax
+- [ ] Implement ViewBinding for activity_menu.xml
+- [ ] Replace findViewById with binding references
+- [ ] Update click listeners to Kotlin lambda syntax
+- [ ] Test navigation flows to MainActivity and LaporanActivity
+
+#### Acceptance Criteria:
+- Menu functionality identical to current implementation
+- No Java files remain in codebase
+- ViewBinding properly configured
+
+---
+
+### Task #6: Mock API Data Structure Fix (#47)
+**Status**: Ready to Start  
+**Priority**: CRITICAL  
+**Assignee**: Backend Developer  
+**Estimated Time**: 1 hour
+
+#### Action Items:
+- [ ] Analyze DataItem model structure
+- [ ] Compare with current mock data structure
+- [ ] Update mock data to match model fields
+- [ ] Validate all required fields are present
+- [ ] Test mock API endpoints
+
+#### Acceptance Criteria:
+- Mock data matches DataItem model
+- All mock endpoints return valid data
+- Development environment works correctly
+
+---
+
+## 🔴 HIGH PRIORITY TASKS (WEEK 2-4)
+
+### Task #7: Financial Calculation Logic Fix (#18)
+**Status**: Planned  
+**Priority**: HIGH  
+**Assignee**: Android Developer  
+**Estimated Time**: 1 hour
+
+#### Action Items:
+- [ ] Review calculation logic in LaporanActivity.kt:76
+- [ ] Fix `total_iuran_individu * 3` accumulation bug
+- [ ] Add comprehensive unit tests for calculations
+- [ ] Validate calculation accuracy with test data
+
+#### Acceptance Criteria:
+- Calculations are mathematically correct
+- Unit tests cover all scenarios
+- Input validation prevents errors
+
+---
+
+### Task #8: BaseActivity Implementation (#110)
+**Status**: Planned  
+**Priority**: HIGH  
+**Assignee**: Android Developer  
+**Estimated Time**: 6-8 hours
+
+#### Action Items:
+- [ ] Create BaseActivity abstract class
+- [ ] Extract common retry logic from activities
+- [ ] Implement generic error handling
+- [ ] Add network connectivity checking
+- [ ] Refactor MainActivity and LaporanActivity
+
+#### Acceptance Criteria:
+- Code duplication eliminated
+- Consistent error handling across activities
+- Retry logic centralized
+
+---
+
+### Task #9: MVVM Architecture Completion (#155)
+**Status**: Planned  
+**Priority**: HIGH  
+**Assignee**: Android Lead + Developer  
+**Estimated Time**: 16-20 hours
+
+#### Action Items:
+- [ ] Add Hilt dependency injection
+- [ ] Create Repository interfaces and implementations
+- [ ] Implement UserRepository with API integration
+- [ ] Create UserViewModel and LaporanViewModel
+- [ ] Refactor activities to use ViewModels
+
+#### Acceptance Criteria:
+- Clear separation of concerns achieved
+- All business logic moved to ViewModels
+- Comprehensive test coverage for ViewModels
+
+---
+
+### Task #10: Comprehensive Testing Strategy (#157)
+**Status**: Planned  
+**Priority**: HIGH  
+**Assignee**: QA Engineer + Android Developer  
+**Estimated Time**: 12-16 hours
+
+#### Action Items:
+- [ ] Setup test dependencies (Mockito, Espresso)
+- [ ] Create unit tests for all ViewModels
+- [ ] Create integration tests for API layer
+- [ ] Create UI tests for critical user flows
+- [ ] Setup test coverage reporting (JaCoCo)
+
+#### Acceptance Criteria:
+- Minimum 80% test coverage for critical components
+- All unit tests pass consistently
+- Automated testing pipeline functional
+
+---
+
+## 🟡 MEDIUM PRIORITY TASKS (WEEK 4-8)
+
+### Task #11: Dependency Management Cleanup (#156)
+**Status**: Planned  
+**Priority**: MEDIUM  
+**Assignee**: Android Developer  
+**Estimated Time**: 4-6 hours
+
+#### Action Items:
+- [ ] Audit all dependencies in build.gradle files
+- [ ] Remove unused dependencies
+- [ ] Update to latest stable versions
+- [ ] Create version catalog (libs.versions.toml)
+- [ ] Test build process after updates
+
+#### Acceptance Criteria:
+- No unused dependencies remain
+- All dependencies updated to stable versions
+- Build process successful
+
+---
+
+### Task #12: ViewBinding Migration (#108)
+**Status**: Planned  
+**Priority**: MEDIUM  
+**Assignee**: Android Developer  
+**Estimated Time**: 8-10 hours
+
+#### Action Items:
+- [ ] Enable ViewBinding in build.gradle
+- [ ] Replace findViewById in all activities
+- [ ] Update adapter classes to use ViewBinding
+- [ ] Test all UI interactions
+- [ ] Remove old findViewById code
+
+#### Acceptance Criteria:
+- All findViewById calls replaced with ViewBinding
+- Type safety improved for view references
+- No runtime errors from view binding
+
+---
+
+### Task #13: Input Validation & Security Hardening (#111)
+**Status**: Planned  
+**Priority**: MEDIUM  
+**Assignee**: Android Developer  
+**Estimated Time**: 6-8 hours
+
+#### Action Items:
+- [ ] Create validation utility classes
+- [ ] Add input sanitization for API responses
+- [ ] Implement validation for user input fields
+- [ ] Add SQL injection prevention
+- [ ] Create security tests
+
+#### Acceptance Criteria:
+- All user inputs validated and sanitized
+- API responses validated before processing
+- Security tests pass
+
+---
+
+## 🟢 LOW PRIORITY TASKS (WEEK 8-12)
+
+### Task #14: Progress Indicators & UX Improvements (#94)
+**Status**: Planned  
+**Priority**: LOW  
+**Assignee**: Android Developer  
+**Estimated Time**: 8-10 hours
+
+#### Action Items:
+- [ ] Add loading indicators for API calls
+- [ ] Implement swipe-to-refresh functionality
+- [ ] Add empty state designs
+- [ ] Create error state layouts
+- [ ] Implement smooth transitions between states
+
+#### Acceptance Criteria:
+- Clear feedback during loading states
+- Smooth transitions between UI states
+- Professional error and empty states
+
+---
+
+### Task #15: String Resource Management (#95)
+**Status**: Planned  
+**Priority**: LOW  
+**Assignee**: Android Developer  
+**Estimated Time**: 4-6 hours
+
+#### Action Items:
+- [ ] Identify all hardcoded strings in code
+- [ ] Create string resources for all text
+- [ ] Implement string formatting for dynamic content
+- [ ] Update all hardcoded string references
+- [ ] Test with different locales
+
+#### Acceptance Criteria:
+- No hardcoded strings remain in code
+- All text properly externalized
+- Easy localization support
+
+---
+
+### Task #16: Documentation Updates (#50)
+**Status**: Planned  
+**Priority**: LOW  
+**Assignee**: Android Lead + Technical Writer  
+**Estimated Time**: 8-10 hours
+
+#### Action Items:
+- [ ] Update API documentation
+- [ ] Create architecture documentation
+- [ ] Document MVVM implementation patterns
+- [ ] Update setup and deployment guides
+- [ ] Create troubleshooting documentation
+
+#### Acceptance Criteria:
+- All documentation up-to-date
+- Clear architecture diagrams
+- Comprehensive setup guides
+
+---
+
+## IMPLEMENTATION TIMELINE
+
+### Week 1 (Critical Fixes)
+- **Monday**: Task #1 (30 min) + Task #3 (15 min)
+- **Tuesday**: Task #2 (2 hours)
+- **Wednesday**: Task #4 (1.5 hours)
+- **Thursday**: Task #5 (2 hours)
+- **Friday**: Task #6 (1 hour)
+
+### Week 2 (Critical Completion & Buffer)
+- **Monday-Wednesday**: Complete any remaining critical tasks
+- **Thursday-Friday**: Buffer for unexpected issues
+
+### Week 3-4 (High Priority)
+- Focus on Tasks #7-10 based on dependencies
+
+### Week 5-8 (Medium Priority)
+- Focus on Tasks #11-13
+
+### Week 9-12 (Low Priority)
+- Focus on Tasks #14-16
+
+---
+
+## LEGACY TASKS (FROM PREVIOUS ANALYSIS)
+
+### Issue #47: Mock API Data Structure Mismatch [CRITICAL] - NOW INTEGRATED INTO TASK #6
 
 #### Task 1.1: Analyze Current Mock Data Structure
 - [ ] Review `mock-api/mock-data/users.json` structure
