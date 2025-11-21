@@ -18,7 +18,7 @@ class RealPaymentGateway(
                     description = request.description,
                     customerId = request.customerId,
                     paymentMethod = request.paymentMethod.name
-                ).execute()
+                )
                 
                 if (response.isSuccessful) {
                     val apiResponse = response.body()
@@ -71,7 +71,7 @@ class RealPaymentGateway(
     override suspend fun getPaymentStatus(transactionId: String): Result<PaymentStatus> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = apiService.getPaymentStatus(transactionId).execute()
+                val response = apiService.getPaymentStatus(transactionId)
                 
                 if (response.isSuccessful) {
                     val apiResponse = response.body()
