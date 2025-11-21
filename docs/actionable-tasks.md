@@ -2,9 +2,53 @@
 
 ## Critical Tasks (Week 1-2)
 
-### 1. Language Migration - MenuActivity.java → Kotlin
-**Issue**: #154  
-**Estimated Time**: 4-6 hours  
+### 1. Fix Duplicate Swipe Refresh Setup - NEW
+**Issue**: #209  
+**Estimated Time**: 30 minutes  
+**Assignee**: Android Developer  
+**Dependencies**: None
+
+#### Subtasks:
+- [ ] Remove duplicate setupSwipeRefresh() call in MainActivity.kt line 36
+- [ ] Test swipe refresh functionality
+- [ ] Verify no memory leaks with memory profiler
+- [ ] Add unit test for MainActivity setup
+- [ ] Update code review checklist
+
+#### Acceptance Criteria:
+- Only one setupSwipeRefresh() call exists
+- Swipe refresh works correctly
+- No memory leaks detected
+- All tests pass
+
+---
+
+### 2. Certificate Pinning Maintenance - NEW
+**Issue**: #210  
+**Estimated Time**: 2 hours  
+**Assignee**: Android Developer + DevOps  
+**Dependencies**: None
+
+#### Subtasks:
+- [ ] Obtain current certificate from api.apispreadsheets.com
+- [ ] Generate backup certificate pin using OpenSSL
+- [ ] Add backup pin to network_security_config.xml
+- [ ] Update SecurityConfig.kt with backup pin
+- [ ] Implement certificate expiration monitoring
+- [ ] Create certificate rotation procedure document
+- [ ] Test failover with backup pin
+
+#### Acceptance Criteria:
+- Backup certificate pin added and working
+- Monitoring system in place
+- Rotation procedure documented
+- Failover tested successfully
+
+---
+
+### 3. Language Migration - MenuActivity.java → Kotlin
+**Issue**: #214 (Updated from #154)  
+**Estimated Time**: 2 hours  
 **Assignee**: Android Developer  
 **Dependencies**: None
 
@@ -26,7 +70,7 @@
 
 ---
 
-### 2. Fix Critical Financial Calculation Bug
+### 4. Fix Critical Financial Calculation Bug
 **Issue**: #18  
 **Estimated Time**: 2-3 hours  
 **Assignee**: Android Developer  
@@ -48,7 +92,48 @@
 
 ---
 
-### 3. Implement BaseActivity for Common Functionality
+### 5. Optimize Data Conversion Performance - NEW
+**Issue**: #211  
+**Estimated Time**: 1.5 hours  
+**Assignee**: Android Developer  
+**Dependencies**: None
+
+#### Subtasks:
+- [ ] Analyze DataItem ↔ ValidatedDataItem conversion flow
+- [ ] Implement direct validation without conversion
+- [ ] Create DataValidator.isValidUser() method
+- [ ] Profile memory usage before and after
+- [ ] Add performance benchmarks
+- [ ] Update unit tests for new validation
+
+#### Acceptance Criteria:
+- Eliminate double conversion
+- Memory usage reduced by 20%+
+- Performance benchmarks show improvement
+- All validation tests pass
+
+---
+
+### 6. Fix Package Declaration - NEW
+**Issue**: #213  
+**Estimated Time**: 15 minutes  
+**Assignee**: Android Developer  
+**Dependencies**: None
+
+#### Subtasks:
+- [ ] Add package declaration to LaporanActivity.kt
+- [ ] Verify build recognizes file correctly
+- [ ] Test IDE features (auto-import, refactoring)
+- [ ] Run full build to ensure no issues
+
+#### Acceptance Criteria:
+- Package declaration added
+- Build completes successfully
+- IDE features work properly
+
+---
+
+### 7. Implement BaseActivity for Common Functionality
 **Issue**: #110  
 **Estimated Time**: 6-8 hours  
 **Assignee**: Android Developer  
@@ -74,11 +159,11 @@
 
 ## High Priority Tasks (Week 2-4)
 
-### 4. MVVM Architecture Implementation
+### 8. MVVM Architecture Implementation
 **Issue**: #155  
 **Estimated Time**: 16-20 hours  
 **Assignee**: Android Lead + Developer  
-**Dependencies**: Task #3 completed
+**Dependencies**: Task #7 completed
 
 #### Subtasks:
 - [ ] Add Hilt dependency injection
@@ -101,11 +186,11 @@
 
 ---
 
-### 5. Comprehensive Testing Strategy
+### 9. Comprehensive Testing Strategy
 **Issue**: #157  
 **Estimated Time**: 12-16 hours  
 **Assignee**: QA Engineer + Android Developer  
-**Dependencies**: Task #4 completed
+**Dependencies**: Task #8 completed
 
 #### Subtasks:
 - [ ] Setup test dependencies (Mockito, Espresso, MockWebServer)
@@ -129,7 +214,7 @@
 
 ---
 
-### 6. Dependency Management Cleanup
+### 10. Dependency Management Cleanup
 **Issue**: #156  
 **Estimated Time**: 4-6 hours  
 **Assignee**: Android Developer  
@@ -156,11 +241,11 @@
 
 ## Medium Priority Tasks (Week 4-8)
 
-### 7. ViewBinding Migration
+### 11. ViewBinding Migration
 **Issue**: #108  
 **Estimated Time**: 8-10 hours  
 **Assignee**: Android Developer  
-**Dependencies**: Task #1 completed
+**Dependencies**: Task #3 completed
 
 #### Subtasks:
 - [ ] Enable ViewBinding in build.gradle
@@ -180,11 +265,11 @@
 
 ---
 
-### 8. Input Validation & Security Hardening
+### 12. Input Validation & Security Hardening
 **Issue**: #111  
 **Estimated Time**: 6-8 hours  
 **Assignee**: Android Developer  
-**Dependencies**: Task #4 completed
+**Dependencies**: Task #8 completed
 
 #### Subtasks:
 - [ ] Create validation utility classes
@@ -205,11 +290,11 @@
 
 ---
 
-### 9. Progress Indicators & UX Improvements
+### 13. Progress Indicators & UX Improvements
 **Issue**: #94  
 **Estimated Time**: 8-10 hours  
 **Assignee**: Android Developer  
-**Dependencies**: Task #4 completed
+**Dependencies**: Task #8 completed
 
 #### Subtasks:
 - [ ] Add loading indicators for API calls
@@ -231,7 +316,7 @@
 
 ## Low Priority Tasks (Week 8-12)
 
-### 10. String Resource Management
+### 14. String Resource Management
 **Issue**: #95  
 **Estimated Time**: 4-6 hours  
 **Assignee**: Android Developer  
@@ -254,7 +339,7 @@
 
 ---
 
-### 11. Image Caching Strategy
+### 15. Image Caching Strategy
 **Issue**: #115  
 **Estimated Time**: 6-8 hours  
 **Assignee**: Android Developer  
@@ -277,7 +362,7 @@
 
 ---
 
-### 12. Documentation Updates
+### 16. Documentation Updates
 **Issue**: #50  
 **Estimated Time**: 8-10 hours  
 **Assignee**: Android Lead + Technical Writer  
@@ -305,24 +390,28 @@
 
 ```
 Week 1-2 (Critical):
-├── Task #1: Language Migration
-├── Task #2: Financial Bug Fix
-└── Task #3: BaseActivity Implementation
+├── Task #1: Fix Duplicate Swipe Refresh (NEW)
+├── Task #2: Certificate Pinning Maintenance (NEW)
+├── Task #3: Language Migration (Updated #214)
+├── Task #4: Financial Bug Fix
+├── Task #5: Optimize Data Conversion (NEW)
+└── Task #6: Fix Package Declaration (NEW)
 
 Week 2-4 (High Priority):
-├── Task #4: MVVM Architecture (depends on #3)
-├── Task #5: Testing Strategy (depends on #4)
-└── Task #6: Dependency Cleanup
+├── Task #7: BaseActivity Implementation
+├── Task #8: MVVM Architecture (depends on #7)
+├── Task #9: Testing Strategy (depends on #8)
+└── Task #10: Dependency Cleanup
 
 Week 4-8 (Medium Priority):
-├── Task #7: ViewBinding Migration (depends on #1)
-├── Task #8: Security Hardening (depends on #4)
-└── Task #9: UX Improvements (depends on #4)
+├── Task #11: ViewBinding Migration (depends on #3)
+├── Task #12: Security Hardening (depends on #8)
+└── Task #13: UX Improvements (depends on #8)
 
 Week 8-12 (Low Priority):
-├── Task #10: String Resources
-├── Task #11: Image Caching
-└── Task #12: Documentation (depends on all major tasks)
+├── Task #14: String Resources
+├── Task #15: Image Caching
+└── Task #16: Documentation (depends on all major tasks)
 ```
 
 ## Resource Allocation
@@ -334,11 +423,11 @@ Week 8-12 (Low Priority):
 - **Technical Writer**: 20 hours (documentation, guides)
 
 ### Total Estimated Effort:
-- **Critical Tasks**: 12-17 hours
+- **Critical Tasks**: 8.5-11.5 hours (Updated with new tasks)
 - **High Priority Tasks**: 32-42 hours
 - **Medium Priority Tasks**: 22-28 hours
 - **Low Priority Tasks**: 18-24 hours
-- **Total**: 84-111 hours across 12 weeks
+- **Total**: 80.5-105.5 hours across 12 weeks
 
 ## Success Metrics
 
