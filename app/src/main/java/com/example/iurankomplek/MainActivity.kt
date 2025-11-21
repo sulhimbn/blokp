@@ -33,7 +33,6 @@ class MainActivity : BaseActivity() {
         binding.rvUsers.adapter = adapter
         
         setupSwipeRefresh()
-         setupSwipeRefresh()
          observeUserState()
          viewModel.loadUsers()
      }
