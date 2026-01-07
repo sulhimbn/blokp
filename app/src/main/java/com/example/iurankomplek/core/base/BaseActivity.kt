@@ -1,4 +1,4 @@
-package com.example.iurankomplek
+package com.example.iurankomplek.core.base
 
 import android.os.Handler
 import android.os.Looper

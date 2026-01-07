@@ -1,5 +1,6 @@
-package com.example.iurankomplek
+package com.example.iurankomplek.presentation.ui.activity
 
+import com.example.iurankomplek.core.base.BaseActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast

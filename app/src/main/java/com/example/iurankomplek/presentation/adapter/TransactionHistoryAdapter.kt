@@ -1,4 +1,4 @@
-package com.example.iurankomplek
+package com.example.iurankomplek.presentation.adapter
 
 import android.view.LayoutInflater
 import android.view.View
