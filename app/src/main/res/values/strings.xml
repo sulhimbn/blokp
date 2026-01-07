@@ -18,6 +18,7 @@
     <string name="financial_data_exceeds_maximum">Financial data exceeds maximum allowed value</string>
     <string name="error_loading_data">Error loading data</string>
     <string name="retry_failed">Failed to load data after multiple attempts</string>
+    <string name="retry_loading_data">Tap to retry</string>
      <string name="jumlah_iuran_bulanan">1. Jumlah Iuran Bulanan</string>
      <string name="total_pengeluaran">2. Total Pengeluaran</string>
      <string name="rekap_total_iuran">3. Rekap Total Iuran</string>
@@ -117,6 +118,7 @@
     <string name="vendor_performance_analytics">Vendor performance analytics will be displayed here\n\nThis would include:\n- Response time metrics\n- Cost analysis by vendor\n- Quality ratings\n- Work completion rates\n- Budget variance tracking</string>
     <string name="vendor_performance_analytics_desc">Vendor performance analytics information</string>
     <string name="vendor_performance_title_desc">Vendor performance screen title</string>
+    <string name="error_loading_vendor_performance">Error loading vendor performance data</string>
 
     <!-- Vendor Database -->
     <string name="vendor_database_title">Vendor Database</string>
@@ -126,6 +128,8 @@
     <string name="vendor_specialty_desc">Vendor specialty</string>
     <string name="vendor_contact_desc">Vendor contact information</string>
     <string name="vendor_rating_desc">Vendor rating</string>
+    <string name="no_vendors_available">No vendors available</string>
+    <string name="error_loading_vendor_data">Error loading vendor data</string>
 
     <!-- Vendor Communication -->
     <string name="vendor_communication_title">Vendor Communication</string>
@@ -140,6 +144,8 @@
     <string name="work_order_category_desc">Work order category</string>
     <string name="work_order_status_desc">Work order status</string>
     <string name="work_order_priority_desc">Work order priority</string>
+    <string name="no_work_orders_available">No work orders available</string>
+    <string name="error_loading_work_order_data">Error loading work order data</string>
 
     <!-- Work Order Detail -->
     <string name="work_order_detail_title_desc">Work order title</string>
