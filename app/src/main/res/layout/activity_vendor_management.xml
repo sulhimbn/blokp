@@ -3,20 +3,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="@dimen/padding_md"
+    android:importantForAccessibility="yes">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Vendor Management"
-        android:textSize="24sp"
+        android:text="@string/vendor_management_title"
+        android:textSize="@dimen/heading_h1"
         android:textStyle="bold"
-        android:layout_marginBottom="16dp"
-        android:gravity="center" />
+        android:textColor="@color/primary"
+        android:layout_marginBottom="@dimen/margin_md"
+        android:gravity="center"
+        android:contentDescription="@string/vendor_management_title_desc" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/vendorRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:contentDescription="@string/vendor_list_desc"
+        android:clipToPadding="false" />
 
 </LinearLayout>
