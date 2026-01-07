@@ -151,10 +151,7 @@ class LaporanActivity : BaseActivity() {
                 ).first()
 
                 // Calculate total amount from completed payments
-                var paymentTotal = 0
-                completedTransactions.forEach { transaction ->
-                    paymentTotal += transaction.amount.toInt() // Convert BigDecimal to Int for consistency
-                }
+                val paymentTotal = completedTransactions.sumOf { it.amount.toInt() }
                 
 withContext(Dispatchers.Main) {
              // If there are completed transactions, update the summary to show payment integration
