@@ -41,6 +41,9 @@
     <color name="status_error">#F44336</color>
     <color name="status_info">#2196F3</color>
     
+    <!-- Legacy Error Color Alias (for backward compatibility) -->
+    <color name="error">@color/status_error</color>
+    
     <!-- Divider Colors -->
     <color name="divider">#E0E0E0</color>
     <color name="divider_dark">#BDBDBD</color>
