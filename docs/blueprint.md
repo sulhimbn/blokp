@@ -111,11 +111,18 @@ app/
 │       ├── ApiService.kt ✅
 │       ├── ApiConfig.kt ✅
 │       ├── SecurityConfig.kt ✅
+│       ├── resilience/ ✅ NEW
+│       │   └── CircuitBreaker.kt ✅ (service resilience pattern)
+│       ├── interceptor/ ✅ NEW
+│       │   ├── NetworkErrorInterceptor.kt ✅ (error handling)
+│       │   ├── RequestIdInterceptor.kt ✅ (request tracking)
+│       │   └── RetryableRequestInterceptor.kt ✅ (retry marking)
 │       └── models/
 │           ├── DataItem.kt ✅ (legacy model)
 │           ├── UserResponse.kt ✅
 │           ├── PemanfaatanResponse.kt ✅
-│           └── ValidatedDataItem.kt ✅
+│           ├── ValidatedDataItem.kt ✅
+│           └── ApiError.kt ✅ NEW (standardized error models)
 ├── domain/
 │   └── model/
 │       └── [Domain models - now using entities from data/entity]
@@ -290,6 +297,50 @@ app/
 - ✅ Proper exception handling
 - ✅ Logging for debugging
 - ✅ Network error detection
+- ✅ Standardized API error response models
+- ✅ NetworkErrorInterceptor for unified error handling
+- ✅ RequestIdInterceptor for request tracking
+- ✅ CircuitBreaker pattern for service resilience
+
+### Integration Hardening Patterns ✅
+- ✅ **Circuit Breaker Pattern**: Prevents cascading failures by stopping calls to failing services
+  - Three states: Closed, Open, Half-Open
+  - Configurable failure threshold (default: 3 failures)
+  - Configurable success threshold (default: 2 successes)
+  - Configurable timeout (default: 60 seconds)
+  - Half-open state with max calls limit for graceful recovery
+- ✅ **Standardized Error Models**: Consistent error handling across all API calls
+  - NetworkError sealed class with typed error types
+  - ApiErrorCode enum for all error scenarios
+  - NetworkState wrapper for reactive UI states
+  - User-friendly error messages for each error type
+- ✅ **Network Interceptors**: Modular request/response processing
+  - NetworkErrorInterceptor: Parses HTTP errors and converts to NetworkError
+  - RequestIdInterceptor: Adds unique request IDs for tracing
+  - RetryableRequestInterceptor: Marks safe-to-retry requests
+- ✅ **Repository-Level CircuitBreaker Integration**: All repositories use shared CircuitBreaker
+  - UserRepositoryImpl: CircuitBreaker-protected with retry logic
+  - PemanfaatanRepositoryImpl: CircuitBreaker-protected with retry logic
+  - VendorRepositoryImpl: CircuitBreaker-protected with retry logic
+  - Eliminates duplicate retry logic across repositories
+  - Centralized failure tracking and recovery
+
+### Resilience Patterns Implemented ✅
+- ✅ **Exponential Backoff with Jitter**: Prevents thundering herd problem
+  - Initial delay: 1 second
+  - Maximum delay: 30 seconds
+  - Random jitter added to each retry
+- ✅ **Smart Retry Logic**: Only retries recoverable errors
+  - Network timeouts (SocketTimeoutException)
+  - Connection errors (UnknownHostException, SSLException)
+  - HTTP 408 (Request Timeout)
+  - HTTP 429 (Rate Limit Exceeded)
+  - HTTP 5xx (Server Errors)
+- ✅ **Circuit Breaker State Management**: Automatic service health tracking
+  - Tracks failure and success counts
+  - Automatic state transitions (Closed → Open → Half-Open → Closed)
+  - Thread-safe state management with Mutex
+  - Reset capability for manual recovery
 
 ## Testing Architecture ✅
 
