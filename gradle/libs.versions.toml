@@ -1,6 +1,6 @@
 [versions]
-agp = "8.1.0"
-kotlin = "1.9.20"
+agp = "8.6.0"
+kotlin = "2.1.0"
 core-ktx = "1.13.1"
 appcompat = "1.7.0"
 material = "1.12.0"
@@ -24,7 +24,6 @@ retrofit = "2.9.0"
 okhttp3 = "4.12.0"
 chucker = "3.3.0"
 room = "2.6.1"
-hilt = "2.48"
 kotlinx-coroutines-android = "1.7.3"
 lifecycle = "2.8.0"
 
@@ -56,8 +55,6 @@ chucker = { group = "com.github.chuckerteam.chucker", name = "library", version.
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
-hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinx-coroutines-android" }
 lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }
