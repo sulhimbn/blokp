@@ -5,12 +5,14 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityTransactionHistoryBinding
 import com.example.iurankomplek.payment.PaymentStatus
 import com.example.iurankomplek.transaction.Transaction
 import com.example.iurankomplek.transaction.TransactionDatabase
 import com.example.iurankomplek.transaction.TransactionRepository
+import com.example.iurankomplek.transaction.TransactionRepositoryFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.observe
 import com.example.iurankomplek.databinding.ActivityPaymentBinding
 import com.example.iurankomplek.payment.PaymentMethod
 import com.example.iurankomplek.payment.PaymentViewModel
