@@ -522,12 +522,17 @@ configurations.all {
 **Causes**: Network operations on main thread
 **Solutions**:
 ```kotlin
-// Use enqueue for async operations
-client.enqueue(object : Callback<ResponseUser> {
-    // Handle response on background thread
-})
+// Use lifecycleScope for coroutines
+lifecycleScope.launch {
+    val response = apiService.getUsers()
+    // Handle response
+}
 
-// Or use coroutines (future improvement)
+// Or use viewModelScope in ViewModels
+viewModelScope.launch {
+    val response = repository.getUsers()
+    // Handle response
+}
 ```
 
 #### "JsonSyntaxException"

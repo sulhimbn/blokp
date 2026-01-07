@@ -70,30 +70,27 @@ class MainActivity : AppCompatActivity() {
 }
 ```
 
-#### Error Handling
+#### Error Handling with Coroutines
 ```kotlin
 private fun getUser() {
-    val apiService = ApiConfig.getApiService()
-    val client = apiService.getUsers()
-    
-    client.enqueue(object : Callback<ResponseUser> {
-        override fun onResponse(call: Call<ResponseUser>, response: Response<ResponseUser>) {
+    lifecycleScope.launch {
+        try {
+            val response = apiService.getUsers()
+            
             when (response.code()) {
                 200 -> handleSuccessResponse(response)
                 404 -> showErrorMessage("Data tidak ditemukan")
                 500 -> showErrorMessage("Server error, coba lagi nanti")
                 else -> showErrorMessage("Terjadi kesalahan: ${response.code()}")
             }
+        } catch (e: Exception) {
+            Log.e(TAG, "Network error", e)
+            showErrorMessage("Error: ${e.message}")
         }
-        
-        override fun onFailure(call: Call<ResponseUser>, t: Throwable) {
-            Log.e(TAG, "Network error", t)
-            showErrorMessage("Error: ${t.message}")
-        }
-    })
+    }
 }
 
-private fun handleSuccessResponse(response: Response<ResponseUser>) {
+private fun handleSuccessResponse(response: Response<UserResponse>) {
     val dataArray = response.body()?.data
     if (dataArray != null) {
         adapter.setUsers(dataArray)
@@ -155,11 +152,11 @@ public class MenuActivity extends AppCompatActivity {
 
 ## Architecture Guidelines
 
-### MVVM Light Pattern
+### MVVM Pattern
 ```
 Activities/Fragment (View)
     ↓
-ViewModels (Business Logic) - *Not yet implemented*
+ViewModels (Business Logic)
     ↓
 Repository/ApiConfig (Data Layer)
     ↓
@@ -188,18 +185,21 @@ object ApiConfig {
 }
 ```
 
-### Adapter Pattern
+### Adapter Pattern with DiffUtil
 ```kotlin
-class UserAdapter(private val users: MutableList<DataItem>) :
-    RecyclerView.Adapter<UserAdapter.ListViewHolder>() {
+class UserAdapter : ListAdapter<DataItem, UserAdapter.ListViewHolder>(DiffCallback) {
     
-    fun setUsers(users: List<DataItem>) {
-        this.users.clear()
-        this.users.addAll(users)
-        notifyDataSetChanged() // TODO: Replace with DiffUtil
+    companion object {
+        private val DiffCallback = object : DiffUtil.ItemCallback<DataItem>() {
+            override fun areItemsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+                return oldItem.email == newItem.email
+            }
+            
+            override fun areContentsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+                return oldItem == newItem
+            }
+        }
     }
-    
-    // TODO: Implement DiffUtil for better performance
 }
 ```
 

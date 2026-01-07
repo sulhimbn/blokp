@@ -53,13 +53,78 @@ Aplikasi secara otomatis beralih antara production dan development API berdasark
 
 ## Endpoints
 
-### GET /data/QjX6hB1ST2IDKaxB/
+### User & Financial Data Endpoints
 
-Mengambil data pengguna dan pemanfaatan iuran.
+#### GET /data/QjX6hB1ST2IDKaxB/users
 
-#### Request
+Mengambil data pengguna/warga.
+
+#### GET /data/QjX6hB1ST2IDKaxB/pemanfaatan
+
+Mengambil data pemanfaatan iuran.
+
+### Communication Endpoints
+
+#### GET /data/QjX6hB1ST2IDKaxB/announcements
+
+Mengambil pengumuman komunitas.
+
+#### GET /data/QjX6hB1ST2IDKaxB/messages?userId={userId}
+
+Mengambil pesan untuk pengguna tertentu.
+
+#### GET /data/QjX6hB1ST2IDKaxB/messages/{receiverId}?senderId={senderId}
+
+Mengambil percakapan dengan pengguna tertentu.
+
+#### POST /data/QjX6hB1ST2IDKaxB/messages
+
+Mengirim pesan baru.
+
+### Payment Processing Endpoints
+
+#### POST /data/QjX6hB1ST2IDKaxB/payments/initiate
+
+Memulai proses pembayaran.
+
+#### GET /data/QjX6hB1ST2IDKaxB/payments/{id}/status
+
+Mengambil status pembayaran.
+
+#### POST /data/QjX6hB1ST2IDKaxB/payments/{id}/confirm
+
+Mengonfirmasi pembayaran.
+
+### Vendor Management Endpoints
+
+#### GET /data/QjX6hB1ST2IDKaxB/vendors
+
+Mengambil daftar vendor.
+
+#### POST /data/QjX6hB1ST2IDKaxB/vendors
+
+Membuat vendor baru.
+
+### Work Order Endpoints
+
+#### GET /data/QjX6hB1ST2IDKaxB/work-orders
+
+Mengambil daftar work order.
+
+#### POST /data/QjX6hB1ST2IDKaxB/work-orders
+
+Membuat work order baru.
+
+#### Request (Users Endpoint)
 ```http
-GET /data/QjX6hB1ST2IDKaxB/ HTTP/1.1
+GET /data/QjX6hB1ST2IDKaxB/users HTTP/1.1
+Host: api.apispreadsheets.com
+Accept: application/json
+```
+
+#### Request (Pemanfaatan Endpoint)
+```http
+GET /data/QjX6hB1ST2IDKaxB/pemanfaatan HTTP/1.1
 Host: api.apispreadsheets.com
 Accept: application/json
 ```
@@ -108,11 +173,22 @@ Accept: application/json
 #### Service Interface
 ```kotlin
 interface ApiService {
-    @GET(".")
-    fun getUsers(): Call<ResponseUser>
+    @GET("users")
+    suspend fun getUsers(): Response<UserResponse>
     
-    @GET(".")
-    fun getPemanfaatan(): Call<ResponseUser>
+    @GET("pemanfaatan")
+    suspend fun getPemanfaatan(): Response<PemanfaatanResponse>
+    
+    // Payment endpoints
+    @POST("payments/initiate")
+    suspend fun initiatePayment(
+        @Query("amount") amount: String,
+        @Query("description") description: String,
+        @Query("customerId") customerId: String,
+        @Query("paymentMethod") paymentMethod: String
+    ): Response<PaymentResponse>
+    
+    // Additional endpoints for communication, vendors, work orders...
 }
 ```
 
@@ -139,26 +215,29 @@ object ApiConfig {
 #### Usage Example
 ```kotlin
 class MainActivity : AppCompatActivity() {
+    private val scope = lifecycleScope
+    
     private fun getUser() {
-        val apiService = ApiConfig.getApiService()
-        val client = apiService.getUsers()
-        client.enqueue(object : Callback<ResponseUser> {
-            override fun onResponse(call: Call<ResponseUser>, response: Response<ResponseUser>) {
-                if (response.isSuccessful) {
+        scope.launch {
+            try {
+                val apiService = ApiConfig.getApiService()
+                val response = apiService.getUsers()
+                
+                if (response.isSuccessful && response.body() != null) {
                     val dataArray = response.body()?.data
                     if (dataArray != null) {
                         adapter.setUsers(dataArray)
+                    } else {
+                        showEmptyState()
                     }
                 } else {
                     Toast.makeText(this@MainActivity, "Failed to retrieve data", Toast.LENGTH_SHORT).show()
                 }
+            } catch (e: Exception) {
+                Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                Log.e("MainActivity", "Network error", e)
             }
-            
-            override fun onFailure(call: Call<ResponseUser>, t: Throwable) {
-                Toast.makeText(this@MainActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
-                t.printStackTrace()
-            }
-        })
+        }
     }
 }
 ```
@@ -185,26 +264,31 @@ class MainActivity : AppCompatActivity() {
 
 ### Client Error Handling
 ```kotlin
-override fun onResponse(call: Call<ResponseUser>, response: Response<ResponseUser>) {
-    when (response.code()) {
-        200 -> {
-            // Success handling
-            val data = response.body()?.data
-            if (data != null) {
-                adapter.setUsers(data)
-            } else {
-                showEmptyState()
+scope.launch {
+    try {
+        val response = apiService.getUsers()
+        
+        when (response.code()) {
+            200 -> {
+                val data = response.body()?.data
+                if (data != null) {
+                    adapter.setUsers(data)
+                } else {
+                    showEmptyState()
+                }
+            }
+            404 -> {
+                showErrorMessage("Data tidak ditemukan")
+            }
+            500 -> {
+                showErrorMessage("Server error, coba lagi nanti")
+            }
+            else -> {
+                showErrorMessage("Terjadi kesalahan: ${response.code()}")
             }
         }
-        404 -> {
-            showErrorMessage("Data tidak ditemukan")
-        }
-        500 -> {
-            showErrorMessage("Server error, coba lagi nanti")
-        }
-        else -> {
-            showErrorMessage("Terjadi kesalahan: ${response.code()}")
-        }
+    } catch (e: Exception) {
+        showErrorMessage("Network error: ${e.message}")
     }
 }
 ```
@@ -327,19 +411,34 @@ val okHttpClient = OkHttpClient.Builder()
 ### Unit Tests
 ```kotlin
 @Test
-fun `test API response parsing`() {
+fun `test API response parsing`() = runTest {
     val json = """{"data":[{"first_name":"Test","last_name":"User"}]}"""
-    val response = Gson().fromJson(json, ResponseUser::class.java)
+    val response = Gson().fromJson(json, UserResponse::class.java)
     assertEquals("Test", response.data[0].first_name)
+}
+
+@Test
+fun `test getUsers with coroutines`() = runTest {
+    val mockService = mockApiService()
+    val expectedResponse = UserResponse(listOf(
+        DataItem(first_name = "Test", last_name = "User", ...)
+    ))
+    
+    coEvery { mockService.getUsers() } returns Response.success(expectedResponse)
+    
+    val result = mockService.getUsers()
+    assertTrue(result.isSuccessful)
+    assertEquals("Test", result.body()?.data?.get(0)?.first_name)
 }
 ```
 
 ### Integration Tests
 ```kotlin
 @Test
-fun `test API connectivity`() {
+fun `test API connectivity`() = runTest {
     val apiService = ApiConfig.getApiService()
-    val response = apiService.getUsers().execute()
+    val response = apiService.getUsers()
+    
     assertTrue(response.isSuccessful)
     assertNotNull(response.body())
 }
