@@ -6,8 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.iurankomplek.data.repository.VendorRepositoryImpl
-import com.example.iurankomplek.network.ApiConfig
+import com.example.iurankomplek.data.repository.VendorRepositoryFactory
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.VendorViewModel
 
@@ -22,7 +21,7 @@ class VendorManagementActivity : AppCompatActivity() {
         setContentView(R.layout.activity_vendor_management)
         
         // Initialize ViewModel
-        val repository = VendorRepositoryImpl(ApiConfig.getApiService())
+        val repository = VendorRepositoryFactory.getInstance()
         vendorViewModel = ViewModelProvider(this, VendorViewModel.Factory(repository))[VendorViewModel::class.java]
         
         setupViews()

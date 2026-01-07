@@ -9,8 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.iurankomplek.data.repository.VendorRepositoryImpl
-import com.example.iurankomplek.network.ApiConfig
+import com.example.iurankomplek.data.repository.VendorRepositoryFactory
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.VendorViewModel
 
@@ -32,7 +31,7 @@ class WorkOrderManagementFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         
         // Initialize ViewModel
-        val repository = VendorRepositoryImpl(ApiConfig.getApiService())
+        val repository = VendorRepositoryFactory.getInstance()
         vendorViewModel = ViewModelProvider(
             this, 
             VendorViewModel.Factory(repository)

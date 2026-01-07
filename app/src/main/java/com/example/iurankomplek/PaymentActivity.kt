@@ -10,6 +10,7 @@ import com.example.iurankomplek.payment.PaymentViewModel
 import com.example.iurankomplek.payment.PaymentViewModelFactory
 import com.example.iurankomplek.receipt.ReceiptGenerator
 import com.example.iurankomplek.transaction.TransactionRepositoryFactory
+import com.example.iurankomplek.utils.Constants
 import java.math.BigDecimal
 
 class PaymentActivity : AppCompatActivity() {
@@ -64,8 +65,8 @@ class PaymentActivity : AppCompatActivity() {
             }
             
             // SECURITY: Add maximum amount limit to prevent abuse
-            val MAX_PAYMENT_AMOUNT = BigDecimal("999999999.99")
-            if (amount > MAX_PAYMENT_AMOUNT) {
+            val maxPaymentAmount = BigDecimal.valueOf(Constants.Payment.MAX_PAYMENT_AMOUNT)
+            if (amount > maxPaymentAmount) {
                 Toast.makeText(this, "Amount exceeds maximum allowed limit", Toast.LENGTH_SHORT).show()
                 return
             }

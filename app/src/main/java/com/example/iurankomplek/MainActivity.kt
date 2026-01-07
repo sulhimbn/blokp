@@ -7,8 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityMainBinding
-import com.example.iurankomplek.data.repository.UserRepositoryImpl
-import com.example.iurankomplek.network.ApiConfig
+import com.example.iurankomplek.data.repository.UserRepositoryFactory
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.utils.DataValidator
 import com.example.iurankomplek.viewmodel.UserViewModel
@@ -25,10 +24,10 @@ class MainActivity : BaseActivity() {
         setContentView(binding.root)
         
         // Initialize ViewModel with repository
-        val userRepository = UserRepositoryImpl(ApiConfig.getApiService())
+        val userRepository = UserRepositoryFactory.getInstance()
         viewModel = ViewModelProvider(this, UserViewModel.Factory(userRepository))[UserViewModel::class.java]
         
-        adapter = UserAdapter(mutableListOf())
+        adapter = UserAdapter(mutableListOf(), lifecycleScope)
         binding.rvUsers.layoutManager = LinearLayoutManager(this)
         binding.rvUsers.adapter = adapter
         

@@ -7,15 +7,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.databinding.ItemPemanfaatanBinding
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.utils.DataValidator
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class PemanfaatanAdapter(private var pemanfaatan: MutableList<DataItem>) :
-    RecyclerView.Adapter<PemanfaatanAdapter.ListViewHolder>() {
+class PemanfaatanAdapter(
+    private var pemanfaatan: MutableList<DataItem>,
+    private val coroutineScope: CoroutineScope
+) : RecyclerView.Adapter<PemanfaatanAdapter.ListViewHolder>() {
     
-    constructor() : this(mutableListOf())
+    constructor() : this(mutableListOf(), CoroutineScope(Dispatchers.Default))
     
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
         val binding = ItemPemanfaatanBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -23,7 +25,7 @@ class PemanfaatanAdapter(private var pemanfaatan: MutableList<DataItem>) :
     }
     
     fun setPemanfaatan(dataItems: List<DataItem>) {
-        GlobalScope.launch(Dispatchers.Default) {
+        coroutineScope.launch(Dispatchers.Default) {
             val diffCallback = PemanfaatanDiffCallback(this@PemanfaatanAdapter.pemanfaatan, dataItems)
             val diffResult = DiffUtil.calculateDiff(diffCallback)
             

@@ -7,17 +7,18 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 data class LaporanSummaryItem(
     val title: String,
     val value: String
 )
 
-class LaporanSummaryAdapter : ListAdapter<LaporanSummaryItem, LaporanSummaryAdapter.ListViewHolder>(DiffCallback) {
+class LaporanSummaryAdapter(
+    private val coroutineScope: CoroutineScope
+) : ListAdapter<LaporanSummaryItem, LaporanSummaryAdapter.ListViewHolder>(DiffCallback) {
 
     companion object {
         private val DiffCallback = object : DiffUtil.ItemCallback<LaporanSummaryItem>() {
@@ -46,7 +47,7 @@ class LaporanSummaryAdapter : ListAdapter<LaporanSummaryItem, LaporanSummaryAdap
     }
 
     fun setItems(newItems: List<LaporanSummaryItem>) {
-        GlobalScope.launch(Dispatchers.Default) {
+        coroutineScope.launch(Dispatchers.Default) {
             submitList(newItems)
         }
     }
