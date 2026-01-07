@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.iurankomplek.transaction.Transaction
 import com.example.iurankomplek.transaction.TransactionRepository
 import com.example.iurankomplek.utils.UiState
+import com.example.iurankomplek.payment.PaymentStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -17,7 +18,7 @@ class TransactionViewModel(
     private val _transactionsState = MutableStateFlow<UiState<List<Transaction>>>(UiState.Loading)
     val transactionsState: StateFlow<UiState<List<Transaction>>> = _transactionsState
 
-    fun loadTransactionsByStatus(status: String) {
+    fun loadTransactionsByStatus(status: PaymentStatus) {
         viewModelScope.launch {
             _transactionsState.value = UiState.Loading
             transactionRepository.getTransactionsByStatus(status)

@@ -69,6 +69,10 @@ class TransactionRepositoryImpl(
         return transactionDao.getTransactionById(id)
     }
 
+    override fun getAllTransactions(): Flow<List<Transaction>> {
+        return transactionDao.getAllTransactions()
+    }
+
     override fun getTransactionsByUserId(userId: String): Flow<List<Transaction>> {
         return transactionDao.getTransactionsByUserId(userId)
     }
