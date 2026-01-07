@@ -3,21 +3,17 @@ package com.example.iurankomplek
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.example.iurankomplek.databinding.ActivityPaymentBinding
 import com.example.iurankomplek.payment.PaymentMethod
-import com.example.iurankomplek.payment.PaymentRequest
 import com.example.iurankomplek.payment.PaymentViewModel
+import com.example.iurankomplek.payment.PaymentViewModelFactory
 import com.example.iurankomplek.receipt.ReceiptGenerator
-import com.example.iurankomplek.payment.MockPaymentGateway
-import com.example.iurankomplek.transaction.TransactionRepository
+import com.example.iurankomplek.transaction.TransactionRepositoryFactory
 import java.math.BigDecimal
 
 class PaymentActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPaymentBinding
-    
-    // In a real implementation, these would be injected via Hilt or similar
-    private lateinit var transactionRepository: TransactionRepository
-    private lateinit var receiptGenerator: ReceiptGenerator
     private lateinit var paymentViewModel: PaymentViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,15 +26,13 @@ class PaymentActivity : AppCompatActivity() {
     }
     
     private fun setupPaymentProcessing() {
-        // Note: In a real app, these would be properly injected via DI framework
-        // For this implementation, we're creating simplified versions
-        val apiService = com.example.iurankomplek.network.ApiConfig.getApiService()
-        val realPaymentGateway = com.example.iurankomplek.payment.RealPaymentGateway(apiService)
-        val transactionDatabase = com.example.iurankomplek.transaction.TransactionDatabase.getDatabase(this)
-        val transactionDao = transactionDatabase.transactionDao()
-        transactionRepository = TransactionRepository(realPaymentGateway, transactionDao)
-        receiptGenerator = ReceiptGenerator()
-        paymentViewModel = PaymentViewModel(transactionRepository, receiptGenerator)
+        val transactionRepository = TransactionRepositoryFactory.getInstance(this)
+        val receiptGenerator = ReceiptGenerator()
+        
+        paymentViewModel = ViewModelProvider(
+            this,
+            PaymentViewModelFactory(transactionRepository, receiptGenerator)
+        )[PaymentViewModel::class.java]
     }
     
     private fun setupClickListeners() {

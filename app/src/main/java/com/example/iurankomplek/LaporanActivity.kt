@@ -202,9 +202,6 @@ withContext(Dispatchers.Main) {
     }
     
     private fun initializeTransactionRepository() {
-        val transactionDatabase = TransactionDatabase.getDatabase(this)
-        val transactionDao = transactionDatabase.transactionDao()
-        val mockPaymentGateway = MockPaymentGateway() // In production, this would be a real payment gateway
-        transactionRepository = TransactionRepository(mockPaymentGateway, transactionDao)
+        transactionRepository = TransactionRepositoryFactory.getMockInstance(this)
     }
 }

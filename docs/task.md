@@ -140,6 +140,81 @@ None currently in progress.
 
 ---
 
+### ✅ 14. Layer Separation Fix Module (Transaction Integration)
+**Status**: Completed
+**Completed Date**: 2026-01-07
+**Priority**: HIGH
+**Estimated Time**: 4-6 hours
+**Description**: Fix layer separation violations in transaction/payment integration
+
+**Completed Tasks**:
+- [x] Remove @Inject annotation from TransactionRepository (no actual DI framework)
+- [x] Create TransactionRepository interface following existing pattern
+- [x] Create TransactionRepositoryImpl implementation
+- [x] Create TransactionRepositoryFactory for consistent instantiation
+- [x] Create PaymentViewModelFactory for ViewModel pattern
+- [x] Update PaymentActivity to use factory pattern
+- [x] Update LaporanActivity to use factory pattern
+- [x] Update TransactionHistoryActivity to use factory pattern
+- [x] Update TransactionHistoryAdapter to use factory pattern
+- [x] Verify WebhookReceiver and PaymentService follow good practices (already using constructor injection)
+
+**Architectural Issues Fixed**:
+- ❌ **Before**: Activities manually instantiated TransactionRepository with dependencies
+- ❌ **Before**: @Inject annotation used without actual DI framework (Hilt)
+- ❌ **Before**: Code duplication across activities (same instantiation pattern)
+- ❌ **Before**: Dependency Inversion Principle violated (activities depended on concrete implementations)
+
+**Architectural Improvements**:
+- ✅ **After**: All activities use TransactionRepositoryFactory for consistent instantiation
+- ✅ **After**: Interface-based design (TransactionRepository interface + TransactionRepositoryImpl)
+- ✅ **After**: Factory pattern for dependency management (getInstance, getMockInstance)
+- ✅ **After**: Dependency Inversion Principle followed (activities depend on abstractions)
+- ✅ **After**: Single Responsibility Principle (separate interface, implementation, factory)
+- ✅ **After**: Code duplication eliminated (one place to manage repository lifecycle)
+- ✅ **After**: Consistent architecture with UserRepository, PemanfaatanRepository, VendorRepository
+
+**Files Modified**:
+- app/src/main/java/com/example/iurankomplek/transaction/TransactionRepository.kt (NEW - interface)
+- app/src/main/java/com/example/iurankomplek/transaction/TransactionRepositoryImpl.kt (NEW - implementation)
+- app/src/main/java/com/example/iurankomplek/transaction/TransactionRepositoryFactory.kt (NEW - factory)
+- app/src/main/java/com/example/iurankomplek/payment/PaymentViewModelFactory.kt (NEW - factory)
+- app/src/main/java/com/example/iurankomplek/PaymentActivity.kt (REFACTORED - use factory)
+- app/src/main/java/com/example/iurankomplek/LaporanActivity.kt (REFACTORED - use factory)
+- app/src/main/java/com/example/iurankomplek/TransactionHistoryActivity.kt (REFACTORED - use factory)
+- app/src/main/java/com/example/iurankomplek/TransactionHistoryAdapter.kt (REFACTORED - use factory)
+
+**Files Verified (No Changes Needed)**:
+- app/src/main/java/com/example/iurankomplek/payment/WebhookReceiver.kt (already uses constructor injection)
+- app/src/main/java/com/example/iurankomplek/payment/PaymentService.kt (already uses constructor injection)
+
+**Impact**:
+- Improved architectural consistency across all repositories
+- Better adherence to SOLID principles (Dependency Inversion, Single Responsibility)
+- Easier testing (mock repositories can be swapped via factory methods)
+- Reduced code duplication (one factory to manage repository lifecycle)
+- Easier maintenance (repository instantiation logic in one place)
+- Eliminated architectural smell (manual DI without DI framework)
+
+**SOLID Principles Compliance**:
+- ✅ **S**ingle Responsibility: Each class has one purpose (interface, implementation, factory)
+- ✅ **O**pen/Closed: Open for extension (new repository implementations), closed for modification (factories stable)
+- ✅ **L**iskov Substitution: Substitutable implementations via interface
+- ✅ **I**nterface Segregation: Focused interfaces with specific methods
+- ✅ **D**ependency Inversion: Depend on abstractions (interfaces), not concretions
+
+**Anti-Patterns Eliminated**:
+- ✅ No more manual dependency injection without DI framework
+- ✅ No more code duplication in repository instantiation
+- ✅ No more dependency inversion violations
+- ✅ No more god classes creating their own dependencies
+- ✅ No more tight coupling between activities and implementations
+
+**Dependencies**: None (independent module fixing architectural issues)
+**Documentation**: Updated docs/blueprint.md with Layer Separation Fix Phase (Phase 8)
+
+---
+
 ### ✅ 9. Performance Optimization Module
 **Status**: Completed
 **Completed Date**: 2025-01-07
@@ -556,7 +631,7 @@ None currently in progress.
 - **O**pen/Closed: Open for extension, closed for modification
 - **L**iskov Substitution: Proper inheritance hierarchy
 - **I**nterface Segregation: Small, focused interfaces
-- **D**ependency Inversion: Depend on abstractions, not concretions
+- **D**ependency Inversion: Depend on abstractions, not concretions ✅ UPDATED (TransactionRepository now follows interface pattern)
 
 ### Code Quality Metrics
 - ✅ No code duplication in retry logic (BaseActivity)
@@ -604,6 +679,9 @@ None currently identified
 16. ✅ **Green Builds**: All CI checks pass before merging
 17. ✅ **Matrix Testing**: Multiple API levels for compatibility
 18. ✅ **Artifact Management**: Reports and APKs for debugging
+19. ✅ **Layer Separation**: All repositories follow interface pattern with factory instantiation ✅ NEW
+20. ✅ **Dependency Inversion**: No manual instantiation in activities, all use abstractions ✅ NEW
+21. ✅ **Code Consistency**: TransactionRepository now matches UserRepository/PemanfaatanRepository pattern ✅ NEW
 
 ### Areas for Future Enhancement
 1. 🔄 Dependency Injection (Hilt)
@@ -635,6 +713,9 @@ None currently identified
 - No circular dependencies detected
 - Comprehensive error handling and validation
 - Security best practices implemented
+- **Layer Separation**: All repositories now follow consistent interface pattern ✅ UPDATED
+- **Dependency Management**: Factory pattern eliminates manual instantiation ✅ UPDATED
+- **Architectural Consistency**: TransactionRepository matches existing repository patterns ✅ UPDATED
 - Performance optimized with DiffUtil
 
 ---

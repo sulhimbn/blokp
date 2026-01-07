@@ -54,11 +54,8 @@ class TransactionHistoryAdapter : ListAdapter<Transaction, TransactionHistoryAda
             if (transaction.status == PaymentStatus.COMPLETED) {
                 btnRefund.visibility = View.VISIBLE
                 btnRefund.setOnClickListener {
-                    // Initialize payment gateway and repository
-                    val mockPaymentGateway = MockPaymentGateway()
-                    val transactionDatabase = TransactionDatabase.getDatabase(context)
-                    val transactionDao = transactionDatabase.transactionDao()
-                    val transactionRepository = TransactionRepository(mockPaymentGateway, transactionDao)
+                    // Initialize repository using factory pattern
+                    val transactionRepository = com.example.iurankomplek.transaction.TransactionRepositoryFactory.getMockInstance(context)
 
                     // Process refund
                     CoroutineScope(Dispatchers.IO).launch {
