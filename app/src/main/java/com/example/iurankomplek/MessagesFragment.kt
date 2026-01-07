@@ -51,6 +51,8 @@ class MessagesFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.messagesState.collect { state ->
                 when (state) {
+                    is UiState.Idle -> {
+                    }
                     is UiState.Loading -> {
                         binding.progressBar.visibility = View.VISIBLE
                     }

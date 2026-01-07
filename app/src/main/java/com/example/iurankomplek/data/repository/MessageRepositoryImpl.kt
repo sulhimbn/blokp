@@ -8,6 +8,7 @@ import com.example.iurankomplek.network.resilience.CircuitBreakerResult
 import kotlinx.coroutines.delay
 import retrofit2.HttpException
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.math.pow
 
 class MessageRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiService
@@ -53,6 +54,59 @@ class MessageRepositoryImpl(
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    private suspend fun <T> withCircuitBreaker(
+        apiCall: suspend () -> retrofit2.Response<T>
+    ): Result<T> {
+        val circuitBreakerResult = circuitBreaker.execute {
+            var currentRetry = 0
+            var lastException: Exception? = null
+
+            while (currentRetry <= maxRetries) {
+                try {
+                    val response = apiCall()
+                    if (response.isSuccessful) {
+                        response.body()?.let { return@execute it }
+                            ?: throw Exception("Response body is null")
+                    } else {
+                        val isRetryable = isRetryableError(response.code())
+                        if (currentRetry < maxRetries && isRetryable) {
+                            val delayMillis = calculateDelay(currentRetry + 1)
+                            delay(delayMillis)
+                            currentRetry++
+                        } else {
+                            throw HttpException(response)
+                        }
+                    }
+                } catch (e: NetworkError) {
+                    lastException = e
+                    if (shouldRetryOnNetworkError(e, currentRetry, maxRetries)) {
+                        val delayMillis = calculateDelay(currentRetry + 1)
+                        delay(delayMillis)
+                        currentRetry++
+                    } else {
+                        break
+                    }
+                } catch (e: Exception) {
+                    lastException = e
+                    if (shouldRetryOnException(e, currentRetry, maxRetries)) {
+                        val delayMillis = calculateDelay(currentRetry + 1)
+                        delay(delayMillis)
+                        currentRetry++
+                    } else {
+                        break
+                    }
+                }
+            }
+
+            throw lastException ?: Exception("Unknown error occurred")
+        }
+
+        when (circuitBreakerResult) {
+            is CircuitBreakerResult.Success -> Result.success(circuitBreakerResult.value)
+            is CircuitBreakerResult.Failure -> Result.failure(circuitBreakerResult.exception)
         }
     }
 

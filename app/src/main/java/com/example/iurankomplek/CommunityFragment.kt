@@ -51,6 +51,8 @@ class CommunityFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.postsState.collect { state ->
                 when (state) {
+                    is UiState.Idle -> {
+                    }
                     is UiState.Loading -> {
                         binding.progressBar.visibility = View.VISIBLE
                     }

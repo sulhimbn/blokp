@@ -46,48 +46,50 @@ class MainActivity : BaseActivity() {
         lifecycleScope.launch {
             viewModel.usersState.collect { state ->
                 when (state) {
+                    is UiState.Idle -> {
+                    }
                      is UiState.Loading -> {
                          binding.progressBar.visibility = View.VISIBLE
                          binding.swipeRefreshLayout.isRefreshing = true
                      }
                        is UiState.Success -> {
-                           binding.progressBar.visibility = View.GONE
-                           binding.swipeRefreshLayout.isRefreshing = false
-                           state.data.data?.let { users ->
-                              if (users.isNotEmpty()) {
-                                  val validatedUsers = users.mapNotNull { user ->
-                                      // Validate required fields to prevent displaying invalid data
-                                      if (user.email.isNotBlank() &&
-                                          (user.first_name.isNotBlank() || user.last_name.isNotBlank())) {
-                                          com.example.iurankomplek.model.DataItem(
-                                              first_name = user.first_name,
-                                              last_name = user.last_name,
-                                              email = user.email,
-                                              alamat = user.alamat,
-                                              iuran_perwarga = user.iuran_perwarga,
-                                              total_iuran_rekap = user.total_iuran_rekap,
-                                              jumlah_iuran_bulanan = user.jumlah_iuran_bulanan,
-                                              total_iuran_individu = user.total_iuran_individu,
-                                              pengeluaran_iuran_warga = user.pengeluaran_iuran_warga,
-                                              pemanfaatan_iuran = user.pemanfaatan_iuran,
-                                              avatar = user.avatar
-                                          )
-                                      } else null
-                                  }
-                                   adapter.submitList(validatedUsers)
-                              } else {
-                                 Toast.makeText(this@MainActivity, getString(R.string.no_users_available), Toast.LENGTH_LONG).show()
-                             }
-                         } ?: run {
-                             Toast.makeText(this@MainActivity, getString(R.string.invalid_response_format), Toast.LENGTH_LONG).show()
-                         }
-                     }
-                     is UiState.Error -> {
-                         binding.progressBar.visibility = View.GONE
-                         binding.swipeRefreshLayout.isRefreshing = false
-                         Toast.makeText(this@MainActivity, state.error, Toast.LENGTH_LONG).show()
-                     }
-                }
+                            binding.progressBar.visibility = View.GONE
+                            binding.swipeRefreshLayout.isRefreshing = false
+                            state.data.data?.let { users ->
+                               if (users.isNotEmpty()) {
+                                   val validatedUsers = users.mapNotNull { user ->
+                                       // Validate required fields to prevent displaying invalid data
+                                       if (user.email.isNotBlank() &&
+                                           (user.first_name.isNotBlank() || user.last_name.isNotBlank())) {
+                                           com.example.iurankomplek.model.DataItem(
+                                               first_name = user.first_name,
+                                               last_name = user.last_name,
+                                               email = user.email,
+                                               alamat = user.alamat,
+                                               iuran_perwarga = user.iuran_perwarga,
+                                               total_iuran_rekap = user.total_iuran_rekap,
+                                               jumlah_iuran_bulanan = user.jumlah_iuran_bulanan,
+                                               total_iuran_individu = user.total_iuran_individu,
+                                               pengeluaran_iuran_warga = user.pengeluaran_iuran_warga,
+                                               pemanfaatan_iuran = user.pemanfaatan_iuran,
+                                               avatar = user.avatar
+                                           )
+                                       } else null
+                                   }
+                                    adapter.submitList(validatedUsers)
+                               } else {
+                                  Toast.makeText(this@MainActivity, getString(R.string.no_users_available), Toast.LENGTH_LONG).show()
+                              }
+                          } ?: run {
+                              Toast.makeText(this@MainActivity, getString(R.string.invalid_response_format), Toast.LENGTH_LONG).show()
+                          }
+                      }
+                      is UiState.Error -> {
+                          binding.progressBar.visibility = View.GONE
+                          binding.swipeRefreshLayout.isRefreshing = false
+                          Toast.makeText(this@MainActivity, state.error, Toast.LENGTH_LONG).show()
+                      }
+                 }
             }
         }
     }

@@ -13,6 +13,7 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import javax.net.ssl.SSLException
 import retrofit2.Response
+import kotlin.math.pow
 
 abstract class BaseActivity : AppCompatActivity() {
     private val errorHandler = ErrorHandler()

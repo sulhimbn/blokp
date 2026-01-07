@@ -40,6 +40,8 @@ class WorkOrderDetailActivity : AppCompatActivity() {
         lifecycleScope.launch {
             vendorViewModel.workOrderDetailState.collect { state ->
                 when (state) {
+                    is UiState.Idle -> {
+                    }
                     is UiState.Loading -> {
                     }
                     is UiState.Success -> {

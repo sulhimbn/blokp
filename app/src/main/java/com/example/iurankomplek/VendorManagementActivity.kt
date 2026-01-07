@@ -46,6 +46,8 @@ class VendorManagementActivity : BaseActivity() {
         lifecycleScope.launch {
             vendorViewModel.vendorState.collect { state ->
                 when (state) {
+                    is UiState.Idle -> {
+                    }
                     is UiState.Loading -> {
                         // Show loading indicator
                     }
