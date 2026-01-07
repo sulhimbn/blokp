@@ -66,6 +66,7 @@ dependencies {
     androidTestImplementation libs.mockwebserver
     
     implementation libs.androidx.recyclerview
+    implementation libs.swiperefreshlayout
     implementation libs.glide
 
     implementation libs.gson
