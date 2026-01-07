@@ -18,9 +18,11 @@
     <string name="financial_data_exceeds_maximum">Financial data exceeds maximum allowed value</string>
     <string name="error_loading_data">Error loading data</string>
     <string name="retry_failed">Failed to load data after multiple attempts</string>
-    <string name="jumlah_iuran_bulanan">1. Jumlah Iuran Bulanan</string>
-    <string name="total_pengeluaran">2. Total Pengeluaran</string>
-    <string name="rekap_total_iuran">3. Rekap Total Iuran</string>
+     <string name="jumlah_iuran_bulanan">1. Jumlah Iuran Bulanan</string>
+     <string name="total_pengeluaran">2. Total Pengeluaran</string>
+     <string name="rekap_total_iuran">3. Rekap Total Iuran</string>
+     <string name="laporan_item_title_desc">Laporan item title</string>
+     <string name="laporan_item_value_desc">Laporan item value</string>
      <string name="no_internet_connection">No internet connection. Please check your network settings.</string>
      <string name="failed_after_attempts">Failed after %d attempts</string>
      <string name="network_error">Network error: %s</string>
@@ -103,6 +105,8 @@
     <string name="tab_community_desc">View community posts tab</string>
 
     <!-- Vendor Management -->
+    <string name="vendor_management_title">Vendor Management</string>
+    <string name="vendor_management_title_desc">Vendor management screen title</string>
     <string name="toast_vendor_info">Vendor: %s</string>
     <string name="toast_error">Error: %s</string>
     <string name="toast_communicate_with_vendor">Communicate with: %s</string>
@@ -136,6 +140,36 @@
     <string name="work_order_category_desc">Work order category</string>
     <string name="work_order_status_desc">Work order status</string>
     <string name="work_order_priority_desc">Work order priority</string>
+
+    <!-- Work Order Detail -->
+    <string name="work_order_detail_title_desc">Work order title</string>
+    <string name="work_order_detail_description_label">Description:</string>
+    <string name="work_order_detail_description_label_desc">Work order description label</string>
+    <string name="work_order_detail_description_value_desc">Work order description value</string>
+    <string name="work_order_detail_category_label">Category:</string>
+    <string name="work_order_detail_category_label_desc">Work order category label</string>
+    <string name="work_order_detail_category_value_desc">Work order category value</string>
+    <string name="work_order_detail_status_label">Status:</string>
+    <string name="work_order_detail_status_label_desc">Work order status label</string>
+    <string name="work_order_detail_status_value_desc">Work order status value</string>
+    <string name="work_order_detail_priority_label">Priority:</string>
+    <string name="work_order_detail_priority_label_desc">Work order priority label</string>
+    <string name="work_order_detail_priority_value_desc">Work order priority value</string>
+    <string name="work_order_detail_vendor_label">Assigned Vendor:</string>
+    <string name="work_order_detail_vendor_label_desc">Assigned vendor label</string>
+    <string name="work_order_detail_vendor_value_desc">Assigned vendor name</string>
+    <string name="work_order_detail_estimated_cost_label">Estimated Cost:</string>
+    <string name="work_order_detail_estimated_cost_label_desc">Estimated cost label</string>
+    <string name="work_order_detail_estimated_cost_value_desc">Estimated cost value</string>
+    <string name="work_order_detail_actual_cost_label">Actual Cost:</string>
+    <string name="work_order_detail_actual_cost_label_desc">Actual cost label</string>
+    <string name="work_order_detail_actual_cost_value_desc">Actual cost value</string>
+    <string name="work_order_detail_property_id_label">Property ID:</string>
+    <string name="work_order_detail_property_id_label_desc">Property ID label</string>
+    <string name="work_order_detail_property_id_value_desc">Property ID value</string>
+    <string name="work_order_detail_created_at_label">Created At:</string>
+    <string name="work_order_detail_created_at_label_desc">Created at label</string>
+    <string name="work_order_detail_created_at_value_desc">Created at date value</string>
 
     <!-- Messages -->
     <string name="messages_list_desc">List of all messages</string>

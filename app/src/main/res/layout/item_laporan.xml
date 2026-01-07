@@ -3,8 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="16dp"
-    android:background="@color/cream">
+    android:padding="@dimen/padding_md"
+    android:background="@color/background_secondary"
+    android:minHeight="@dimen/list_item_min_height"
+    android:importantForAccessibility="yes">
 
     <TextView
         android:id="@+id/itemLaporanTitle"
@@ -12,10 +14,11 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:fontFamily="@font/font"
-        android:textSize="16sp"
+        android:textSize="@dimen/text_size_normal"
         android:textStyle="bold"
-        android:textColor="@color/black"
-        android:gravity="start" />
+        android:textColor="@color/text_primary"
+        android:gravity="start|center_vertical"
+        android:contentDescription="@string/laporan_item_title_desc" />
 
     <TextView
         android:id="@+id/itemLaporanValue"
@@ -23,9 +26,10 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:fontFamily="@font/font"
-        android:textSize="16sp"
+        android:textSize="@dimen/text_size_normal"
         android:textStyle="bold"
-        android:textColor="@color/black"
-        android:gravity="end" />
+        android:textColor="@color/text_primary"
+        android:gravity="end|center_vertical"
+        android:contentDescription="@string/laporan_item_value_desc" />
 
 </LinearLayout>
