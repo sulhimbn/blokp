@@ -28,8 +28,8 @@ class WebhookQueue(
 
         fun generateIdempotencyKey(): String {
             val timestamp = System.currentTimeMillis()
-            val random = SecureRandom().nextInt(0, Int.MAX_VALUE)
-            return "${Constants.Webhook.IDEmpotency_KEY_PREFIX}${timestamp}_$random"
+            val random = SecureRandom().nextInt()
+            return "${Constants.Webhook.IDEMPOTENCY_KEY_PREFIX}${timestamp}_${kotlin.math.abs(random)}"
         }
     }
 
@@ -227,13 +227,13 @@ class WebhookQueue(
     }
 
     internal fun calculateRetryDelay(retryCount: Int): Long {
-        val exponentialDelay = (Constants.Webhook.INITIAL_RETRY_DELAY_MS * 
-            Constants.Webhook.RETRY_BACKOFF_MULTIPLIER.pow(retryCount)).toLong()
-        
+        val exponentialDelay = (Constants.Webhook.INITIAL_RETRY_DELAY_MS *
+            Math.pow(Constants.Webhook.RETRY_BACKOFF_MULTIPLIER, retryCount.toDouble())).toLong()
+
         val cappedDelay = min(exponentialDelay, Constants.Webhook.MAX_RETRY_DELAY_MS)
-        
+
         val jitter = secureRandom.nextLong(-Constants.Webhook.RETRY_JITTER_MS, Constants.Webhook.RETRY_JITTER_MS)
-        
+
         return (cappedDelay + jitter).coerceAtLeast(0)
     }
 

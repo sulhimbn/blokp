@@ -134,7 +134,7 @@ class CircuitBreaker(
     
     fun getLastFailureTime(): Long = lastFailureTime.get()
     
-    fun reset() {
+    suspend fun reset() {
         stateMutex.withLock {
             resetToClosed()
         }

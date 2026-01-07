@@ -80,7 +80,7 @@ object Constants {
         const val INITIAL_RETRY_DELAY_MS = 1000L
         const val MAX_RETRY_DELAY_MS = 60000L
         const val RETRY_BACKOFF_MULTIPLIER = 2.0
-        const val IDempotency_KEY_PREFIX = "whk_"
+        const val IDEMPOTENCY_KEY_PREFIX = "whk_"
         const val MAX_EVENT_RETENTION_DAYS = 30
         const val RETRY_JITTER_MS = 500L
     }
