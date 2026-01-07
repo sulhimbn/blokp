@@ -105,7 +105,7 @@ abstract class BaseActivity : AppCompatActivity() {
         onError: (String) -> Unit,
         retryCount: Int
     ) {
-        val exponentialDelay = (initialDelayMs * kotlin.math.pow(2.0, (retryCount - 1).toDouble())).toLong()
+        val exponentialDelay = (initialDelayMs * pow(2.0, (retryCount - 1).toDouble())).toLong()
         val jitter = (kotlin.random.Random.nextDouble() * initialDelayMs).toLong()
         val delay = minOf(exponentialDelay + jitter, maxDelayMs)
 
