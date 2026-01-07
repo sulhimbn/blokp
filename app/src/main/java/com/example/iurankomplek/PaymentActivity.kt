@@ -107,9 +107,8 @@ class PaymentActivity : BaseActivity() {
              paymentViewModel.processPayment()
           } catch (e: NumberFormatException) {
               Toast.makeText(this, getString(R.string.payment_invalid_format), Toast.LENGTH_SHORT).show()
-          } catch (e: ArithmeticException) {
-              Toast.makeText(this, getString(R.string.payment_invalid_value), Toast.LENGTH_SHORT).show()
-          }
-      }
-  }
+           } catch (e: ArithmeticException) {
+               Toast.makeText(this, getString(R.string.payment_invalid_value), Toast.LENGTH_SHORT).show()
+           }
+       }
 }
