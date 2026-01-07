@@ -17,7 +17,7 @@ class UserRepositoryImpl(
     private val circuitBreaker: CircuitBreaker = ApiConfig.circuitBreaker
     private val maxRetries = 3
     
-    override suspend fun getUsers(forceRefresh: Boolean = false): Result<UserResponse> {
+    override suspend fun getUsers(forceRefresh: Boolean): Result<UserResponse> {
         return cacheFirstStrategy(
             getFromCache = {
                 val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords()

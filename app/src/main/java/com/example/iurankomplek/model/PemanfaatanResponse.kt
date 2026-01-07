@@ -1,3 +1,5 @@
 package com.example.iurankomplek.model
 
-data class PemanfaatanResponse(val data: List<DataItem>)
+import com.example.iurankomplek.data.dto.LegacyDataItemDto
+
+data class PemanfaatanResponse(val data: List<LegacyDataItemDto>)
