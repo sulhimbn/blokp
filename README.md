@@ -4,7 +4,7 @@ Aplikasi Android untuk mengelola pembayaran iuran blok perumahan/apartemen. Memu
 
 ## Deskripsi Singkat
 
-Aplikasi Iuran BlokP adalah solusi lengkap untuk mengelola pembayaran iuran blok perumahan/apartemen. Aplikasi ini dibangun dengan teknologi Android modern menggunakan Kotlin sebagai bahasa pemrograman utama, dilengkapi dengan Java untuk kompatibilitas. Aplikasi menyediakan interface yang intuitif untuk pengelola blok dalam mengatur data pembayaran iuran warga secara efisien.
+Aplikasi Iuran BlokP adalah solusi lengkap untuk mengelola pembayaran iuran blok perumahan/apartemen. Aplikasi ini dibangun dengan teknologi Android modern menggunakan Kotlin 100% sebagai bahasa pemrograman. Aplikasi menyediakan interface yang intuitif untuk pengelola blok dalam mengatur data pembayaran iuran warga secara efisien.
 
 ## Fitur Utama
 
@@ -36,7 +36,7 @@ Aplikasi Iuran BlokP adalah solusi lengkap untuk mengelola pembayaran iuran blok
 - **Platform**: Android SDK API level 34
 - **Bahasa Pemrograman**: Kotlin 100%
 - **Minimum SDK**: Android 7.0 (API 24)
-- **Build System**: Gradle
+- **Build System**: Gradle 8.1.0
 - **Arsitektur**: MVVM dengan Repository Pattern
 
 ### Dependencies Utama
@@ -49,7 +49,9 @@ Aplikasi Iuran BlokP adalah solusi lengkap untuk mengelola pembayaran iuran blok
 - **Debugging**: Chucker interceptor untuk inspeksi network traffic (hanya di debug mode)
 - **State Management**: StateFlow untuk reactive UI updates
 - **Resilience**: Circuit Breaker pattern untuk fault tolerance
-- **Persistence**: Room Database untuk local storage
+- **Persistence**: Room Database untuk local storage dengan caching strategy
+- **Webhook Reliability**: Queue-based processing dengan retry logic dan idempotency
+- **CI/CD**: GitHub Actions untuk automated build, test, dan deployment
 
 ## Struktur Proyek
 
@@ -227,7 +229,7 @@ Proyek ini tidak memiliki lisensi spesifik. Gunakan sesuai dengan kebijakan peng
 
 ## Aktivitas Aplikasi
 
-### MenuActivity (Java)
+### MenuActivity (Kotlin)
 Aktivitas utama yang menampilkan menu navigasi aplikasi dengan dua opsi:
 - **Tombol Menu 1**: Navigasi ke MainActivity (Daftar Pengguna)
 - **Tombol Menu 2**: Navigasi ke LaporanActivity (Laporan Keuangan)
