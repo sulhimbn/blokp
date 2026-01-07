@@ -1,26 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="@dimen/padding_md"
     android:importantForAccessibility="yes">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/work_order_management_title"
-        android:textSize="@dimen/heading_h2"
-        android:textStyle="bold"
-        android:layout_marginBottom="@dimen/margin_md"
-        android:gravity="center"
-        android:contentDescription="@string/work_order_management_title_desc" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/workOrderRecyclerView"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:contentDescription="@string/work_orders_list_desc"
-        android:clipToPadding="false" />
+        android:fillViewport="true">
 
-</LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/padding_md">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/work_order_management_title"
+                android:textSize="@dimen/heading_h2"
+                android:textStyle="bold"
+                android:layout_marginBottom="@dimen/margin_md"
+                android:gravity="center"
+                android:contentDescription="@string/work_order_management_title_desc" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/workOrderRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/work_orders_list_desc"
+                android:clipToPadding="false" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <ProgressBar
+        android:id="@+id/loadingProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:importantForAccessibility="yes"
+        android:contentDescription="@string/loading_content_description" />
+
+    <TextView
+        android:id="@+id/emptyStateTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/no_work_orders_available"
+        android:textSize="@dimen/text_size_medium"
+        android:textColor="@color/text_secondary"
+        android:visibility="gone"
+        android:importantForAccessibility="yes"
+        android:contentDescription="@string/no_work_orders_available" />
+
+    <LinearLayout
+        android:id="@+id/errorStateLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+        android:importantForAccessibility="yes">
+
+        <TextView
+            android:id="@+id/errorStateTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/error_loading_work_order_data"
+            android:textSize="@dimen/text_size_medium"
+            android:textColor="@color/error"
+            android:gravity="center"
+            android:layout_marginBottom="@dimen/spacing_sm"
+            android:contentDescription="@string/error_loading_work_order_data" />
+
+        <TextView
+            android:id="@+id/retryTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/retry_loading_data"
+            android:textSize="@dimen/text_size_small"
+            android:textColor="@color/primary"
+            android:textStyle="bold"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="@dimen/spacing_md"
+            android:contentDescription="@string/retry_loading_data" />
+
+    </LinearLayout>
+
+</FrameLayout>
