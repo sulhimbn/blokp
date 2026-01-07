@@ -3,16 +3,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="@dimen/padding_md"
+    android:importantForAccessibility="yes">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Vendor Performance Analytics"
-        android:textSize="24sp"
+        android:text="@string/vendor_performance_title"
+        android:textSize="@dimen/heading_h2"
         android:textStyle="bold"
-        android:layout_marginBottom="16dp"
-        android:gravity="center" />
+        android:layout_marginBottom="@dimen/margin_md"
+        android:gravity="center"
+        android:contentDescription="@string/vendor_performance_title_desc" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -22,8 +24,10 @@
             android:id="@+id/analyticsTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:lineSpacingExtra="4dp" />
+            android:textSize="@dimen/text_size_normal"
+            android:lineSpacingExtra="@dimen/spacing_xs"
+            android:textColor="@color/text_primary"
+            android:contentDescription="@string/vendor_performance_analytics_desc" />
 
     </ScrollView>
 

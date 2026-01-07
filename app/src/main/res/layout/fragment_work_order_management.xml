@@ -3,20 +3,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="@dimen/padding_md"
+    android:importantForAccessibility="yes">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Work Order Management"
-        android:textSize="24sp"
+        android:text="@string/work_order_management_title"
+        android:textSize="@dimen/heading_h2"
         android:textStyle="bold"
-        android:layout_marginBottom="16dp"
-        android:gravity="center" />
+        android:layout_marginBottom="@dimen/margin_md"
+        android:gravity="center"
+        android:contentDescription="@string/work_order_management_title_desc" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/workOrderRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:contentDescription="@string/work_orders_list_desc"
+        android:clipToPadding="false" />
 
 </LinearLayout>

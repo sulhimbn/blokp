@@ -89,4 +89,45 @@
     <!-- Vendor Performance -->
     <string name="vendor_performance_title">Vendor Performance</string>
     <string name="vendor_performance_analytics">Vendor performance analytics will be displayed here\n\nThis would include:\n- Response time metrics\n- Cost analysis by vendor\n- Quality ratings\n- Work completion rates\n- Budget variance tracking</string>
+    <string name="vendor_performance_analytics_desc">Vendor performance analytics information</string>
+    <string name="vendor_performance_title_desc">Vendor performance screen title</string>
+
+    <!-- Vendor Database -->
+    <string name="vendor_database_title">Vendor Database</string>
+    <string name="vendor_database_title_desc">Vendor database screen title</string>
+    <string name="vendor_list_desc">List of all vendors</string>
+    <string name="vendor_name_desc">Vendor name</string>
+    <string name="vendor_specialty_desc">Vendor specialty</string>
+    <string name="vendor_contact_desc">Vendor contact information</string>
+    <string name="vendor_rating_desc">Vendor rating</string>
+
+    <!-- Vendor Communication -->
+    <string name="vendor_communication_title">Vendor Communication</string>
+    <string name="vendor_communication_title_desc">Vendor communication screen title</string>
+    <string name="vendor_communications_list_desc">List of vendor communications</string>
+
+    <!-- Work Orders -->
+    <string name="work_order_management_title">Work Order Management</string>
+    <string name="work_order_management_title_desc">Work order management screen title</string>
+    <string name="work_orders_list_desc">List of all work orders</string>
+    <string name="work_order_title_desc">Work order title</string>
+    <string name="work_order_category_desc">Work order category</string>
+    <string name="work_order_status_desc">Work order status</string>
+    <string name="work_order_priority_desc">Work order priority</string>
+
+    <!-- Messages -->
+    <string name="messages_list_desc">List of all messages</string>
+    <string name="message_sender_desc">Message sender name</string>
+    <string name="message_content_desc">Message content</string>
+    <string name="message_timestamp_desc">Message timestamp</string>
+
+    <!-- Community Posts -->
+    <string name="community_posts_list_desc">List of community posts</string>
+    <string name="post_title_desc">Post title</string>
+    <string name="post_content_desc">Post content</string>
+    <string name="post_category_desc">Post category</string>
+    <string name="post_likes_desc">Post likes count</string>
+
+    <!-- Announcements -->
+    <string name="announcements_list_desc">List of all announcements</string>
 </resources>
