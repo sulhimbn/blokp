@@ -11,6 +11,13 @@ import kotlinx.serialization.json.Json
 import okhttp3.*
 import java.io.IOException
 
+@Serializable
+data class WebhookPayload(
+    val eventType: String,
+    val transactionId: String? = null,
+    val metadata: Map<String, String> = emptyMap()
+)
+
 class WebhookReceiver(
     private val transactionRepository: TransactionRepository,
     private val webhookQueue: WebhookQueue? = null
