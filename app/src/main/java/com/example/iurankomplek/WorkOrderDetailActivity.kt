@@ -27,12 +27,12 @@ class WorkOrderDetailActivity : AppCompatActivity() {
             val repository = VendorRepositoryFactory.getInstance()
             vendorViewModel = ViewModelProvider(this, VendorViewModel.Factory(repository))[VendorViewModel::class.java]
             
-            observeWorkOrderDetails()
-            vendorViewModel.loadWorkOrderDetail(workOrderId)
-        } else {
-            Toast.makeText(this, "Work order ID not provided", Toast.LENGTH_SHORT).show()
-            finish()
-        }
+             observeWorkOrderDetails()
+             vendorViewModel.loadWorkOrderDetail(workOrderId)
+         } else {
+             Toast.makeText(this, getString(R.string.work_order_id_not_provided), Toast.LENGTH_SHORT).show()
+             finish()
+         }
     }
     
     private fun observeWorkOrderDetails() {
@@ -45,25 +45,25 @@ class WorkOrderDetailActivity : AppCompatActivity() {
                     is UiState.Success -> {
                         displayWorkOrderDetails(state.data.data)
                     }
-                    is UiState.Error -> {
-                        Toast.makeText(this@WorkOrderDetailActivity, "Error: ${state.error}", Toast.LENGTH_SHORT).show()
-                        finish()
-                    }
+                     is UiState.Error -> {
+                         Toast.makeText(this@WorkOrderDetailActivity, getString(R.string.error_with_message, state.error), Toast.LENGTH_SHORT).show()
+                         finish()
+                     }
                 }
             }
         }
     }
     
-    private fun displayWorkOrderDetails(workOrder: com.example.iurankomplek.model.WorkOrder) {
-        findViewById<TextView>(R.id.workOrderTitle).text = workOrder.title
-        findViewById<TextView>(R.id.workOrderDescription).text = workOrder.description
-        findViewById<TextView>(R.id.workOrderCategory).text = workOrder.category
-        findViewById<TextView>(R.id.workOrderStatus).text = workOrder.status
-        findViewById<TextView>(R.id.workOrderPriority).text = workOrder.priority
-        findViewById<TextView>(R.id.workOrderVendor).text = workOrder.vendorName ?: "Not assigned"
-        findViewById<TextView>(R.id.workOrderEstimatedCost).text = "Rp ${workOrder.estimatedCost}"
-        findViewById<TextView>(R.id.workOrderActualCost).text = "Rp ${workOrder.actualCost}"
-        findViewById<TextView>(R.id.workOrderPropertyId).text = workOrder.propertyId
-        findViewById<TextView>(R.id.workOrderCreatedAt).text = workOrder.createdAt
-    }
-}
+     private fun displayWorkOrderDetails(workOrder: com.example.iurankomplek.model.WorkOrder) {
+         findViewById<TextView>(R.id.workOrderTitle).text = workOrder.title
+         findViewById<TextView>(R.id.workOrderDescription).text = workOrder.description
+         findViewById<TextView>(R.id.workOrderCategory).text = workOrder.category
+         findViewById<TextView>(R.id.workOrderStatus).text = workOrder.status
+         findViewById<TextView>(R.id.workOrderPriority).text = workOrder.priority
+         findViewById<TextView>(R.id.workOrderVendor).text = workOrder.vendorName ?: getString(R.string.work_order_not_assigned)
+         findViewById<TextView>(R.id.workOrderEstimatedCost).text = "Rp ${workOrder.estimatedCost}"
+         findViewById<TextView>(R.id.workOrderActualCost).text = "Rp ${workOrder.actualCost}"
+         findViewById<TextView>(R.id.workOrderPropertyId).text = workOrder.propertyId
+         findViewById<TextView>(R.id.workOrderCreatedAt).text = workOrder.createdAt
+     }
+ }

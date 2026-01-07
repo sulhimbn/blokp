@@ -825,15 +825,21 @@ None currently identified
 - [x] Extract hardcoded BASE_URL values (production and mock) in ApiConfig.kt to Constants
 - [x] Extract hardcoded connection pool configuration in ApiConfig.kt to Constants
 - [x] Create .env.example file documenting required environment variables
+- [x] Remove dead code in LaporanActivity.kt (updatedRekapIuran assignment)
+- [x] Extract all hardcoded strings to strings.xml (PaymentActivity, MessagesFragment, AnnouncementsFragment, CommunityFragment, TransactionHistoryAdapter, WorkOrderDetailActivity)
+- [x] Remove duplicate code in PaymentActivity.kt (duplicate catch blocks at end of file)
 
 **Code Improvements**:
 - **Duplicate Code Eliminated**: ~80 lines of duplicate retry/circuit breaker logic removed from UserRepositoryImpl and PemanfaatanRepositoryImpl
+- **Dead Code Removed**: Eliminated unused variable assignment in LaporanActivity.kt (updatedRekapIuran)
+- **Duplicate Code Fixed**: Removed ~15 lines of duplicate code in PaymentActivity.kt (duplicate catch blocks)
 - **Pattern Consistency**: All repositories now use identical withCircuitBreaker pattern (UserRepository, PemanfaatanRepository, VendorRepository)
 - **Maintainability**: Retry logic centralized in one place per repository instead of duplicated
 - **Zero Hardcoding**: All hardcoded values extracted to Constants.kt for centralized management
   - API URLs: PRODUCTION_BASE_URL, MOCK_BASE_URL
   - Environment variable: DOCKER_ENV_KEY
   - Connection pool: MAX_IDLE_CONNECTIONS, KEEP_ALIVE_DURATION_MINUTES
+- **Zero Hardcoded Strings**: All user-facing strings extracted to strings.xml for localization support
 - **Environment Documentation**: .env.example file created for developers
 
 **Files Modified**:
@@ -841,14 +847,25 @@ None currently identified
 - app/src/main/java/com/example/iurankomplek/data/repository/PemanfaatanRepositoryImpl.kt (REFACTORED - use withCircuitBreaker)
 - app/src/main/java/com/example/iurankomplek/network/ApiConfig.kt (REFACTORED - use Constants)
 - app/src/main/java/com/example/iurankomplek/utils/Constants.kt (ENHANCED - added Api constants)
+- app/src/main/java/com/example/iurankomplek/LaporanActivity.kt (REFACTORED - removed dead code, extracted strings)
+- app/src/main/java/com/example/iurankomplek/PaymentActivity.kt (REFACTORED - removed duplicate code, extracted strings)
+- app/src/main/java/com/example/iurankomplek/MessagesFragment.kt (REFACTORED - extracted strings)
+- app/src/main/java/com/example/iurankomplek/AnnouncementsFragment.kt (REFACTORED - extracted strings)
+- app/src/main/java/com/example/iurankomplek/CommunityFragment.kt (REFACTORED - extracted strings)
+- app/src/main/java/com/example/iurankomplek/TransactionHistoryAdapter.kt (REFACTORED - extracted strings)
+- app/src/main/java/com/example/iurankomplek/WorkOrderDetailActivity.kt (REFACTORED - extracted strings)
+- app/src/main/res/values/strings.xml (ENHANCED - added 15 new string resources)
 - .env.example (NEW - environment variable documentation)
 
 **Impact**:
-- Reduced code duplication by ~80 lines
+- Reduced code duplication by ~95 lines (80 from repositories, 15 from duplicate catch blocks)
+- Removed dead code (1 line in LaporanActivity)
 - Improved maintainability (retry logic in one place)
 - Better code consistency across all repositories
 - Easier to update retry logic (change in one place)
 - Zero hardcoded values (all in Constants.kt)
+- Zero hardcoded strings (all in strings.xml)
+- Better localization support (all user-facing strings centralized)
 - Better developer experience (.env.example documentation)
 
 **Anti-Patterns Eliminated**:
@@ -857,11 +874,15 @@ None currently identified
 - ✅ No more hardcoded environment variable names
 - ✅ No more hardcoded connection pool parameters
 - ✅ Inconsistent patterns resolved (all repositories now use same pattern)
+- ✅ No more dead code (unused variable assignments)
+- ✅ No more duplicate code (catch blocks)
+- ✅ No more hardcoded user-facing strings
 
 **SOLID Principles Compliance**:
 - ✅ **D**on't Repeat Yourself: Retry logic centralized, no duplication
-- ✅ **S**ingle Responsibility: Constants centralized in Constants.kt
-- ✅ **O**pen/Closed: Easy to add new constants, no code modification needed
+- ✅ **S**ingle Responsibility: Constants centralized in Constants.kt, strings centralized in strings.xml
+- ✅ **O**pen/Closed: Easy to add new constants/strings, no code modification needed
+- ✅ **K**eep It Simple: Dead code removed, duplicate code eliminated
 
 **Dependencies**: None (independent module improving code quality)
 **Documentation**: Updated docs/task.md with Code Sanitization Module

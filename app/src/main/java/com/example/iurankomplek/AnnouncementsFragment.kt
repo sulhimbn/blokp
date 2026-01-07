@@ -39,36 +39,36 @@ class AnnouncementsFragment : Fragment() {
         // Show progress bar when starting the API call
         binding.progressBar.visibility = View.VISIBLE
 
-        if (!NetworkUtils.isNetworkAvailable(requireContext())) {
-            // Hide progress bar after failure
-            binding.progressBar.visibility = View.GONE
-            Toast.makeText(context, "No internet connection", Toast.LENGTH_LONG).show()
-            return
-        }
+         if (!NetworkUtils.isNetworkAvailable(requireContext())) {
+             // Hide progress bar after failure
+             binding.progressBar.visibility = View.GONE
+             Toast.makeText(context, getString(R.string.no_internet_connection), Toast.LENGTH_LONG).show()
+             return
+         }
 
-        val apiService = ApiConfig.getApiService()
+         val apiService = ApiConfig.getApiService()
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val response = apiService.getAnnouncements()
-                // Hide progress bar after response
-                binding.progressBar.visibility = View.GONE
+         viewLifecycleOwner.lifecycleScope.launch {
+             try {
+                 val response = apiService.getAnnouncements()
+                 // Hide progress bar after response
+                 binding.progressBar.visibility = View.GONE
 
-                if (response.isSuccessful) {
-                    val announcements = response.body()
-                    if (announcements != null) {
-                        adapter.submitList(announcements)
-                    } else {
-                        Toast.makeText(context, "No announcements available", Toast.LENGTH_LONG).show()
-                    }
-                } else {
-                    Toast.makeText(context, "Failed to load announcements", Toast.LENGTH_LONG).show()
-                }
-            } catch (e: Exception) {
-                // Hide progress bar after failure
-                binding.progressBar.visibility = View.GONE
-                Toast.makeText(context, "Network error: ${e.message}", Toast.LENGTH_LONG).show()
-            }
-        }
+                 if (response.isSuccessful) {
+                     val announcements = response.body()
+                     if (announcements != null) {
+                         adapter.submitList(announcements)
+                     } else {
+                         Toast.makeText(context, getString(R.string.no_announcements_available), Toast.LENGTH_LONG).show()
+                     }
+                 } else {
+                     Toast.makeText(context, getString(R.string.failed_to_load_announcements), Toast.LENGTH_LONG).show()
+                 }
+             } catch (e: Exception) {
+                 // Hide progress bar after failure
+                 binding.progressBar.visibility = View.GONE
+                 Toast.makeText(context, getString(R.string.network_error, e.message), Toast.LENGTH_LONG).show()
+             }
+         }
     }
 }

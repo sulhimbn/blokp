@@ -38,33 +38,33 @@ class CommunityFragment : Fragment() {
     private fun loadCommunityPosts() {
         binding.progressBar.visibility = View.VISIBLE
 
-        if (!NetworkUtils.isNetworkAvailable(requireContext())) {
-            binding.progressBar.visibility = View.GONE
-            Toast.makeText(context, "No internet connection", Toast.LENGTH_LONG).show()
-            return
-        }
+         if (!NetworkUtils.isNetworkAvailable(requireContext())) {
+             binding.progressBar.visibility = View.GONE
+             Toast.makeText(context, getString(R.string.no_internet_connection), Toast.LENGTH_LONG).show()
+             return
+         }
 
-        val apiService = ApiConfig.getApiService()
+         val apiService = ApiConfig.getApiService()
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val response = apiService.getCommunityPosts()
-                binding.progressBar.visibility = View.GONE
+         viewLifecycleOwner.lifecycleScope.launch {
+             try {
+                 val response = apiService.getCommunityPosts()
+                 binding.progressBar.visibility = View.GONE
 
-                if (response.isSuccessful) {
-                    val posts = response.body()
-                    if (posts != null) {
-                        adapter.submitList(posts)
-                    } else {
-                        Toast.makeText(context, "No community posts available", Toast.LENGTH_LONG).show()
-                    }
-                } else {
-                    Toast.makeText(context, "Failed to load community posts", Toast.LENGTH_LONG).show()
-                }
-            } catch (e: Exception) {
-                binding.progressBar.visibility = View.GONE
-                Toast.makeText(context, "Network error: ${e.message}", Toast.LENGTH_LONG).show()
-            }
-        }
+                 if (response.isSuccessful) {
+                     val posts = response.body()
+                     if (posts != null) {
+                         adapter.submitList(posts)
+                     } else {
+                         Toast.makeText(context, getString(R.string.no_community_posts_available), Toast.LENGTH_LONG).show()
+                     }
+                 } else {
+                     Toast.makeText(context, getString(R.string.failed_to_load_community_posts), Toast.LENGTH_LONG).show()
+                 }
+             } catch (e: Exception) {
+                 binding.progressBar.visibility = View.GONE
+                 Toast.makeText(context, getString(R.string.network_error, e.message), Toast.LENGTH_LONG).show()
+             }
+         }
     }
 }
