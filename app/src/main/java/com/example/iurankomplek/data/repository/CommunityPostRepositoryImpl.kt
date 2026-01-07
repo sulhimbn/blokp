@@ -8,7 +8,6 @@ import com.example.iurankomplek.network.resilience.CircuitBreakerResult
 import kotlinx.coroutines.delay
 import retrofit2.HttpException
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.math.pow
 
 class CommunityPostRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiService
@@ -31,7 +30,7 @@ class CommunityPostRepositoryImpl(
         content: String,
         category: String
     ): Result<CommunityPost> {
-        return withCircuitBreaker {
+        return withCircuitBreaker<CommunityPost> {
             apiService.createCommunityPost(authorId, title, content, category)
         }
     }

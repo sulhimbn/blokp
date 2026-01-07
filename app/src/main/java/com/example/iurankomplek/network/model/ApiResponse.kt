@@ -21,11 +21,3 @@ data class PaginationMetadata(
     val hasNext: Boolean,
     val hasPrevious: Boolean
 )
-
-data class ApiError(
-    val code: String,
-    val message: String,
-    val details: String? = null,
-    val requestId: String? = null,
-    val timestamp: Long = System.currentTimeMillis()
-)

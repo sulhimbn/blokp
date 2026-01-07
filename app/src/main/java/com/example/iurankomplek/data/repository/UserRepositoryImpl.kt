@@ -11,7 +11,6 @@ import com.example.iurankomplek.network.resilience.CircuitBreaker
 import com.example.iurankomplek.network.resilience.CircuitBreakerResult
 import kotlinx.coroutines.flow.first
 import retrofit2.HttpException
-import kotlin.math.pow
 
 class UserRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiService
