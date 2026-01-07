@@ -3,30 +3,35 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="12dp"
-    android:background="@drawable/bg_item_list">
+    android:padding="@dimen/padding_sm"
+    android:background="@drawable/bg_item_list"
+    android:importantForAccessibility="yes">
 
     <TextView
         android:id="@+id/messageSender"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
+        android:textSize="@dimen/text_size_medium"
         android:textStyle="bold"
-        android:textColor="@color/teal_200" />
+        android:textColor="@color/primary"
+        android:contentDescription="@string/message_sender_desc" />
 
     <TextView
         android:id="@+id/messageContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textSize="14sp" />
+        android:layout_marginTop="@dimen/spacing_xs"
+        android:textSize="@dimen/text_size_medium"
+        android:textColor="@color/text_primary"
+        android:contentDescription="@string/message_content_desc" />
 
     <TextView
         android:id="@+id/messageTimestamp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textSize="12sp"
-        android:textColor="@color/teal_700" />
+        android:layout_marginTop="@dimen/spacing_xs"
+        android:textSize="@dimen/text_size_small"
+        android:textColor="@color/text_secondary"
+        android:contentDescription="@string/message_timestamp_desc" />
 
 </LinearLayout>
