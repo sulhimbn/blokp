@@ -2,8 +2,8 @@ package com.example.iurankomplek.payment
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.iurankomplek.receipt.ReceiptGenerator
-import com.example.iurankomplek.transaction.TransactionRepository
+import com.example.iurankomplek.utils.ReceiptGenerator
+import com.example.iurankomplek.data.repository.TransactionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

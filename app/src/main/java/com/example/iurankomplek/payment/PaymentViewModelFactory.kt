@@ -2,8 +2,8 @@ package com.example.iurankomplek.payment
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.iurankomplek.receipt.ReceiptGenerator
-import com.example.iurankomplek.transaction.TransactionRepository
+import com.example.iurankomplek.utils.ReceiptGenerator
+import com.example.iurankomplek.data.repository.TransactionRepository
 
 class PaymentViewModelFactory(
     private val transactionRepository: TransactionRepository,

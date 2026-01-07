@@ -3,8 +3,8 @@ package com.example.iurankomplek.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.iurankomplek.transaction.Transaction
-import com.example.iurankomplek.transaction.TransactionRepository
+import com.example.iurankomplek.data.entity.Transaction
+import com.example.iurankomplek.data.repository.TransactionRepository
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.payment.PaymentStatus
 import kotlinx.coroutines.flow.MutableStateFlow

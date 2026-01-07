@@ -1,4 +1,4 @@
-package com.example.iurankomplek.receipt
+package com.example.iurankomplek.data.dto
 
 import java.math.BigDecimal
 import java.util.Date

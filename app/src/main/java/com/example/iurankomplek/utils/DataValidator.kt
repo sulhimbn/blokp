@@ -100,11 +100,12 @@ object DataValidator {
         if (input.isNullOrBlank()) {
             return false
         }
-        
+
         return try {
             val num = input.trim().toInt()
             num > 0
         } catch (e: NumberFormatException) {
+            android.util.Log.d("DataValidator", "Invalid positive integer format: $input")
             false
         }
     }
@@ -113,11 +114,12 @@ object DataValidator {
         if (input.isNullOrBlank()) {
             return false
         }
-        
+
         return try {
             val num = input.trim().toDouble()
             num > 0 && num <= Constants.Payment.MAX_PAYMENT_AMOUNT
         } catch (e: NumberFormatException) {
+            android.util.Log.d("DataValidator", "Invalid positive double format: $input")
             false
         }
     }
@@ -146,12 +148,13 @@ object DataValidator {
                 if (host.contains("localhost") || host.contains("127.0.0.1")) {
                     return false
                 }
-                
+
                 // Check that the URL doesn't contain dangerous characters after validation
                 URL(input).toURI()
                 true
             }
         } catch (e: Exception) {
+            android.util.Log.d("DataValidator", "Invalid URL format: $input")
             false
         }
     }
