@@ -36,7 +36,7 @@ class TransactionRepositoryImpl(
             )
             val kotlinResult: Result<com.example.iurankomplek.payment.PaymentResponse> = paymentGateway.processPayment(paymentRequest)
             return when {
-                kotlinResult.isSuccess -> kotlinResult.getOrThrow().toApiPaymentResponse()
+                kotlinResult.isSuccess -> Result.success(kotlinResult.getOrThrow().toApiPaymentResponse())
                 kotlinResult.isFailure -> throw kotlinResult.exceptionOrNull() ?: Exception("Unknown error")
                 else -> throw Exception("Unknown error")
             }
