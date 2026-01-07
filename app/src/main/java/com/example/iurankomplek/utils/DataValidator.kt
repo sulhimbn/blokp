@@ -66,6 +66,61 @@ object DataValidator {
             "Rp.${String.format("%,d", amount)}"
         } else "Rp.0"
     }
+
+    fun sanitizeNumericInput(input: String?): String {
+        if (input.isNullOrBlank()) {
+            return "0"
+        }
+        
+        val sanitized = input.trim()
+        
+        if (!sanitized.matches(Regex("^\\d+$"))) {
+            return "0"
+        }
+        
+        val num = sanitized.toLongOrNull() ?: 0L
+        
+        return if (num >= 0 && num <= Constants.Payment.MAX_PAYMENT_AMOUNT.toLong()) {
+            sanitized
+        } else {
+            "0"
+        }
+    }
+
+    fun sanitizePaymentAmount(amount: Double?): Double {
+        return if (amount != null && amount > 0 && amount <= Constants.Payment.MAX_PAYMENT_AMOUNT) {
+            val rounded = Math.round(amount * 100.0) / 100.0
+            rounded
+        } else {
+            0.0
+        }
+    }
+
+    fun validatePositiveInteger(input: String?): Boolean {
+        if (input.isNullOrBlank()) {
+            return false
+        }
+        
+        return try {
+            val num = input.trim().toInt()
+            num > 0
+        } catch (e: NumberFormatException) {
+            false
+        }
+    }
+
+    fun validatePositiveDouble(input: String?): Boolean {
+        if (input.isNullOrBlank()) {
+            return false
+        }
+        
+        return try {
+            val num = input.trim().toDouble()
+            num > 0 && num <= Constants.Payment.MAX_PAYMENT_AMOUNT
+        } catch (e: NumberFormatException) {
+            false
+        }
+    }
     
     fun isValidUrl(input: String?): Boolean {
         return try {
