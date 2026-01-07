@@ -33,7 +33,10 @@ object Constants {
     // Security Constants
     object Security {
         const val CERTIFICATE_PINNER = "sha256/PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0="
-        // Add backup certificate pin when available: ;sha256/ACTUAL_BACKUP_CERTIFICATE_PIN_HERE
+        // IMPORTANT: Add backup certificate pin before production deployment
+        // Format: ;sha256/BACKUP_CERTIFICATE_PIN_HASH
+        // Action: Generate backup pin and add here for certificate rotation support
+        // Reference: https://developer.android.com/training/articles/security-ssl#Pinning
     }
     
     // Financial Constants

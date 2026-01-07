@@ -1,70 +1,69 @@
 package com.example.iurankomplek
 
 import android.os.Bundle
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
+import com.example.iurankomplek.databinding.ActivityWorkOrderDetailBinding
 import com.example.iurankomplek.data.repository.VendorRepositoryFactory
 import com.example.iurankomplek.model.WorkOrder
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.VendorViewModel
+import kotlinx.coroutines.launch
 
 class WorkOrderDetailActivity : AppCompatActivity() {
-    
+
+    private lateinit var binding: ActivityWorkOrderDetailBinding
     private lateinit var vendorViewModel: VendorViewModel
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_work_order_detail)
-        
-        // Get work order ID from intent
+        binding = ActivityWorkOrderDetailBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         val workOrderId = intent.getStringExtra("WORK_ORDER_ID")
-        
+
         if (workOrderId != null) {
-            // Initialize ViewModel
             val repository = VendorRepositoryFactory.getInstance()
             vendorViewModel = ViewModelProvider(this, VendorViewModel.Factory(repository))[VendorViewModel::class.java]
-            
-             observeWorkOrderDetails()
-             vendorViewModel.loadWorkOrderDetail(workOrderId)
-         } else {
-             Toast.makeText(this, getString(R.string.work_order_id_not_provided), Toast.LENGTH_SHORT).show()
-             finish()
-         }
+
+            observeWorkOrderDetails()
+            vendorViewModel.loadWorkOrderDetail(workOrderId)
+        } else {
+            Toast.makeText(this, getString(R.string.work_order_id_not_provided), Toast.LENGTH_SHORT).show()
+            finish()
+        }
     }
-    
+
     private fun observeWorkOrderDetails() {
         lifecycleScope.launch {
             vendorViewModel.workOrderDetailState.collect { state ->
                 when (state) {
                     is UiState.Loading -> {
-                        // Show loading indicator
                     }
                     is UiState.Success -> {
                         displayWorkOrderDetails(state.data.data)
                     }
-                     is UiState.Error -> {
-                         Toast.makeText(this@WorkOrderDetailActivity, getString(R.string.error_with_message, state.error), Toast.LENGTH_SHORT).show()
-                         finish()
-                     }
+                    is UiState.Error -> {
+                        Toast.makeText(this@WorkOrderDetailActivity, getString(R.string.error_with_message, state.error), Toast.LENGTH_SHORT).show()
+                        finish()
+                    }
                 }
             }
         }
     }
-    
-     private fun displayWorkOrderDetails(workOrder: com.example.iurankomplek.model.WorkOrder) {
-         findViewById<TextView>(R.id.workOrderTitle).text = workOrder.title
-         findViewById<TextView>(R.id.workOrderDescription).text = workOrder.description
-         findViewById<TextView>(R.id.workOrderCategory).text = workOrder.category
-         findViewById<TextView>(R.id.workOrderStatus).text = workOrder.status
-         findViewById<TextView>(R.id.workOrderPriority).text = workOrder.priority
-         findViewById<TextView>(R.id.workOrderVendor).text = workOrder.vendorName ?: getString(R.string.work_order_not_assigned)
-         findViewById<TextView>(R.id.workOrderEstimatedCost).text = "Rp ${workOrder.estimatedCost}"
-         findViewById<TextView>(R.id.workOrderActualCost).text = "Rp ${workOrder.actualCost}"
-         findViewById<TextView>(R.id.workOrderPropertyId).text = workOrder.propertyId
-         findViewById<TextView>(R.id.workOrderCreatedAt).text = workOrder.createdAt
-     }
- }
+
+    private fun displayWorkOrderDetails(workOrder: WorkOrder) {
+        binding.workOrderTitle.text = workOrder.title
+        binding.workOrderDescription.text = workOrder.description
+        binding.workOrderCategory.text = workOrder.category
+        binding.workOrderStatus.text = workOrder.status
+        binding.workOrderPriority.text = workOrder.priority
+        binding.workOrderVendor.text = workOrder.vendorName ?: getString(R.string.work_order_not_assigned)
+        binding.workOrderEstimatedCost.text = "Rp ${workOrder.estimatedCost}"
+        binding.workOrderActualCost.text = "Rp ${workOrder.actualCost}"
+        binding.workOrderPropertyId.text = workOrder.propertyId
+        binding.workOrderCreatedAt.text = workOrder.createdAt
+    }
+}
