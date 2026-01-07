@@ -50,16 +50,22 @@ class RealPaymentGateway(
     override suspend fun refundPayment(transactionId: String): Result<RefundResponse> {
         // For now, keeping this as a mock implementation since refund API endpoint wasn't specified
         // In a real implementation, this would call an API endpoint
+        // SECURITY: Never use hardcoded refund amounts - must fetch from original transaction
         return try {
-            // In a real implementation, this would call an API endpoint for refunds
-            val refundAmount = BigDecimal("50.00") // This would come from the original transaction
+            // In a real implementation:
+            // 1. Fetch original transaction to get amount
+            // 2. Validate refund request against business rules
+            // 3. Call payment gateway API for refund
+            
+            // Mock response - in production, refund amount MUST come from original transaction
+            // or be explicitly provided and validated
             val response = RefundResponse(
                 refundId = UUID.randomUUID().toString(),
                 transactionId = transactionId,
-                amount = refundAmount,
+                amount = BigDecimal.ZERO, // Placeholder - must be populated from transaction
                 status = RefundStatus.COMPLETED,
                 refundTime = System.currentTimeMillis(),
-                reason = "Refund processed"
+                reason = "Refund processed (mock implementation)"
             )
             
             Result.success(response)

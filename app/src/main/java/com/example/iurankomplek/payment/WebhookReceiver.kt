@@ -5,6 +5,8 @@ import com.example.iurankomplek.transaction.TransactionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 import okhttp3.*
 import java.io.IOException
 
@@ -12,7 +14,11 @@ class WebhookReceiver(
     private val transactionRepository: TransactionRepository
 ) {
     private val client = OkHttpClient()
-    private val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
+    private val json = kotlinx.serialization.json.Json {
+        ignoreUnknownKeys = true
+        isLenient = false
+        encodeDefaults = false
+    }
 
     companion object {
         private val TAG = Constants.Tags.WEBHOOK_RECEIVER
@@ -27,23 +33,37 @@ class WebhookReceiver(
     fun handleWebhookEvent(payload: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Parse the webhook payload (simplified for this example)
-                val event = parseWebhookPayload(payload)
+                // Validate payload is not empty or whitespace
+                if (payload.isBlank()) {
+                    Log.e(TAG, "Empty webhook payload received")
+                    return@launch
+                }
+
+                // Parse the webhook payload using proper JSON deserialization
+                val webhookPayload = parseWebhookPayload(payload)
                 
-                when (event.eventType) {
+                // Validate required fields are present
+                if (webhookPayload.eventType.isBlank() || webhookPayload.transactionId.isBlank()) {
+                    Log.e(TAG, "Invalid webhook payload: missing required fields")
+                    return@launch
+                }
+                
+                when (webhookPayload.eventType) {
                     "payment.success" -> {
-                        updateTransactionStatus(event.transactionId, PaymentStatus.COMPLETED)
+                        updateTransactionStatus(webhookPayload.transactionId, PaymentStatus.COMPLETED)
                     }
                     "payment.failed" -> {
-                        updateTransactionStatus(event.transactionId, PaymentStatus.FAILED)
+                        updateTransactionStatus(webhookPayload.transactionId, PaymentStatus.FAILED)
                     }
                     "payment.refunded" -> {
-                        updateTransactionStatus(event.transactionId, PaymentStatus.REFUNDED)
+                        updateTransactionStatus(webhookPayload.transactionId, PaymentStatus.REFUNDED)
                     }
                     else -> {
-                        Log.d(TAG, "Unknown webhook event: ${event.eventType}")
+                        Log.d(TAG, "Unknown webhook event: ${webhookPayload.eventType}")
                     }
                 }
+            } catch (e: kotlinx.serialization.SerializationException) {
+                Log.e(TAG, "Invalid JSON payload: ${e.message}")
             } catch (e: Exception) {
                 Log.e(TAG, "Error handling webhook: ${e.message}", e)
             }
@@ -52,51 +72,40 @@ class WebhookReceiver(
 
     private suspend fun updateTransactionStatus(transactionId: String, status: PaymentStatus) {
         try {
-            val transaction = transactionRepository.getTransactionById(transactionId)
+            // Sanitize transaction ID to prevent injection
+            val sanitizedId = transactionId.trim().takeIf { it.isNotBlank() }
+            if (sanitizedId == null) {
+                Log.e(TAG, "Invalid transaction ID: empty or whitespace")
+                return
+            }
+
+            val transaction = transactionRepository.getTransactionById(sanitizedId)
             if (transaction != null) {
                 val updatedTransaction = transaction.copy(
                     status = status,
                     // In a real implementation, updatedAt would be current timestamp
                 )
                 transactionRepository.updateTransaction(updatedTransaction)
-                Log.d(TAG, "Transaction $transactionId updated to status: $status")
+                Log.d(TAG, "Transaction $sanitizedId updated to status: $status")
             } else {
-                Log.e(TAG, "Transaction not found: $transactionId")
+                Log.e(TAG, "Transaction not found: $sanitizedId")
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error updating transaction status: ${e.message}", e)
         }
     }
 
-    private fun parseWebhookPayload(payload: String): WebhookEvent {
-        // This is a simplified parser - in a real implementation, you'd use proper JSON parsing
-        // For this demo, we'll just create a basic event based on the payload
-        return WebhookEvent(
-            eventType = extractEventType(payload),
-            transactionId = extractTransactionId(payload)
-        )
-    }
-
-    private fun extractEventType(payload: String): String {
-        // Simplified extraction - in real implementation, parse JSON properly
-        return if (payload.contains("success")) {
-            "payment.success"
-        } else if (payload.contains("failed")) {
-            "payment.failed"
-        } else if (payload.contains("refunded")) {
-            "payment.refunded"
-        } else {
-            "unknown"
-        }
-    }
-
-    private fun extractTransactionId(payload: String): String {
-        // Simplified extraction - in real implementation, parse JSON properly
-        return "transaction_id_from_payload" // This would be extracted from the actual payload
+    private fun parseWebhookPayload(payload: String): WebhookPayload {
+        // Use proper JSON deserialization with kotlinx.serialization
+        // This prevents injection attacks and ensures type safety
+        return json.decodeFromString<WebhookPayload>(payload)
     }
 }
 
-data class WebhookEvent(
+@Serializable
+data class WebhookPayload(
     val eventType: String,
-    val transactionId: String
+    val transactionId: String,
+    val timestamp: Long? = null,
+    val metadata: Map<String, String>? = null
 )

@@ -46,7 +46,9 @@ class PaymentActivity : AppCompatActivity() {
     }
     
     private fun processPayment() {
-        val amountText = binding.etAmount.text.toString()
+        val amountText = binding.etAmount.text.toString().trim()
+        
+        // SECURITY: Validate input before processing
         if (amountText.isEmpty()) {
             Toast.makeText(this, "Please enter an amount", Toast.LENGTH_SHORT).show()
             return
@@ -54,6 +56,26 @@ class PaymentActivity : AppCompatActivity() {
         
         try {
             val amount = BigDecimal(amountText)
+            
+            // SECURITY: Validate amount is positive and within reasonable bounds
+            if (amount <= BigDecimal.ZERO) {
+                Toast.makeText(this, "Amount must be greater than zero", Toast.LENGTH_SHORT).show()
+                return
+            }
+            
+            // SECURITY: Add maximum amount limit to prevent abuse
+            val MAX_PAYMENT_AMOUNT = BigDecimal("999999999.99")
+            if (amount > MAX_PAYMENT_AMOUNT) {
+                Toast.makeText(this, "Amount exceeds maximum allowed limit", Toast.LENGTH_SHORT).show()
+                return
+            }
+            
+            // SECURITY: Check for suspicious decimal places
+            if (amount.scale() > 2) {
+                Toast.makeText(this, "Amount cannot have more than 2 decimal places", Toast.LENGTH_SHORT).show()
+                return
+            }
+            
             val selectedMethod = when (binding.spinnerPaymentMethod.selectedItemPosition) {
                 0 -> PaymentMethod.CREDIT_CARD
                 1 -> PaymentMethod.BANK_TRANSFER
@@ -79,7 +101,9 @@ class PaymentActivity : AppCompatActivity() {
             paymentViewModel.processPayment()
             
         } catch (e: NumberFormatException) {
-            Toast.makeText(this, "Invalid amount", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Invalid amount format", Toast.LENGTH_SHORT).show()
+        } catch (e: ArithmeticException) {
+            Toast.makeText(this, "Invalid amount value", Toast.LENGTH_SHORT).show()
         }
     }
 }
