@@ -30,18 +30,15 @@ class MessagesFragment : Fragment() {
         binding.rvMessages.layoutManager = LinearLayoutManager(context)
         binding.rvMessages.adapter = adapter
 
-        // Using a default user ID for demo purposes
         loadMessages("default_user_id")
 
         return binding.root
     }
 
     private fun loadMessages(userId: String) {
-        // Show progress bar when starting API call
         binding.progressBar.visibility = View.VISIBLE
 
         if (!NetworkUtils.isNetworkAvailable(requireContext())) {
-            // Hide progress bar after failure
             binding.progressBar.visibility = View.GONE
             Toast.makeText(context, "No internet connection", Toast.LENGTH_LONG).show()
             return
@@ -52,7 +49,6 @@ class MessagesFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val response = apiService.getMessages(userId)
-                // Hide progress bar after response
                 binding.progressBar.visibility = View.GONE
 
                 if (response.isSuccessful) {
@@ -66,50 +62,9 @@ class MessagesFragment : Fragment() {
                     Toast.makeText(context, "Failed to load messages", Toast.LENGTH_LONG).show()
                 }
             } catch (e: Exception) {
-                // Hide progress bar after failure
                 binding.progressBar.visibility = View.GONE
                 Toast.makeText(context, "Network error: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
-    }
-}
-
-    private fun loadMessages(userId: String) {
-        // Show progress bar when starting the API call
-        binding.progressBar.visibility = View.VISIBLE
-
-        if (!NetworkUtils.isNetworkAvailable(requireContext())) {
-            // Hide progress bar after failure
-            binding.progressBar.visibility = View.GONE
-            Toast.makeText(context, "No internet connection", Toast.LENGTH_LONG).show()
-            return
-        }
-
-        val apiService = ApiConfig.getApiService()
-        val call = apiService.getMessages(userId)
-
-        call.enqueue(object : Callback<List<Message>> {
-            override fun onResponse(call: Call<List<Message>>, response: Response<List<Message>>) {
-                // Hide progress bar after response
-                binding.progressBar.visibility = View.GONE
-                
-                if (response.isSuccessful) {
-                    val messages = response.body()
-                    if (messages != null) {
-                        adapter.submitList(messages)
-                    } else {
-                        Toast.makeText(context, "No messages available", Toast.LENGTH_LONG).show()
-                    }
-                } else {
-                    Toast.makeText(context, "Failed to load messages", Toast.LENGTH_LONG).show()
-                }
-            }
-
-            override fun onFailure(call: Call<List<Message>>, t: retrofit2.Call<List<Message>>) {
-                // Hide progress bar after failure
-                binding.progressBar.visibility = View.GONE
-                Toast.makeText(context, "Network error: ${t.message}", Toast.LENGTH_LONG).show()
-            }
-        })
     }
 }
