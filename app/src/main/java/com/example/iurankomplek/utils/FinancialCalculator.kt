@@ -17,7 +17,7 @@ object FinancialCalculator {
                item.total_iuran_individu >= 0 &&
                item.iuran_perwarga <= Int.MAX_VALUE / 2 && // Prevent overflow during calculations
                item.pengeluaran_iuran_warga <= Int.MAX_VALUE / 2 &&
-               item.total_iuran_individu <= Int.MAX_VALUE / 6 // Since we multiply by 3 later
+               item.total_iuran_individu <= Int.MAX_VALUE / Constants.Financial.IURAN_MULTIPLIER // Since we multiply by multiplier later
     }
     
     /**
@@ -66,7 +66,7 @@ object FinancialCalculator {
     }
     
     /**
-     * Calculates total iuran individu (multiplied by 3) from a list of DataItems
+     * Calculates total iuran individu (multiplied by IURAN_MULTIPLIER) from a list of DataItems
      */
     fun calculateTotalIuranIndividu(items: List<DataItem>): Int {
         if (!validateDataItems(items)) {
@@ -76,11 +76,11 @@ object FinancialCalculator {
         var total = 0
         for (item in items) {
             var value = item.total_iuran_individu
-            // Check if multiplying by 3 would cause overflow
-            if (value > Int.MAX_VALUE / 3) {
+            // Check if multiplying by IURAN_MULTIPLIER would cause overflow
+            if (value > Int.MAX_VALUE / Constants.Financial.IURAN_MULTIPLIER) {
                 throw ArithmeticException("Individual iuran calculation would cause overflow")
             }
-            value *= 3
+            value *= Constants.Financial.IURAN_MULTIPLIER
             
             if (value > Int.MAX_VALUE - total) {
                 throw ArithmeticException("Total iuran individu calculation would cause overflow")

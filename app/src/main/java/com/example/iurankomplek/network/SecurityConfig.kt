@@ -6,21 +6,19 @@ import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 import okhttp3.logging.HttpLoggingInterceptor
 import com.example.iurankomplek.BuildConfig
+import com.example.iurankomplek.utils.Constants
 
 object SecurityConfig {
-    private const val CERTIFICATE_PINNER = "sha256/PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=" // Add backup pin like: ;sha256/ACTUAL_BACKUP_CERT_PIN_HERE when available
-    private const val CONNECT_TIMEOUT = 30L
-    private const val READ_TIMEOUT = 30L
     
     fun getSecureOkHttpClient(): OkHttpClient {
         val clientBuilder = OkHttpClient.Builder()
             .certificatePinner(
                 CertificatePinner.Builder()
-                    .add("api.apispreadsheets.com", CERTIFICATE_PINNER)
+                    .add("api.apispreadsheets.com", Constants.Security.CERTIFICATE_PINNER)
                     .build()
             )
-            .connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)
-            .readTimeout(READ_TIMEOUT, TimeUnit.SECONDS)
+            .connectTimeout(Constants.Network.CONNECT_TIMEOUT, TimeUnit.SECONDS)
+            .readTimeout(Constants.Network.READ_TIMEOUT, TimeUnit.SECONDS)
             .addInterceptor(getSecurityInterceptor())
         
         // Add logging interceptor only for debug builds
