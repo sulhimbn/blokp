@@ -92,18 +92,33 @@ app/
 │   │   ├── PemanfaatanRepositoryImpl.kt ✅
 │   │   ├── VendorRepository.kt (interface) ✅
 │   │   └── VendorRepositoryImpl.kt ✅
+│   ├── entity/ ✅ NEW
+│   │   ├── UserEntity.kt ✅ (domain entity with validation)
+│   │   ├── FinancialRecordEntity.kt ✅ (domain entity with validation)
+│   │   └── UserWithFinancialRecords.kt ✅ (one-to-many relationship)
+│   ├── dto/ ✅ NEW
+│   │   ├── UserDto.kt ✅ (API data transfer object)
+│   │   ├── FinancialDto.kt ✅ (API data transfer object)
+│   │   ├── LegacyDataItemDto.kt ✅ (compatibility layer)
+│   │   └── DtoResponse.kt ✅ (wrapper objects)
+│   ├── mapper/ ✅ NEW
+│   │   └── EntityMapper.kt ✅ (DTO ↔ Entity conversion)
+│   ├── constraints/ ✅ NEW
+│   │   └── DatabaseConstraints.kt ✅ (schema definitions & SQL)
+│   ├── validation/ ✅ NEW
+│   │   └── DataValidator.kt ✅ (entity-level validation)
 │   └── api/
 │       ├── ApiService.kt ✅
 │       ├── ApiConfig.kt ✅
 │       ├── SecurityConfig.kt ✅
 │       └── models/
-│           ├── DataItem.kt ✅
+│           ├── DataItem.kt ✅ (legacy model)
 │           ├── UserResponse.kt ✅
 │           ├── PemanfaatanResponse.kt ✅
 │           └── ValidatedDataItem.kt ✅
 ├── domain/
 │   └── model/
-│       └── [Domain models for future enhancement]
+│       └── [Domain models - now using entities from data/entity]
 ├── presentation/
 │   ├── ui/
 │   │   ├── MainActivity.kt ✅ (extends BaseActivity)
@@ -417,10 +432,12 @@ com.github.chuckerteam.chucker:library
 2. Refactor to use Hilt modules
 3. Remove manual Factory classes
 
-### Phase 7: Offline Support (Planned)
-1. Add Room database
-2. Implement caching strategy
-3. Offline-first architecture
+### Phase 7: Offline Support (Schema Design Completed) ✅
+1. ✅ Add Room database schema (entity design completed)
+2. ✅ Implement entity relationships (one-to-many user → financial records)
+3. ⏳ Add Room database implementation
+4. ⏳ Implement caching strategy
+5. ⏳ Offline-first architecture
 
 ### Phase 8: Advanced Features (Planned)
 1. Jetpack Compose migration
@@ -455,6 +472,7 @@ com.github.chuckerteam.chucker:library
 The IuranKomplek architecture is **production-ready** and follows modern Android development best practices. All core architectural modules have been successfully implemented, providing a solid foundation for future enhancements.
 
 **Current Status: Architecture Complete ✅**
+**Data Schema: Designed ✅**
 
 **Key Achievements:**
 - ✅ Clean separation of concerns across all layers
@@ -469,7 +487,10 @@ The IuranKomplek architecture is **production-ready** and follows modern Android
 - ✅ State management with StateFlow
 - ✅ Error handling and retry logic
 - ✅ Input validation and sanitization
+- ✅ **Data Architecture: Entity-DTO separation with proper relationships**
+- ✅ **Database Schema: Complete design with constraints and indexes**
+- ✅ **Data Validation: Entity-level validation ensuring integrity**
 
 **Architecture Health: Excellent** 🏆
 
-The codebase is well-structured, maintainable, and ready for production deployment. All architectural goals have been achieved, and the foundation is solid for future enhancements.
+The codebase is well-structured, maintainable, and ready for production deployment. All architectural goals have been achieved, and the foundation is solid for future enhancements. Data architecture is properly designed with separation of concerns, proper relationships, and comprehensive validation.
