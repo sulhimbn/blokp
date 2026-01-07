@@ -7,6 +7,7 @@ import com.example.iurankomplek.payment.PaymentStatus
 import com.example.iurankomplek.payment.RefundResponse
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
+import kotlin.Result as KotlinResult
 
 class TransactionRepositoryImpl(
     private val paymentGateway: PaymentGateway,
@@ -32,10 +33,10 @@ class TransactionRepositoryImpl(
                     else -> PaymentMethod.CREDIT_CARD
                 }
             )
-            val response = paymentGateway.processPayment(paymentRequest)
-            when (response) {
-                is Result.Success -> Result.success(response.data.toApiPaymentResponse())
-                is Result.Failure -> response
+            val kotlinResult: KotlinResult<com.example.iurankomplek.payment.PaymentResponse> = paymentGateway.processPayment(paymentRequest)
+            when (kotlinResult) {
+                is KotlinResult.Success -> Result.success(kotlinResult.value.toApiPaymentResponse())
+                is KotlinResult.Failure -> Result.failure(kotlinResult.exception ?: Exception("Unknown error"))
             }
         } catch (e: Exception) {
             Result.failure(e)
