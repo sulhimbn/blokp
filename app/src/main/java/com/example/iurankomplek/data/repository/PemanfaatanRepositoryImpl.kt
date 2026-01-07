@@ -10,6 +10,7 @@ import com.example.iurankomplek.network.model.NetworkError
 import com.example.iurankomplek.network.resilience.CircuitBreaker
 import com.example.iurankomplek.network.resilience.CircuitBreakerResult
 import kotlinx.coroutines.flow.first
+import kotlin.math.pow
 import retrofit2.HttpException
 
 class PemanfaatanRepositoryImpl(
