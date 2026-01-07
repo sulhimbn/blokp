@@ -2,77 +2,94 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:paddingTop="@dimen/spacing_md"
+    android:paddingBottom="@dimen/spacing_md"
+    android:importantForAccessibility="yes">
+
     <ImageView
         android:id="@+id/itemAvatar"
-        android:layout_width="110dp"
-        android:layout_height="110dp"
-        android:layout_marginStart="16dp"
+        android:layout_width="@dimen/avatar_xl"
+        android:layout_height="@dimen/avatar_xl"
+        android:layout_marginStart="@dimen/margin_md"
         android:background="@drawable/bg_img_view"
-        android:layout_marginTop="16dp"
-        android:contentDescription="Avatar"
+        android:contentDescription="@string/avatar_content_description"
+        android:importantForAccessibility="yes"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:srcCompat="@tools:sample/avatars" />
+
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-
+        android:layout_marginStart="@dimen/spacing_md"
+        android:layout_marginEnd="@dimen/margin_md"
         android:background="@drawable/bg_item_list"
         android:orientation="vertical"
-        android:paddingStart="16dp"
+        android:paddingStart="@dimen/padding_md"
+        android:paddingTop="@dimen/spacing_xs"
+        android:paddingBottom="@dimen/spacing_sm"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/itemAvatar"
         app:layout_constraintTop_toTopOf="@+id/itemAvatar">
+
         <TextView
             android:id="@+id/itemName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="@dimen/spacing_xs"
             android:fontFamily="@font/font"
             android:text="Name"
-            android:textColor="@color/black"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_size_large"
+            android:textStyle="bold"
+            android:importantForAccessibility="yes" />
+
         <TextView
             android:id="@+id/itemEmail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="@dimen/spacing_xs"
             android:fontFamily="@font/font"
             android:text="Email"
-            android:textColor="#EE3D3E3E"
-            android:textSize="12sp" />
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_size_medium"
+            android:importantForAccessibility="yes" />
+
         <TextView
             android:id="@+id/itemAddress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="@dimen/spacing_xs"
             android:fontFamily="@font/font"
             android:text="Address"
-            android:textColor="#EE3D3E3E"
-            android:textSize="12sp" />
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_size_medium"
+            android:importantForAccessibility="yes" />
+
         <TextView
             android:id="@+id/itemIuranPerwarga"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="@dimen/spacing_xs"
             android:fontFamily="@font/font"
             android:text="Iuran Perwarga"
-            android:textColor="#EE3D3E3E"
-            android:textSize="12sp"/>
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_size_medium"
+            android:importantForAccessibility="yes" />
+
         <TextView
             android:id="@+id/itemIuranIndividu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="@dimen/spacing_xs"
+            android:layout_marginBottom="@dimen/spacing_sm"
             android:fontFamily="@font/font"
             android:text="Total Iuran Individu"
-            android:textColor="#EE3D3E3E"
-            android:textSize="12sp"
-            android:paddingBottom="10dp"/>
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_size_medium"
+            android:importantForAccessibility="yes" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
