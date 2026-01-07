@@ -11,7 +11,6 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
-import java.net.URL
 import com.example.iurankomplek.R
 
 object ImageLoader {
@@ -68,13 +67,9 @@ object ImageLoader {
             .into(imageView)
     }
     
+    private val urlPattern = Regex("^https?://[\\w.-]+(:\\d+)?(/.*)?$")
+
     private fun isValidUrl(url: String): Boolean {
-        return try {
-            URL(url).toURI()
-            true
-        } catch (e: Exception) {
-            android.util.Log.d("ImageLoader", "Invalid URL format: $url", e)
-            false
-        }
+        return urlPattern.matches(url)
     }
 }

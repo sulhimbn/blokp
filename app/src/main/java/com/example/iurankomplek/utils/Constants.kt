@@ -45,4 +45,16 @@ object Constants {
         const val LAPORAN_ACTIVITY = "LaporanActivity"
     }
 
+    // Toast Duration Constants
+    object Toast {
+        const val DURATION_SHORT = android.widget.Toast.LENGTH_SHORT
+        const val DURATION_LONG = android.widget.Toast.LENGTH_LONG
+    }
+
+    // Payment Constants
+    object Payment {
+        const val DEFAULT_REFUND_AMOUNT_MIN = 1000
+        const val REFUND_AMOUNT_RANGE_MIN = 1000
+        const val REFUND_AMOUNT_RANGE_MAX = 9999
+    }
 }

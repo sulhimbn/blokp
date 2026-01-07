@@ -7,6 +7,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.databinding.ItemPemanfaatanBinding
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.utils.DataValidator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class PemanfaatanAdapter(private var pemanfaatan: MutableList<DataItem>) :
     RecyclerView.Adapter<PemanfaatanAdapter.ListViewHolder>() {
@@ -19,12 +23,16 @@ class PemanfaatanAdapter(private var pemanfaatan: MutableList<DataItem>) :
     }
     
     fun setPemanfaatan(dataItems: List<DataItem>) {
-        val diffCallback = PemanfaatanDiffCallback(this.pemanfaatan, dataItems)
-        val diffResult = DiffUtil.calculateDiff(diffCallback)
-        
-        this.pemanfaatan.clear()
-        this.pemanfaatan.addAll(dataItems)
-        diffResult.dispatchUpdatesTo(this)
+        GlobalScope.launch(Dispatchers.Default) {
+            val diffCallback = PemanfaatanDiffCallback(this@PemanfaatanAdapter.pemanfaatan, dataItems)
+            val diffResult = DiffUtil.calculateDiff(diffCallback)
+            
+            withContext(Dispatchers.Main) {
+                this@PemanfaatanAdapter.pemanfaatan.clear()
+                this@PemanfaatanAdapter.pemanfaatan.addAll(dataItems)
+                diffResult.dispatchUpdatesTo(this@PemanfaatanAdapter)
+            }
+        }
     }
     
     override fun getItemCount(): Int = pemanfaatan.size

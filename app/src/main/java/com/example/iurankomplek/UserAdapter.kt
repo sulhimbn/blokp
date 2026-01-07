@@ -10,6 +10,10 @@ import com.example.iurankomplek.databinding.ItemListBinding
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.utils.ImageLoader
 import com.example.iurankomplek.utils.DataValidator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class UserAdapter(private var users: MutableList<DataItem>):
     RecyclerView.Adapter<UserAdapter.ListViewHolder>(){
@@ -20,12 +24,16 @@ class UserAdapter(private var users: MutableList<DataItem>):
     }
     
     fun setUsers(newUsers: List<DataItem>) {
-        val diffCallback = UserDiffCallback(this.users, newUsers)
-        val diffResult = DiffUtil.calculateDiff(diffCallback)
-        
-        this.users.clear()
-        this.users.addAll(newUsers)
-        diffResult.dispatchUpdatesTo(this)
+        GlobalScope.launch(Dispatchers.Default) {
+            val diffCallback = UserDiffCallback(this@UserAdapter.users, newUsers)
+            val diffResult = DiffUtil.calculateDiff(diffCallback)
+            
+            withContext(Dispatchers.Main) {
+                this@UserAdapter.users.clear()
+                this@UserAdapter.users.addAll(newUsers)
+                diffResult.dispatchUpdatesTo(this@UserAdapter)
+            }
+        }
     }
     
      fun addUser(newUser: DataItem?) {
