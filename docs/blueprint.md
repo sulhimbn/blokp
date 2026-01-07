@@ -92,6 +92,27 @@ app/
 │   │   ├── PemanfaatanRepositoryImpl.kt ✅
 │   │   ├── VendorRepository.kt (interface) ✅
 │   │   └── VendorRepositoryImpl.kt ✅
+│   ├── transaction/
+│   │   ├── TransactionRepository.kt (interface) ✅ NEW
+│   │   ├── TransactionRepositoryImpl.kt ✅ NEW
+│   │   ├── TransactionRepositoryFactory.kt ✅ NEW
+│   │   ├── Transaction.kt (Room entity) ✅
+│   │   ├── TransactionDao.kt ✅
+│   │   ├── TransactionDatabase.kt ✅
+│   │   └── Converters.kt ✅
+│   ├── payment/
+│   │   ├── PaymentGateway.kt (interface) ✅
+│   │   ├── PaymentRequest.kt ✅
+│   │   ├── PaymentResponse.kt ✅
+│   │   ├── PaymentViewModel.kt ✅
+│   │   ├── PaymentViewModelFactory.kt ✅ NEW
+│   │   ├── PaymentService.kt ✅
+│   │   ├── WebhookReceiver.kt ✅
+│   │   ├── MockPaymentGateway.kt ✅
+│   │   └── RealPaymentGateway.kt ✅
+│   ├── receipt/
+│   │   ├── Receipt.kt ✅
+│   │   └── ReceiptGenerator.kt ✅
 │   ├── entity/ ✅ NEW
 │   │   ├── UserEntity.kt ✅ (domain entity with validation)
 │   │   ├── FinancialRecordEntity.kt ✅ (domain entity with validation)
@@ -177,7 +198,9 @@ app/
 - Single source of truth for data
 - Abstracts data source (API vs future Cache)
 - Enables testing with mock repositories
-- Implemented for all data types (Users, Financial, Vendors)
+- Implemented for all data types (Users, Financial, Vendors, Transactions) ✅ UPDATED
+- Factory pattern for consistent repository instantiation ✅ NEW
+- Interface-based design for dependency inversion ✅ UPDATED
 
 ### 2. ViewModels ✅
 - Survive configuration changes
@@ -418,12 +441,15 @@ com.github.chuckerteam.chucker:library
 - [x] Each layer has clear boundaries
 - [x] Dependencies flow inward only
 - [x] Components are replaceable
+- [x] Factory pattern for consistent instantiation ✅ NEW
 
 ### Maintainability ✅
 - [x] Single Responsibility Principle followed
 - [x] Code duplication eliminated (BaseActivity, Utils)
 - [x] Clear naming conventions
 - [x] Comprehensive documentation
+- [x] Interface-based design for all repositories ✅ NEW
+- [x] No manual repository instantiation in activities ✅ NEW
 
 ### Testability ✅
 - [x] All business logic unit testable
@@ -475,6 +501,27 @@ com.github.chuckerteam.chucker:library
 3. Unit tests for utility classes
 4. Integration tests for API layer
 5. UI tests with Espresso
+
+### Phase 8: Layer Separation Fix ✅ Completed (2026-01-07)
+1. ✅ Created TransactionRepository interface following existing pattern
+2. ✅ Created TransactionRepositoryImpl implementation
+3. ✅ Created TransactionRepositoryFactory for consistent instantiation
+4. ✅ Created PaymentViewModelFactory for ViewModel pattern
+5. ✅ Updated PaymentActivity to use factory pattern
+6. ✅ Updated LaporanActivity to use factory pattern
+7. ✅ Updated TransactionHistoryActivity to use factory pattern
+8. ✅ Updated TransactionHistoryAdapter to use factory pattern
+9. ✅ Removed @Inject annotation (no actual DI framework)
+10. ✅ Eliminated manual repository instantiation in activities
+11. ✅ Ensured consistent architecture across all repositories
+
+**Architectural Improvements:**
+- **Dependency Inversion Principle**: Activities now depend on abstractions (interfaces), not concretions
+- **Single Responsibility**: Each class has one clear purpose (interface, implementation, factory)
+- **Factory Pattern**: Consistent instantiation pattern across all repositories
+- **Code Elimination**: Removed duplicate instantiation logic from activities
+- **Maintainability**: Easier to update repository implementations in one place
+- **Testability**: Mock repositories can be easily swapped via factory methods
 
 ## Future Enhancements 🔄
 

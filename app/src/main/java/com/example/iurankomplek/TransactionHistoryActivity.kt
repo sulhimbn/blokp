@@ -29,13 +29,10 @@ class TransactionHistoryActivity : AppCompatActivity() {
     }
 
     private fun setupTransactionHistory() {
-        // Initialize the repository
-        val transactionDatabase = TransactionDatabase.getDatabase(this)
-        val transactionDao = transactionDatabase.transactionDao()
-        val mockPaymentGateway = com.example.iurankomplek.payment.MockPaymentGateway()
-        transactionRepository = TransactionRepository(mockPaymentGateway, transactionDao)
+        // Initialize repository using factory pattern
+        transactionRepository = TransactionRepositoryFactory.getMockInstance(this)
 
-        // Initialize the adapter
+        // Initialize adapter
         transactionAdapter = TransactionHistoryAdapter()
 
         // Setup RecyclerView
