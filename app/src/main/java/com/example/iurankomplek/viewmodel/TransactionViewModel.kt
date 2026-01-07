@@ -22,28 +22,24 @@ class TransactionViewModel(
     fun loadTransactionsByStatus(status: PaymentStatus) {
         viewModelScope.launch {
             _transactionsState.value = UiState.Loading
-            transactionRepository.getTransactionsByStatus(status)
-                .first()
-                .onSuccess { transactions ->
-                    _transactionsState.value = UiState.Success(transactions)
-                }
-                .onFailure { exception ->
-                    _transactionsState.value = UiState.Error(exception.message ?: "Unknown error occurred")
-                }
+            try {
+                val transactions = transactionRepository.getTransactionsByStatus(status).first()
+                _transactionsState.value = UiState.Success(transactions)
+            } catch (exception: Exception) {
+                _transactionsState.value = UiState.Error(exception.message ?: "Unknown error occurred")
+            }
         }
     }
 
     fun loadAllTransactions() {
         viewModelScope.launch {
             _transactionsState.value = UiState.Loading
-            transactionRepository.getAllTransactions()
-                .first()
-                .onSuccess { transactions ->
-                    _transactionsState.value = UiState.Success(transactions)
-                }
-                .onFailure { exception ->
-                    _transactionsState.value = UiState.Error(exception.message ?: "Unknown error occurred")
-                }
+            try {
+                val transactions = transactionRepository.getAllTransactions().first()
+                _transactionsState.value = UiState.Success(transactions)
+            } catch (exception: Exception) {
+                _transactionsState.value = UiState.Error(exception.message ?: "Unknown error occurred")
+            }
         }
     }
 
