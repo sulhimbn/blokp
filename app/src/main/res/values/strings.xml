@@ -26,4 +26,58 @@
      <string name="network_error">Network error: %s</string>
      <string name="request_failed_with_status">Request failed with status code: %d</string>
      <string name="financial_calculation_overflow_error">Financial calculation error due to data overflow</string>
+    
+    <!-- Payment Screen -->
+    <string name="payment_title">Payment</string>
+    <string name="payment_title_desc">Payment screen title</string>
+    <string name="payment_amount_hint">Enter amount</string>
+    <string name="payment_amount_helper">Amount to pay in your currency</string>
+    <string name="payment_amount_input_desc">Payment amount input field</string>
+    <string name="payment_method_label">Payment Method</string>
+    <string name="payment_method_spinner_desc">Select payment method dropdown</string>
+    <string name="payment_pay_now">Pay Now</string>
+    <string name="payment_pay_now_desc">Submit payment button</string>
+    <string name="payment_view_history">View Transaction History</string>
+    <string name="payment_view_history_desc">Navigate to transaction history button</string>
+    <string name="payment_processing">Processing payment</string>
+    <string name="payment_success">Payment successful</string>
+    <string name="payment_failed">Payment failed</string>
+    <string name="payment_invalid_amount">Please enter a valid amount</string>
+    <string name="payment_network_error">Network error, please try again</string>
+    
+    <!-- Transaction History -->
+    <string name="transaction_item_desc">Transaction history item card</string>
+    <string name="transaction_amount">Amount:</string>
+    <string name="transaction_amount_value">Transaction amount</string>
+    <string name="transaction_description_desc">Transaction description</string>
+    <string name="transaction_date">Date:</string>
+    <string name="transaction_date_value">Transaction date</string>
+    <string name="transaction_status">Status:</string>
+    <string name="transaction_status_value">Transaction status</string>
+    <string name="transaction_method">Method:</string>
+    <string name="transaction_method_value">Payment method</string>
+    <string name="transaction_refund">Refund</string>
+    <string name="transaction_refund_desc">Request refund button</string>
+    <string name="transaction_history_title">Transaction History</string>
+    <string name="transaction_history_title_desc">Transaction history screen title</string>
+    <string name="no_transactions_available">No transactions available</string>
+    <string name="loading_transactions">Loading transactions</string>
+    
+    <!-- Announcements -->
+    <string name="announcement_item_desc">Announcement item card</string>
+    <string name="announcement_title_desc">Announcement title</string>
+    <string name="announcement_content_desc">Announcement content</string>
+    <string name="announcement_category_desc">Announcement category</string>
+    <string name="announcement_date_desc">Announcement date</string>
+    
+    <!-- Communication Center -->
+    <string name="communication_center_title">COMMUNICATION CENTER</string>
+    <string name="communication_center_title_desc">Communication center screen title</string>
+    <string name="tab_content_desc">Navigation tab</string>
+    <string name="tab_announcements">Announcements</string>
+    <string name="tab_announcements_desc">View announcements tab</string>
+    <string name="tab_messages">Messages</string>
+    <string name="tab_messages_desc">View messages tab</string>
+    <string name="tab_community">Community</string>
+    <string name="tab_community_desc">View community posts tab</string>
 </resources>

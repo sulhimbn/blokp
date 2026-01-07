@@ -1,103 +1,167 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="12dp"
-    android:background="@drawable/bg_card_view"
-    android:layout_marginBottom="8dp">
+    android:layout_marginBottom="@dimen/spacing_sm"
+    app:cardCornerRadius="@dimen/radius_md"
+    app:cardElevation="@dimen/elevation_sm"
+    app:cardBackgroundColor="@color/background_card"
+    android:contentDescription="@string/transaction_item_desc">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:padding="@dimen/padding_md">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tv_amount_label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/transaction_amount"
+                android:textSize="@dimen/text_size_normal"
+                android:textStyle="bold"
+                android:textColor="@color/primary"
+                android:importantForAccessibility="no" />
+
+            <TextView
+                android:id="@+id/tv_amount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="@dimen/text_size_large"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:textAlignment="textEnd"
+                android:contentDescription="@string/transaction_amount_value"
+                android:importantForAccessibility="yes"
+                tools:text="Rp 100.000" />
+
+        </LinearLayout>
 
         <TextView
-            android:layout_width="0dp"
+            android:id="@+id/tv_description"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Amount:"
-            android:textStyle="bold"
-            android:textColor="@color/teal_200" />
+            android:layout_marginTop="@dimen/spacing_xs"
+            android:textSize="@dimen/text_size_medium"
+            android:textColor="@color/text_secondary"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:contentDescription="@string/transaction_description_desc"
+            android:importantForAccessibility="yes"
+            tools:text="Monthly maintenance fee" />
 
-        <TextView
-            android:id="@+id/tv_amount"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textAlignment="textEnd" />
+            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/spacing_xs"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tv_date_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/transaction_date"
+                android:textSize="@dimen/text_size_small"
+                android:textStyle="bold"
+                android:textColor="@color/primary"
+                android:importantForAccessibility="no" />
+
+            <TextView
+                android:id="@+id/tv_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_xs"
+                android:textSize="@dimen/text_size_small"
+                android:textColor="@color/text_secondary"
+                android:contentDescription="@string/transaction_date_value"
+                android:importantForAccessibility="yes"
+                tools:text="2024-01-07" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/spacing_xs"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tv_status_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/transaction_status"
+                android:textSize="@dimen/text_size_small"
+                android:textStyle="bold"
+                android:textColor="@color/primary"
+                android:importantForAccessibility="no" />
+
+            <TextView
+                android:id="@+id/tv_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_xs"
+                android:textSize="@dimen/text_size_small"
+                android:textColor="@color/text_primary"
+                android:textStyle="bold"
+                android:contentDescription="@string/transaction_status_value"
+                android:importantForAccessibility="yes"
+                tools:text="Completed" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/tv_payment_method_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/transaction_method"
+                android:textSize="@dimen/text_size_small"
+                android:textStyle="bold"
+                android:textColor="@color/primary"
+                android:importantForAccessibility="no" />
+
+            <TextView
+                android:id="@+id/tv_payment_method"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_xs"
+                android:textSize="@dimen/text_size_small"
+                android:textColor="@color/text_secondary"
+                android:contentDescription="@string/transaction_method_value"
+                android:importantForAccessibility="yes"
+                tools:text="Bank Transfer" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_refund"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:text="@string/transaction_refund"
+            android:textSize="@dimen/text_size_small"
+            android:textColor="@color/status_warning"
+            android:visibility="gone"
+            android:contentDescription="@string/transaction_refund_desc"
+            android:importantForAccessibility="yes"
+            tools:visibility="visible" />
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/tv_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textSize="14sp" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="4dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Date: "
-            android:textStyle="bold"
-            android:textColor="@color/teal_200" />
-
-        <TextView
-            android:id="@+id/tv_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Status: "
-            android:textStyle="bold"
-            android:textColor="@color/teal_200" />
-
-        <TextView
-            android:id="@+id/tv_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="Method: "
-            android:textStyle="bold"
-            android:textColor="@color/teal_200" />
-
-        <TextView
-            android:id="@+id/tv_payment_method"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp" />
-
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/btn_refund"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Refund"
-        android:textSize="12sp"
-        android:visibility="gone" />
-
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>

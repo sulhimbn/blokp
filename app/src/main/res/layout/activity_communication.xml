@@ -1,54 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/cream"
+    android:background="@color/background_secondary"
     tools:context=".CommunicationActivity">
 
     <TextView
-        android:layout_width="match_parent"
+        android:id="@+id/tv_communication_title"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginTop="@dimen/margin_lg"
+        android:layout_marginBottom="@dimen/margin_lg"
         android:fontFamily="@font/font"
-        android:text="COMMUNICATION CENTER"
+        android:text="@string/communication_center_title"
         android:textAlignment="center"
-        android:textColor="@color/teal_200"
-        android:textSize="22sp"
-        android:textStyle="bold" />
+        android:textColor="@color/primary"
+        android:textSize="@dimen/heading_h2"
+        android:textStyle="bold"
+        android:contentDescription="@string/communication_center_title_desc"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/cream"
-        app:tabTextColor="@color/teal_700"
-        app:tabSelectedTextColor="@color/teal_200">
+        android:background="@color/background_elevated"
+        app:tabTextColor="@color/text_secondary"
+        app:tabSelectedTextColor="@color/primary"
+        app:tabIndicatorColor="@color/primary"
+        app:tabContentDescription="@string/tab_content_desc"
+        app:layout_constraintTop_toBottomOf="@id/tv_communication_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Announcements" />
+            android:text="@string/tab_announcements"
+            android:contentDescription="@string/tab_announcements_desc" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Messages" />
+            android:text="@string/tab_messages"
+            android:contentDescription="@string/tab_messages_desc" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Community" />
+            android:text="@string/tab_community"
+            android:contentDescription="@string/tab_community_desc" />
 
     </com.google.android.material.tabs.TabLayout>
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:importantForAccessibility="no"
+        app:layout_constraintTop_toBottomOf="@id/tabLayout"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
