@@ -8,7 +8,6 @@ import com.example.iurankomplek.network.resilience.CircuitBreakerResult
 import kotlinx.coroutines.delay
 import retrofit2.HttpException
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.math.pow
 
 class MessageRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiService
@@ -36,7 +35,7 @@ class MessageRepositoryImpl(
     }
 
     override suspend fun sendMessage(senderId: String, receiverId: String, content: String): Result<Message> {
-        return withCircuitBreaker { apiService.sendMessage(senderId, receiverId, content) }
+        return withCircuitBreaker<Message> { apiService.sendMessage(senderId, receiverId, content) }
     }
 
     override suspend fun getCachedMessages(userId: String): Result<List<Message>> {
