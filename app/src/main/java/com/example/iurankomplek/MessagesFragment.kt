@@ -6,18 +6,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.FragmentMessagesBinding
-import com.example.iurankomplek.model.Message
-import com.example.iurankomplek.network.ApiConfig
-import com.example.iurankomplek.utils.NetworkUtils
+import com.example.iurankomplek.data.repository.MessageRepositoryFactory
+import com.example.iurankomplek.utils.UiState
+import com.example.iurankomplek.viewmodel.MessageViewModel
 import kotlinx.coroutines.launch
 
 class MessagesFragment : Fragment() {
 
     private lateinit var adapter: MessageAdapter
     private lateinit var binding: FragmentMessagesBinding
+    private lateinit var viewModel: MessageViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -30,41 +32,42 @@ class MessagesFragment : Fragment() {
         binding.rvMessages.layoutManager = LinearLayoutManager(context)
         binding.rvMessages.adapter = adapter
 
-        loadMessages("default_user_id")
+        initializeViewModel()
+        observeMessagesState()
+        viewModel.loadMessages("default_user_id")
 
         return binding.root
     }
 
-    private fun loadMessages(userId: String) {
-        binding.progressBar.visibility = View.VISIBLE
+    private fun initializeViewModel() {
+        val messageRepository = MessageRepositoryFactory.getInstance()
+        viewModel = ViewModelProvider(
+            this,
+            MessageViewModel.Factory(messageRepository)
+        )[MessageViewModel::class.java]
+    }
 
-         if (!NetworkUtils.isNetworkAvailable(requireContext())) {
-             binding.progressBar.visibility = View.GONE
-             Toast.makeText(context, getString(R.string.no_internet_connection), Toast.LENGTH_LONG).show()
-             return
-         }
-
-         val apiService = ApiConfig.getApiService()
-
-         viewLifecycleOwner.lifecycleScope.launch {
-             try {
-                 val response = apiService.getMessages(userId)
-                 binding.progressBar.visibility = View.GONE
-
-                 if (response.isSuccessful) {
-                     val messages = response.body()
-                     if (messages != null) {
-                         adapter.submitList(messages)
-                     } else {
-                         Toast.makeText(context, getString(R.string.no_messages_available), Toast.LENGTH_LONG).show()
-                     }
-                 } else {
-                     Toast.makeText(context, getString(R.string.failed_to_load_messages), Toast.LENGTH_LONG).show()
-                 }
-             } catch (e: Exception) {
-                 binding.progressBar.visibility = View.GONE
-                 Toast.makeText(context, getString(R.string.network_error, e.message), Toast.LENGTH_LONG).show()
-             }
-         }
+    private fun observeMessagesState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.messagesState.collect { state ->
+                when (state) {
+                    is UiState.Loading -> {
+                        binding.progressBar.visibility = View.VISIBLE
+                    }
+                    is UiState.Success -> {
+                        binding.progressBar.visibility = View.GONE
+                        if (state.data.isEmpty()) {
+                            Toast.makeText(context, getString(R.string.no_messages_available), Toast.LENGTH_LONG).show()
+                        } else {
+                            adapter.submitList(state.data)
+                        }
+                    }
+                    is UiState.Error -> {
+                        binding.progressBar.visibility = View.GONE
+                        Toast.makeText(context, getString(R.string.network_error, state.error), Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
     }
 }

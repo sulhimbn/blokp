@@ -2652,3 +2652,153 @@ override suspend fun getUsers(forceRefresh: Boolean): Result<UserResponse>
 **Impact**: CI builds should now pass with all compilation errors resolved
 
 ---
+
+### ✅ 21. Communication Layer Separation Module
+**Status**: Completed
+**Completed Date**: 2026-01-07
+**Priority**: HIGH
+**Estimated Time**: 4-6 hours (completed in 2 hours)
+**Description**: Eliminate architectural violations in Communication layer by implementing MVVM pattern
+
+**Completed Tasks**:
+- [x] Create AnnouncementRepository interface and implementation
+- [x] Create AnnouncementRepositoryFactory for consistent instantiation
+- [x] Create MessageRepository interface and implementation
+- [x] Create MessageRepositoryFactory for consistent instantiation
+- [x] Create CommunityPostRepository interface and implementation
+- [x] Create CommunityPostRepositoryFactory for consistent instantiation
+- [x] Create AnnouncementViewModel with StateFlow
+- [x] Create MessageViewModel with StateFlow
+- [x] Create CommunityPostViewModel with StateFlow
+- [x] Create TransactionViewModel with StateFlow
+- [x] Create TransactionViewModelFactory for consistent instantiation
+- [x] Refactor AnnouncementsFragment to use ViewModel
+- [x] Refactor MessagesFragment to use ViewModel
+- [x] Refactor CommunityFragment to use ViewModel
+- [x] Refactor TransactionHistoryActivity to use ViewModel
+
+**Architectural Issues Fixed**:
+- ❌ **Before**: AnnouncementsFragment made direct API calls to ApiConfig.getApiService()
+- ❌ **Before**: MessagesFragment made direct API calls to ApiConfig.getApiService()
+- ❌ **Before**: CommunityFragment made direct API calls to ApiConfig.getApiService()
+- ❌ **Before**: TransactionHistoryActivity made direct repository calls without ViewModel
+- ❌ **Before**: Business logic mixed with UI logic in Fragments/Activities
+
+**Architectural Improvements**:
+- ✅ **After**: All Communication layer components follow MVVM pattern
+- ✅ **After**: API calls abstracted behind Repository interfaces
+- ✅ **After**: Business logic moved to ViewModels
+- ✅ **After**: Fragments handle only UI rendering and user interaction
+- ✅ **After**: Consistent Repository pattern with Factory classes
+- ✅ **After**: State management with StateFlow (reactive, type-safe)
+- ✅ **After**: Error handling and retry logic in Repositories
+- ✅ **After**: Clean separation of concerns across all layers
+
+**Files Created**:
+- app/src/main/java/com/example/iurankomplek/data/repository/AnnouncementRepository.kt (NEW - interface)
+- app/src/main/java/com/example/iurankomplek/data/repository/AnnouncementRepositoryImpl.kt (NEW - implementation)
+- app/src/main/java/com/example/iurankomplek/data/repository/AnnouncementRepositoryFactory.kt (NEW - factory)
+- app/src/main/java/com/example/iurankomplek/data/repository/MessageRepository.kt (NEW - interface)
+- app/src/main/java/com/example/iurankomplek/data/repository/MessageRepositoryImpl.kt (NEW - implementation)
+- app/src/main/java/com/example/iurankomplek/data/repository/MessageRepositoryFactory.kt (NEW - factory)
+- app/src/main/java/com/example/iurankomplek/data/repository/CommunityPostRepository.kt (NEW - interface)
+- app/src/main/java/com/example/iurankomplek/data/repository/CommunityPostRepositoryImpl.kt (NEW - implementation)
+- app/src/main/java/com/example/iurankomplek/data/repository/CommunityPostRepositoryFactory.kt (NEW - factory)
+- app/src/main/java/com/example/iurankomplek/viewmodel/AnnouncementViewModel.kt (NEW)
+- app/src/main/java/com/example/iurankomplek/viewmodel/MessageViewModel.kt (NEW)
+- app/src/main/java/com/example/iurankomplek/viewmodel/CommunityPostViewModel.kt (NEW)
+- app/src/main/java/com/example/iurankomplek/viewmodel/TransactionViewModel.kt (NEW)
+- app/src/main/java/com/example/iurankomplek/viewmodel/TransactionViewModelFactory.kt (NEW)
+
+**Files Refactored**:
+- app/src/main/java/com/example/iurankomplek/AnnouncementsFragment.kt (REFACTORED - removed API calls, added ViewModel)
+- app/src/main/java/com/example/iurankomplek/MessagesFragment.kt (REFACTORED - removed API calls, added ViewModel)
+- app/src/main/java/com/example/iurankomplek/CommunityFragment.kt (REFACTORED - removed API calls, added ViewModel)
+- app/src/main/java/com/example/iurankomplek/TransactionHistoryActivity.kt (REFACTORED - removed direct repository calls, added ViewModel)
+
+**Impact**:
+- **Clean Architecture**: MVVM pattern now consistent across entire codebase
+- **Testability**: ViewModels can be unit tested with mock repositories
+- **Maintainability**: Business logic centralized in ViewModels, not scattered in Fragments
+- **Separation of Concerns**: Fragments handle UI only, ViewModels handle business logic
+- **Consistency**: All components follow same architectural patterns
+- **Resilience**: CircuitBreaker and retry logic integrated into all repositories
+
+**Architecture Before**:
+```kotlin
+// ❌ Fragment making direct API calls
+class AnnouncementsFragment : Fragment() {
+    private fun loadAnnouncements() {
+        val apiService = ApiConfig.getApiService()
+        lifecycleScope.launch {
+            try {
+                val response = apiService.getAnnouncements()
+                // Business logic and error handling mixed with UI code
+                if (response.isSuccessful) {
+                    adapter.submitList(response.body())
+                }
+            } catch (e: Exception) {
+                // Error handling in Fragment
+            }
+        }
+    }
+}
+```
+
+**Architecture After**:
+```kotlin
+// ✅ Fragment using ViewModel with clean separation
+class AnnouncementsFragment : Fragment() {
+    private lateinit var viewModel: AnnouncementViewModel
+    
+    private fun initializeViewModel() {
+        val announcementRepository = AnnouncementRepositoryFactory.getInstance()
+        viewModel = ViewModelProvider(
+            this,
+            AnnouncementViewModel.Factory(announcementRepository)
+        )[AnnouncementViewModel::class.java]
+    }
+    
+    private fun observeAnnouncementsState() {
+        lifecycleScope.launch {
+            viewModel.announcementsState.collect { state ->
+                // UI rendering only - no business logic
+                when (state) {
+                    is UiState.Loading -> showLoading()
+                    is UiState.Success -> showData(state.data)
+                    is UiState.Error -> showError(state.error)
+                }
+            }
+        }
+    }
+}
+```
+
+**Anti-Patterns Eliminated**:
+- ✅ No more direct API calls in UI components (Fragments/Activities)
+- ✅ No more business logic in UI layer
+- ✅ No more manual error handling in Fragments
+- ✅ No more inconsistent architectural patterns
+- ✅ No more tight coupling to ApiConfig
+
+**SOLID Principles Compliance**:
+- **S**ingle Responsibility: Fragments (UI), ViewModels (business logic), Repositories (data)
+- **O**pen/Closed: Open for extension (new features), closed for modification (base classes stable)
+- **L**iskov Substitution: Repositories are substitutable via interfaces
+- **I**nterface Segregation: Focused interfaces with specific methods
+- **D**ependency Inversion: Fragments depend on ViewModel abstractions, not implementations
+
+**Success Criteria**:
+- [x] All Communication layer components follow MVVM pattern
+- [x] No direct API calls in Fragments/Activities
+- [x] Business logic moved to ViewModels
+- [x] Repository pattern with Factory classes
+- [x] State management with StateFlow
+- [x] Error handling and retry logic in Repositories
+- [x] Clean separation of concerns
+- [x] Consistent architecture across codebase
+
+**Dependencies**: Integration Hardening Module (completed - provides CircuitBreaker and retry patterns)
+**Impact**: Complete MVVM implementation in Communication layer, architectural consistency achieved
+
+---

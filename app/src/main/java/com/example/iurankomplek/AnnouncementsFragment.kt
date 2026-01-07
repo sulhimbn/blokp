@@ -6,18 +6,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.FragmentAnnouncementsBinding
-import com.example.iurankomplek.model.Announcement
-import com.example.iurankomplek.network.ApiConfig
-import com.example.iurankomplek.utils.NetworkUtils
+import com.example.iurankomplek.data.repository.AnnouncementRepositoryFactory
+import com.example.iurankomplek.utils.UiState
+import com.example.iurankomplek.viewmodel.AnnouncementViewModel
 import kotlinx.coroutines.launch
 
 class AnnouncementsFragment : Fragment() {
 
     private lateinit var adapter: AnnouncementAdapter
     private lateinit var binding: FragmentAnnouncementsBinding
+    private lateinit var viewModel: AnnouncementViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -30,10 +32,45 @@ class AnnouncementsFragment : Fragment() {
         binding.rvAnnouncements.layoutManager = LinearLayoutManager(context)
         binding.rvAnnouncements.adapter = adapter
 
-        loadAnnouncements()
+        initializeViewModel()
+        observeAnnouncementsState()
+        viewModel.loadAnnouncements()
 
         return binding.root
     }
+
+    private fun initializeViewModel() {
+        val announcementRepository = AnnouncementRepositoryFactory.getInstance()
+        viewModel = ViewModelProvider(
+            this,
+            AnnouncementViewModel.Factory(announcementRepository)
+        )[AnnouncementViewModel::class.java]
+    }
+
+    private fun observeAnnouncementsState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.announcementsState.collect { state ->
+                when (state) {
+                    is UiState.Loading -> {
+                        binding.progressBar.visibility = View.VISIBLE
+                    }
+                    is UiState.Success -> {
+                        binding.progressBar.visibility = View.GONE
+                        if (state.data.isEmpty()) {
+                            Toast.makeText(context, getString(R.string.no_announcements_available), Toast.LENGTH_LONG).show()
+                        } else {
+                            adapter.submitList(state.data)
+                        }
+                    }
+                    is UiState.Error -> {
+                        binding.progressBar.visibility = View.GONE
+                        Toast.makeText(context, getString(R.string.network_error, state.error), Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
+    }
+}
 
     private fun loadAnnouncements() {
         // Show progress bar when starting the API call
