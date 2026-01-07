@@ -1,6 +1,8 @@
 package com.example.iurankomplek.presentation.ui.activity
 
 import com.example.iurankomplek.core.base.BaseActivity
+import com.example.iurankomplek.presentation.adapter.UserAdapter
+import com.example.iurankomplek.R
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast

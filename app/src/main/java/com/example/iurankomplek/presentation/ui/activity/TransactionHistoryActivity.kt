@@ -1,6 +1,8 @@
 package com.example.iurankomplek.presentation.ui.activity
 
 import com.example.iurankomplek.core.base.BaseActivity
+import com.example.iurankomplek.presentation.adapter.TransactionHistoryAdapter
+import com.example.iurankomplek.R
 import android.os.Bundle
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider

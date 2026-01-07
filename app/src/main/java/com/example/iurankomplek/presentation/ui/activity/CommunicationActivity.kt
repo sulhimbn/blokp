@@ -1,6 +1,10 @@
 package com.example.iurankomplek.presentation.ui.activity
 
 import com.example.iurankomplek.core.base.BaseActivity
+import com.example.iurankomplek.presentation.ui.fragment.AnnouncementsFragment
+import com.example.iurankomplek.presentation.ui.fragment.MessagesFragment
+import com.example.iurankomplek.presentation.ui.fragment.CommunityFragment
+import com.example.iurankomplek.R
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper

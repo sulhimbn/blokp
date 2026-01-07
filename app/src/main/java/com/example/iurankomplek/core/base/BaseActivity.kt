@@ -1,5 +1,6 @@
 package com.example.iurankomplek.core.base
 
+import com.example.iurankomplek.R
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -105,7 +106,7 @@ abstract class BaseActivity : AppCompatActivity() {
         onError: (String) -> Unit,
         retryCount: Int
     ) {
-        val exponentialDelay = (initialDelayMs * pow(2.0, (retryCount - 1).toDouble())).toLong()
+        val exponentialDelay = (initialDelayMs * 2.0.pow((retryCount - 1).toDouble())).toLong()
         val jitter = (kotlin.random.Random.nextDouble() * initialDelayMs).toLong()
         val delay = minOf(exponentialDelay + jitter, maxDelayMs)
 

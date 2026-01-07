@@ -1,6 +1,10 @@
 package com.example.iurankomplek.presentation.ui.activity
 
 import com.example.iurankomplek.core.base.BaseActivity
+import com.example.iurankomplek.presentation.adapter.PemanfaatanAdapter
+import com.example.iurankomplek.presentation.adapter.LaporanSummaryAdapter
+import com.example.iurankomplek.presentation.adapter.LaporanSummaryItem
+import com.example.iurankomplek.R
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
