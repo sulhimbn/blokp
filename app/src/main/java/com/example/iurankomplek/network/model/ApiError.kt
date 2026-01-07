@@ -111,8 +111,7 @@ sealed class NetworkError(message: String, override val cause: Throwable? = null
     data class ValidationError(
         override val code: ApiErrorCode = ApiErrorCode.VALIDATION_ERROR,
         override val userMessage: String,
-        val field: String? = null,
-        override val cause: Throwable? = null
+        val field: String? = null
     ) : NetworkError("") {
         override val message: String
             get() = "Validation error${field?.let { " on $it" } ?: ""}: $userMessage"
@@ -121,8 +120,7 @@ sealed class NetworkError(message: String, override val cause: Throwable? = null
     data class UnknownNetworkError(
         override val code: ApiErrorCode = ApiErrorCode.UNKNOWN_ERROR,
         override val userMessage: String = "An unexpected error occurred.",
-        val originalException: Throwable? = null,
-        override val cause: Throwable? = null
+        val originalException: Throwable? = null
     ) : NetworkError(originalException?.message ?: "Unknown network error") {
         override val message: String
             get() = originalException?.message ?: "Unknown network error"

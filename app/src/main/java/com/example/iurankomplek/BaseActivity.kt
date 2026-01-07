@@ -9,6 +9,8 @@ import com.example.iurankomplek.utils.ErrorHandler
 import com.example.iurankomplek.utils.NetworkUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.pow
+import kotlin.random.Random
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import javax.net.ssl.SSLException

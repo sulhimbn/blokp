@@ -6,6 +6,7 @@ import com.example.iurankomplek.network.model.NetworkError
 import com.example.iurankomplek.network.resilience.CircuitBreaker
 import com.example.iurankomplek.network.resilience.CircuitBreakerResult
 import kotlinx.coroutines.delay
+import kotlin.math.pow
 import retrofit2.HttpException
 import java.util.concurrent.ConcurrentHashMap
 
