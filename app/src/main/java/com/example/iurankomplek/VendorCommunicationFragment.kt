@@ -63,6 +63,8 @@ class VendorCommunicationFragment : Fragment() {
             repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
                 vendorViewModel.vendorState.collect { state ->
                     when (state) {
+                        is UiState.Idle -> {
+                        }
                         is UiState.Loading -> {
                             // Show loading indicator
                         }

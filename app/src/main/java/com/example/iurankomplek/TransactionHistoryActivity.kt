@@ -25,7 +25,7 @@ class TransactionHistoryActivity : BaseActivity() {
 
         setupTransactionHistory()
         observeTransactionsState()
-        viewModel.loadTransactionsByStatus(PaymentStatus.COMPLETED.name)
+        viewModel.loadTransactionsByStatus(com.example.iurankomplek.payment.PaymentStatus.COMPLETED)
     }
 
     private fun setupTransactionHistory() {
@@ -45,6 +45,8 @@ class TransactionHistoryActivity : BaseActivity() {
         lifecycleScope.launch {
             viewModel.transactionsState.collect { state ->
                 when (state) {
+                    is UiState.Idle -> {
+                    }
                     is UiState.Loading -> {
                         binding.progressBar.visibility = android.view.View.VISIBLE
                     }
@@ -56,7 +58,7 @@ class TransactionHistoryActivity : BaseActivity() {
                         binding.progressBar.visibility = android.view.View.GONE
                         Toast.makeText(
                             this@TransactionHistoryActivity,
-                            getString(R.string.failed_to_load_transaction_history, state.error),
+                            state.error,
                             Toast.LENGTH_LONG
                         ).show()
                     }

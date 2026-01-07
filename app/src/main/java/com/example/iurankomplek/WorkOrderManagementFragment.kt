@@ -63,6 +63,8 @@ class WorkOrderManagementFragment : Fragment() {
             repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
                 vendorViewModel.workOrderState.collect { state ->
                     when (state) {
+                        is UiState.Idle -> {
+                        }
                         is UiState.Loading -> {
                             // Show loading indicator
                         }
