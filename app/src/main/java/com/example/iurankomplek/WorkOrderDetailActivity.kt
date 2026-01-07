@@ -5,8 +5,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.observe
+import androidx.lifecycle.lifecycleScope
 import com.example.iurankomplek.data.repository.VendorRepositoryFactory
+import com.example.iurankomplek.model.WorkOrder
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.VendorViewModel
 
@@ -35,17 +36,19 @@ class WorkOrderDetailActivity : AppCompatActivity() {
     }
     
     private fun observeWorkOrderDetails() {
-        vendorViewModel.workOrderDetailState.observe(this) { state ->
-            when (state) {
-                is UiState.Loading -> {
-                    // Show loading indicator
-                }
-                is UiState.Success -> {
-                    displayWorkOrderDetails(state.data.data)
-                }
-                is UiState.Error -> {
-                    Toast.makeText(this, "Error: ${state.error}", Toast.LENGTH_SHORT).show()
-                    finish()
+        lifecycleScope.launch {
+            vendorViewModel.workOrderDetailState.collect { state ->
+                when (state) {
+                    is UiState.Loading -> {
+                        // Show loading indicator
+                    }
+                    is UiState.Success -> {
+                        displayWorkOrderDetails(state.data.data)
+                    }
+                    is UiState.Error -> {
+                        Toast.makeText(this@WorkOrderDetailActivity, "Error: ${state.error}", Toast.LENGTH_SHORT).show()
+                        finish()
+                    }
                 }
             }
         }
