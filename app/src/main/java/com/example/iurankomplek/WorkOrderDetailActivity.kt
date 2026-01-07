@@ -2,7 +2,6 @@ package com.example.iurankomplek
 
 import android.os.Bundle
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.iurankomplek.databinding.ActivityWorkOrderDetailBinding
@@ -12,7 +11,7 @@ import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.VendorViewModel
 import kotlinx.coroutines.launch
 
-class WorkOrderDetailActivity : AppCompatActivity() {
+class WorkOrderDetailActivity : BaseActivity() {
 
     private lateinit var binding: ActivityWorkOrderDetailBinding
     private lateinit var vendorViewModel: VendorViewModel
