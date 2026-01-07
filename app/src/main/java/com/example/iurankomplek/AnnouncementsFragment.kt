@@ -6,14 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.FragmentAnnouncementsBinding
 import com.example.iurankomplek.model.Announcement
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.utils.NetworkUtils
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import kotlinx.coroutines.launch
 
 class AnnouncementsFragment : Fragment() {
 
@@ -48,13 +47,13 @@ class AnnouncementsFragment : Fragment() {
         }
 
         val apiService = ApiConfig.getApiService()
-        val call = apiService.getAnnouncements()
 
-        call.enqueue(object : Callback<List<Announcement>> {
-            override fun onResponse(call: Call<List<Announcement>>, response: Response<List<Announcement>>) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val response = apiService.getAnnouncements()
                 // Hide progress bar after response
                 binding.progressBar.visibility = View.GONE
-                
+
                 if (response.isSuccessful) {
                     val announcements = response.body()
                     if (announcements != null) {
@@ -65,13 +64,11 @@ class AnnouncementsFragment : Fragment() {
                 } else {
                     Toast.makeText(context, "Failed to load announcements", Toast.LENGTH_LONG).show()
                 }
-            }
-
-            override fun onFailure(call: Call<List<Announcement>>, t: retrofit2.Call<List<Announcement>>) {
+            } catch (e: Exception) {
                 // Hide progress bar after failure
                 binding.progressBar.visibility = View.GONE
-                Toast.makeText(context, "Network error: ${t.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Network error: ${e.message}", Toast.LENGTH_LONG).show()
             }
-        })
+        }
     }
 }
