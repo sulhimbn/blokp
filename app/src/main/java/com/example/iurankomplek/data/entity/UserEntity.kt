@@ -10,7 +10,8 @@ import java.util.Date
 @Entity(
     tableName = DatabaseConstraints.Users.TABLE_NAME,
     indices = [
-        Index(value = [DatabaseConstraints.Users.Columns.EMAIL], unique = true)
+        Index(value = [DatabaseConstraints.Users.Columns.EMAIL], unique = true),
+        Index(value = [DatabaseConstraints.Users.Columns.LAST_NAME, DatabaseConstraints.Users.Columns.FIRST_NAME])
     ]
 )
 data class UserEntity(

@@ -20,7 +20,7 @@ import java.util.Date
         )
     ],
     indices = [
-        Index(value = [DatabaseConstraints.FinancialRecords.Columns.USER_ID]),
+        Index(value = [DatabaseConstraints.FinancialRecords.Columns.USER_ID, DatabaseConstraints.FinancialRecords.Columns.UPDATED_AT]),
         Index(value = [DatabaseConstraints.FinancialRecords.Columns.UPDATED_AT])
     ]
 )

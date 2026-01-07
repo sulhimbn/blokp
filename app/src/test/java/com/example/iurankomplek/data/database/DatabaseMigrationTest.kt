@@ -417,4 +417,247 @@ class DatabaseMigrationTest {
         assertEquals("retry_count should default to 0", 0, retryCount)
         assertEquals("max_retries should default to 5", 5, maxRetries)
     }
+
+    @Test
+    fun `migration3 should create composite index on users table`() {
+        var db = helper.createDatabase(TEST_DB, 1)
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 3, true, Migration1(), Migration1Down, Migration2, Migration3)
+
+        val indexesCursor = db.query("SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='users'")
+        val indexNames = mutableListOf<String>()
+        while (indexesCursor.moveToNext()) {
+            indexNames.add(indexesCursor.getString(0))
+        }
+        indexesCursor.close()
+
+        assertTrue("Should have email index", indexNames.any { it.contains("email") })
+        assertTrue("Should have idx_users_name_sort index", indexNames.contains("idx_users_name_sort"))
+    }
+
+    @Test
+    fun `migration3 should create composite index on financial_records table`() {
+        var db = helper.createDatabase(TEST_DB, 1)
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 3, true, Migration1(), Migration1Down, Migration2, Migration3)
+
+        val indexesCursor = db.query("SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='financial_records'")
+        val indexNames = mutableListOf<String>()
+        while (indexesCursor.moveToNext()) {
+            indexNames.add(indexesCursor.getString(0))
+        }
+        indexesCursor.close()
+
+        assertTrue("Should have idx_financial_user_updated index", indexNames.contains("idx_financial_user_updated"))
+        assertTrue("Should have updated_at index", indexNames.any { it.contains("updated_at") })
+    }
+
+    @Test
+    fun `migration3 should create composite index on webhook_events table`() {
+        var db = helper.createDatabase(TEST_DB, 1)
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 3, true, Migration1(), Migration1Down, Migration2, Migration3)
+
+        val indexesCursor = db.query("SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='webhook_events'")
+        val indexNames = mutableListOf<String>()
+        while (indexesCursor.moveToNext()) {
+            indexNames.add(indexesCursor.getString(0))
+        }
+        indexesCursor.close()
+
+        assertTrue("Should have idempotency_key index", indexNames.any { it.contains("idempotency_key") })
+        assertTrue("Should have status index", indexNames.any { it.contains("status") })
+        assertTrue("Should have event_type index", indexNames.any { it.contains("event_type") })
+        assertTrue("Should have idx_webhook_retry_queue index", indexNames.contains("idx_webhook_retry_queue"))
+    }
+
+    @Test
+    fun `migration3 should preserve existing data`() {
+        var db = helper.createDatabase(TEST_DB, 1)
+        db.execSQL("INSERT INTO users (email, first_name, last_name, alamat, avatar) VALUES ('test@example.com', 'John', 'Doe', '123 Main St', 'https://example.com/avatar.jpg')")
+        db.execSQL("INSERT INTO financial_records (user_id, iuran_perwarga, jumlah_iuran_bulanan, total_iuran_individu, pengeluaran_iuran_warga, total_iuran_rekap, pemanfaatan_iuran) VALUES (1, 100, 200, 300, 400, 500, 'Maintenance')")
+        db.execSQL("INSERT INTO webhook_events (idempotency_key, event_type, payload, status) VALUES ('whk_1234567890_abc', 'payment.completed', '{\"test\":\"data\"}', 'PENDING')")
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 3, true, Migration1(), Migration1Down, Migration2, Migration3)
+
+        val userCursor = db.query("SELECT COUNT(*) FROM users")
+        userCursor.moveToFirst()
+        val userCount = userCursor.getInt(0)
+        userCursor.close()
+
+        val financialCursor = db.query("SELECT COUNT(*) FROM financial_records")
+        financialCursor.moveToFirst()
+        val financialCount = financialCursor.getInt(0)
+        financialCursor.close()
+
+        val webhookCursor = db.query("SELECT COUNT(*) FROM webhook_events")
+        webhookCursor.moveToFirst()
+        val webhookCount = webhookCursor.getInt(0)
+        webhookCursor.close()
+
+        assertEquals("User data should be preserved", 1, userCount)
+        assertEquals("Financial record data should be preserved", 1, financialCount)
+        assertEquals("Webhook event data should be preserved", 1, webhookCount)
+    }
+
+    @Test
+    fun `migration3Down should drop composite indexes`() {
+        var db = helper.createDatabase(TEST_DB, 1)
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 3, true, Migration1(), Migration1Down, Migration2, Migration3)
+        Migration3Down.migrate(db)
+
+        val usersIndexesCursor = db.query("SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='users'")
+        val userIndexNames = mutableListOf<String>()
+        while (usersIndexesCursor.moveToNext()) {
+            userIndexNames.add(usersIndexesCursor.getString(0))
+        }
+        usersIndexesCursor.close()
+
+        val financialIndexesCursor = db.query("SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='financial_records'")
+        val financialIndexNames = mutableListOf<String>()
+        while (financialIndexesCursor.moveToNext()) {
+            financialIndexNames.add(financialIndexesCursor.getString(0))
+        }
+        financialIndexesCursor.close()
+
+        val webhookIndexesCursor = db.query("SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='webhook_events'")
+        val webhookIndexNames = mutableListOf<String>()
+        while (webhookIndexesCursor.moveToNext()) {
+            webhookIndexNames.add(webhookIndexesCursor.getString(0))
+        }
+        webhookIndexesCursor.close()
+
+        assertFalse("idx_users_name_sort should be dropped", userIndexNames.contains("idx_users_name_sort"))
+        assertFalse("idx_financial_user_updated should be dropped", financialIndexNames.contains("idx_financial_user_updated"))
+        assertFalse("idx_webhook_retry_queue should be dropped", webhookIndexNames.contains("idx_webhook_retry_queue"))
+    }
+
+    @Test
+    fun `migration3Down should preserve existing data`() {
+        var db = helper.createDatabase(TEST_DB, 1)
+        db.execSQL("INSERT INTO users (email, first_name, last_name, alamat, avatar) VALUES ('test@example.com', 'John', 'Doe', '123 Main St', 'https://example.com/avatar.jpg')")
+        db.execSQL("INSERT INTO financial_records (user_id, iuran_perwarga, jumlah_iuran_bulanan, total_iuran_individu, pengeluaran_iuran_warga, total_iuran_rekap, pemanfaatan_iuran) VALUES (1, 100, 200, 300, 400, 500, 'Maintenance')")
+        db.execSQL("INSERT INTO webhook_events (idempotency_key, event_type, payload, status) VALUES ('whk_1234567890_abc', 'payment.completed', '{\"test\":\"data\"}', 'PENDING')")
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 3, true, Migration1(), Migration1Down, Migration2, Migration3)
+        Migration3Down.migrate(db)
+
+        val userCursor = db.query("SELECT COUNT(*) FROM users")
+        userCursor.moveToFirst()
+        val userCount = userCursor.getInt(0)
+        userCursor.close()
+
+        val financialCursor = db.query("SELECT COUNT(*) FROM financial_records")
+        financialCursor.moveToFirst()
+        val financialCount = financialCursor.getInt(0)
+        financialCursor.close()
+
+        val webhookCursor = db.query("SELECT COUNT(*) FROM webhook_events")
+        webhookCursor.moveToFirst()
+        val webhookCount = webhookCursor.getInt(0)
+        webhookCursor.close()
+
+        assertEquals("User data should be preserved", 1, userCount)
+        assertEquals("Financial record data should be preserved", 1, financialCount)
+        assertEquals("Webhook event data should be preserved", 1, webhookCount)
+    }
+
+    @Test
+    fun `migration3Down should preserve base indexes`() {
+        var db = helper.createDatabase(TEST_DB, 1)
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 3, true, Migration1(), Migration1Down, Migration2, Migration3)
+        Migration3Down.migrate(db)
+
+        val usersIndexesCursor = db.query("SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='users'")
+        val userIndexNames = mutableListOf<String>()
+        while (usersIndexesCursor.moveToNext()) {
+            userIndexNames.add(usersIndexesCursor.getString(0))
+        }
+        usersIndexesCursor.close()
+
+        val financialIndexesCursor = db.query("SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='financial_records'")
+        val financialIndexNames = mutableListOf<String>()
+        while (financialIndexesCursor.moveToNext()) {
+            financialIndexNames.add(financialIndexesCursor.getString(0))
+        }
+        financialIndexesCursor.close()
+
+        val webhookIndexesCursor = db.query("SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='webhook_events'")
+        val webhookIndexNames = mutableListOf<String>()
+        while (webhookIndexesCursor.moveToNext()) {
+            webhookIndexNames.add(webhookIndexesCursor.getString(0))
+        }
+        webhookIndexesCursor.close()
+
+        assertTrue("email index should still exist", userIndexNames.any { it.contains("email") })
+        assertTrue("user_id index should still exist", financialIndexNames.any { it.contains("user_id") })
+        assertTrue("idempotency_key index should still exist", webhookIndexNames.any { it.contains("idempotency_key") })
+        assertTrue("status index should still exist", webhookIndexNames.any { it.contains("status") })
+        assertTrue("event_type index should still exist", webhookIndexNames.any { it.contains("event_type") })
+    }
+
+    @Test
+    fun `migration1_2_3_migrations_in_sequence should work`() {
+        var db = helper.createDatabase(TEST_DB, 1)
+        db.execSQL("INSERT INTO users (email, first_name, last_name, alamat, avatar) VALUES ('test@example.com', 'John', 'Doe', '123 Main St', 'https://example.com/avatar.jpg')")
+        db.execSQL("INSERT INTO financial_records (user_id, iuran_perwarga, jumlah_iuran_bulanan, total_iuran_individu, pengeluaran_iuran_warga, total_iuran_rekap, pemanfaatan_iuran) VALUES (1, 100, 200, 300, 400, 500, 'Maintenance')")
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 3, true, Migration1(), Migration1Down, Migration2, Migration3)
+        db.execSQL("INSERT INTO webhook_events (idempotency_key, event_type, payload, status) VALUES ('whk_1234567890_abc', 'payment.completed', '{\"test\":\"data\"}', 'PENDING')")
+
+        val userCursor = db.query("SELECT COUNT(*) FROM users")
+        userCursor.moveToFirst()
+        val userCount = userCursor.getInt(0)
+        userCursor.close()
+
+        val financialCursor = db.query("SELECT COUNT(*) FROM financial_records")
+        financialCursor.moveToFirst()
+        val financialCount = financialCursor.getInt(0)
+        financialCursor.close()
+
+        val webhookCursor = db.query("SELECT COUNT(*) FROM webhook_events")
+        webhookCursor.moveToFirst()
+        val webhookCount = webhookCursor.getInt(0)
+        webhookCursor.close()
+
+        assertEquals("Users should exist", 1, userCount)
+        assertEquals("Financial records should exist", 1, financialCount)
+        assertEquals("Webhook events should exist", 1, webhookCount)
+    }
+
+    @Test
+    fun `migration3_2_1_full_down_migration_sequence should work`() {
+        var db = helper.createDatabase(TEST_DB, 1)
+        db.execSQL("INSERT INTO users (email, first_name, last_name, alamat, avatar) VALUES ('test@example.com', 'John', 'Doe', '123 Main St', 'https://example.com/avatar.jpg')")
+        db.execSQL("INSERT INTO financial_records (user_id, iuran_perwarga, jumlah_iuran_bulanan, total_iuran_individu, pengeluaran_iuran_warga, total_iuran_rekap, pemanfaatan_iuran) VALUES (1, 100, 200, 300, 400, 500, 'Maintenance')")
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 3, true, Migration1(), Migration1Down, Migration2, Migration3)
+        db.execSQL("INSERT INTO webhook_events (idempotency_key, event_type, payload, status) VALUES ('whk_1234567890_abc', 'payment.completed', '{\"test\":\"data\"}', 'PENDING')")
+
+        Migration3Down.migrate(db)
+        Migration2Down.migrate(db)
+        Migration1Down.migrate(db)
+
+        val cursor = db.query("SELECT name FROM sqlite_master WHERE type='table'")
+        val tables = mutableListOf<String>()
+        while (cursor.moveToNext()) {
+            tables.add(cursor.getString(0))
+        }
+        cursor.close()
+
+        assertFalse("users table should be dropped", tables.contains("users"))
+        assertFalse("financial_records table should be dropped", tables.contains("financial_records"))
+        assertFalse("webhook_events table should be dropped", tables.contains("webhook_events"))
+    }
 }

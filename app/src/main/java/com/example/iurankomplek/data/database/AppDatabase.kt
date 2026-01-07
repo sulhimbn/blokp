@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 
 @Database(
     entities = [UserEntity::class, FinancialRecordEntity::class, WebhookEvent::class],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 @TypeConverters(DataTypeConverters::class)
@@ -39,7 +39,7 @@ abstract class AppDatabase : RoomDatabase() {
                     "iuran_komplek_database"
                 )
                     .addCallback(DatabaseCallback(scope))
-                    .addMigrations(Migration1(), Migration1Down, Migration2, Migration2Down)
+                    .addMigrations(Migration1(), Migration1Down, Migration2, Migration2Down, Migration3, Migration3Down)
                     .build()
                 INSTANCE = instance
                 instance
