@@ -6,14 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.FragmentMessagesBinding
 import com.example.iurankomplek.model.Message
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.utils.NetworkUtils
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import kotlinx.coroutines.launch
 
 class MessagesFragment : Fragment() {
 
@@ -36,6 +35,44 @@ class MessagesFragment : Fragment() {
 
         return binding.root
     }
+
+    private fun loadMessages(userId: String) {
+        // Show progress bar when starting API call
+        binding.progressBar.visibility = View.VISIBLE
+
+        if (!NetworkUtils.isNetworkAvailable(requireContext())) {
+            // Hide progress bar after failure
+            binding.progressBar.visibility = View.GONE
+            Toast.makeText(context, "No internet connection", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        val apiService = ApiConfig.getApiService()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val response = apiService.getMessages(userId)
+                // Hide progress bar after response
+                binding.progressBar.visibility = View.GONE
+
+                if (response.isSuccessful) {
+                    val messages = response.body()
+                    if (messages != null) {
+                        adapter.submitList(messages)
+                    } else {
+                        Toast.makeText(context, "No messages available", Toast.LENGTH_LONG).show()
+                    }
+                } else {
+                    Toast.makeText(context, "Failed to load messages", Toast.LENGTH_LONG).show()
+                }
+            } catch (e: Exception) {
+                // Hide progress bar after failure
+                binding.progressBar.visibility = View.GONE
+                Toast.makeText(context, "Network error: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+}
 
     private fun loadMessages(userId: String) {
         // Show progress bar when starting the API call
