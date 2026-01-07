@@ -73,7 +73,6 @@
     <!-- Communication Center -->
     <string name="communication_center_title">COMMUNICATION CENTER</string>
     <string name="communication_center_title_desc">Communication center screen title</string>
-    <string name="tab_content_desc">Navigation tab</string>
     <string name="tab_announcements">Announcements</string>
     <string name="tab_announcements_desc">View announcements tab</string>
     <string name="tab_messages">Messages</string>
