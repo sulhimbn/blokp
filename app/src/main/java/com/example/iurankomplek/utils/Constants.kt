@@ -17,8 +17,8 @@ object Constants {
     
     // Security Constants
     object Security {
-        // Add backup certificate pin when available: ;sha256/ACTUAL_BACKUP_CERTIFICATE_PIN_HERE
         const val CERTIFICATE_PINNER = "sha256/PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0="
+        // Add backup certificate pin when available: ;sha256/ACTUAL_BACKUP_CERTIFICATE_PIN_HERE
     }
     
     // Financial Constants
@@ -44,4 +44,5 @@ object Constants {
         const val MAIN_ACTIVITY = "MainActivity"
         const val LAPORAN_ACTIVITY = "LaporanActivity"
     }
+
 }
