@@ -1183,6 +1183,34 @@ None currently identified
 - Priority: Low
 - Effort: Small (30 minutes)
 
+### [REFACTOR] Fragment ViewBinding Migration
+- Location: app/src/main/java/com/example/iurankomplek/{VendorDatabaseFragment, WorkOrderManagementFragment, VendorCommunicationFragment, VendorPerformanceFragment, MessagesFragment, AnnouncementsFragment, CommunityFragment}.kt (7 files)
+- Issue: All Fragment files use `view?.findViewById()` pattern instead of ViewBinding, which is inconsistent with Activity pattern (MainActivity, LaporanActivity, PaymentActivity, TransactionHistoryActivity use ViewBinding). This leads to boilerplate code and runtime type-safety issues.
+- Suggestion: Migrate all Fragments to use ViewBinding for type-safe view access, eliminate `view?.findViewById()` boilerplate, and ensure consistency across all UI components.
+- Priority: High
+- Effort: Medium (2-3 hours)
+
+### [REFACTOR] Fragment Code Duplication
+- Location: app/src/main/java/com/example/iurankomplek/{VendorDatabaseFragment, WorkOrderManagementFragment, VendorCommunicationFragment, VendorPerformanceFragment}.kt
+- Issue: Multiple Vendor-related Fragments have identical patterns: same `setupViews()` structure, same ViewModel initialization with VendorRepositoryFactory, same observe patterns, and similar error handling. This violates DRY principle and increases maintenance burden.
+- Suggestion: Extract common Fragment patterns into a BaseVendorFragment or create extension functions for Fragment initialization. Alternatively, create a generic BaseFragment with common setup and observation patterns that can be extended by all Fragments.
+- Priority: Medium
+- Effort: Medium (2-3 hours)
+
+### [REFACTOR] Hardcoded Strings in Code
+- Location: app/src/main/java/com/example/iurankomplek/{CommunicationActivity, VendorManagementActivity, VendorDatabaseFragment, WorkOrderManagementFragment}.kt
+- Issue: Hardcoded user-facing strings remain in code: "Announcements", "Messages", "Community" (tab titles), "Vendor: ${name}", "Work Order: ${title}" (Toast messages). These should be in strings.xml for localization support and consistency.
+- Suggestion: Extract all hardcoded strings to app/src/main/res/values/strings.xml with appropriate resource IDs (e.g., `tab_announcements`, `toast_vendor_info`, `toast_work_order_info`). Update code to use `getString(R.string.*)`.
+- Priority: Low
+- Effort: Small (1 hour)
+
+### [REFACTOR] Fragment Toast Null-Safety
+- Location: app/src/main/java/com/example/iurankomplek/{VendorDatabaseFragment, WorkOrderManagementFragment, VendorCommunicationFragment, VendorPerformanceFragment}.kt (18 occurrences across fragments)
+- Issue: Fragments use `Toast.makeText(context, message, Toast.LENGTH_SHORT)` where `context` can be null in certain lifecycle states, leading to potential NullPointerException. The safe pattern is to use `requireContext()` which throws IllegalStateException if fragment is not attached.
+- Suggestion: Replace all `Toast.makeText(context, ...)` calls in Fragments with `Toast.makeText(requireContext(), ...)` for null-safety and proper lifecycle awareness. This follows Android Fragment best practices.
+- Priority: Medium
+- Effort: Small (30 minutes)
+
 ---
 
 ---
