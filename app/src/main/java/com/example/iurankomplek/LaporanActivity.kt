@@ -8,13 +8,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityLaporanBinding
 import com.example.iurankomplek.data.repository.PemanfaatanRepositoryImpl
-import com.example.iurankomplek.model.LaporanSummaryItem
 import com.example.iurankomplek.model.ValidatedDataItem
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.utils.DataValidator
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.transaction.TransactionDatabase
 import com.example.iurankomplek.transaction.TransactionRepository
+import com.example.iurankomplek.transaction.TransactionRepositoryFactory
 import com.example.iurankomplek.payment.MockPaymentGateway
 import com.example.iurankomplek.viewmodel.FinancialViewModel
 import com.example.iurankomplek.viewmodel.FinancialViewModelFactory
@@ -42,11 +42,11 @@ class LaporanActivity : BaseActivity() {
         viewModel = ViewModelProvider(this, FinancialViewModel.Factory(pemanfaatanRepository))[FinancialViewModel::class.java]
 
         adapter = PemanfaatanAdapter(mutableListOf())
-        summaryAdapter = LaporanSummaryAdapter(mutableListOf())
-        
+        summaryAdapter = LaporanSummaryAdapter()
+
         binding.rvLaporan.layoutManager = LinearLayoutManager(this)
         binding.rvLaporan.adapter = adapter
-        
+
         binding.rvSummary.layoutManager = LinearLayoutManager(this)
         binding.rvSummary.adapter = summaryAdapter
 
@@ -145,11 +145,11 @@ class LaporanActivity : BaseActivity() {
         // Fetch completed payment transactions from local database to integrate with financial reporting
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                // Get all completed payment transactions 
+                // Get all completed payment transactions
                 val completedTransactions = transactionRepository.getTransactionsByStatus(
                     com.example.iurankomplek.payment.PaymentStatus.COMPLETED
-                ).value
-                
+                ).first()
+
                 // Calculate total amount from completed payments
                 var paymentTotal = 0
                 completedTransactions.forEach { transaction ->

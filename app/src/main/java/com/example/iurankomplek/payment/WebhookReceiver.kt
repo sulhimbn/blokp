@@ -2,11 +2,11 @@ package com.example.iurankomplek.payment
 
 import android.util.Log
 import com.example.iurankomplek.transaction.TransactionRepository
+import com.example.iurankomplek.utils.Constants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import okhttp3.*
 import java.io.IOException
 
@@ -14,11 +14,20 @@ class WebhookReceiver(
     private val transactionRepository: TransactionRepository
 ) {
     private val client = OkHttpClient()
-    private val json = kotlinx.serialization.json.Json {
-        ignoreUnknownKeys = true
-        isLenient = false
-        encodeDefaults = false
+    private val json = Json { ignoreUnknownKeys = true }
+
+    companion object {
+        private val TAG = Constants.Tags.WEBHOOK_RECEIVER
     }
+
+    suspend fun setupWebhookListener(webhookUrl: String) {
+        // In a real implementation, this would register for webhook events
+        // For now, we'll just log that we're ready to receive webhooks
+        Log.d(TAG, "Webhook listener setup for URL: $webhookUrl")
+    }
+=======
+    private val json = Json { ignoreUnknownKeys = true }
+>>>>>>> a068ebb (fix: resolve compilation errors in PR #235)
 
     companion object {
         private val TAG = Constants.Tags.WEBHOOK_RECEIVER

@@ -44,24 +44,23 @@ object ImageLoader {
                 override fun onLoadFailed(
                     e: GlideException?,
                     model: Any?,
-                    target: Target<Drawable>?,
+                    target: Target<Drawable>,
                     isFirstResource: Boolean
                 ): Boolean {
-                    // Log the error for debugging purposes
                     e?.let {
                         android.util.Log.e("ImageLoader", "Error loading image: $url", it)
                     }
-                    return false // Allow Glide to show error placeholder
+                    return false
                 }
 
                 override fun onResourceReady(
                     resource: Drawable,
                     model: Any?,
-                    target: Target<Drawable>?,
-                    dataSource: DataSource?,
-                    isFirstResource: Boolean
+                    target: Target<Drawable>,
+                    dataSource: DataSource,
+                    isMemoryCache: Boolean
                 ): Boolean {
-                    return false // Allow Glide to handle the resource normally
+                    return false
                 }
             })
             .into(imageView)

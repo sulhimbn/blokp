@@ -50,7 +50,7 @@ class TransactionHistoryActivity : AppCompatActivity() {
             try {
                 // For now, we'll get all transactions - in a real app, we'd filter by actual user ID
                 // Using a placeholder user ID for demo purposes
-                val transactions = transactionRepository.getTransactionsByStatus(PaymentStatus.COMPLETED).value
+                val transactions = transactionRepository.getTransactionsByStatus(PaymentStatus.COMPLETED).first()
                 runOnUiThread {
                     // Hide progress bar after successful load
                     binding.progressBar.visibility = View.GONE
