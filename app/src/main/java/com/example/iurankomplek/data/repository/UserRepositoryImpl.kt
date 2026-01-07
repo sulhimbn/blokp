@@ -9,6 +9,7 @@ import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.network.model.NetworkError
 import com.example.iurankomplek.network.resilience.CircuitBreaker
 import com.example.iurankomplek.network.resilience.CircuitBreakerResult
+import kotlinx.coroutines.flow.first
 import retrofit2.HttpException
 
 class UserRepositoryImpl(
@@ -20,7 +21,7 @@ class UserRepositoryImpl(
     override suspend fun getUsers(forceRefresh: Boolean): Result<UserResponse> {
         return cacheFirstStrategy(
             getFromCache = {
-                val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords()
+                val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
                 val dataItemList = usersWithFinancials.map { EntityMapper.toLegacyDto(it) }
                 val userResponse = UserResponse(dataItemList)
                 if (dataItemList.isEmpty()) null else userResponse
@@ -33,6 +34,7 @@ class UserRepositoryImpl(
                 if (response.data.isNotEmpty()) {
                     val usersWithFinancials = CacheManager.getUserDao()
                         .getAllUsersWithFinancialRecords()
+                        .first()
                     if (usersWithFinancials.isNotEmpty()) {
                         val latestUpdate = usersWithFinancials
                             .maxOfOrNull { it.user.updatedAt.time }
@@ -54,7 +56,7 @@ class UserRepositoryImpl(
     
     override suspend fun getCachedUsers(): Result<UserResponse> {
         return try {
-            val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords()
+            val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
             val dataItemList = usersWithFinancials.map { EntityMapper.toLegacyDto(it) }
             val userResponse = UserResponse(dataItemList)
             Result.success(userResponse)
