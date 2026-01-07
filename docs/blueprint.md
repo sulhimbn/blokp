@@ -92,6 +92,15 @@ app/
 │   │   ├── PemanfaatanRepositoryImpl.kt ✅
 │   │   ├── VendorRepository.kt (interface) ✅
 │   │   └── VendorRepositoryImpl.kt ✅
+ │   │   ├── AnnouncementRepository.kt (interface) ✅ NEW
+│   │   ├── AnnouncementRepositoryImpl.kt ✅ NEW
+│   │   ├── AnnouncementRepositoryFactory.kt ✅ NEW
+│   │   ├── MessageRepository.kt (interface) ✅ NEW
+│   │   ├── MessageRepositoryImpl.kt ✅ NEW
+│   │   ├── MessageRepositoryFactory.kt ✅ NEW
+│   │   ├── CommunityPostRepository.kt (interface) ✅ NEW
+│   │   ├── CommunityPostRepositoryImpl.kt ✅ NEW
+│   │   └── CommunityPostRepositoryFactory.kt ✅ NEW
 │   ├── transaction/
 │   │   ├── TransactionRepository.kt (interface) ✅
 │   │   ├── TransactionRepositoryImpl.kt ✅
@@ -170,6 +179,11 @@ app/
 │   │   ├── FinancialViewModel.kt ✅ (StateFlow)
 │   │   └── VendorViewModel.kt ✅ (StateFlow)
 │   └── adapter/
+ │   │   ├── AnnouncementViewModel.kt ✅ NEW (StateFlow)
+│   │   ├── MessageViewModel.kt ✅ NEW (StateFlow)
+│   │   ├── CommunityPostViewModel.kt ✅ NEW (StateFlow)
+│   │   ├── TransactionViewModel.kt ✅ NEW (StateFlow)
+│   │   └── TransactionViewModelFactory.kt ✅ NEW
 │       ├── UserAdapter.kt ✅ (DiffUtil)
 │       ├── PemanfaatanAdapter.kt ✅ (DiffUtil)
 │       ├── VendorAdapter.kt ✅ (DiffUtil)
@@ -854,6 +868,69 @@ Planned enhancements:
 - Security scanning (Snyk, Dependabot)
 - Deployment automation
 - Rollback procedures
+
+### ✅ 21. Communication Layer Separation Module
+**Status**: Completed
+**Completed Date**: 2026-01-07
+**Priority**: HIGH
+**Estimated Time**: 4-6 hours (completed in 2 hours)
+**Description**: Eliminate architectural violations in Communication layer by implementing MVVM pattern
+
+**Completed Tasks:**
+- [x] Create AnnouncementRepository interface and implementation
+- [x] Create AnnouncementRepositoryFactory for consistent instantiation
+- [x] Create MessageRepository interface and implementation
+- [x] Create MessageRepositoryFactory for consistent instantiation
+- [x] Create CommunityPostRepository interface and implementation
+- [x] Create CommunityPostRepositoryFactory for consistent instantiation
+- [x] Create AnnouncementViewModel with StateFlow
+- [x] Create MessageViewModel with StateFlow
+- [x] Create CommunityPostViewModel with StateFlow
+- [x] Create TransactionViewModel with StateFlow
+- [x] Create TransactionViewModelFactory for consistent instantiation
+- [x] Refactor AnnouncementsFragment to use ViewModel
+- [x] Refactor MessagesFragment to use ViewModel
+- [x] Refactor CommunityFragment to use ViewModel
+- [x] Refactor TransactionHistoryActivity to use ViewModel
+
+**Architectural Issues Fixed:**
+- ❌ **Before**: AnnouncementsFragment made direct API calls to ApiConfig.getApiService()
+- ❌ **Before**: MessagesFragment made direct API calls to ApiConfig.getApiService()
+- ❌ **Before**: CommunityFragment made direct API calls to ApiConfig.getApiService()
+- ❌ **Before**: TransactionHistoryActivity made direct repository calls without ViewModel
+- ❌ **Before**: Business logic mixed with UI logic in Fragments/Activities
+
+**Architectural Improvements:**
+- ✅ **After**: All Communication layer components follow MVVM pattern
+- ✅ **After**: API calls abstracted behind Repository interfaces
+- ✅ **After**: Business logic moved to ViewModels
+- ✅ **After**: Fragments handle only UI rendering and user interaction
+- ✅ **After**: Consistent Repository pattern with Factory classes
+- ✅ **After**: State management with StateFlow (reactive, type-safe)
+- ✅ **After**: Error handling and retry logic in Repositories
+- ✅ **After**: Clean separation of concerns across all layers
+
+**Anti-Patterns Eliminated:**
+- ✅ No more direct API calls in UI components (Fragments/Activities)
+- ✅ No more business logic in UI layer
+- ✅ No more manual error handling in Fragments
+- ✅ No more inconsistent architectural patterns
+- ✅ No more tight coupling to ApiConfig
+
+**Success Criteria:**
+- [x] All Communication layer components follow MVVM pattern
+- [x] No direct API calls in Fragments/Activities
+- [x] Business logic moved to ViewModels
+- [x] Repository pattern with Factory classes
+- [x] State management with StateFlow
+- [x] Error handling and retry logic in Repositories
+- [x] Clean separation of concerns
+- [x] Consistent architecture across codebase
+
+**Dependencies**: Integration Hardening Module (completed - provides CircuitBreaker and retry patterns)
+**Impact**: Complete MVVM implementation in Communication layer, architectural consistency achieved
+
+---
 
 ## Conclusion
 
