@@ -8,23 +8,25 @@
             <!-- Primary certificate pin -->
             <pin algorithm="sha256">PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=</pin>
             
-            <!-- SECURITY WARNING: Backup certificate pin is MISSING -->
-            <!-- Having only one certificate pin creates a single point of failure -->
-            <!-- If the primary certificate expires or rotates, the app will break -->
+            <!-- Backup certificate pin (placeholder - needs actual backup certificate) -->
+            <!-- SECURITY: Having at least 2 active pins prevents single point of failure -->
+            <!-- If the primary certificate rotates, the backup pin ensures app continues to work -->
             
-            <!-- To add a backup pin, follow these steps:
+            <!-- ACTION REQUIRED: Replace the placeholder below with actual backup certificate pin -->
+            <!-- Steps to extract backup certificate pin:
                  1. Obtain the backup certificate from your API provider
                  2. Extract the pin using: 
                     openssl s_client -servername api.apispreadsheets.com -connect api.apispreadsheets.com:443 2>/dev/null | openssl x509 -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | openssl enc -base64
-                 3. Add the backup pin below using the format:
-                    <pin algorithm="sha256">BACKUP_CERTIFICATE_PIN_HERE</pin>
-                 4. IMPORTANT: Add backup pin BEFORE removing old pin during certificate renewal
+                 3. Replace the placeholder pin below with actual backup pin
                  
                  Best practices:
                  - Always have at least 2 active pins (current + backup)
+                 - Add new backup pin BEFORE removing old pin during rotation
                  - Monitor expiration dates and rotate pins before expiry
                  - Test certificate rotation in staging before production
+                 - Set up monitoring for certificate expiration
             -->
+            <pin algorithm="sha256">BACKUP_CERTIFICATE_PIN_PLACEHOLDER_REPLACE_ME</pin>
         </pin-set>
     </domain-config>
     

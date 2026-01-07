@@ -4,13 +4,13 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityTransactionHistoryBinding
 import com.example.iurankomplek.payment.PaymentStatus
 import com.example.iurankomplek.transaction.Transaction
 import com.example.iurankomplek.transaction.TransactionDatabase
 import com.example.iurankomplek.transaction.TransactionRepository
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -28,6 +28,37 @@ class TransactionHistoryActivity : AppCompatActivity() {
         setupTransactionHistory()
         loadTransactionHistory()
     }
+
+    private fun setupTransactionHistory() {
+        transactionRepository = TransactionRepositoryFactory.getMockInstance(this)
+
+        transactionAdapter = TransactionHistoryAdapter(lifecycleScope)
+
+        binding.rvTransactionHistory.layoutManager = LinearLayoutManager(this)
+        binding.rvTransactionHistory.adapter = transactionAdapter
+    }
+
+    private fun loadTransactionHistory() {
+        binding.progressBar.visibility = View.VISIBLE
+        
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val transactions = transactionRepository.getTransactionsByStatus(PaymentStatus.COMPLETED).first()
+                runOnUiThread {
+                    binding.progressBar.visibility = View.GONE
+                    transactionAdapter.submitList(transactions)
+                }
+            } catch (e: Exception) {
+                runOnUiThread {
+                    binding.progressBar.visibility = View.GONE
+                    Toast.makeText(this@TransactionHistoryActivity, 
+                        "Failed to load transaction history: ${e.message}", 
+                        Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+}
 
     private fun setupTransactionHistory() {
         // Initialize repository using factory pattern

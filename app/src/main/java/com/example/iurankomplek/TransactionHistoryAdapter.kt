@@ -21,19 +21,21 @@ import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
 
-class TransactionHistoryAdapter : ListAdapter<Transaction, TransactionHistoryAdapter.TransactionViewHolder>(TransactionDiffCallback()) {
+class TransactionHistoryAdapter(
+    private val coroutineScope: CoroutineScope
+) : ListAdapter<Transaction, TransactionHistoryAdapter.TransactionViewHolder>(TransactionDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_transaction_history, parent, false)
-        return TransactionViewHolder(view)
+        return TransactionViewHolder(view, coroutineScope)
     }
 
     override fun onBindViewHolder(holder: TransactionViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
 
-    class TransactionViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class TransactionViewHolder(itemView: View, private val coroutineScope: CoroutineScope) : RecyclerView.ViewHolder(itemView) {
         private val tvAmount: TextView = itemView.findViewById(R.id.tv_amount)
         private val tvDescription: TextView = itemView.findViewById(R.id.tv_description)
         private val tvDate: TextView = itemView.findViewById(R.id.tv_date)
@@ -46,19 +48,16 @@ class TransactionHistoryAdapter : ListAdapter<Transaction, TransactionHistoryAda
             val formattedAmount = NumberFormat.getCurrencyInstance(Locale("in", "ID")).format(transaction.amount.toDouble())
             tvAmount.text = formattedAmount
             tvDescription.text = transaction.description
-            tvDate.text = transaction.createdAt.toString() // In a real app, format this properly
+            tvDate.text = transaction.createdAt.toString()
             tvStatus.text = transaction.status.name
             tvPaymentMethod.text = transaction.paymentMethod.name
 
-            // Show refund button only for completed transactions
             if (transaction.status == PaymentStatus.COMPLETED) {
                 btnRefund.visibility = View.VISIBLE
                 btnRefund.setOnClickListener {
-                    // Initialize repository using factory pattern
                     val transactionRepository = com.example.iurankomplek.transaction.TransactionRepositoryFactory.getMockInstance(context)
 
-                    // Process refund
-                    CoroutineScope(Dispatchers.IO).launch {
+                    coroutineScope.launch(Dispatchers.IO) {
                         val result = transactionRepository.refundPayment(transaction.id, "User requested refund")
                         if (result.isSuccess) {
                             runOnUiThread(context) {

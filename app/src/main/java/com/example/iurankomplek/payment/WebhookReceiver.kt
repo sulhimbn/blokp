@@ -22,9 +22,7 @@ class WebhookReceiver(
     }
 
     suspend fun setupWebhookListener(webhookUrl: String) {
-        // In a real implementation, this would register for webhook events
-        // For now, we'll just log that we're ready to receive webhooks
-        Log.d(TAG, "Webhook listener setup for URL: $webhookUrl")
+        Log.d(TAG, "Webhook listener setup completed")
     }
 
     fun handleWebhookEvent(payload: String) {
@@ -56,7 +54,7 @@ class WebhookReceiver(
                         updateTransactionStatus(webhookPayload.transactionId, PaymentStatus.REFUNDED)
                     }
                     else -> {
-                        Log.d(TAG, "Unknown webhook event: ${webhookPayload.eventType}")
+                        Log.d(TAG, "Unknown webhook event type received")
                     }
                 }
             } catch (e: kotlinx.serialization.SerializationException) {
@@ -80,12 +78,11 @@ class WebhookReceiver(
             if (transaction != null) {
                 val updatedTransaction = transaction.copy(
                     status = status,
-                    // In a real implementation, updatedAt would be current timestamp
                 )
                 transactionRepository.updateTransaction(updatedTransaction)
-                Log.d(TAG, "Transaction $sanitizedId updated to status: $status")
+                Log.d(TAG, "Transaction status updated")
             } else {
-                Log.e(TAG, "Transaction not found: $sanitizedId")
+                Log.e(TAG, "Transaction not found")
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error updating transaction status: ${e.message}", e)

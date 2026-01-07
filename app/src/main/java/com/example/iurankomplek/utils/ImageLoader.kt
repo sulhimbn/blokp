@@ -48,7 +48,7 @@ object ImageLoader {
                     isFirstResource: Boolean
                 ): Boolean {
                     e?.let {
-                        android.util.Log.e("ImageLoader", "Error loading image: $url", it)
+                        android.util.Log.e("ImageLoader", "Error loading image", it)
                     }
                     return false
                 }

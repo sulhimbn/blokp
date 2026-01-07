@@ -72,7 +72,7 @@ abstract class BaseActivity : AppCompatActivity() {
                     )
                 } else {
                     onError(errorMessage)
-                    t.printStackTrace()
+                    Log.e("BaseActivity", "Non-retryable error after $currentRetry retries: ${t.javaClass.simpleName}", t)
                 }
             }
         }
