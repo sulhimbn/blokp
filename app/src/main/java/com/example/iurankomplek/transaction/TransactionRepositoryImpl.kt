@@ -33,7 +33,10 @@ class TransactionRepositoryImpl(
                 }
             )
             val response = paymentGateway.processPayment(paymentRequest)
-            response.map { it.toApiPaymentResponse() }
+            when (response) {
+                is Result.Success -> Result.success(response.data.toApiPaymentResponse())
+                is Result.Failure -> response
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }

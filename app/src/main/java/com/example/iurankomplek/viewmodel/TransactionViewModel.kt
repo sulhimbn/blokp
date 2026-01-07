@@ -9,6 +9,7 @@ import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.payment.PaymentStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class TransactionViewModel(
