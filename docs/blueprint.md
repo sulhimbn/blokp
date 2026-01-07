@@ -361,9 +361,13 @@ app/
   - NetworkState wrapper for reactive UI states
   - User-friendly error messages for each error type
 - ✅ **Network Interceptors**: Modular request/response processing
-  - NetworkErrorInterceptor: Parses HTTP errors and converts to NetworkError
-  - RequestIdInterceptor: Adds unique request IDs for tracing
-  - RetryableRequestInterceptor: Marks safe-to-retry requests
+   - NetworkErrorInterceptor: Parses HTTP errors and converts to NetworkError
+   - RequestIdInterceptor: Adds unique request IDs for tracing
+   - RetryableRequestInterceptor: Marks safe-to-retry requests
+- ✅ **Rate Limiter Integration**: All API clients use shared RateLimiterInterceptor instance
+   - Single instance used across production and debug clients
+   - Monitoring and reset functions work correctly (critical bug fixed 2026-01-07)
+   - Prevents duplicate interceptor instances breaking observability
 - ✅ **Repository-Level CircuitBreaker Integration**: All repositories use shared CircuitBreaker
   - UserRepositoryImpl: CircuitBreaker-protected with retry logic
   - PemanfaatanRepositoryImpl: CircuitBreaker-protected with retry logic
