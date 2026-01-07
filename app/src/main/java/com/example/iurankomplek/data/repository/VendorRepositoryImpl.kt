@@ -9,7 +9,6 @@ import com.example.iurankomplek.network.model.NetworkError
 import com.example.iurankomplek.network.resilience.CircuitBreaker
 import com.example.iurankomplek.network.resilience.CircuitBreakerResult
 import retrofit2.HttpException
-import java.io.IOException
 
 class VendorRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiService

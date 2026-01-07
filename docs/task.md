@@ -695,6 +695,62 @@ None currently identified
 9. 🔄 Security scanning (Snyk, Dependabot)
 10. 🔄 Deployment automation
 
+---
+
+### ✅ 15. Code Sanitization Module
+**Status**: Completed
+**Completed Date**: 2026-01-07
+**Priority**: HIGH
+**Description**: Eliminate duplicate code, extract hardcoded values, improve maintainability
+
+**Completed Tasks**:
+- [x] Refactor UserRepositoryImpl to use withCircuitBreaker pattern (eliminate 40+ lines of duplicate retry logic)
+- [x] Refactor PemanfaatanRepositoryImpl to use withCircuitBreaker pattern (eliminate 40+ lines of duplicate retry logic)
+- [x] Extract hardcoded DOCKER_ENV environment variable check in ApiConfig.kt to Constants
+- [x] Extract hardcoded BASE_URL values (production and mock) in ApiConfig.kt to Constants
+- [x] Extract hardcoded connection pool configuration in ApiConfig.kt to Constants
+- [x] Create .env.example file documenting required environment variables
+
+**Code Improvements**:
+- **Duplicate Code Eliminated**: ~80 lines of duplicate retry/circuit breaker logic removed from UserRepositoryImpl and PemanfaatanRepositoryImpl
+- **Pattern Consistency**: All repositories now use identical withCircuitBreaker pattern (UserRepository, PemanfaatanRepository, VendorRepository)
+- **Maintainability**: Retry logic centralized in one place per repository instead of duplicated
+- **Zero Hardcoding**: All hardcoded values extracted to Constants.kt for centralized management
+  - API URLs: PRODUCTION_BASE_URL, MOCK_BASE_URL
+  - Environment variable: DOCKER_ENV_KEY
+  - Connection pool: MAX_IDLE_CONNECTIONS, KEEP_ALIVE_DURATION_MINUTES
+- **Environment Documentation**: .env.example file created for developers
+
+**Files Modified**:
+- app/src/main/java/com/example/iurankomplek/data/repository/UserRepositoryImpl.kt (REFACTORED - use withCircuitBreaker)
+- app/src/main/java/com/example/iurankomplek/data/repository/PemanfaatanRepositoryImpl.kt (REFACTORED - use withCircuitBreaker)
+- app/src/main/java/com/example/iurankomplek/network/ApiConfig.kt (REFACTORED - use Constants)
+- app/src/main/java/com/example/iurankomplek/utils/Constants.kt (ENHANCED - added Api constants)
+- .env.example (NEW - environment variable documentation)
+
+**Impact**:
+- Reduced code duplication by ~80 lines
+- Improved maintainability (retry logic in one place)
+- Better code consistency across all repositories
+- Easier to update retry logic (change in one place)
+- Zero hardcoded values (all in Constants.kt)
+- Better developer experience (.env.example documentation)
+
+**Anti-Patterns Eliminated**:
+- ✅ No more duplicate retry logic across repositories
+- ✅ No more hardcoded API URLs
+- ✅ No more hardcoded environment variable names
+- ✅ No more hardcoded connection pool parameters
+- ✅ Inconsistent patterns resolved (all repositories now use same pattern)
+
+**SOLID Principles Compliance**:
+- ✅ **D**on't Repeat Yourself: Retry logic centralized, no duplication
+- ✅ **S**ingle Responsibility: Constants centralized in Constants.kt
+- ✅ **O**pen/Closed: Easy to add new constants, no code modification needed
+
+**Dependencies**: None (independent module improving code quality)
+**Documentation**: Updated docs/task.md with Code Sanitization Module
+
 ## Next Steps
 
 1. **Priority 1**: Complete Dependency Management Module
