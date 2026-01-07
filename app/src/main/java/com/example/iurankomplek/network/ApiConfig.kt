@@ -62,7 +62,7 @@ object ApiConfig {
                 .newBuilder()
                 .connectionPool(connectionPool)
                 .addInterceptor(RequestIdInterceptor())
-                .addInterceptor(RateLimiterInterceptor(enableLogging = BuildConfig.DEBUG))
+                .addInterceptor(rateLimiter)
                 .addInterceptor(RetryableRequestInterceptor())
                 .addInterceptor(NetworkErrorInterceptor(enableLogging = BuildConfig.DEBUG))
                 .build()
@@ -73,7 +73,7 @@ object ApiConfig {
                 .readTimeout(Constants.Network.READ_TIMEOUT, java.util.concurrent.TimeUnit.SECONDS)
                 .connectionPool(connectionPool)
                 .addInterceptor(RequestIdInterceptor())
-                .addInterceptor(RateLimiterInterceptor(enableLogging = true))
+                .addInterceptor(rateLimiter)
                 .addInterceptor(RetryableRequestInterceptor())
                 .addInterceptor(NetworkErrorInterceptor(enableLogging = true))
             

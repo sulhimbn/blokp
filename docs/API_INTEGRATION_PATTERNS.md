@@ -201,11 +201,17 @@ Request → RequestIdInterceptor → RateLimiterInterceptor → RetryableRequest
 
 **Production**:
 ```kotlin
+val rateLimiter = RateLimiterInterceptor(
+    maxRequestsPerSecond = 10,
+    maxRequestsPerMinute = 60,
+    enableLogging = false
+)
+
 SecurityConfig.getSecureOkHttpClient()
     .newBuilder()
     .connectionPool(connectionPool)
     .addInterceptor(RequestIdInterceptor())
-    .addInterceptor(RateLimiterInterceptor(enableLogging = false))
+    .addInterceptor(rateLimiter)
     .addInterceptor(RetryableRequestInterceptor())
     .addInterceptor(NetworkErrorInterceptor(enableLogging = false))
     .build()
@@ -213,14 +219,26 @@ SecurityConfig.getSecureOkHttpClient()
 
 **Development**:
 ```kotlin
+val rateLimiter = RateLimiterInterceptor(
+    maxRequestsPerSecond = 10,
+    maxRequestsPerMinute = 60,
+    enableLogging = true
+)
+
 OkHttpClient.Builder()
     .connectionPool(connectionPool)
     .addInterceptor(RequestIdInterceptor())
-    .addInterceptor(RateLimiterInterceptor(enableLogging = true))
+    .addInterceptor(rateLimiter)
     .addInterceptor(RetryableRequestInterceptor())
     .addInterceptor(NetworkErrorInterceptor(enableLogging = true))
     .addInterceptor(HttpLoggingInterceptor())
     .build()
+```
+
+**Important**: Use the same `rateLimiter` instance for monitoring and reset functions:
+```kotlin
+val stats = ApiConfig.getRateLimiterStats()
+ApiConfig.resetRateLimiter()
 ```
 
 ---
