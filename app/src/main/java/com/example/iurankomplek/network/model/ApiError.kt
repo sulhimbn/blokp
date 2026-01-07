@@ -112,6 +112,7 @@ sealed class NetworkError(message: String, override val cause: Throwable? = null
         val field: String? = null,
         override val cause: Throwable? = null
     ) : NetworkError("") {
+        @Transient
         override val message: String
             get() = "Validation error${field?.let { " on $it" } ?: ""}: $userMessage"
     }
