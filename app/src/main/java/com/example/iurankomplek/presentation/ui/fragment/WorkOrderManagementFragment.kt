@@ -1,4 +1,4 @@
-package com.example.iurankomplek
+package com.example.iurankomplek.presentation.ui.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,16 +11,16 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
-import com.example.iurankomplek.databinding.FragmentVendorCommunicationBinding
+import com.example.iurankomplek.databinding.FragmentWorkOrderManagementBinding
 import com.example.iurankomplek.data.repository.VendorRepositoryFactory
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.VendorViewModel
 
-class VendorCommunicationFragment : Fragment() {
+class WorkOrderManagementFragment : Fragment() {
 
-    private var _binding: FragmentVendorCommunicationBinding? = null
+    private var _binding: FragmentWorkOrderManagementBinding? = null
     private val binding get() = _binding!!
-    private lateinit var vendorAdapter: VendorAdapter
+    private lateinit var workOrderAdapter: WorkOrderAdapter
     private lateinit var vendorViewModel: VendorViewModel
 
     override fun onCreateView(
@@ -28,7 +28,7 @@ class VendorCommunicationFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentVendorCommunicationBinding.inflate(inflater, container, false)
+        _binding = FragmentWorkOrderManagementBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -43,25 +43,25 @@ class VendorCommunicationFragment : Fragment() {
         )[VendorViewModel::class.java]
         
         setupViews()
-        observeVendors()
-        vendorViewModel.loadVendors()
+        observeWorkOrders()
+        vendorViewModel.loadWorkOrders()
     }
     
     private fun setupViews() {
-        vendorAdapter = VendorAdapter { vendor ->
-            Toast.makeText(requireContext(), getString(R.string.toast_communicate_with_vendor, vendor.name), Toast.LENGTH_SHORT).show()
+        workOrderAdapter = WorkOrderAdapter { workOrder ->
+            Toast.makeText(requireContext(), getString(R.string.toast_work_order_info, workOrder.title), Toast.LENGTH_SHORT).show()
         }
 
-        binding.vendorRecyclerView.apply {
+        binding.workOrderRecyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
-            adapter = vendorAdapter
+            adapter = workOrderAdapter
         }
     }
     
-    private fun observeVendors() {
+    private fun observeWorkOrders() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
-                vendorViewModel.vendorState.collect { state ->
+                vendorViewModel.workOrderState.collect { state ->
                     when (state) {
                         is UiState.Idle -> {
                         }
@@ -69,7 +69,7 @@ class VendorCommunicationFragment : Fragment() {
                             // Show loading indicator
                         }
                         is UiState.Success -> {
-                            vendorAdapter.submitList(state.data.data)
+                            workOrderAdapter.submitList(state.data.data)
                         }
                         is UiState.Error -> {
                             Toast.makeText(requireContext(), getString(R.string.toast_error, state.error), Toast.LENGTH_SHORT).show()
