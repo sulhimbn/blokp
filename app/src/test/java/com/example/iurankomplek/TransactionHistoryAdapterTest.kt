@@ -4,9 +4,13 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.iurankomplek.data.repository.TransactionRepository
 import com.example.iurankomplek.payment.PaymentMethod
 import com.example.iurankomplek.payment.PaymentStatus
+import com.example.iurankomplek.presentation.adapter.TransactionHistoryAdapter
 import com.example.iurankomplek.transaction.Transaction
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -27,12 +31,26 @@ class TransactionHistoryAdapterTest {
 
     private lateinit var adapter: TransactionHistoryAdapter
     private lateinit var testScope: CoroutineScope
+    private lateinit var mockRepository: TransactionRepository
 
     @Before
     fun setup() {
         val testDispatcher = UnconfinedTestDispatcher()
         testScope = CoroutineScope(testDispatcher)
-        adapter = TransactionHistoryAdapter(testScope)
+        mockRepository = mockk()
+        
+        every { mockRepository.refundPayment(any(), any()) } returns Result.success(
+            com.example.iurankomplek.payment.RefundResponse(
+                refundId = "refund_test_123",
+                transactionId = "txn_123",
+                amount = BigDecimal("100000"),
+                status = "SUCCESS",
+                createdAt = Date(),
+                reason = "Test refund"
+            )
+        )
+        
+        adapter = TransactionHistoryAdapter(testScope, mockRepository)
     }
 
     @Test

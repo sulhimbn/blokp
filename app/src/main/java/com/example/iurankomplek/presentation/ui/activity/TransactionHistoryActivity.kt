@@ -38,7 +38,7 @@ class TransactionHistoryActivity : BaseActivity() {
             TransactionViewModelFactory.getInstance(transactionRepository)
         )[TransactionViewModel::class.java]
 
-        transactionAdapter = TransactionHistoryAdapter(lifecycleScope)
+        transactionAdapter = TransactionHistoryAdapter(lifecycleScope, transactionRepository)
 
         binding.rvTransactionHistory.layoutManager = LinearLayoutManager(this)
         binding.rvTransactionHistory.adapter = transactionAdapter

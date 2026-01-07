@@ -10,13 +10,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.R
-import com.example.iurankomplek.payment.MockPaymentGateway
 import com.example.iurankomplek.payment.PaymentStatus
-import com.example.iurankomplek.payment.RefundResponse
 import com.example.iurankomplek.data.entity.Transaction
-import com.example.iurankomplek.data.database.TransactionDatabase
 import com.example.iurankomplek.data.repository.TransactionRepository
-import com.example.iurankomplek.data.repository.TransactionRepositoryFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,20 +20,21 @@ import java.text.NumberFormat
 import java.util.Locale
 
 class TransactionHistoryAdapter(
-    private val coroutineScope: CoroutineScope
+    private val coroutineScope: CoroutineScope,
+    private val transactionRepository: TransactionRepository
 ) : ListAdapter<Transaction, TransactionHistoryAdapter.TransactionViewHolder>(TransactionDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_transaction_history, parent, false)
-        return TransactionViewHolder(view, coroutineScope)
+        return TransactionViewHolder(view, coroutineScope, transactionRepository)
     }
 
     override fun onBindViewHolder(holder: TransactionViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
 
-    class TransactionViewHolder(itemView: View, private val coroutineScope: CoroutineScope) : RecyclerView.ViewHolder(itemView) {
+    class TransactionViewHolder(itemView: View, private val coroutineScope: CoroutineScope, private val transactionRepository: TransactionRepository) : RecyclerView.ViewHolder(itemView) {
         private val tvAmount: TextView = itemView.findViewById(R.id.tv_amount)
         private val tvDescription: TextView = itemView.findViewById(R.id.tv_description)
         private val tvDate: TextView = itemView.findViewById(R.id.tv_date)
@@ -57,8 +54,6 @@ class TransactionHistoryAdapter(
             if (transaction.status == PaymentStatus.COMPLETED) {
                 btnRefund.visibility = View.VISIBLE
                 btnRefund.setOnClickListener {
-                    val transactionRepository = TransactionRepositoryFactory.getMockInstance(context)
-
                      coroutineScope.launch(Dispatchers.IO) {
                          val result = transactionRepository.refundPayment(transaction.id, "User requested refund")
                          if (result.isSuccess) {
