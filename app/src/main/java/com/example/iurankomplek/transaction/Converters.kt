@@ -52,7 +52,7 @@ class Converters {
 
     @TypeConverter
     fun fromStringMap(value: Map<String, String>?): String {
-        return gson.toJson(value ?: emptyMap())
+        return gson.toJson(value ?: emptyMap<String, String>())
     }
 
     @TypeConverter
