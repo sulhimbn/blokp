@@ -10,25 +10,27 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.example.iurankomplek.databinding.FragmentVendorCommunicationBinding
 import com.example.iurankomplek.data.repository.VendorRepositoryFactory
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.VendorViewModel
 
 class VendorCommunicationFragment : Fragment() {
-    
-    private lateinit var vendorRecyclerView: RecyclerView
+
+    private var _binding: FragmentVendorCommunicationBinding? = null
+    private val binding get() = _binding!!
     private lateinit var vendorAdapter: VendorAdapter
     private lateinit var vendorViewModel: VendorViewModel
-    
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_vendor_communication, container, false)
+    ): View {
+        _binding = FragmentVendorCommunicationBinding.inflate(inflater, container, false)
+        return binding.root
     }
-    
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
@@ -45,14 +47,12 @@ class VendorCommunicationFragment : Fragment() {
     }
     
     private fun setupViews() {
-        vendorRecyclerView = view?.findViewById(R.id.vendorRecyclerView)!!
         vendorAdapter = VendorAdapter { vendor ->
-            // Handle vendor click - could initiate communication
-            Toast.makeText(context, "Communicate with: ${vendor.name}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.toast_communicate_with_vendor, vendor.name), Toast.LENGTH_SHORT).show()
         }
-        
-        vendorRecyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
+
+        binding.vendorRecyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
             adapter = vendorAdapter
         }
     }
@@ -69,10 +69,16 @@ class VendorCommunicationFragment : Fragment() {
                             vendorAdapter.submitList(state.data.data)
                         }
                         is UiState.Error -> {
-                            Toast.makeText(context, "Error: ${state.error}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(requireContext(), getString(R.string.toast_error, state.error), Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
             }
         }
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}

@@ -2,24 +2,24 @@ package com.example.iurankomplek
 
 import android.os.Bundle
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.example.iurankomplek.databinding.ActivityVendorManagementBinding
 import com.example.iurankomplek.data.repository.VendorRepositoryFactory
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.VendorViewModel
 
-class VendorManagementActivity : AppCompatActivity() {
-    
-    private lateinit var vendorRecyclerView: RecyclerView
+class VendorManagementActivity : BaseActivity() {
+
+    private lateinit var binding: ActivityVendorManagementBinding
     private lateinit var vendorAdapter: VendorAdapter
     private lateinit var vendorViewModel: VendorViewModel
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_vendor_management)
+        binding = ActivityVendorManagementBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         
         // Initialize ViewModel
         val repository = VendorRepositoryFactory.getInstance()
@@ -31,13 +31,11 @@ class VendorManagementActivity : AppCompatActivity() {
     }
     
     private fun setupViews() {
-        vendorRecyclerView = findViewById(R.id.vendorRecyclerView)
         vendorAdapter = VendorAdapter { vendor ->
-            // Handle vendor click - could navigate to vendor details
-            Toast.makeText(this, "Vendor: ${vendor.name}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.toast_vendor_info, vendor.name), Toast.LENGTH_SHORT).show()
         }
-        
-        vendorRecyclerView.apply {
+
+        binding.vendorRecyclerView.apply {
             layoutManager = LinearLayoutManager(this@VendorManagementActivity)
             adapter = vendorAdapter
         }
@@ -54,7 +52,7 @@ class VendorManagementActivity : AppCompatActivity() {
                         vendorAdapter.submitList(state.data.data)
                     }
                     is UiState.Error -> {
-                        Toast.makeText(this@VendorManagementActivity, "Error: ${state.error}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@VendorManagementActivity, getString(R.string.toast_error, state.error), Toast.LENGTH_SHORT).show()
                     }
                 }
             }

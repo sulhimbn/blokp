@@ -17,6 +17,10 @@ object Constants {
         // Connection Pool Constants
         const val MAX_IDLE_CONNECTIONS = 5
         const val KEEP_ALIVE_DURATION_MINUTES = 5L
+        
+        // Rate Limiting Constants
+        const val MAX_REQUESTS_PER_SECOND = 10
+        const val MAX_REQUESTS_PER_MINUTE = 60
     }
     
     // API Constants

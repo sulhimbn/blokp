@@ -4,6 +4,13 @@
 
 IuranKomplek API menyediakan endpoints untuk mengambil data pengguna dan informasi pemanfaatan iuran komplek. API menggunakan layanan pihak ketiga (API Spreadsheets) untuk penyimpanan data.
 
+## Integration Patterns
+
+For detailed information about resilience patterns, error handling, and API integration architecture, see:
+- **[API Integration Patterns](API_INTEGRATION_PATTERNS.md)** - Circuit breaker, rate limiting, retry logic, error handling
+- **[Caching Strategy](CACHING_STRATEGY.md)** - Offline support and data synchronization
+- **[Security Architecture](SECURITY_AUDIT_REPORT.md)** - Certificate pinning, input validation, logging
+
 ## Payment Processing System
 
 ### Overview
