@@ -15,7 +15,7 @@ object CacheManager {
     @Volatile
     private var database: AppDatabase? = null
     
-    private const val CACHE_FRESHNESS_THRESHOLD_MS = 5 * 60 * 1000L // 5 minutes
+    private var CACHE_FRESHNESS_THRESHOLD_MS = 5 * 60 * 1000L // 5 minutes
     
     fun initialize(context: Context) {
         if (database == null) {
@@ -42,10 +42,8 @@ object CacheManager {
     fun getFinancialRecordDao(): FinancialRecordDao = getDatabase().financialRecordDao()
     
     suspend fun clearAllCaches() {
-        getDatabase().runInTransaction {
-            getDatabase().userDao().deleteAll()
-            getDatabase().financialRecordDao().deleteAll()
-        }
+        getDatabase().userDao().deleteAll()
+        getDatabase().financialRecordDao().deleteAll()
     }
     
     suspend fun isCacheFresh(lastUpdatedTimestamp: Long): Boolean {

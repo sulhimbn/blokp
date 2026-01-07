@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.data.repository.VendorRepositoryFactory
@@ -56,18 +58,21 @@ class WorkOrderManagementFragment : Fragment() {
     }
     
     private fun observeWorkOrders() {
-        vendorViewModel.workOrderState.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is UiState.Loading -> {
-                    // Show loading indicator
-                }
-                is UiState.Success -> {
-                    workOrderAdapter.submitList(state.data.data)
-                }
-                is UiState.Error -> {
-                    Toast.makeText(context, "Error: ${state.error}", Toast.LENGTH_SHORT).show()
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
+                vendorViewModel.workOrderState.collect { state ->
+                    when (state) {
+                        is UiState.Loading -> {
+                            // Show loading indicator
+                        }
+                        is UiState.Success -> {
+                            workOrderAdapter.submitList(state.data.data)
+                        }
+                        is UiState.Error -> {
+                            Toast.makeText(context, "Error: ${state.error}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
             }
         }
     }
-}

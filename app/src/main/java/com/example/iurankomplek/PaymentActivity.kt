@@ -91,11 +91,13 @@ class PaymentActivity : AppCompatActivity() {
             paymentViewModel.selectPaymentMethod(selectedMethod)
             
             // Set up observer for UI state changes
-            paymentViewModel.uiState.observe(this) { uiState ->
-                if (!uiState.isProcessing && uiState.errorMessage != null && uiState.errorMessage.isNotEmpty()) {
-                    Toast.makeText(this, "Payment failed: ${uiState.errorMessage}", Toast.LENGTH_LONG).show()
-                } else if (!uiState.isProcessing && uiState.errorMessage == null && uiState.amount > BigDecimal.ZERO) {
-                    Toast.makeText(this, "Payment processed successfully!", Toast.LENGTH_LONG).show()
+            lifecycleScope.launch {
+                paymentViewModel.uiState.collect { uiState ->
+                    if (!uiState.isProcessing && uiState.errorMessage != null && uiState.errorMessage.isNotEmpty()) {
+                        Toast.makeText(this@PaymentActivity, "Payment failed: ${uiState.errorMessage}", Toast.LENGTH_LONG).show()
+                    } else if (!uiState.isProcessing && uiState.errorMessage == null && uiState.amount > BigDecimal.ZERO) {
+                        Toast.makeText(this@PaymentActivity, "Payment processed successfully!", Toast.LENGTH_LONG).show()
+                    }
                 }
             }
             

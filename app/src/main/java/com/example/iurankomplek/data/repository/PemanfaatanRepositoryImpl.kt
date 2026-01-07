@@ -17,7 +17,7 @@ class PemanfaatanRepositoryImpl(
     private val circuitBreaker: CircuitBreaker = ApiConfig.circuitBreaker
     private val maxRetries = 3
     
-    override suspend fun getPemanfaatan(forceRefresh: Boolean = false): Result<PemanfaatanResponse> {
+    override suspend fun getPemanfaatan(forceRefresh: Boolean): Result<PemanfaatanResponse> {
         return cacheFirstStrategy(
             getFromCache = {
                 val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords()
