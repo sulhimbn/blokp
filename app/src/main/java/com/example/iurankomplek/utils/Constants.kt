@@ -17,8 +17,8 @@ object Constants {
     
     // Security Constants
     object Security {
-        // Add backup certificate pin when available: ;sha256/ACTUAL_BACKUP_CERTIFICATE_PIN_HERE
         const val CERTIFICATE_PINNER = "sha256/PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0="
+        // Add backup certificate pin when available: ;sha256/ACTUAL_BACKUP_CERTIFICATE_PIN_HERE
     }
     
     // Financial Constants
@@ -43,5 +43,18 @@ object Constants {
         const val FINANCIAL_VIEW_MODEL = "FinancialViewModel"
         const val MAIN_ACTIVITY = "MainActivity"
         const val LAPORAN_ACTIVITY = "LaporanActivity"
+    }
+
+    // Toast Duration Constants
+    object Toast {
+        const val DURATION_SHORT = android.widget.Toast.LENGTH_SHORT
+        const val DURATION_LONG = android.widget.Toast.LENGTH_LONG
+    }
+
+    // Payment Constants
+    object Payment {
+        const val DEFAULT_REFUND_AMOUNT_MIN = 1000
+        const val REFUND_AMOUNT_RANGE_MIN = 1000
+        const val REFUND_AMOUNT_RANGE_MAX = 9999
     }
 }
