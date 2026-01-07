@@ -7,9 +7,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityLaporanBinding
-import com.example.iurankomplek.data.repository.PemanfaatanRepositoryImpl
+import com.example.iurankomplek.data.repository.PemanfaatanRepositoryFactory
 import com.example.iurankomplek.model.ValidatedDataItem
-import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.utils.DataValidator
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.transaction.TransactionDatabase
@@ -38,11 +37,11 @@ class LaporanActivity : BaseActivity() {
         initializeTransactionRepository()
 
         // Initialize ViewModel with repository
-        val pemanfaatanRepository = PemanfaatanRepositoryImpl(ApiConfig.getApiService())
+        val pemanfaatanRepository = PemanfaatanRepositoryFactory.getInstance()
         viewModel = ViewModelProvider(this, FinancialViewModel.Factory(pemanfaatanRepository))[FinancialViewModel::class.java]
 
-        adapter = PemanfaatanAdapter(mutableListOf())
-        summaryAdapter = LaporanSummaryAdapter()
+        adapter = PemanfaatanAdapter(mutableListOf(), lifecycleScope)
+        summaryAdapter = LaporanSummaryAdapter(lifecycleScope)
 
         binding.rvLaporan.layoutManager = LinearLayoutManager(this)
         binding.rvLaporan.adapter = adapter

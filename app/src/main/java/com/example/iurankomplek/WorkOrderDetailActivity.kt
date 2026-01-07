@@ -5,8 +5,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.example.iurankomplek.data.repository.VendorRepositoryImpl
-import com.example.iurankomplek.network.ApiConfig
+import com.example.iurankomplek.data.repository.VendorRepositoryFactory
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.VendorViewModel
 
@@ -23,7 +22,7 @@ class WorkOrderDetailActivity : AppCompatActivity() {
         
         if (workOrderId != null) {
             // Initialize ViewModel
-            val repository = VendorRepositoryImpl(ApiConfig.getApiService())
+            val repository = VendorRepositoryFactory.getInstance()
             vendorViewModel = ViewModelProvider(this, VendorViewModel.Factory(repository))[VendorViewModel::class.java]
             
             observeWorkOrderDetails()

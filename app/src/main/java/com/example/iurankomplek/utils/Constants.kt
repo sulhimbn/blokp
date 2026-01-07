@@ -22,7 +22,7 @@ object Constants {
     // API Constants
     object Api {
         const val PRODUCTION_BASE_URL = "https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/"
-        const val MOCK_BASE_URL = "http://api-mock:5000/data/QjX6hB1ST2IDKaxB/"
+        const val MOCK_BASE_URL = "https://api-mock:5000/data/QjX6hB1ST2IDKaxB/"
         const val DOCKER_ENV_KEY = "DOCKER_ENV"
     }
     
@@ -67,5 +67,6 @@ object Constants {
         const val DEFAULT_REFUND_AMOUNT_MIN = 1000
         const val REFUND_AMOUNT_RANGE_MIN = 1000
         const val REFUND_AMOUNT_RANGE_MAX = 9999
+        const val MAX_PAYMENT_AMOUNT = 999999999.99
     }
 }
