@@ -51,40 +51,26 @@ class MainActivity : BaseActivity() {
                          binding.progressBar.visibility = View.VISIBLE
                          binding.swipeRefreshLayout.isRefreshing = true
                      }
-                     is UiState.Success -> {
-                         binding.progressBar.visibility = View.GONE
-                         binding.swipeRefreshLayout.isRefreshing = false
-                         state.data.data?.let { users ->
-                            if (users.isNotEmpty()) {
-                                // Validate the data array before passing to adapter to prevent potential security issues
-                                val validatedData = users.map { user ->
-                                    // Use ValidatedDataItem for enhanced validation
-                                    com.example.iurankomplek.model.ValidatedDataItem.fromDataItem(user)
-                                }
-                                // Convert back to regular DataItem for the adapter
-                                val validatedUsers = validatedData.map { item ->
-                                    com.example.iurankomplek.model.DataItem(
-                                        first_name = item.first_name,
-                                        last_name = item.last_name,
-                                        email = item.email,
-                                        alamat = item.alamat,
-                                        iuran_perwarga = item.iuran_perwarga,
-                                        total_iuran_rekap = item.total_iuran_rekap,
-                                        jumlah_iuran_bulanan = item.jumlah_iuran_bulanan,
-                                        total_iuran_individu = item.total_iuran_individu,
-                                        pengeluaran_iuran_warga = item.pengeluaran_iuran_warga,
-                                        pemanfaatan_iuran = item.pemanfaatan_iuran,
-                                        avatar = item.avatar
-                                    )
-                                }
-                                adapter.setUsers(validatedUsers)
-                            } else {
-                                Toast.makeText(this@MainActivity, getString(R.string.no_users_available), Toast.LENGTH_LONG).show()
-                            }
-                        } ?: run {
-                            Toast.makeText(this@MainActivity, getString(R.string.invalid_response_format), Toast.LENGTH_LONG).show()
-                        }
-                    }
+                      is UiState.Success -> {
+                          binding.progressBar.visibility = View.GONE
+                          binding.swipeRefreshLayout.isRefreshing = false
+                          state.data.data?.let { users ->
+                             if (users.isNotEmpty()) {
+                                 val validatedUsers = users.mapNotNull { user ->
+                                     // Validate required fields to prevent displaying invalid data
+                                     if (user.email.isNotBlank() && 
+                                         (user.first_name.isNotBlank() || user.last_name.isNotBlank())) {
+                                         user
+                                     } else null
+                                 }
+                                 adapter.setUsers(validatedUsers)
+                             } else {
+                                 Toast.makeText(this@MainActivity, getString(R.string.no_users_available), Toast.LENGTH_LONG).show()
+                             }
+                         } ?: run {
+                             Toast.makeText(this@MainActivity, getString(R.string.invalid_response_format), Toast.LENGTH_LONG).show()
+                         }
+                     }
                      is UiState.Error -> {
                          binding.progressBar.visibility = View.GONE
                          binding.swipeRefreshLayout.isRefreshing = false

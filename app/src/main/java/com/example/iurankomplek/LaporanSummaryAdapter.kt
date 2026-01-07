@@ -5,17 +5,31 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 data class LaporanSummaryItem(
     val title: String,
     val value: String
 )
 
-class LaporanSummaryAdapter(private var items: MutableList<LaporanSummaryItem>) :
-    RecyclerView.Adapter<LaporanSummaryAdapter.ListViewHolder>() {
+class LaporanSummaryAdapter : ListAdapter<LaporanSummaryItem, LaporanSummaryAdapter.ListViewHolder>(DiffCallback) {
 
-    constructor() : this(mutableListOf())
+    companion object {
+        private val DiffCallback = object : DiffUtil.ItemCallback<LaporanSummaryItem>() {
+            override fun areItemsTheSame(oldItem: LaporanSummaryItem, newItem: LaporanSummaryItem): Boolean {
+                return oldItem.title == newItem.title
+            }
+
+            override fun areContentsTheSame(oldItem: LaporanSummaryItem, newItem: LaporanSummaryItem): Boolean {
+                return oldItem == newItem
+            }
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
         val view: View =
@@ -23,43 +37,22 @@ class LaporanSummaryAdapter(private var items: MutableList<LaporanSummaryItem>) 
         return ListViewHolder(view)
     }
 
-    fun setItems(newItems: List<LaporanSummaryItem>) {
-        val diffCallback = LaporanSummaryDiffCallback(this.items, newItems)
-        val diffResult = DiffUtil.calculateDiff(diffCallback)
-
-        this.items.clear()
-        this.items.addAll(newItems)
-        diffResult.dispatchUpdatesTo(this)
-    }
-
-    override fun getItemCount(): Int = items.size
+    override fun getItemCount(): Int = currentList.size
 
     override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
-        val item = items[position]
+        val item = getItem(position)
         holder.tvTitle.text = item.title
         holder.tvValue.text = item.value
+    }
+
+    fun setItems(newItems: List<LaporanSummaryItem>) {
+        GlobalScope.launch(Dispatchers.Default) {
+            submitList(newItems)
+        }
     }
 
     class ListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var tvTitle: TextView = itemView.findViewById(R.id.itemLaporanTitle)
         var tvValue: TextView = itemView.findViewById(R.id.itemLaporanValue)
-    }
-
-    class LaporanSummaryDiffCallback(
-        private val oldList: List<LaporanSummaryItem>,
-        private val newList: List<LaporanSummaryItem>
-    ) : DiffUtil.Callback() {
-
-        override fun getOldListSize(): Int = oldList.size
-
-        override fun getNewListSize(): Int = newList.size
-
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition].title == newList[newItemPosition].title
-        }
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition] == newList[newItemPosition]
-        }
     }
 }
