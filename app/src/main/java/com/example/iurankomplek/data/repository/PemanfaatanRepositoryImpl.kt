@@ -5,85 +5,74 @@ import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.network.model.NetworkError
 import com.example.iurankomplek.network.resilience.CircuitBreaker
 import com.example.iurankomplek.network.resilience.CircuitBreakerResult
-import retrofit2.Response
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
-import javax.net.ssl.SSLException
-import kotlin.math.min
-import kotlin.math.pow
+import retrofit2.HttpException
 
 class PemanfaatanRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiService
 ) : PemanfaatanRepository {
-    private val maxRetries = 3
     private val circuitBreaker: CircuitBreaker = ApiConfig.circuitBreaker
+    private val maxRetries = 3
     
-    override suspend fun getPemanfaatan(): Result<PemanfaatanResponse> {
-        val circuitBreakerResult = circuitBreaker.execute {
-            executeWithRetry()
-        }
-        
-        return when (circuitBreakerResult) {
-            is CircuitBreakerResult.Success -> {
-                Result.success(circuitBreakerResult.value)
-            }
-            is CircuitBreakerResult.Failure -> {
-                Result.failure(circuitBreakerResult.exception)
-            }
-            is CircuitBreakerResult.CircuitOpen -> {
-                Result.failure(NetworkError.CircuitBreakerError())
-            }
-        }
+    override suspend fun getPemanfaatan(): Result<PemanfaatanResponse> = withCircuitBreaker {
+        apiService.getPemanfaatan()
     }
     
-    private suspend fun executeWithRetry(): PemanfaatanResponse {
-        var currentRetry = 0
-        var lastException: Exception? = null
-        
-        while (currentRetry <= maxRetries) {
-            try {
-                val response: Response<PemanfaatanResponse> = apiService.getPemanfaatan()
-                if (response.isSuccessful) {
-                    val responseBody = response.body()
-                    if (responseBody != null) {
-                        return responseBody
+    private suspend fun <T : Any> withCircuitBreaker(
+        apiCall: suspend () -> retrofit2.Response<T>
+    ): Result<T> {
+        val circuitBreakerResult = circuitBreaker.execute {
+            var currentRetry = 0
+            var lastException: Exception? = null
+            
+            while (currentRetry <= maxRetries) {
+                try {
+                    val response = apiCall()
+                    if (response.isSuccessful) {
+                        response.body()?.let { return@execute it }
+                            ?: throw Exception("Response body is null")
                     } else {
-                        throw Exception("Response body is null")
+                        val isRetryable = isRetryableError(response.code())
+                        if (currentRetry < maxRetries && isRetryable) {
+                            val delayMillis = calculateDelay(currentRetry + 1)
+                            kotlinx.coroutines.delay(delayMillis)
+                            currentRetry++
+                        } else {
+                            throw HttpException(response)
+                        }
                     }
-                } else {
-                    val isRetryable = isRetryableError(response.code())
-                    if (currentRetry < maxRetries && isRetryable) {
+                } catch (e: NetworkError) {
+                    lastException = e
+                    if (shouldRetryOnNetworkError(e, currentRetry, maxRetries)) {
                         val delayMillis = calculateDelay(currentRetry + 1)
                         kotlinx.coroutines.delay(delayMillis)
                         currentRetry++
-                        continue
                     } else {
-                        throw Exception("API request failed with code: ${response.code()}")
+                        break
+                    }
+                } catch (e: Exception) {
+                    lastException = e
+                    if (shouldRetryOnException(e, currentRetry, maxRetries)) {
+                        val delayMillis = calculateDelay(currentRetry + 1)
+                        kotlinx.coroutines.delay(delayMillis)
+                        currentRetry++
+                    } else {
+                        break
                     }
                 }
-            } catch (e: NetworkError) {
-                lastException = e
-                if (shouldRetryOnNetworkError(e, currentRetry, maxRetries)) {
-                    val delayMillis = calculateDelay(currentRetry + 1)
-                    kotlinx.coroutines.delay(delayMillis)
-                    currentRetry++
-                } else {
-                    break
-                }
-            } catch (e: Exception) {
-                lastException = e
-                val isRetryable = isRetryableException(e)
-                if (currentRetry < maxRetries && isRetryable) {
-                    val delayMillis = calculateDelay(currentRetry + 1)
-                    kotlinx.coroutines.delay(delayMillis)
-                    currentRetry++
-                } else {
-                    break
-                }
             }
+            
+            throw lastException ?: Exception("Unknown error occurred")
         }
         
-        throw lastException ?: Exception("Unknown error occurred")
+        return when (circuitBreakerResult) {
+            is CircuitBreakerResult.Success -> Result.success(circuitBreakerResult.value)
+            is CircuitBreakerResult.Failure -> Result.failure(circuitBreakerResult.exception)
+            is CircuitBreakerResult.CircuitOpen -> Result.failure(NetworkError.CircuitBreakerError())
+        }
+    }
+    
+    private fun isRetryableError(httpCode: Int): Boolean {
+        return httpCode in 408..429 || httpCode / 100 == 5
     }
     
     private fun shouldRetryOnNetworkError(error: NetworkError, currentRetry: Int, maxRetries: Int): Boolean {
@@ -99,15 +88,13 @@ class PemanfaatanRepositoryImpl(
         }
     }
     
-    private fun isRetryableError(httpCode: Int): Boolean {
-        return httpCode in 408..429 || httpCode / 100 == 5
-    }
-    
-    private fun isRetryableException(t: Throwable): Boolean {
-        return when (t) {
-            is SocketTimeoutException,
-            is UnknownHostException,
-            is SSLException -> true
+    private fun shouldRetryOnException(e: Exception, currentRetry: Int, maxRetries: Int): Boolean {
+        if (currentRetry >= maxRetries) return false
+        
+        return when (e) {
+            is java.net.SocketTimeoutException,
+            is java.net.UnknownHostException,
+            is javax.net.ssl.SSLException -> true
             else -> false
         }
     }

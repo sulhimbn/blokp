@@ -15,17 +15,17 @@ import java.util.concurrent.TimeUnit
 
 object ApiConfig {
     // Use mock API in debug mode or when running in Docker
-    private const val USE_MOCK_API = BuildConfig.DEBUG || System.getenv("DOCKER_ENV") != null
+    private const val USE_MOCK_API = BuildConfig.DEBUG || System.getenv(Constants.Api.DOCKER_ENV_KEY) != null
     private val BASE_URL = if (USE_MOCK_API) {
-        "http://api-mock:5000/data/QjX6hB1ST2IDKaxB/"
+        Constants.Api.MOCK_BASE_URL
     } else {
-        "https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/"
+        Constants.Api.PRODUCTION_BASE_URL
     }
     
     // Connection pool for efficient HTTP connection reuse
     private val connectionPool = ConnectionPool(
-        5, // Max idle connections
-        5, // Keep alive duration in minutes
+        Constants.Network.MAX_IDLE_CONNECTIONS,
+        Constants.Network.KEEP_ALIVE_DURATION_MINUTES,
         TimeUnit.MINUTES
     )
     

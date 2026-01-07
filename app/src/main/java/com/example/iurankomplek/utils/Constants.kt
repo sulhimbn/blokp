@@ -13,6 +13,17 @@ object Constants {
         const val MAX_RETRIES = 3
         const val INITIAL_RETRY_DELAY_MS = 1000L
         const val MAX_RETRY_DELAY_MS = 30000L
+        
+        // Connection Pool Constants
+        const val MAX_IDLE_CONNECTIONS = 5
+        const val KEEP_ALIVE_DURATION_MINUTES = 5L
+    }
+    
+    // API Constants
+    object Api {
+        const val PRODUCTION_BASE_URL = "https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/"
+        const val MOCK_BASE_URL = "http://api-mock:5000/data/QjX6hB1ST2IDKaxB/"
+        const val DOCKER_ENV_KEY = "DOCKER_ENV"
     }
     
     // Security Constants
