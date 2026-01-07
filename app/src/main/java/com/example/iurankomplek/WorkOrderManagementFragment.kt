@@ -10,25 +10,27 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.example.iurankomplek.databinding.FragmentWorkOrderManagementBinding
 import com.example.iurankomplek.data.repository.VendorRepositoryFactory
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.VendorViewModel
 
 class WorkOrderManagementFragment : Fragment() {
-    
-    private lateinit var workOrderRecyclerView: RecyclerView
+
+    private var _binding: FragmentWorkOrderManagementBinding? = null
+    private val binding get() = _binding!!
     private lateinit var workOrderAdapter: WorkOrderAdapter
     private lateinit var vendorViewModel: VendorViewModel
-    
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_work_order_management, container, false)
+    ): View {
+        _binding = FragmentWorkOrderManagementBinding.inflate(inflater, container, false)
+        return binding.root
     }
-    
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
@@ -45,14 +47,12 @@ class WorkOrderManagementFragment : Fragment() {
     }
     
     private fun setupViews() {
-        workOrderRecyclerView = view?.findViewById(R.id.workOrderRecyclerView)!!
         workOrderAdapter = WorkOrderAdapter { workOrder ->
-            // Handle work order click - could navigate to work order details
-            Toast.makeText(context, "Work Order: ${workOrder.title}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.toast_work_order_info, workOrder.title), Toast.LENGTH_SHORT).show()
         }
-        
-        workOrderRecyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
+
+        binding.workOrderRecyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
             adapter = workOrderAdapter
         }
     }
@@ -69,10 +69,16 @@ class WorkOrderManagementFragment : Fragment() {
                             workOrderAdapter.submitList(state.data.data)
                         }
                         is UiState.Error -> {
-                            Toast.makeText(context, "Error: ${state.error}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(requireContext(), getString(R.string.toast_error, state.error), Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
             }
         }
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}

@@ -17,7 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class TransactionHistoryActivity : AppCompatActivity() {
+class TransactionHistoryActivity : BaseActivity() {
     private lateinit var binding: ActivityTransactionHistoryBinding
     private lateinit var transactionAdapter: TransactionHistoryAdapter
     private lateinit var transactionRepository: TransactionRepository

@@ -14,7 +14,7 @@ import com.example.iurankomplek.transaction.TransactionRepositoryFactory
 import com.example.iurankomplek.utils.Constants
 import java.math.BigDecimal
 
-class PaymentActivity : AppCompatActivity() {
+class PaymentActivity : BaseActivity() {
     private lateinit var binding: ActivityPaymentBinding
     private lateinit var paymentViewModel: PaymentViewModel
 

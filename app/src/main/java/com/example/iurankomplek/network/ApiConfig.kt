@@ -4,6 +4,7 @@ import com.example.iurankomplek.BuildConfig
 import com.example.iurankomplek.network.interceptor.NetworkErrorInterceptor
 import com.example.iurankomplek.network.interceptor.RequestIdInterceptor
 import com.example.iurankomplek.network.interceptor.RetryableRequestInterceptor
+import com.example.iurankomplek.network.interceptor.RateLimiterInterceptor
 import com.example.iurankomplek.network.resilience.CircuitBreaker
 import com.example.iurankomplek.network.resilience.CircuitBreakerState
 import com.example.iurankomplek.utils.Constants
@@ -41,6 +42,13 @@ object ApiConfig {
         halfOpenMaxCalls = 3
     )
     
+    // Rate limiter for preventing API overload
+    val rateLimiter: RateLimiterInterceptor = RateLimiterInterceptor(
+        maxRequestsPerSecond = Constants.Network.MAX_REQUESTS_PER_SECOND,
+        maxRequestsPerMinute = Constants.Network.MAX_REQUESTS_PER_MINUTE,
+        enableLogging = BuildConfig.DEBUG
+    )
+    
     fun getApiService(): ApiService {
         return apiServiceInstance ?: synchronized(this) {
             apiServiceInstance ?: createApiService().also { apiServiceInstance = it }
@@ -54,6 +62,7 @@ object ApiConfig {
                 .newBuilder()
                 .connectionPool(connectionPool)
                 .addInterceptor(RequestIdInterceptor())
+                .addInterceptor(RateLimiterInterceptor(enableLogging = BuildConfig.DEBUG))
                 .addInterceptor(RetryableRequestInterceptor())
                 .addInterceptor(NetworkErrorInterceptor(enableLogging = BuildConfig.DEBUG))
                 .build()
@@ -64,6 +73,7 @@ object ApiConfig {
                 .readTimeout(Constants.Network.READ_TIMEOUT, java.util.concurrent.TimeUnit.SECONDS)
                 .connectionPool(connectionPool)
                 .addInterceptor(RequestIdInterceptor())
+                .addInterceptor(RateLimiterInterceptor(enableLogging = true))
                 .addInterceptor(RetryableRequestInterceptor())
                 .addInterceptor(NetworkErrorInterceptor(enableLogging = true))
             
@@ -92,5 +102,13 @@ object ApiConfig {
     
     fun getCircuitBreakerState(): CircuitBreakerState {
         return circuitBreaker.getState()
+    }
+    
+    fun getRateLimiterStats(): Map<String, RateLimiterInterceptor.EndpointStats> {
+        return rateLimiter.getAllStats()
+    }
+    
+    fun resetRateLimiter() {
+        rateLimiter.reset()
     }
 }

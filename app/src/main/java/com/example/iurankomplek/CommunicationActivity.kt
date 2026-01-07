@@ -4,35 +4,31 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.example.iurankomplek.databinding.ActivityCommunicationBinding
 import com.example.iurankomplek.utils.NetworkUtils
-import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import androidx.viewpager2.widget.ViewPager2
 
-class CommunicationActivity : AppCompatActivity() {
+class CommunicationActivity : BaseActivity() {
 
-    private lateinit var tabLayout: TabLayout
-    private lateinit var viewPager: ViewPager2
+    private lateinit var binding: ActivityCommunicationBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_communication)
-
-        tabLayout = findViewById(R.id.tabLayout)
-        viewPager = findViewById(R.id.viewPager)
+        binding = ActivityCommunicationBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val adapter = CommunicationPagerAdapter(this)
-        viewPager.adapter = adapter
+        binding.viewPager.adapter = adapter
 
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             when (position) {
-                0 -> tab.text = "Announcements"
-                1 -> tab.text = "Messages"
-                2 -> tab.text = "Community"
+                0 -> tab.text = getString(R.string.tab_announcements)
+                1 -> tab.text = getString(R.string.tab_messages)
+                2 -> tab.text = getString(R.string.tab_community)
             }
         }.attach()
     }
