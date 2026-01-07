@@ -14,6 +14,7 @@ import java.net.UnknownHostException
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import javax.net.ssl.SSLException
+import android.util.Log
 
 class NetworkErrorInterceptor(
     private val enableLogging: Boolean = false,
@@ -143,14 +144,14 @@ class NetworkErrorInterceptor(
     
     private fun logError(requestTag: String, error: NetworkError, httpCode: Int?) {
         val message = buildString {
-            append("[$tag] Request: $requestTag\n")
+            append("Request: $requestTag\n")
             append("Error: ${error.javaClass.simpleName}\n")
             append("Code: ${error.code}\n")
             append("User Message: ${error.userMessage}\n")
             httpCode?.let { append("HTTP Code: $it\n") }
             append("Details: ${error.message}")
         }
-        println(message)
+        Log.e(tag, message)
     }
 }
 
