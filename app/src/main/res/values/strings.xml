@@ -1,5 +1,16 @@
 <resources>
     <string name="app_name">BlokP</string>
+    
+    <!-- Accessibility Content Descriptions -->
+    <string name="avatar_content_description">User avatar image</string>
+    <string name="menu_item_content_description">Menu item: %s</string>
+    <string name="profile_menu_content_description">Navigate to user profiles</string>
+    <string name="report_menu_content_description">Navigate to financial reports</string>
+    <string name="communication_menu_content_description">Navigate to communication</string>
+    <string name="payment_menu_content_description">Navigate to payments</string>
+    <string name="loading_content_description">Loading data</string>
+    
+    <!-- User Data Messages -->
     <string name="no_users_available">No users available</string>
     <string name="invalid_response_format">Invalid response format</string>
     <string name="no_financial_data_available">No financial data available</string>

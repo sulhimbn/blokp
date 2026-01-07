@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/card_height_min"
+    android:background="@drawable/bg_card_view"
+    android:orientation="vertical"
+    android:padding="@dimen/spacing_md"
+    android:importantForAccessibility="yes"
+    android:focusable="true"
+    android:clickable="true"
+    android:descendantFocusability="blocksDescendants">
+
+    <ImageView
+        android:id="@+id/menuItemImage"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/icon_xxl"
+        android:layout_marginBottom="@dimen/spacing_sm"
+        android:contentDescription="@string/menu_item_content_description"
+        android:importantForAccessibility="yes"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/menuItemText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/font"
+        android:text="Menu Item"
+        android:textAlignment="center"
+        android:textColor="@color/teal_200"
+        android:textSize="@dimen/text_size_normal"
+        android:textStyle="bold"
+        android:importantForAccessibility="yes" />
+
+</LinearLayout>

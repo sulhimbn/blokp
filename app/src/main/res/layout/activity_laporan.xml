@@ -5,21 +5,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/cream"
+    android:background="@color/background_secondary"
     tools:context=".LaporanActivity">
-    <!-- TextView untuk judul -->
+
+    <!-- Header Title -->
     <TextView
         android:id="@+id/textView1"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="LAPORAN KAS RT"
         android:fontFamily="@font/font"
-        android:textSize="20sp"
+        android:textSize="@dimen/heading_h4"
         android:textStyle="bold"
         android:gravity="center"
-        android:padding="16dp"
-        android:background="@color/green"
-        android:textColor="@android:color/white"
+        android:paddingStart="@dimen/padding_md"
+        android:paddingTop="@dimen/padding_md"
+        android:paddingEnd="@dimen/padding_md"
+        android:paddingBottom="@dimen/padding_md"
+        android:background="@color/accent_green"
+        android:textColor="@color/text_on_primary"
+        android:importantForAccessibility="yes"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- SwipeRefreshLayout for pull-to-refresh -->
@@ -46,6 +53,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:visibility="gone"
+                    android:importantForAccessibility="yes"
+                    android:contentDescription="@string/loading_content_description"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -56,7 +65,9 @@
                     android:id="@+id/rv_summary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:padding="8dp"
+                    android:padding="@dimen/spacing_sm"
+                    android:clipToPadding="false"
+                    android:importantForAccessibility="yes"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -68,25 +79,28 @@
                     android:layout_height="wrap_content"
                     android:text="2. Pemanfaatan : "
                     android:fontFamily="@font/font"
-                    android:textSize="16sp"
-                    android:paddingBottom="10dp"
+                    android:textSize="@dimen/text_size_normal"
+                    android:paddingBottom="@dimen/spacing_sm"
                     android:textStyle="bold"
                     android:gravity="start"
-                    android:padding="16dp"
+                    android:paddingStart="@dimen/padding_md"
+                    android:paddingTop="@dimen/padding_md"
+                    android:paddingEnd="@dimen/padding_md"
+                    android:importantForAccessibility="yes"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/rv_summary"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp" />
+                    app:layout_constraintTop_toBottomOf="@id/rv_summary" />
 
                 <!-- RecyclerView for pemanfaatan details -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_laporan"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:background="@color/peach"
+                    android:background="@color/accent_peach"
                     android:fontFamily="@font/font"
-                    android:padding="2dp"
+                    android:padding="@dimen/spacing_xs"
+                    android:clipToPadding="false"
+                    android:importantForAccessibility="yes"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/pemanfaatanTextView"

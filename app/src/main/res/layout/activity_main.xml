@@ -6,20 +6,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-    <!-- TextView untuk judul -->
+
+    <!-- Header Title -->
     <TextView
         android:id="@+id/textView1"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/green"
+        android:background="@color/accent_green"
         android:fontFamily="@font/font"
         android:gravity="center"
-        android:padding="16dp"
+        android:paddingStart="@dimen/padding_md"
+        android:paddingTop="@dimen/padding_md"
+        android:paddingEnd="@dimen/padding_md"
+        android:paddingBottom="@dimen/padding_md"
         android:text="DAFTAR IURAN WARGA KONOHA"
-        android:textColor="@android:color/white"
-        android:textSize="20sp"
+        android:textColor="@color/text_on_primary"
+        android:textSize="@dimen/heading_h4"
         android:textStyle="bold"
+        android:importantForAccessibility="yes"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
     <!-- SwipeRefreshLayout for pull-to-refresh -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
@@ -32,7 +40,8 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:background="@color/background_secondary">
 
             <!-- Progress Bar for loading indicator -->
             <ProgressBar
@@ -40,6 +49,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
+                android:importantForAccessibility="yes"
+                android:contentDescription="@string/loading_content_description"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -50,9 +61,10 @@
                 android:id="@+id/rv_users"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="8dp"
+                android:padding="@dimen/spacing_sm"
                 android:clipToPadding="false"
-                android:background="@color/cream"
+                android:background="@color/background_secondary"
+                android:importantForAccessibility="yes"
                 tools:listitem="@layout/item_list" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
