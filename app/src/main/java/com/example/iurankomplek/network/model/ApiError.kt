@@ -66,6 +66,8 @@ enum class ApiErrorCode(val code: String, val defaultMessage: String) {
 sealed class NetworkError(message: String, override val cause: Throwable? = null) : Exception(message, cause) {
     abstract val code: ApiErrorCode
     abstract val userMessage: String
+    override val message: String
+        get() = super.message!!
     
     data class HttpError(
         override val code: ApiErrorCode,
@@ -112,7 +114,6 @@ sealed class NetworkError(message: String, override val cause: Throwable? = null
         val field: String? = null,
         override val cause: Throwable? = null
     ) : NetworkError("") {
-        @Transient
         override val message: String
             get() = "Validation error${field?.let { " on $it" } ?: ""}: $userMessage"
     }
