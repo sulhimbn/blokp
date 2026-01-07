@@ -24,7 +24,8 @@ android {
             testCoverageEnabled true
         }
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -85,11 +86,7 @@ dependencies {
     
     // Lifecycle
     implementation libs.lifecycle.viewmodel.ktx
-    implementation libs.lifecycle.livedata.ktx
     implementation libs.lifecycle.runtime.ktx
-    
-    // SwipeRefreshLayout (needed for pull-to-refresh in MainActivity and LaporanActivity)
-    implementation libs.swiperefreshlayout
     
     // Kotlin Serialization (needed for WebhookReceiver)
     implementation libs.kotlinx.serialization.json
