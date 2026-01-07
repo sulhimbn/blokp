@@ -69,4 +69,15 @@ object Constants {
         const val REFUND_AMOUNT_RANGE_MAX = 9999
         const val MAX_PAYMENT_AMOUNT = 999999999.99
     }
+
+    // Webhook Constants
+    object Webhook {
+        const val MAX_RETRIES = 5
+        const val INITIAL_RETRY_DELAY_MS = 1000L
+        const val MAX_RETRY_DELAY_MS = 60000L
+        const val RETRY_BACKOFF_MULTIPLIER = 2.0
+        const val IDempotency_KEY_PREFIX = "whk_"
+        const val MAX_EVENT_RETENTION_DAYS = 30
+        const val RETRY_JITTER_MS = 500L
+    }
 }
