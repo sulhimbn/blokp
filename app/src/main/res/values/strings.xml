@@ -45,7 +45,7 @@
      <string name="payment_invalid_amount">Please enter a valid amount</string>
      <string name="payment_network_error">Network error, please try again</string>
      <string name="total_payments_processed">Total Payments Processed</string>
-     <string name="integrated_payment_transactions">Integrated %d payment transactions (Total: %s)</string>
+      <string name="integrated_payment_transactions" formatted="false">Integrated %d payment transactions (Total: %s)</string>
      <string name="error_integrating_payment_data">Error integrating payment data: %s</string>
      <string name="payment_enter_amount">Please enter an amount</string>
      <string name="payment_amount_greater_than_zero">Amount must be greater than zero</string>
