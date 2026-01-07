@@ -61,6 +61,37 @@ class TransactionHistoryActivity : AppCompatActivity() {
 }
 
     private fun setupTransactionHistory() {
+        transactionRepository = TransactionRepositoryFactory.getMockInstance(this)
+
+        transactionAdapter = TransactionHistoryAdapter(lifecycleScope)
+
+        binding.rvTransactionHistory.layoutManager = LinearLayoutManager(this)
+        binding.rvTransactionHistory.adapter = transactionAdapter
+    }
+
+    private fun loadTransactionHistory() {
+        binding.progressBar.visibility = View.VISIBLE
+        
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val transactions = transactionRepository.getTransactionsByStatus(PaymentStatus.COMPLETED).first()
+                runOnUiThread {
+                    binding.progressBar.visibility = View.GONE
+                    transactionAdapter.submitList(transactions)
+                }
+            } catch (e: Exception) {
+                runOnUiThread {
+                    binding.progressBar.visibility = View.GONE
+                    Toast.makeText(this@TransactionHistoryActivity, 
+                        "Failed to load transaction history: ${e.message}", 
+                        Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+}
+
+    private fun setupTransactionHistory() {
         // Initialize repository using factory pattern
         transactionRepository = TransactionRepositoryFactory.getMockInstance(this)
 
