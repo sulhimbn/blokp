@@ -96,34 +96,4 @@ class WebhookReceiver(
     }
 }
 
-@Serializable
-data class WebhookPayload(
-    val eventType: String,
-    val transactionId: String? = null,
-    val timestamp: Long? = null,
-    val metadata: Map<String, String>? = null
-)
-                transactionRepository.updateTransaction(updatedTransaction)
-                Log.d(TAG, "Transaction status updated")
-            } else {
-                Log.e(TAG, "Transaction not found")
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error updating transaction status: ${e.message}", e)
-        }
-    }
 
-    private fun parseWebhookPayload(payload: String): WebhookPayload {
-        // Use proper JSON deserialization with kotlinx.serialization
-        // This prevents injection attacks and ensures type safety
-        return json.decodeFromString<WebhookPayload>(payload)
-    }
-}
-
-@Serializable
-data class WebhookPayload(
-    val eventType: String,
-    val transactionId: String,
-    val timestamp: Long? = null,
-    val metadata: Map<String, String>? = null
-)
