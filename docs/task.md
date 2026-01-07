@@ -1031,8 +1031,48 @@ None currently identified
 - **Dependency Management**: Factory pattern eliminates manual instantiation ✅ UPDATED
 - **Architectural Consistency**: TransactionRepository matches existing repository patterns ✅ UPDATED
 - Performance optimized with DiffUtil
+---
+
+## Pending Refactoring Tasks (Identified by Code Reviewer)
+
+### [REFACTOR] Inconsistent Activity Base Classes
+- Location: app/src/main/java/com/example/iurankomplek/{PaymentActivity, CommunicationActivity, VendorManagementActivity, TransactionHistoryActivity}.kt
+- Issue: Inconsistent inheritance - MainActivity and LaporanActivity extend BaseActivity, but PaymentActivity, CommunicationActivity, VendorManagementActivity, and TransactionHistoryActivity extend AppCompatActivity. This leads to code duplication and inconsistent error handling, retry logic, and network checks.
+- Suggestion: Refactor all Activities to extend BaseActivity for consistent functionality (retry logic, error handling, network connectivity checks)
+- Priority: Medium
+- Effort: Small (1-2 hours)
+
+### [REFACTOR] Manual Repository Instantiation Inconsistency
+- Location: app/src/main/java/com/example/iurankomplek/{MainActivity, LaporanActivity, VendorManagementActivity, VendorCommunicationFragment}.kt
+- Issue: Some Activities/Fragments manually instantiate repositories (e.g., `val repository = UserRepositoryImpl(ApiConfig.getApiService())`), while transaction-related code uses factory pattern (TransactionRepositoryFactory). This violates the Dependency Inversion Principle and makes testing harder.
+- Suggestion: Create factory classes for UserRepository, PemanfaatanRepository, and VendorRepository following the TransactionRepositoryFactory pattern. Update all instantiation points to use factories.
+- Priority: High
+- Effort: Medium (3-4 hours)
+
+### [REFACTOR] GlobalScope Usage in Adapters
+- Location: app/src/main/java/com/example/iurankomplek/{UserAdapter, PemanfaatanAdapter, VendorAdapter}.kt
+- Issue: UserAdapter uses `GlobalScope.launch(Dispatchers.Default)` for DiffUtil calculations (line 27). GlobalScope is discouraged as it doesn't respect lifecycle boundaries and can lead to memory leaks.
+- Suggestion: Replace GlobalScope with lifecycle-aware coroutines by passing a CoroutineScope from the Activity/Fragment to the adapter, or use the adapter's attached lifecycle (via lifecycle-aware adapters).
+- Priority: High
+- Effort: Small (1-2 hours)
+
+### [REFACTOR] Missing ViewBinding in Activities
+- Location: app/src/main/java/com/example/iurankomplek/{CommunicationActivity, VendorManagementActivity}.kt
+- Issue: CommunicationActivity and VendorManagementActivity use `findViewById()` instead of ViewBinding, which is inconsistent with other activities (MainActivity, LaporanActivity, PaymentActivity, TransactionHistoryActivity) and is less type-safe.
+- Suggestion: Migrate to ViewBinding for type-safe view access and consistency with the rest of the codebase.
+- Priority: Low
+- Effort: Small (1 hour)
+
+### [REFACTOR] Hardcoded Constants in PaymentActivity
+- Location: app/src/main/java/com/example/iurankomplek/PaymentActivity.kt:67
+- Issue: `MAX_PAYMENT_AMOUNT = BigDecimal("999999999.99")` is hardcoded in PaymentActivity instead of being defined in Constants.kt. This violates the single source of truth principle.
+- Suggestion: Move MAX_PAYMENT_AMOUNT to Constants.kt (e.g., `Constants.Payment.MAX_PAYMENT_AMOUNT`) for centralized management and consistency.
+- Priority: Low
+- Effort: Small (30 minutes)
 
 ---
+
 *Last Updated: 2026-01-07*
 *Architect: Test Engineer Agent*
 *Status: Critical Path Testing Completed ✅*
+*Last Review: 2026-01-07 (Code Reviewer)*
