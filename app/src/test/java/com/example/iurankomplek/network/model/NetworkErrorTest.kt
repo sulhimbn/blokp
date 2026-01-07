@@ -4,7 +4,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class ApiErrorTest {
+class NetworkErrorTest {
     
     @Test
     fun `ApiErrorCode fromHttpCode returns correct code for 400`() {
