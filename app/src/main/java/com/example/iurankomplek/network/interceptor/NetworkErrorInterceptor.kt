@@ -175,7 +175,7 @@ class RequestIdInterceptor : Interceptor {
     }
     
     private fun generateRequestId(): String {
-        return "${System.currentTimeMillis()}-${(Math.random() * 10000).toInt()}"
+        return "${System.currentTimeMillis()}-${(kotlin.random.Random.nextDouble() * 10000).toInt()}"
     }
 }
 
