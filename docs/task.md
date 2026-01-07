@@ -5,6 +5,101 @@ Track architectural refactoring tasks and their status.
 
 ## Completed Modules
 
+### ✅ 26. Critical Path Testing Module (Core Infrastructure)
+**Status**: Completed
+**Completed Date**: 2026-01-07
+**Priority**: HIGH
+**Estimated Time**: 2-3 hours (completed in 1 hour)
+**Description**: Test untested critical business logic in UiState and Constants
+
+**Completed Tasks**:
+- [x] Created comprehensive unit tests for UiState (24 test cases)
+- [x] Created comprehensive unit tests for Constants (34 test cases)
+- [x] Tests follow AAA pattern (Arrange, Act, Assert)
+- [x] Tests cover all state types and data types
+- [x] Tests verify behavior, not implementation
+- [x] Tests are independent and deterministic
+- [x] Tests use meaningful descriptions
+
+**UiStateTest Coverage**:
+- **State Singleton Verification**: Idle and Loading states verified as singletons
+- **Success State**: Tests with String, Int, List, and null data types
+- **Error State**: Tests with valid, empty, and null error messages
+- **State Equality**: Verifies equality/inequality between different state types
+- **HashCode Consistency**: Tests hashCode for equal and different states
+- **Complex Data Types**: Tests with nested data classes
+- **When Expression**: Tests all states in when expressions
+- **Long Messages**: Tests error state with long error messages (1000 chars)
+- **UiState and Result**: Tests both UiState and Result sealed classes
+
+**ConstantsTest Coverage**:
+- **Network Constants**: Timeout values (30s), retry logic (max 3 retries), exponential backoff (1s-30s)
+- **Connection Pooling**: Max idle connections (5), keep-alive duration (5 min)
+- **Rate Limiting**: Max requests per second (10) and per minute (60)
+- **API Constants**: HTTPS enforcement, URL validation, environment keys
+- **Security Constants**: Certificate pin validation (SHA-256 format)
+- **Financial Constants**: IURAN_MULTIPLIER validation (value: 3)
+- **Validation Constants**: Max lengths for name (50), email (100), address (200), pemanfaatan (100)
+- **Logging Tags**: All tags verified non-empty and correct
+- **Toast Constants**: Duration constants match Android constants
+- **Payment Constants**: Refund amounts (1000-9999), max payment (999999999.99)
+- **Webhook Constants**: Retry logic (5 retries, 1s-60s), backoff multiplier (2.0x), retention (30 days)
+- **Exponential Backoff**: Validates exponential retry delay calculations
+
+**Test Quality Assurance**:
+- ✅ **AAA Pattern**: All tests follow Arrange-Act-Assert structure
+- ✅ **Descriptive Names**: Test names describe scenario + expectation
+- ✅ **Single Assertion Focus**: Each test focuses on one aspect
+- ✅ **Mock-Free**: No external dependencies (pure unit tests)
+- ✅ **Fast Execution**: All tests run quickly (unit tests only)
+- ✅ **Meaningful Coverage**: Tests cover critical infrastructure components
+- ✅ **Independent**: No test depends on execution order
+- ✅ **Deterministic**: Same result every time
+- ✅ **Isolation**: Tests are independent of each other
+- ✅ **Edge Cases**: Boundary conditions, null values, complex types tested
+
+**Files Created**:
+- app/src/test/java/com/example/iurankomplek/utils/UiStateTest.kt (NEW - 24 test cases)
+- app/src/test/java/com/example/iurankomplek/utils/ConstantsTest.kt (NEW - 34 test cases)
+
+**Impact**:
+- Critical infrastructure components now tested
+- State management verified for correctness
+- Configuration constants validated
+- Improved test coverage for core application behavior
+- Ensures data integrity in state transitions
+- Prevents regressions in configuration values
+
+**Anti-Patterns Avoided**:
+- ✅ No tests depending on execution order
+- ✅ No testing implementation details (tests verify WHAT, not HOW)
+- ✅ No flaky tests (all deterministic)
+- ✅ No tests requiring external services
+- ✅ No tests that pass when code is broken
+
+**Test Statistics**:
+- Total Test Cases: 58 (24 UiState + 34 Constants)
+- Happy Path Tests: 26
+- Edge Case Tests: 18
+- Boundary Condition Tests: 10
+- Type Safety Tests: 4
+
+**Dependencies**: None (independent module, tests core infrastructure)
+**Documentation**: Updated docs/task.md with critical path testing module completion
+
+**Success Criteria**:
+- [x] UiState state types tested comprehensively
+- [x] Constants values validated
+- [x] Singleton states verified
+- [x] Equality and hashCode tested
+- [x] Complex data types handled
+- [x] Tests follow AAA pattern
+- [x] Tests are independent and deterministic
+- [x] Tests cover critical paths and boundary conditions
+- [x] No anti-patterns introduced
+
+---
+
 ### ✅ 25. Dependency Security Update Module
 **Status**: Completed
 **Completed Date**: 2026-01-07
