@@ -34,9 +34,6 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    buildFeatures {
-        viewBinding true
-    }
     kotlinOptions {
         jvmTarget = '1.8'
     }
@@ -44,11 +41,10 @@ android {
 
 dependencies {
 
-     implementation libs.androidx.core.ktx
-     implementation libs.androidx.appcompat
-     implementation libs.material
-     implementation libs.androidx.constraintlayout
-     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+      implementation libs.androidx.core.ktx
+      implementation libs.androidx.appcompat
+      implementation libs.material
+      implementation libs.androidx.constraintlayout
     
     // Testing dependencies
     testImplementation libs.junit
@@ -82,14 +78,9 @@ dependencies {
     implementation libs.room.ktx
     kapt libs.room.compiler
     
-    // Hilt for dependency injection (if we want to use it later)
-    implementation libs.hilt.android
-    kapt libs.hilt.android.compiler
-    
     // Coroutines
     implementation libs.kotlinx.coroutines.android
     
     // Lifecycle
     implementation libs.lifecycle.viewmodel.ktx
-    implementation libs.lifecycle.livedata.ktx
 }
