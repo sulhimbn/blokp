@@ -22,7 +22,7 @@ class CommunityPostRepositoryImpl(
             return Result.success(cache.values.toList())
         }
 
-        return withCircuitBreaker { apiService.getCommunityPosts() }
+        return withCircuitBreakerWithCache { apiService.getCommunityPosts() }
     }
 
     override suspend fun createCommunityPost(
@@ -107,7 +107,7 @@ class CommunityPostRepositoryImpl(
         }
     }
 
-    private suspend fun withCircuitBreaker(
+    private suspend fun withCircuitBreakerWithCache(
         apiCall: suspend () -> retrofit2.Response<List<CommunityPost>>
     ): Result<List<CommunityPost>> {
         val circuitBreakerResult = circuitBreaker.execute {
@@ -125,60 +125,6 @@ class CommunityPostRepositoryImpl(
                             }
                             return@execute posts
                         } ?: throw Exception("Response body is null")
-                    } else {
-                        val isRetryable = isRetryableError(response.code())
-                        if (currentRetry < maxRetries && isRetryable) {
-                            val delayMillis = calculateDelay(currentRetry + 1)
-                            delay(delayMillis)
-                            currentRetry++
-                        } else {
-                            throw HttpException(response)
-                        }
-                    }
-                } catch (e: NetworkError) {
-                    lastException = e
-                    if (shouldRetryOnNetworkError(e, currentRetry, maxRetries)) {
-                        val delayMillis = calculateDelay(currentRetry + 1)
-                        delay(delayMillis)
-                        currentRetry++
-                    } else {
-                        break
-                    }
-                } catch (e: Exception) {
-                    lastException = e
-                    if (shouldRetryOnException(e, currentRetry, maxRetries)) {
-                        val delayMillis = calculateDelay(currentRetry + 1)
-                        delay(delayMillis)
-                        currentRetry++
-                    } else {
-                        break
-                    }
-                }
-            }
-
-            throw lastException ?: Exception("Unknown error occurred")
-        }
-
-        return when (circuitBreakerResult) {
-            is CircuitBreakerResult.Success -> Result.success(circuitBreakerResult.value)
-            is CircuitBreakerResult.Failure -> Result.failure(circuitBreakerResult.exception)
-            is CircuitBreakerResult.CircuitOpen -> Result.failure(NetworkError.CircuitBreakerError())
-        }
-    }
-
-    private suspend fun <T : Any> withCircuitBreaker(
-        apiCall: suspend () -> retrofit2.Response<T>
-    ): Result<T> {
-        val circuitBreakerResult = circuitBreaker.execute {
-            var currentRetry = 0
-            var lastException: Exception? = null
-
-            while (currentRetry <= maxRetries) {
-                try {
-                    val response = apiCall()
-                    if (response.isSuccessful) {
-                        response.body()?.let { return@execute it }
-                            ?: throw Exception("Response body is null")
                     } else {
                         val isRetryable = isRetryableError(response.code())
                         if (currentRetry < maxRetries && isRetryable) {
