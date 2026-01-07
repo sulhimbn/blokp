@@ -100,9 +100,10 @@ class CommunityPostRepositoryImpl(
             throw lastException ?: Exception("Unknown error occurred")
         }
 
-        when (circuitBreakerResult) {
+        return when (circuitBreakerResult) {
             is CircuitBreakerResult.Success -> Result.success(circuitBreakerResult.value)
             is CircuitBreakerResult.Failure -> Result.failure(circuitBreakerResult.exception)
+            is CircuitBreakerResult.CircuitOpen -> Result.failure(NetworkError.CircuitBreakerError())
         }
     }
 
