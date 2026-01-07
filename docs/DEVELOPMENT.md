@@ -18,9 +18,9 @@ class LaporanActivity
 private fun getUser()
 val totalIuranBulanan = 0
 
-// Constants - UPPER_SNAKE_CASE
-const val BASE_URL = "https://api.example.com"
-const val MAX_RETRY_COUNT = 3
+// Constants - UPPER_SNAKE_CASE (centralized in Constants.kt)
+import com.example.iurankomplek.utils.Constants
+const val MAX_RETRY_COUNT = Constants.Network.MAX_RETRIES
 
 // Private properties - camelCase with underscore prefix
 private val _users = mutableListOf<DataItem>()
@@ -100,52 +100,61 @@ private fun handleSuccessResponse(response: Response<UserResponse>) {
 }
 ```
 
-### Java Standards (for MenuActivity.java)
+### Kotlin Standards (for MenuActivity.kt)
 
 #### Naming Conventions
-```java
+```kotlin
 // Classes - PascalCase
-public class MenuActivity extends AppCompatActivity
+class MenuActivity : AppCompatActivity
 
 // Methods & Variables - camelCase
-private LinearLayout tombolSatu;
-private void setupClickListeners()
+private lateinit var tombolSatu: LinearLayout
+private fun setupClickListeners()
 
 // Constants - UPPER_SNAKE_CASE
-private static final String TAG = "MenuActivity";
+private companion object {
+    private const val TAG = "MenuActivity"
+}
 ```
 
 #### Code Style
-```java
-public class MenuActivity extends AppCompatActivity {
-    LinearLayout tombolSatu;
-    LinearLayout tombolDua;
+```kotlin
+class MenuActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMenuBinding
+    private lateinit var tombolSatu: LinearLayout
+    private lateinit var tombolDua: LinearLayout
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_menu);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMenuBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         
-        setupFullscreenMode();
-        setupClickListeners();
+        setupFullscreenMode()
+        setupClickListeners()
     }
     
-    private void setupFullscreenMode() {
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+    private fun setupFullscreenMode() {
+        val decorView = window.decorView
+        decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
     }
     
-    private void setupClickListeners() {
-        tombolSatu = findViewById(R.id.cdMenu1);
-        tombolSatu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MenuActivity.this, MainActivity.class);
-                startActivity(intent);
-            }
-        });
+    private fun setupClickListeners() {
+        tombolSatu = binding.cdMenu1
+        tombolSatu.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
         
-        // Similar implementation for tombolDua
+        tombolDua = binding.cdMenu2
+        tombolDua.setOnClickListener {
+            val intent = Intent(this, LaporanActivity::class.java)
+            startActivity(intent)
+        }
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.unbind()
     }
 }
 ```
@@ -165,22 +174,98 @@ API Services (Network)
 
 ### Repository Pattern
 ```kotlin
-object ApiConfig {
-    private const val USE_MOCK_API = BuildConfig.DEBUG || System.getenv("DOCKER_ENV") != null
+// Repository interface
+interface UserRepository {
+    suspend fun getUsers(): Result<List<DataItem>>
+}
+
+// Repository implementation with CircuitBreaker
+class UserRepositoryImpl(
+    private val apiService: ApiService
+) : UserRepository {
     
-    fun getApiService(): ApiService {
-        val retrofit = Retrofit.Builder()
-            .baseUrl(getBaseUrl())
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(getOkHttpClient())
-            .build()
-        return retrofit.create(ApiService::class.java)
+    private val circuitBreaker = ApiConfig.circuitBreaker
+    
+    override suspend fun getUsers(): Result<List<DataItem>> {
+        return try {
+            val response = apiService.getUsers()
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!.data)
+            } else {
+                Result.failure(NetworkException(response.code()))
+            }
+        } catch (e: Exception) {
+            circuitBreaker.recordFailure()
+            Result.failure(e)
+        }
+    }
+}
+
+// Factory pattern for repository instantiation
+object UserRepositoryFactory {
+    private var instance: UserRepository? = null
+    
+    fun getInstance(): UserRepository {
+        return instance ?: synchronized(this) {
+            instance ?: UserRepositoryImpl(ApiConfig.getApiService()).also { 
+                instance = it 
+            }
+        }
+    }
+}
+
+// Usage in ViewModel
+class UserViewModel : ViewModel() {
+    private val repository = UserRepositoryFactory.getInstance()
+    private val _uiState = MutableStateFlow<UiState<List<DataItem>>>(UiState.Loading)
+    val uiState: StateFlow<UiState<List<DataItem>>> = _uiState.asStateFlow()
+    
+    fun loadUsers() {
+        viewModelScope.launch {
+            _uiState.value = UiState.Loading
+            repository.getUsers()
+                .onSuccess { users ->
+                    _uiState.value = UiState.Success(users)
+                }
+                .onFailure { error ->
+                    _uiState.value = UiState.Error(error.message ?: "Unknown error")
+                }
+        }
+    }
+}
+
+// Usage in Activity with Factory pattern
+class MainActivity : BaseActivity() {
+    private lateinit var binding: ActivityMainBinding
+    private val viewModel: UserViewModel by viewModels {
+        UserViewModelFactory()
     }
     
-    private fun getBaseUrl(): String = if (USE_MOCK_API) {
-        "http://api-mock:5000/data/QjX6hB1ST2IDKaxB/\n\n"
-    } else {
-        "https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/\n\n"
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        
+        setupRecyclerView()
+        observeViewModel()
+        viewModel.loadUsers()
+    }
+    
+    private fun observeViewModel() {
+        lifecycleScope.launch {
+            viewModel.uiState.collect { state ->
+                when (state) {
+                    is UiState.Loading -> showLoading()
+                    is UiState.Success -> showUsers(state.data)
+                    is UiState.Error -> showError(state.message)
+                }
+            }
+        }
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.unbind()
     }
 }
 ```
@@ -207,7 +292,63 @@ class UserAdapter : ListAdapter<DataItem, UserAdapter.ListViewHolder>(DiffCallba
 
 ### Unit Tests
 ```kotlin
-class LaporanActivityCalculationTest {
+class UserRepositoryImplTest {
+    
+    private lateinit var mockApiService: ApiService
+    private lateinit var repository: UserRepositoryImpl
+    
+    @Before
+    fun setup() {
+        mockApiService = mock()
+        repository = UserRepositoryImpl(mockApiService)
+    }
+    
+    @Test
+    fun `getUsers returns success with valid data`() = runTest {
+        // Given
+        val expectedData = listOf(
+            DataItem(
+                first_name = "Test",
+                last_name = "User",
+                email = "test@example.com",
+                alamat = "Test Address",
+                iuran_perwarga = 100,
+                total_iuran_rekap = 1200,
+                jumlah_iuran_bulanan = 100,
+                total_iuran_individu = 100,
+                pengeluaran_iuran_warga = 25,
+                pemanfaatan_iuran = "Test usage",
+                avatar = "https://example.com/avatar.jpg"
+            )
+        )
+        val response = Response.success(UserResponse(expectedData))
+        
+        coEvery { mockApiService.getUsers() } returns response
+        
+        // When
+        val result = repository.getUsers()
+        
+        // Then
+        assertTrue(result.isSuccess)
+        assertEquals(expectedData, result.getOrNull())
+    }
+    
+    @Test
+    fun `getUsers returns failure on network error`() = runTest {
+        // Given
+        val exception = IOException("Network error")
+        coEvery { mockApiService.getUsers() } throws exception
+        
+        // When
+        val result = repository.getUsers()
+        
+        // Then
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is IOException)
+    }
+}
+
+class FinancialCalculatorTest {
     
     @Test
     fun testTotalIuranIndividuCalculation_accumulatesCorrectly() {
@@ -225,6 +366,41 @@ class LaporanActivityCalculationTest {
         
         // Then
         assertEquals(375, totalIuranIndividu) // (50*3) + (75*3)
+    }
+}
+
+class UserViewModelTest {
+    
+    private lateinit var mockRepository: UserRepository
+    private lateinit var viewModel: UserViewModel
+    
+    @Before
+    fun setup() {
+        mockRepository = mock()
+        viewModel = UserViewModel(mockRepository)
+    }
+    
+    @Test
+    fun `loadUsers updates state to Success when repository returns data`() = runTest {
+        // Given
+        val expectedData = listOf(DataItem(
+            first_name = "Test", last_name = "User", 
+            email = "test@example.com", alamat = "Test Address",
+            iuran_perwarga = 100, total_iuran_rekap = 1200,
+            jumlah_iuran_bulanan = 100, total_iuran_individu = 100,
+            pengeluaran_iuran_warga = 25, pemanfaatan_iuran = "Test",
+            avatar = "https://example.com/avatar.jpg"
+        ))
+        coEvery { mockRepository.getUsers() } returns Result.success(expectedData)
+        
+        // When
+        viewModel.loadUsers()
+        advanceUntilIdle()
+        
+        // Then
+        val state = viewModel.uiState.value
+        assertTrue(state is UiState.Success)
+        assertEquals(expectedData, (state as UiState.Success).data)
     }
 }
 ```
@@ -370,13 +546,36 @@ Closes #issue-number
 ### Environment Configuration
 ```kotlin
 // BuildConfig.DEBUG automatically set by Gradle
-private const val USE_MOCK_API = BuildConfig.DEBUG || System.getenv("DOCKER_ENV") != null
+import com.example.iurankomplek.utils.Constants
 
-// Environment-specific configurations
+// Use centralized constants from Constants.kt
 object Config {
-    const val API_TIMEOUT = 30_000L
-    const val RETRY_COUNT = 3
+    const val API_TIMEOUT = Constants.Network.CONNECT_TIMEOUT
+    const val RETRY_COUNT = Constants.Network.MAX_RETRIES
     const val CACHE_SIZE = 10 * 1024 * 1024L // 10MB
+}
+
+// Constants.kt structure:
+object Constants {
+    object Api {
+        const val PRODUCTION_BASE_URL = "https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/"
+        const val MOCK_BASE_URL = "http://api-mock:5000/data/QjX6hB1ST2IDKaxB/"
+        const val DOCKER_ENV_KEY = "DOCKER_ENV"
+    }
+    
+    object Network {
+        const val MAX_RETRIES = 3
+        const val MAX_RETRY_DELAY_MS = 30000L
+        const val CONNECT_TIMEOUT = 30L
+        const val READ_TIMEOUT = 30L
+        const val MAX_IDLE_CONNECTIONS = 5
+        const val KEEP_ALIVE_DURATION_MINUTES = 5L
+    }
+    
+    object UI {
+        const val ANIMATION_DURATION = 300L
+        const val CLICK_DELAY = 500L
+    }
 }
 ```
 

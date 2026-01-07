@@ -168,7 +168,7 @@ Accept: application/json
 
 ## Client Implementation
 
-### Android (Kotlin)
+### Android (Kotlin) with MVVM Architecture
 
 #### Service Interface
 ```kotlin
@@ -179,6 +179,9 @@ interface ApiService {
     @GET("pemanfaatan")
     suspend fun getPemanfaatan(): Response<PemanfaatanResponse>
     
+    @GET("vendors")
+    suspend fun getVendors(): Response<VendorResponse>
+    
     // Payment endpoints
     @POST("payments/initiate")
     suspend fun initiatePayment(
@@ -188,23 +191,75 @@ interface ApiService {
         @Query("paymentMethod") paymentMethod: String
     ): Response<PaymentResponse>
     
-    // Additional endpoints for communication, vendors, work orders...
+    // Communication endpoints
+    @GET("announcements")
+    suspend fun getAnnouncements(): Response<AnnouncementResponse>
+    
+    @GET("messages")
+    suspend fun getMessages(@Query("userId") userId: String): Response<MessageResponse>
+    
+    // Work order endpoints
+    @GET("work-orders")
+    suspend fun getWorkOrders(): Response<WorkOrderResponse>
 }
 ```
 
-#### Configuration
+#### Configuration with Circuit Breaker
 ```kotlin
 object ApiConfig {
-    private const val USE_MOCK_API = BuildConfig.DEBUG || System.getenv("DOCKER_ENV") != null
-    private const val BASE_URL = if (USE_MOCK_API) {
-        "http://api-mock:5000/data/QjX6hB1ST2IDKaxB/\n\n"
+    private val USE_MOCK_API = BuildConfig.DEBUG || System.getenv("DOCKER_ENV") != null
+    private val BASE_URL = if (USE_MOCK_API) {
+        "http://api-mock:5000/data/QjX6hB1ST2IDKaxB/"
     } else {
-        "https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/\n\n"
+        "https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/"
     }
     
+    // Circuit breaker for service resilience
+    val circuitBreaker: CircuitBreaker = CircuitBreaker(
+        failureThreshold = 3,
+        successThreshold = 2,
+        timeout = 60000L,
+        halfOpenMaxCalls = 3
+    )
+    
+    // Singleton pattern with thread-safe initialization
+    @Volatile
+    private var apiServiceInstance: ApiService? = null
+    
     fun getApiService(): ApiService {
+        return apiServiceInstance ?: synchronized(this) {
+            apiServiceInstance ?: createApiService().also { apiServiceInstance = it }
+        }
+    }
+    
+    private fun createApiService(): ApiService {
+        val okHttpClient = if (!USE_MOCK_API) {
+            SecurityConfig.getSecureOkHttpClient()
+                .newBuilder()
+                .addInterceptor(RequestIdInterceptor())
+                .addInterceptor(RetryableRequestInterceptor())
+                .addInterceptor(NetworkErrorInterceptor(enableLogging = BuildConfig.DEBUG))
+                .build()
+        } else {
+            OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .addInterceptor(RequestIdInterceptor())
+                .addInterceptor(RetryableRequestInterceptor())
+                .addInterceptor(NetworkErrorInterceptor(enableLogging = true))
+                .apply {
+                    if (BuildConfig.DEBUG) {
+                        addInterceptor(HttpLoggingInterceptor().apply {
+                            level = HttpLoggingInterceptor.Level.BODY
+                        })
+                    }
+                }
+                .build()
+        }
+        
         val retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         return retrofit.create(ApiService::class.java)
@@ -212,32 +267,124 @@ object ApiConfig {
 }
 ```
 
-#### Usage Example
+#### Repository Pattern with Circuit Breaker
 ```kotlin
-class MainActivity : AppCompatActivity() {
-    private val scope = lifecycleScope
+interface UserRepository {
+    suspend fun getUsers(): Result<List<DataItem>>
+}
+
+class UserRepositoryImpl(
+    private val apiService: ApiService
+) : UserRepository {
     
-    private fun getUser() {
-        scope.launch {
-            try {
-                val apiService = ApiConfig.getApiService()
-                val response = apiService.getUsers()
-                
-                if (response.isSuccessful && response.body() != null) {
-                    val dataArray = response.body()?.data
-                    if (dataArray != null) {
-                        adapter.setUsers(dataArray)
-                    } else {
-                        showEmptyState()
-                    }
-                } else {
-                    Toast.makeText(this@MainActivity, "Failed to retrieve data", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                Log.e("MainActivity", "Network error", e)
+    override suspend fun getUsers(): Result<List<DataItem>> {
+        return withCircuitBreaker(ApiConfig.circuitBreaker) {
+            val response = apiService.getUsers()
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!.data)
+            } else {
+                Result.failure(NetworkException(response.code()))
             }
         }
+    }
+}
+
+// Factory pattern for consistent instantiation
+object UserRepositoryFactory {
+    private var instance: UserRepository? = null
+    
+    fun getInstance(): UserRepository {
+        return instance ?: synchronized(this) {
+            instance ?: UserRepositoryImpl(ApiConfig.getApiService()).also { 
+                instance = it 
+            }
+        }
+    }
+}
+```
+
+#### ViewModel with StateFlow
+```kotlin
+class UserViewModel(
+    private val repository: UserRepository
+) : ViewModel() {
+    
+    private val _uiState = MutableStateFlow<UiState<List<DataItem>>>(UiState.Loading)
+    val uiState: StateFlow<UiState<List<DataItem>>> = _uiState.asStateFlow()
+    
+    fun loadUsers() {
+        viewModelScope.launch {
+            _uiState.value = UiState.Loading
+            repository.getUsers()
+                .onSuccess { users ->
+                    _uiState.value = UiState.Success(users)
+                }
+                .onFailure { error ->
+                    _uiState.value = UiState.Error(error.message ?: "Unknown error")
+                }
+        }
+    }
+}
+
+// Factory for ViewModel instantiation
+class UserViewModelFactory : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(UserViewModel::class.java)) {
+            return UserViewModel(UserRepositoryFactory.getInstance()) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+```
+
+#### Usage Example in Activity
+```kotlin
+class MainActivity : BaseActivity() {
+    private lateinit var binding: ActivityMainBinding
+    private val viewModel: UserViewModel by viewModels { UserViewModelFactory() }
+    
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        
+        setupRecyclerView()
+        observeViewModel()
+        viewModel.loadUsers()
+    }
+    
+    private fun observeViewModel() {
+        lifecycleScope.launch {
+            viewModel.uiState.collect { state ->
+                when (state) {
+                    is UiState.Loading -> showLoading()
+                    is UiState.Success -> showUsers(state.data)
+                    is UiState.Error -> showError(state.message)
+                }
+            }
+        }
+    }
+    
+    private fun showLoading() {
+        binding.progressBar.visibility = View.VISIBLE
+        binding.rvUsers.visibility = View.GONE
+    }
+    
+    private fun showUsers(users: List<DataItem>) {
+        binding.progressBar.visibility = View.GONE
+        binding.rvUsers.visibility = View.VISIBLE
+        adapter.submitList(users)
+    }
+    
+    private fun showError(message: String) {
+        binding.progressBar.visibility = View.GONE
+        Toast.makeText(this, "Error: $message", Toast.LENGTH_SHORT).show()
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.unbind()
     }
 }
 ```
@@ -250,7 +397,11 @@ class MainActivity : AppCompatActivity() {
 |--------|-------------|---------------|
 | 200 | Success | Process response data |
 | 400 | Bad Request | Check request parameters |
+| 401 | Unauthorized | Check authentication |
+| 403 | Forbidden | Check permissions |
 | 404 | Not Found | Verify endpoint URL |
+| 408 | Request Timeout | Retry with backoff |
+| 429 | Too Many Requests | Wait and retry |
 | 500 | Server Error | Retry with backoff |
 | 503 | Service Unavailable | Display offline message |
 
@@ -262,34 +413,122 @@ class MainActivity : AppCompatActivity() {
 }
 ```
 
-### Client Error Handling
+### Circuit Breaker Pattern
+The application implements a Circuit Breaker pattern to prevent cascading failures:
+
 ```kotlin
-scope.launch {
-    try {
-        val response = apiService.getUsers()
-        
-        when (response.code()) {
-            200 -> {
-                val data = response.body()?.data
-                if (data != null) {
-                    adapter.setUsers(data)
-                } else {
-                    showEmptyState()
+// Circuit Breaker States
+enum class CircuitBreakerState {
+    CLOSED,    // Normal operation
+    OPEN,      // Circuit is open, requests fail fast
+    HALF_OPEN  // Testing if service has recovered
+}
+
+// Circuit Breaker Configuration
+CircuitBreaker(
+    failureThreshold = 3,      // Failures before opening circuit
+    successThreshold = 2,      // Successes before closing circuit
+    timeout = 60000L,          // Time before attempting recovery (60s)
+    halfOpenMaxCalls = 3        // Max requests in half-open state
+)
+```
+
+### Client Error Handling with StateFlow
+```kotlin
+// UiState wrapper for type-safe state management
+sealed class UiState<out T> {
+    object Loading : UiState<Nothing>()
+    data class Success<T>(val data: T) : UiState<T>()
+    data class Error(val message: String) : UiState<Nothing>()
+}
+
+// Error handling in ViewModel
+class UserViewModel(
+    private val repository: UserRepository
+) : ViewModel() {
+    
+    private val _uiState = MutableStateFlow<UiState<List<DataItem>>>(UiState.Loading)
+    val uiState: StateFlow<UiState<List<DataItem>>> = _uiState.asStateFlow()
+    
+    fun loadUsers() {
+        viewModelScope.launch {
+            _uiState.value = UiState.Loading
+            
+            repository.getUsers()
+                .onSuccess { users ->
+                    if (users.isEmpty()) {
+                        _uiState.value = UiState.Error("No data available")
+                    } else {
+                        _uiState.value = UiState.Success(users)
+                    }
+                }
+                .onFailure { error ->
+                    val message = when (error) {
+                        is NetworkException -> "Network error: ${error.message}"
+                        is CircuitBreakerException -> "Service temporarily unavailable"
+                        is TimeoutException -> "Request timed out"
+                        else -> "Unexpected error occurred"
+                    }
+                    _uiState.value = UiState.Error(message)
+                }
+        }
+    }
+}
+
+// Observing state in Activity
+class MainActivity : BaseActivity() {
+    private val viewModel: UserViewModel by viewModels { UserViewModelFactory() }
+    
+    private fun observeViewModel() {
+        lifecycleScope.launch {
+            viewModel.uiState.collect { state ->
+                when (state) {
+                    is UiState.Loading -> showLoading()
+                    is UiState.Success -> showUsers(state.data)
+                    is UiState.Error -> showError(state.message)
                 }
             }
-            404 -> {
-                showErrorMessage("Data tidak ditemukan")
-            }
-            500 -> {
-                showErrorMessage("Server error, coba lagi nanti")
-            }
-            else -> {
-                showErrorMessage("Terjadi kesalahan: ${response.code()}")
-            }
         }
-    } catch (e: Exception) {
-        showErrorMessage("Network error: ${e.message}")
     }
+    
+    private fun showLoading() {
+        binding.progressBar.visibility = View.VISIBLE
+        binding.rvUsers.visibility = View.GONE
+    }
+    
+    private fun showUsers(users: List<DataItem>) {
+        binding.progressBar.visibility = View.GONE
+        binding.rvUsers.visibility = View.VISIBLE
+        if (users.isEmpty()) {
+            binding.emptyState.visibility = View.VISIBLE
+        } else {
+            binding.emptyState.visibility = View.GONE
+        }
+    }
+    
+    private fun showError(message: String) {
+        binding.progressBar.visibility = View.GONE
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+    }
+}
+```
+
+### Network Error Interceptors
+The application uses interceptors for centralized error handling:
+
+1. **NetworkErrorInterceptor**: Parses HTTP errors and converts to typed NetworkError
+2. **RequestIdInterceptor**: Adds unique request IDs for tracing
+3. **RetryableRequestInterceptor**: Marks safe-to-retry requests (GET, HEAD, OPTIONS)
+
+```kotlin
+// Network error types
+sealed class NetworkError : Exception() {
+    data class HttpError(val code: Int, val message: String) : NetworkError()
+    data class TimeoutError(val message: String) : NetworkError()
+    data class ConnectionError(val message: String) : NetworkError()
+    data class CircuitBreakerError(val message: String) : NetworkError()
+    data class ValidationError(val message: String) : NetworkError()
+    data class UnknownNetworkError(val message: String) : NetworkError()
 }
 ```
 
@@ -408,52 +647,255 @@ val okHttpClient = OkHttpClient.Builder()
 
 ## Testing
 
-### Unit Tests
+### Unit Tests for Repository
 ```kotlin
-@Test
-fun `test API response parsing`() = runTest {
-    val json = """{"data":[{"first_name":"Test","last_name":"User"}]}"""
-    val response = Gson().fromJson(json, UserResponse::class.java)
-    assertEquals("Test", response.data[0].first_name)
+@RunWith(MockitoJUnitRunner::class)
+class UserRepositoryImplTest {
+    
+    private lateinit var mockApiService: ApiService
+    private lateinit var repository: UserRepositoryImpl
+    
+    @Before
+    fun setup() {
+        mockApiService = mock()
+        repository = UserRepositoryImpl(mockApiService)
+    }
+    
+    @Test
+    fun `getUsers returns success with valid data`() = runTest {
+        // Given
+        val expectedData = listOf(
+            DataItem(
+                first_name = "Test",
+                last_name = "User",
+                email = "test@example.com",
+                alamat = "Test Address",
+                iuran_perwarga = 100,
+                total_iuran_rekap = 1200,
+                jumlah_iuran_bulanan = 100,
+                total_iuran_individu = 100,
+                pengeluaran_iuran_warga = 25,
+                pemanfaatan_iuran = "Test usage",
+                avatar = "https://example.com/avatar.jpg"
+            )
+        )
+        val response = Response.success(UserResponse(expectedData))
+        
+        coEvery { mockApiService.getUsers() } returns response
+        
+        // When
+        val result = repository.getUsers()
+        
+        // Then
+        assertTrue(result.isSuccess)
+        assertEquals(expectedData, result.getOrNull())
+        coVerify { mockApiService.getUsers() }
+    }
+    
+    @Test
+    fun `getUsers returns failure on network error`() = runTest {
+        // Given
+        val exception = IOException("Network error")
+        coEvery { mockApiService.getUsers() } throws exception
+        
+        // When
+        val result = repository.getUsers()
+        
+        // Then
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is IOException)
+    }
+    
+    @Test
+    fun `getUsers returns failure on HTTP 500 error`() = runTest {
+        // Given
+        val response = Response.error<UserResponse>(
+            500,
+            "Internal Server Error".toResponseBody("application/json".toMediaType())
+        )
+        coEvery { mockApiService.getUsers() } returns response
+        
+        // When
+        val result = repository.getUsers()
+        
+        // Then
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is NetworkException)
+    }
 }
+```
 
-@Test
-fun `test getUsers with coroutines`() = runTest {
-    val mockService = mockApiService()
-    val expectedResponse = UserResponse(listOf(
-        DataItem(first_name = "Test", last_name = "User", ...)
-    ))
+### Unit Tests for ViewModel
+```kotlin
+@RunWith(MockitoJUnitRunner::class)
+class UserViewModelTest {
     
-    coEvery { mockService.getUsers() } returns Response.success(expectedResponse)
+    @Mock
+    private lateinit var mockRepository: UserRepository
     
-    val result = mockService.getUsers()
-    assertTrue(result.isSuccessful)
-    assertEquals("Test", result.body()?.data?.get(0)?.first_name)
+    private lateinit var viewModel: UserViewModel
+    
+    @Before
+    fun setup() {
+        viewModel = UserViewModel(mockRepository)
+    }
+    
+    @Test
+    fun `loadUsers updates state to Success when repository returns data`() = runTest {
+        // Given
+        val expectedData = listOf(
+            DataItem(
+                first_name = "Test",
+                last_name = "User",
+                email = "test@example.com",
+                alamat = "Test Address",
+                iuran_perwarga = 100,
+                total_iuran_rekap = 1200,
+                jumlah_iuran_bulanan = 100,
+                total_iuran_individu = 100,
+                pengeluaran_iuran_warga = 25,
+                pemanfaatan_iuran = "Test",
+                avatar = "https://example.com/avatar.jpg"
+            )
+        )
+        coEvery { mockRepository.getUsers() } returns Result.success(expectedData)
+        
+        // When
+        viewModel.loadUsers()
+        advanceUntilIdle()
+        
+        // Then
+        val state = viewModel.uiState.value
+        assertTrue(state is UiState.Success)
+        assertEquals(expectedData, (state as UiState.Success).data)
+        coVerify { mockRepository.getUsers() }
+    }
+    
+    @Test
+    fun `loadUsers updates state to Error when repository throws exception`() = runTest {
+        // Given
+        val exception = IOException("Network error")
+        coEvery { mockRepository.getUsers() } returns Result.failure(exception)
+        
+        // When
+        viewModel.loadUsers()
+        advanceUntilIdle()
+        
+        // Then
+        val state = viewModel.uiState.value
+        assertTrue(state is UiState.Error)
+        assertEquals("Network error", (state as UiState.Error).message)
+    }
 }
 ```
 
 ### Integration Tests
 ```kotlin
-@Test
-fun `test API connectivity`() = runTest {
-    val apiService = ApiConfig.getApiService()
-    val response = apiService.getUsers()
+@RunWith(AndroidJUnit4::class)
+@HiltAndroidTest
+class ApiIntegrationTest {
     
-    assertTrue(response.isSuccessful)
-    assertNotNull(response.body())
+    @get:Rule
+    val instantExecutorRule = InstantTaskExecutorRule()
+    
+    private lateinit var apiService: ApiService
+    
+    @Before
+    fun setup() {
+        apiService = ApiConfig.getApiService()
+    }
+    
+    @Test
+    fun `test API connectivity and data retrieval`() = runTest {
+        // When
+        val response = apiService.getUsers()
+        
+        // Then
+        assertTrue(response.isSuccessful)
+        assertNotNull(response.body())
+        assertNotNull(response.body()?.data)
+        assertTrue(response.body()!!.data.isNotEmpty())
+    }
+    
+    @Test
+    fun `test API returns valid user data structure`() = runTest {
+        // When
+        val response = apiService.getUsers()
+        
+        // Then
+        assertTrue(response.isSuccessful)
+        val data = response.body()?.data
+        assertNotNull(data)
+        
+        data?.let { users ->
+            val firstUser = users.first()
+            assertNotNull(firstUser.first_name)
+            assertNotNull(firstUser.last_name)
+            assertNotNull(firstUser.email)
+            assertTrue(firstUser.iuran_perwarga > 0)
+        }
+    }
 }
 ```
 
-### Mock Server Testing
+### Mock Server Testing with MockWebServer
 ```kotlin
-// Use MockWebServer for local testing
-val mockServer = MockWebServer()
-mockServer.enqueue(MockResponse().setBody(mockJsonResponse))
-
-// Update base URL for testing
-val retrofit = Retrofit.Builder()
-    .baseUrl(mockServer.url("/"))
-    .build()
+@RunWith(MockitoJUnitRunner::class)
+class ApiConfigTest {
+    
+    private lateinit var mockServer: MockWebServer
+    
+    @Before
+    fun setup() {
+        mockServer = MockWebServer()
+        mockServer.start()
+    }
+    
+    @After
+    fun tearDown() {
+        mockServer.shutdown()
+    }
+    
+    @Test
+    fun `test with mock server returns expected data`() = runTest {
+        // Given
+        val mockResponse = """{"data":[
+            {
+                "first_name":"Test",
+                "last_name":"User",
+                "email":"test@example.com",
+                "alamat":"Test Address",
+                "iuran_perwarga":100,
+                "total_iuran_rekap":1200,
+                "jumlah_iuran_bulanan":100,
+                "total_iuran_individu":100,
+                "pengeluaran_iuran_warga":25,
+                "pemanfaatan_iuran":"Test",
+                "avatar":"https://example.com/avatar.jpg"
+            }
+        ]}"""
+        
+        mockServer.enqueue(
+            MockResponse()
+                .setBody(mockResponse)
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json")
+        )
+        
+        // When
+        val retrofit = Retrofit.Builder()
+            .baseUrl(mockServer.url("/"))
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+        
+        val apiService = retrofit.create(ApiService::class.java)
+        val response = apiService.getUsers()
+        
+        // Then
+        assertTrue(response.isSuccessful)
+        assertEquals("Test", response.body()?.data?.get(0)?.first_name)
+    }
+}
 ```
 
 ## Troubleshooting
