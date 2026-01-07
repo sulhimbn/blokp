@@ -1,5 +1,7 @@
 package com.example.iurankomplek.presentation.ui.fragment
 
+import com.example.iurankomplek.presentation.adapter.VendorAdapter
+import com.example.iurankomplek.R
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View

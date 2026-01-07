@@ -112,8 +112,7 @@ sealed class NetworkError(override val cause: Throwable? = null) : Exception() {
         override val userMessage: String,
         val field: String? = null
     ) : NetworkError() {
-        override val message: String
-            get() = "Validation error${field?.let { " on $it" } ?: ""}: $userMessage"
+        override val message: String = "Validation error${field?.let { " on $it" } ?: ""}: $userMessage"
     }
     
     data class UnknownNetworkError(
