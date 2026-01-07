@@ -4,9 +4,30 @@ import com.example.iurankomplek.data.dto.LegacyDataItemDto
 import com.example.iurankomplek.data.entity.FinancialRecordEntity
 import com.example.iurankomplek.data.entity.UserEntity
 import com.example.iurankomplek.data.entity.UserWithFinancialRecords
+import com.example.iurankomplek.model.DataItem
 import java.util.Date
 
 object EntityMapper {
+    
+    fun toDataItem(dto: LegacyDataItemDto): DataItem {
+        return DataItem(
+            first_name = dto.first_name,
+            last_name = dto.last_name,
+            email = dto.email,
+            alamat = dto.alamat,
+            iuran_perwarga = dto.iuran_perwarga,
+            total_iuran_rekap = dto.total_iuran_rekap,
+            jumlah_iuran_bulanan = dto.jumlah_iuran_bulanan,
+            total_iuran_individu = dto.total_iuran_individu,
+            pengeluaran_iuran_warga = dto.pengeluaran_iuran_warga,
+            pemanfaatan_iuran = dto.pemanfaatan_iuran,
+            avatar = dto.avatar
+        )
+    }
+    
+    fun toDataItemList(dtoList: List<LegacyDataItemDto>): List<DataItem> {
+        return dtoList.map { toDataItem(it) }
+    }
     
     fun fromLegacyDto(dto: LegacyDataItemDto, userId: Long = 0): Pair<UserEntity, FinancialRecordEntity> {
         val userEntity = UserEntity(

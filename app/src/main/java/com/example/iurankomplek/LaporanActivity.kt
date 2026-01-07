@@ -8,6 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityLaporanBinding
 import com.example.iurankomplek.data.repository.PemanfaatanRepositoryFactory
+import com.example.iurankomplek.data.mapper.EntityMapper
 import com.example.iurankomplek.model.ValidatedDataItem
 import com.example.iurankomplek.utils.DataValidator
 import com.example.iurankomplek.utils.UiState
@@ -69,23 +70,24 @@ class LaporanActivity : BaseActivity() {
                          binding.progressBar.visibility = View.VISIBLE
                          binding.swipeRefreshLayout.isRefreshing = true
                      }
-                     is UiState.Success -> {
-                         binding.progressBar.visibility = View.GONE
-                         binding.swipeRefreshLayout.isRefreshing = false
-                         state.data.data?.let { dataArray ->
-                            if (dataArray.isEmpty()) {
-                                Toast.makeText(this@LaporanActivity, getString(R.string.no_financial_data_available), Toast.LENGTH_LONG).show()
-                                return@let
-                            }
-                            
-                            // Set data pemanfaatan pada adapter
-                            adapter.submitList(dataArray)
-                            
-                            // Calculate and set summary items with payment integration
-                            calculateAndSetSummary(dataArray)
-                        } ?: run {
-                            Toast.makeText(this@LaporanActivity, getString(R.string.invalid_response_format), Toast.LENGTH_LONG).show()
-                        }
+                      is UiState.Success -> {
+                          binding.progressBar.visibility = View.GONE
+                          binding.swipeRefreshLayout.isRefreshing = false
+                          state.data.data?.let { dataArray ->
+                             if (dataArray.isEmpty()) {
+                                 Toast.makeText(this@LaporanActivity, getString(R.string.no_financial_data_available), Toast.LENGTH_LONG).show()
+                                 return@let
+                             }
+                             
+                             // Convert LegacyDataItemDto to DataItem and set on adapter
+                             val dataItems = EntityMapper.toDataItemList(dataArray)
+                             adapter.submitList(dataItems)
+                             
+                             // Calculate and set summary items with payment integration
+                             calculateAndSetSummary(dataItems)
+                         } ?: run {
+                             Toast.makeText(this@LaporanActivity, getString(R.string.invalid_response_format), Toast.LENGTH_LONG).show()
+                         }
                     }
                      is UiState.Error -> {
                          binding.progressBar.visibility = View.GONE

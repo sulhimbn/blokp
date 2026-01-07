@@ -167,7 +167,7 @@ class RequestIdInterceptor : Interceptor {
         val originalRequest = chain.request()
         
         val requestWithId = originalRequest.newBuilder()
-            .tag(requestId, String::class.java)
+            .tag(Class.forName("java.lang.String"), requestId)
             .addHeader(REQUEST_ID_HEADER, requestId)
             .build()
         
@@ -190,7 +190,7 @@ class RetryableRequestInterceptor : Interceptor {
                          request.header("X-Retryable") == "true"
         
         val requestWithFlag = request.newBuilder()
-            .tag(isRetryable, Boolean::class.java)
+            .tag(Class.forName("java.lang.Boolean"), isRetryable)
             .build()
         
         return chain.proceed(requestWithFlag)

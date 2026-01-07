@@ -20,20 +20,19 @@ class TransactionRepositoryImpl(
         paymentMethod: String
     ): Result<com.example.iurankomplek.model.PaymentResponse> {
         return try {
-            val response = paymentGateway.processPayment(
-                PaymentRequest(
-                    amount = java.math.BigDecimal(amount),
-                    description = description,
-                    customerId = customerId,
-                    paymentMethod = when (paymentMethod) {
-                        "CREDIT_CARD" -> PaymentMethod.CREDIT_CARD
-                        "BANK_TRANSFER" -> PaymentMethod.BANK_TRANSFER
-                        "E_WALLET" -> PaymentMethod.E_WALLET
-                        "VIRTUAL_ACCOUNT" -> PaymentMethod.VIRTUAL_ACCOUNT
-                        else -> PaymentMethod.CREDIT_CARD
-                    }
-                )
+            val paymentRequest = PaymentRequest(
+                amount = java.math.BigDecimal(amount),
+                description = description,
+                customerId = customerId,
+                paymentMethod = when (paymentMethod) {
+                    "CREDIT_CARD" -> PaymentMethod.CREDIT_CARD
+                    "BANK_TRANSFER" -> PaymentMethod.BANK_TRANSFER
+                    "E_WALLET" -> PaymentMethod.E_WALLET
+                    "VIRTUAL_ACCOUNT" -> PaymentMethod.VIRTUAL_ACCOUNT
+                    else -> PaymentMethod.CREDIT_CARD
+                }
             )
+            val response = paymentGateway.processPayment(paymentRequest)
             response.map { it.toApiPaymentResponse() }
         } catch (e: Exception) {
             Result.failure(e)

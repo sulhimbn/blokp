@@ -89,7 +89,7 @@ sealed class NetworkError : Exception {
     data class ConnectionError(
         override val code: ApiErrorCode = ApiErrorCode.NETWORK_ERROR,
         override val userMessage: String = "No internet connection. Please check your network.",
-        val cause: Throwable? = null
+        override val cause: Throwable? = null
     ) : NetworkError() {
         override val message: String
             get() = "Connection error: $userMessage"

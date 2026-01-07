@@ -232,7 +232,9 @@ class WebhookQueue(
 
         val cappedDelay = min(exponentialDelay, Constants.Webhook.MAX_RETRY_DELAY_MS)
 
-        val jitter = secureRandom.nextLong(-Constants.Webhook.RETRY_JITTER_MS, Constants.Webhook.RETRY_JITTER_MS)
+        val jitterMin = -Constants.Webhook.RETRY_JITTER_MS
+        val jitterMax = Constants.Webhook.RETRY_JITTER_MS
+        val jitter = secureRandom.nextLong() % (jitterMax - jitterMin + 1) + jitterMin
 
         return (cappedDelay + jitter).coerceAtLeast(0)
     }
