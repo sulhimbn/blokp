@@ -248,7 +248,7 @@ class MessageRepositoryImpl(
     }
 
     private fun calculateDelay(currentRetry: Int): Long {
-        val exponentialDelay = (com.example.iurankomplek.utils.Constants.Network.INITIAL_RETRY_DELAY_MS * kotlin.math.pow(2.0, (currentRetry - 1).toDouble())).toLong()
+        val exponentialDelay = (com.example.iurankomplek.utils.Constants.Network.INITIAL_RETRY_DELAY_MS * pow(2.0, (currentRetry - 1).toDouble())).toLong()
         val jitter = (kotlin.random.Random.nextDouble() * com.example.iurankomplek.utils.Constants.Network.INITIAL_RETRY_DELAY_MS).toLong()
         return minOf(exponentialDelay + jitter, com.example.iurankomplek.utils.Constants.Network.MAX_RETRY_DELAY_MS)
     }
