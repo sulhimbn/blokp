@@ -1463,3 +1463,205 @@ None currently identified
 **Dependencies**: Data Architecture Module (completed - provides database schema)
 **Impact**: Production-ready offline-first caching strategy with comprehensive testing and documentation
 
+---
+
+### ✅ 21. Webhook Reliability Module
+**Status**: Completed
+**Completed Date**: 2026-01-07
+**Priority**: CRITICAL
+**Estimated Time**: 6-8 hours (completed in 4 hours)
+**Description**: Implement reliable webhook processing with persistence, retries, and idempotency
+
+**Completed Tasks**:
+- [x] Create WebhookEvent entity for Room database (with idempotency index)
+- [x] Create WebhookEventDao for database operations
+- [x] Create WebhookQueue for managing webhook processing
+- [x] Implement exponential backoff retry logic with jitter
+- [x] Add idempotency key support for deduplication
+- [x] Update WebhookReceiver to use WebhookQueue
+- [x] Create Migration2 for database schema update
+- [x] Add comprehensive unit tests (WebhookQueue, WebhookEventDao, Migration2)
+- [x] Add webhook constants to Constants.kt
+
+**Webhook Reliability Architecture Components**:
+
+**WebhookEvent Entity (Room Database)**:
+- Persistent storage for all webhook events
+- Idempotency key with unique index (prevents duplicate processing)
+- Status tracking (PENDING, PROCESSING, DELIVERED, FAILED, CANCELLED)
+- Retry counting with max retries limit
+- Timestamps for created_at, updated_at, delivered_at, next_retry_at
+- Indexes on status, event_type, and idempotency_key for performance
+- Foreign key relationship to transactions via transaction_id
+
+**WebhookEventDao**:
+- CRUD operations for webhook events
+- Idempotency key lookups (prevents duplicate processing)
+- Status-based queries (PENDING, PROCESSING, FAILED, DELIVERED)
+- Batch operations for efficiency
+- Time-based cleanup (delete events older than retention period)
+- Transaction ID lookups (trace all webhooks for a transaction)
+- Event type lookups (group webhooks by type)
+
+**WebhookQueue (Processing Engine)**:
+- Coroutine-based event processing with Channel for work distribution
+- Automatic retry logic with exponential backoff
+- Jitter added to retry delays (prevents thundering herd)
+- Metadata enrichment (adds idempotency key, enqueuedAt timestamp)
+- Graceful handling of transaction not found
+- Maximum retry limit (default: 5 retries)
+- Configurable retention period (default: 30 days)
+- Statistics (pending count, failed count)
+- Manual retry failed events capability
+- Old events cleanup capability
+
+**Exponential Backoff with Jitter**:
+- Initial delay: 1000ms
+- Backoff multiplier: 2.0x
+- Maximum delay: 60 seconds
+- Jitter: ±500ms (prevents synchronized retries)
+- Formula: min(initial * 2^retryCount, maxDelay) + random(-jitter, +jitter)
+
+**Idempotency Key Generation**:
+- Format: "whk_{timestamp}_{random}"
+- Uses SecureRandom for cryptographic randomness
+- Timestamp ensures chronological ordering
+- Unique index prevents duplicate processing
+- Embedded in payload for server-side deduplication
+
+**Retry Logic**:
+- Automatic retry on network failures
+- Automatic retry on database errors
+- Automatic retry on transaction not found
+- Max retries: 5 (configurable via Constants)
+- Exponential backoff between retries
+- Status tracking (PENDING → PROCESSING → DELIVERED/FAILED)
+- Failed events stored for manual inspection and retry
+
+**Database Migration**:
+- Migration2: Version 1 → Version 2
+- Creates webhook_events table
+- Creates unique index on idempotency_key
+- Creates indexes on status and event_type
+- Preserves existing user and financial record data
+- Tested with MigrationTestHelper
+
+**WebhookReceiver Integration**:
+- Updated to use WebhookQueue (optional, backward compatible)
+- Falls back to immediate processing if queue not provided
+- Maintains existing API for backward compatibility
+- Adds idempotency key to payload
+- Enqueues events for reliable processing
+
+**Testing Coverage**:
+- **WebhookQueueTest**: 15 test cases
+  - Event enqueuing with idempotency key
+  - Metadata enrichment in payload
+  - Successful event processing
+  - Retry logic on failures
+  - Max retries and marking as failed
+  - Exponential backoff calculation
+  - Failed events retry
+  - Old events cleanup
+  - Pending/failed event counting
+  - Transaction status updates (success, failed, refunded)
+  - Unknown event type handling
+
+- **WebhookEventDaoTest**: 15 test cases
+  - Insert and retrieval operations
+  - Idempotency key conflict handling
+  - Status-based queries
+  - Retry info updates
+  - Delivery timestamp tracking
+  - Failed event marking
+  - Time-based cleanup
+  - Status counting
+  - Transaction ID lookups
+  - Event type lookups
+  - Insert or update transaction
+
+- **Migration2Test**: 4 test cases
+  - Table creation validation
+  - Index creation validation
+  - Schema validation (all columns present)
+  - Migrated database operations (insert, retrieve)
+
+- **Total**: 34 comprehensive test cases
+
+**Files Created**:
+- payment/WebhookEvent.kt (Room entity with indexes)
+- payment/WebhookEventDao.kt (database operations)
+- payment/WebhookQueue.kt (processing engine with retry logic)
+- data/database/Migration2.kt (database migration)
+- test/java/.../payment/WebhookQueueTest.kt (15 test cases)
+- androidTest/java/.../payment/WebhookEventDaoTest.kt (15 test cases)
+- androidTest/java/.../data/database/Migration2Test.kt (4 test cases)
+
+**Files Modified**:
+- payment/WebhookReceiver.kt (integrated WebhookQueue)
+- data/database/AppDatabase.kt (added WebhookEvent entity, updated to version 2)
+- utils/Constants.kt (added Webhook constants)
+
+**Benefits**:
+- **Reliability**: Persistent storage prevents data loss on app crashes
+- **Resilience**: Automatic retry logic with exponential backoff
+- **Idempotency**: Duplicate webhook detection and prevention
+- **Observability**: Full audit trail of all webhook processing
+- **Maintainability**: Clean separation between persistence, processing, and retry logic
+- **Scalability**: Channel-based processing for concurrent webhook handling
+- **Graceful Degradation**: Queue continues processing after transient failures
+- **Data Integrity**: Unique idempotency key prevents duplicate transaction updates
+
+**Anti-Patterns Eliminated**:
+- ✅ No more processing webhooks immediately (no persistence on crashes)
+- ✅ No more duplicate webhook processing (idempotency keys)
+- ✅ No more lost webhooks during network failures (persistent storage)
+- ✅ No more manual retry management (automatic exponential backoff)
+- ✅ No more thundering herd problem (jitter in retry delays)
+- ✅ No more unbounded retries (max retry limit)
+- ✅ No more orphan webhook data (time-based cleanup)
+
+**SOLID Principles Compliance**:
+- **S**ingle Responsibility: WebhookEvent handles persistence, WebhookQueue handles processing, WebhookReceiver handles reception
+- **O**pen/Closed: Easy to add new webhook event types without modifying core logic
+- **L**iskov Substitution: WebhookReceiver works with or without WebhookQueue
+- **I**nterface Segregation: Focused interfaces for DAO operations
+- **D**ependency Inversion: WebhookReceiver depends on WebhookQueue abstraction (optional)
+
+**Integration Patterns Implemented**:
+- **Idempotency**: Every webhook has unique idempotency key
+- **Persistence**: All webhooks stored before processing
+- **Retry**: Automatic retry with exponential backoff
+- **Circuit Breaker**: Stops processing after max retries
+- **Graceful Degradation**: Falls back to immediate processing if queue unavailable
+- **Audit Trail**: Complete history of webhook processing
+
+**Security Considerations**:
+- Idempotency keys generated with SecureRandom (cryptographically secure)
+- Transaction ID sanitization (whitespace trimming, blank check)
+- SQL injection prevention (Room parameterized queries)
+- Metadata enrichment adds context without exposing sensitive data
+
+**Performance Optimizations**:
+- Channel-based processing (non-blocking, concurrent)
+- Database indexes (idempotency_key, status, event_type)
+- Batch operations for cleanup
+- Exponential backoff prevents excessive retries
+- Jitter prevents thundering herd
+
+**Success Criteria**:
+- [x] Persistent webhook event storage
+- [x] Idempotency key generation and enforcement
+- [x] Exponential backoff retry logic
+- [x] Jitter in retry delays
+- [x] Max retry limit
+- [x] Time-based cleanup
+- [x] WebhookQueue integration
+- [x] Comprehensive unit tests (34 test cases)
+- [x] Database migration tested
+- [x] Documentation updated
+
+**Dependencies**: Payment System (completed), Data Architecture (completed)
+**Impact**: Production-ready webhook reliability system with persistence, retries, and idempotency
+
+ 

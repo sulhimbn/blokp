@@ -115,6 +115,9 @@ app/
 │   │   ├── PaymentViewModelFactory.kt ✅ NEW
 │   │   ├── PaymentService.kt ✅
 │   │   ├── WebhookReceiver.kt ✅
+│   │   ├── WebhookEvent.kt ✅ NEW (Room entity)
+│   │   ├── WebhookEventDao.kt ✅ NEW (DAO operations)
+│   │   ├── WebhookQueue.kt ✅ NEW (reliable processing)
 │   │   ├── MockPaymentGateway.kt ✅
 │   │   └── RealPaymentGateway.kt ✅
 │   ├── receipt/
@@ -373,10 +376,50 @@ app/
   - HTTP 429 (Rate Limit Exceeded)
   - HTTP 5xx (Server Errors)
 - ✅ **Circuit Breaker State Management**: Automatic service health tracking
-  - Tracks failure and success counts
-  - Automatic state transitions (Closed → Open → Half-Open → Closed)
-  - Thread-safe state management with Mutex
-  - Reset capability for manual recovery
+   - Tracks failure and success counts
+   - Automatic state transitions (Closed → Open → Half-Open → Closed)
+   - Thread-safe state management with Mutex
+   - Reset capability for manual recovery
+
+### Webhook Reliability Patterns ✅ NEW
+- ✅ **Persistent Webhook Storage**: All webhooks stored before processing
+  - WebhookEvent Room entity with comprehensive tracking
+  - Idempotency key with unique index (prevents duplicate processing)
+  - Status tracking (PENDING, PROCESSING, DELIVERED, FAILED, CANCELLED)
+  - Timestamps for full audit trail (created_at, updated_at, delivered_at, next_retry_at)
+  - Database indexes (idempotency_key, status, event_type) for performance
+- ✅ **Automatic Retry Logic**: Exponential backoff with jitter
+  - Initial delay: 1000ms
+  - Backoff multiplier: 2.0x
+  - Maximum delay: 60 seconds
+  - Jitter: ±500ms (prevents thundering herd)
+  - Max retries: 5 (configurable)
+- ✅ **Idempotency Key System**: Duplicate webhook prevention
+  - Format: "whk_{timestamp}_{random}"
+  - Generated with SecureRandom (cryptographically secure)
+  - Unique index in database enforces uniqueness
+  - Embedded in payload for server-side deduplication
+- ✅ **Queue-Based Processing**: Channel-based concurrent processing
+  - Coroutines with Channel for work distribution
+  - Non-blocking event enqueuing
+  - Concurrent event processing
+  - Graceful shutdown support
+- ✅ **Graceful Degradation**: Backward compatible implementation
+  - WebhookReceiver works with or without WebhookQueue
+  - Falls back to immediate processing if queue unavailable
+  - No breaking changes to existing API
+- ✅ **Observability**: Full webhook lifecycle tracking
+  - Pending event count
+  - Failed event count
+  - Event history by transaction ID
+  - Event history by type
+  - Time-based cleanup (30-day retention)
+- ✅ **Resilience**: Automatic recovery from failures
+  - Retry on network errors
+  - Retry on database errors
+  - Retry on transaction not found
+  - Manual retry capability for failed events
+  - Automatic cleanup of old events
 
 ## Testing Architecture ✅
 
