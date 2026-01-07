@@ -1,15 +1,12 @@
 package com.example.iurankomplek
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.example.iurankomplek.databinding.ActivityMenuBinding
 
-class MenuActivity : AppCompatActivity() {
+class MenuActivity : BaseActivity() {
     private lateinit var binding: ActivityMenuBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
