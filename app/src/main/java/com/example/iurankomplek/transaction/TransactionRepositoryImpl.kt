@@ -12,7 +12,7 @@ class TransactionRepositoryImpl(
 ) : TransactionRepository {
     
 // Additional methods for API integration
-      suspend fun initiatePaymentViaApi(
+      override suspend fun initiatePaymentViaApi(
           amount: String,
           description: String,
           customerId: String,
@@ -39,7 +39,7 @@ class TransactionRepositoryImpl(
               Result.failure(e)
           }
       }
-    suspend fun processPayment(request: PaymentRequest): Result<Transaction> {
+    override suspend fun processPayment(request: PaymentRequest): Result<Transaction> {
         return try {
             val transaction = Transaction.create(request)
             transactionDao.insert(transaction)
@@ -65,23 +65,23 @@ class TransactionRepositoryImpl(
         }
     }
 
-    suspend fun getTransactionById(id: String): Transaction? {
+    override suspend fun getTransactionById(id: String): Transaction? {
         return transactionDao.getTransactionById(id)
     }
 
-    fun getTransactionsByUserId(userId: String): Flow<List<Transaction>> {
+    override fun getTransactionsByUserId(userId: String): Flow<List<Transaction>> {
         return transactionDao.getTransactionsByUserId(userId)
     }
 
-    fun getTransactionsByStatus(status: PaymentStatus): Flow<List<Transaction>> {
+    override fun getTransactionsByStatus(status: PaymentStatus): Flow<List<Transaction>> {
         return transactionDao.getTransactionsByStatus(status)
     }
 
-    suspend fun updateTransaction(transaction: Transaction) {
+    override suspend fun updateTransaction(transaction: Transaction) {
         transactionDao.update(transaction)
     }
 
-    suspend fun refundPayment(transactionId: String, reason: String?): Result<com.example.iurankomplek.payment.RefundResponse> {
+    override suspend fun refundPayment(transactionId: String, reason: String?): Result<com.example.iurankomplek.payment.RefundResponse> {
         return try {
             val refundResult = paymentGateway.refundPayment(transactionId)
             
@@ -103,7 +103,7 @@ class TransactionRepositoryImpl(
         }
     }
 
-    suspend fun deleteTransaction(transaction: Transaction) {
+    override suspend fun deleteTransaction(transaction: Transaction) {
         transactionDao.delete(transaction)
     }
 }
