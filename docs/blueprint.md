@@ -455,12 +455,14 @@ app/
 - ✅ Integration tests for API layer
 - ✅ UI tests with Espresso
 - ✅ Financial calculation tests
+- ✅ JaCoCo code coverage reporting (NEW 2026-01-07)
 
 ### Test Strategy ✅
 - **Unit Tests**: Business logic validation
 - **Integration Tests**: API communication
 - **UI Tests**: User interaction flows
 - **Mock Tests**: Development environment validation
+- **Coverage Reporting**: JaCoCo for coverage metrics (HTML, XML)
 
 ## Technology Stack ✅
 

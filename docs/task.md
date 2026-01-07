@@ -715,12 +715,38 @@ None currently in progress.
    - Tests DiffCallback with different IDs
 
 **Pending Tasks**:
-- [ ] Setup test coverage reporting (JaCoCo)
+- [x] Setup test coverage reporting (JaCoCo)
 - [ ] Achieve 80%+ code coverage
 - [ ] Add more integration tests for API layer
 - [ ] Expand UI tests with Espresso
 - [ ] Add performance tests
 - [ ] Add security tests
+
+**JaCoCo Configuration Completed**: 2026-01-07
+**Configuration Details**:
+- Jacoco plugin version: 0.8.11
+- Report types: XML (required), HTML (required), CSV (optional)
+- Unit test task: `jacocoTestReport` - generates coverage reports
+- Coverage verification task: `jacocoTestCoverageVerification` - enforces minimum coverage
+- Test coverage enabled for debug builds in app/build.gradle
+
+**File Exclusions** (non-testable code):
+- Android R and R$ classes
+- BuildConfig and Manifest classes
+- Test classes
+- Data binding classes
+- Generated code (Hilt components, factories)
+- Android framework classes
+
+**Gradle Tasks Available**:
+- `jacocoTestReport` - Generates HTML and XML coverage reports from unit tests
+- `jacocoTestCoverageVerification` - Verifies coverage against minimum thresholds
+- `app:createDebugUnitTestCoverageReport` - Android Gradle plugin coverage task
+- `app:createDebugAndroidTestCoverageReport` - Instrumented test coverage
+
+**Report Location**:
+- HTML reports: `app/build/reports/jacoco/jacocoTestReport/html/index.html`
+- XML reports: `app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml`
 
 **Test Implementation Completed**: 2026-01-07
 **Test Quality**:
