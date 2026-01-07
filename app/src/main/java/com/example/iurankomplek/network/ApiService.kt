@@ -1,34 +1,18 @@
 package com.example.iurankomplek.network
-import com.example.iurankomplek.model.UserResponse
-import com.example.iurankomplek.model.PemanfaatanResponse
-import com.example.iurankomplek.model.Announcement
-import com.example.iurankomplek.model.Message
-import com.example.iurankomplek.model.CommunityPost
-import com.example.iurankomplek.model.PaymentResponse
-import com.example.iurankomplek.model.PaymentStatusResponse
-import com.example.iurankomplek.model.PaymentConfirmationResponse
-import com.example.iurankomplek.model.VendorResponse
-import com.example.iurankomplek.model.SingleVendorResponse
-import com.example.iurankomplek.model.WorkOrderResponse
-import com.example.iurankomplek.model.SingleWorkOrderResponse
-import com.example.iurankomplek.model.VendorWorkOrderRequest
-import com.example.iurankomplek.model.AssignVendorRequest
-import com.example.iurankomplek.model.UpdateWorkOrderStatusRequest
+
+import com.example.iurankomplek.model.*
+import com.example.iurankomplek.network.model.*
 import retrofit2.Response
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.PUT
-import retrofit2.http.Path
-import retrofit2.http.Query
+import retrofit2.http.*
 
 interface ApiService {
+    
     @GET("users")
     suspend fun getUsers(): Response<UserResponse>
     
     @GET("pemanfaatan")
     suspend fun getPemanfaatan(): Response<PemanfaatanResponse>
     
-    // Communication endpoints
     @GET("announcements")
     suspend fun getAnnouncements(): Response<List<Announcement>>
     
@@ -36,18 +20,29 @@ interface ApiService {
     suspend fun getMessages(@Query("userId") userId: String): Response<List<Message>>
     
     @GET("messages/{receiverId}")
-    suspend fun getMessagesWithUser(@Path("receiverId") receiverId: String, @Query("senderId") senderId: String): Response<List<Message>>
+    suspend fun getMessagesWithUser(
+        @Path("receiverId") receiverId: String, 
+        @Query("senderId") senderId: String
+    ): Response<List<Message>>
     
     @POST("messages")
-    suspend fun sendMessage(@Query("senderId") senderId: String, @Query("receiverId") receiverId: String, @Query("content") content: String): Response<Message>
+    suspend fun sendMessage(
+        @Query("senderId") senderId: String, 
+        @Query("receiverId") receiverId: String, 
+        @Query("content") content: String
+    ): Response<Message>
     
     @GET("community-posts")
     suspend fun getCommunityPosts(): Response<List<CommunityPost>>
     
     @POST("community-posts")
-    suspend fun createCommunityPost(@Query("authorId") authorId: String, @Query("title") title: String, @Query("content") content: String, @Query("category") category: String): Response<CommunityPost>
+    suspend fun createCommunityPost(
+        @Query("authorId") authorId: String, 
+        @Query("title") title: String, 
+        @Query("content") content: String, 
+        @Query("category") category: String
+    ): Response<CommunityPost>
     
-    // Payment endpoints
     @POST("payments/initiate")
     suspend fun initiatePayment(
         @Query("amount") amount: String,
@@ -62,7 +57,6 @@ interface ApiService {
     @POST("payments/{id}/confirm")
     suspend fun confirmPayment(@Path("id") id: String): Response<PaymentConfirmationResponse>
     
-    // Vendor Management endpoints
     @GET("vendors")
     suspend fun getVendors(): Response<VendorResponse>
     
@@ -99,7 +93,6 @@ interface ApiService {
         @Query("isActive") isActive: Boolean
     ): Response<SingleVendorResponse>
     
-    // Work Order endpoints
     @GET("work-orders")
     suspend fun getWorkOrders(): Response<WorkOrderResponse>
     
