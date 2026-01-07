@@ -1,4 +1,4 @@
-package com.example.iurankomplek
+package com.example.iurankomplek.presentation.ui.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,47 +9,47 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.iurankomplek.databinding.FragmentMessagesBinding
-import com.example.iurankomplek.data.repository.MessageRepositoryFactory
+import com.example.iurankomplek.databinding.FragmentCommunityBinding
+import com.example.iurankomplek.data.repository.CommunityPostRepositoryFactory
 import com.example.iurankomplek.utils.UiState
-import com.example.iurankomplek.viewmodel.MessageViewModel
+import com.example.iurankomplek.viewmodel.CommunityPostViewModel
 import kotlinx.coroutines.launch
 
-class MessagesFragment : Fragment() {
+class CommunityFragment : Fragment() {
 
-    private lateinit var adapter: MessageAdapter
-    private lateinit var binding: FragmentMessagesBinding
-    private lateinit var viewModel: MessageViewModel
+    private lateinit var adapter: CommunityPostAdapter
+    private lateinit var binding: FragmentCommunityBinding
+    private lateinit var viewModel: CommunityPostViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentMessagesBinding.inflate(inflater, container, false)
+        binding = FragmentCommunityBinding.inflate(inflater, container, false)
 
-        adapter = MessageAdapter()
-        binding.rvMessages.layoutManager = LinearLayoutManager(context)
-        binding.rvMessages.adapter = adapter
+        adapter = CommunityPostAdapter()
+        binding.rvCommunity.layoutManager = LinearLayoutManager(context)
+        binding.rvCommunity.adapter = adapter
 
         initializeViewModel()
-        observeMessagesState()
-        viewModel.loadMessages("default_user_id")
+        observePostsState()
+        viewModel.loadPosts()
 
         return binding.root
     }
 
     private fun initializeViewModel() {
-        val messageRepository = MessageRepositoryFactory.getInstance()
+        val communityPostRepository = CommunityPostRepositoryFactory.getInstance()
         viewModel = ViewModelProvider(
             this,
-            MessageViewModel.Factory(messageRepository)
-        )[MessageViewModel::class.java]
+            CommunityPostViewModel.Factory(communityPostRepository)
+        )[CommunityPostViewModel::class.java]
     }
 
-    private fun observeMessagesState() {
+    private fun observePostsState() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.messagesState.collect { state ->
+            viewModel.postsState.collect { state ->
                 when (state) {
                     is UiState.Idle -> {
                     }
@@ -59,7 +59,7 @@ class MessagesFragment : Fragment() {
                     is UiState.Success -> {
                         binding.progressBar.visibility = View.GONE
                         if (state.data.isEmpty()) {
-                            Toast.makeText(context, getString(R.string.no_messages_available), Toast.LENGTH_LONG).show()
+                            Toast.makeText(context, getString(R.string.no_community_posts_available), Toast.LENGTH_LONG).show()
                         } else {
                             adapter.submitList(state.data)
                         }

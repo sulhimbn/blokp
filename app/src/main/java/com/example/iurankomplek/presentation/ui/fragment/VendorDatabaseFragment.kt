@@ -1,4 +1,4 @@
-package com.example.iurankomplek
+package com.example.iurankomplek.presentation.ui.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
