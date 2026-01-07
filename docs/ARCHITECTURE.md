@@ -2,14 +2,14 @@
 
 ## Overview
 
-IuranKomplek adalah aplikasi Android untuk mengelola pembayaran iuran komplek perumahan/apartemen. Aplikasi ini dibangun dengan arsitektur hybrid Kotlin-Java dan mengikuti pola MVVM Light.
+IuranKomplek adalah aplikasi Android untuk mengelola pembayaran iuran komplek perumahan/apartemen. Aplikasi ini dibangun dengan Kotlin 100% dan mengikuti pola MVVM modern.
 
 ## Technology Stack
 
 ### Core Technologies
 - **Platform**: Android SDK API level 34
-- **Languages**: Kotlin (primary), Java (legacy compatibility)
-- **Build System**: Gradle 7.3.0
+- **Languages**: Kotlin 100%
+- **Build System**: Gradle 8.1.0
 - **Minimum SDK**: Android 7.0 (API 24)
 - **Target SDK**: Android 14 (API 34)
 
@@ -79,7 +79,7 @@ LaporanAdapter     // Reports (currently unused)
 
 ### Activities Layer
 ```
-MenuActivity (Java)
+MenuActivity (Kotlin)
 ├── Navigation hub
 ├── Fullscreen mode
 └── Intent routing
@@ -166,10 +166,32 @@ data class ResponseUser(
 ```
 Base URL: https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/
 
-GET /data/QjX6hB1ST2IDKaxB/
-├── Returns: ResponseUser
-├── Data: List<DataItem>
-└── Format: JSON
+User & Financial Data:
+- GET users - Returns user data
+- GET pemanfaatan - Returns financial usage data
+
+Communication:
+- GET announcements - Community announcements
+- GET messages - Message retrieval
+- POST messages - Send messages
+- GET community-posts - Community posts
+- POST community-posts - Create community posts
+
+Payment:
+- POST payments/initiate - Initiate payment
+- GET payments/{id}/status - Get payment status
+- POST payments/{id}/confirm - Confirm payment
+
+Vendor Management:
+- GET vendors - List vendors
+- POST vendors - Create vendor
+- PUT vendors/{id} - Update vendor
+
+Work Orders:
+- GET work-orders - List work orders
+- POST work-orders - Create work order
+- PUT work-orders/{id}/assign - Assign vendor to work order
+- PUT work-orders/{id}/status - Update work order status
 
 Development:
 ├── Mock API: http://api-mock:5000
@@ -208,16 +230,19 @@ activity_laporan.xml
 
 ### Adapter Patterns
 ```kotlin
-// UserAdapter - Standard RecyclerView pattern
-class UserAdapter(private val users: MutableList<DataItem>) :
-    RecyclerView.Adapter<UserAdapter.ListViewHolder>() {
+// UserAdapter - Using DiffUtil for efficient updates
+class UserAdapter : ListAdapter<DataItem, UserAdapter.ListViewHolder>(DiffCallback) {
     
-    override fun onCreateViewHolder(...)
-    override fun onBindViewHolder(...)
-    fun setUsers(users: List<DataItem>) {
-        this.users.clear()
-        this.users.addAll(users)
-        notifyDataSetChanged() // TODO: Replace with DiffUtil
+    companion object {
+        private val DiffCallback = object : DiffUtil.ItemCallback<DataItem>() {
+            override fun areItemsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+                return oldItem.email == newItem.email
+            }
+            
+            override fun areContentsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+                return oldItem == newItem
+            }
+        }
     }
 }
 ```
@@ -367,7 +392,7 @@ GitHub Actions
 
 ## Conclusion
 
-Arsitektur IuranKomplek saat ini memberikan fondasi yang solid untuk aplikasi manajemen iuran komplek. Arsitektur hybrid Kotlin-Java memungkinkan transisi bertahap ke Kotlin sepenuhnya sambil mempertahankan kompatibilitas.
+Arsitektur IuranKomplek saat ini memberikan fondasi yang solid untuk aplikasi manajemen iuran komplek. Seluruh kodebase telah bermigrasi ke Kotlin dan mengikuti arsitektur MVVM modern dengan pola desain terbaik.
 
 **Key Strengths:**
 - Clean separation of concerns
