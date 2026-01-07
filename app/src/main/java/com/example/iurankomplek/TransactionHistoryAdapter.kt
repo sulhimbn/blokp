@@ -1,7 +1,5 @@
 package com.example.iurankomplek
 
-package com.example.iurankomplek
-
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
