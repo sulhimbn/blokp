@@ -15,7 +15,7 @@ class WebhookReceiver(
     private val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
 
     companion object {
-        private const val TAG = "WebhookReceiver"
+        private val TAG = Constants.Tags.WEBHOOK_RECEIVER
     }
 
     suspend fun setupWebhookListener(webhookUrl: String) {

@@ -14,7 +14,7 @@ import javax.net.ssl.X509TrustManager
  * certificate monitoring, security checks, and security configuration management.
  */
 object SecurityManager {
-    private const val TAG = "SecurityManager"
+    private val TAG = Constants.Tags.SECURITY_MANAGER
     
     /**
      * Checks if the app is running in a secure environment

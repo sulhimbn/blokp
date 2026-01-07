@@ -8,7 +8,7 @@ import com.example.iurankomplek.BuildConfig
 object ApiConfig {
     // Use mock API in debug mode or when running in Docker
     private const val USE_MOCK_API = BuildConfig.DEBUG || System.getenv("DOCKER_ENV") != null
-    private const val BASE_URL = if (USE_MOCK_API) {
+    private val BASE_URL = if (USE_MOCK_API) {
         "http://api-mock:5000/data/QjX6hB1ST2IDKaxB/"
     } else {
         "https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/"
@@ -21,8 +21,8 @@ object ApiConfig {
         } else {
             // For debug/mock, use basic client but log warning
             val clientBuilder = OkHttpClient.Builder()
-                .connectTimeout(30L, java.util.concurrent.TimeUnit.SECONDS)
-                .readTimeout(30L, java.util.concurrent.TimeUnit.SECONDS)
+                .connectTimeout(Constants.Network.CONNECT_TIMEOUT, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(Constants.Network.READ_TIMEOUT, java.util.concurrent.TimeUnit.SECONDS)
             
             // Add logging interceptor only for debug builds
             if (BuildConfig.DEBUG) {
