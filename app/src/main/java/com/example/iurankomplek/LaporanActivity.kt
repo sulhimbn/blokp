@@ -41,8 +41,8 @@ class LaporanActivity : BaseActivity() {
         val pemanfaatanRepository = PemanfaatanRepositoryFactory.getInstance()
         viewModel = ViewModelProvider(this, FinancialViewModel.Factory(pemanfaatanRepository))[FinancialViewModel::class.java]
 
-        adapter = PemanfaatanAdapter(mutableListOf(), lifecycleScope)
-        summaryAdapter = LaporanSummaryAdapter(lifecycleScope)
+        adapter = PemanfaatanAdapter()
+        summaryAdapter = LaporanSummaryAdapter()
 
         binding.rvLaporan.layoutManager = LinearLayoutManager(this)
         binding.rvLaporan.adapter = adapter
@@ -79,7 +79,7 @@ class LaporanActivity : BaseActivity() {
                             }
                             
                             // Set data pemanfaatan pada adapter
-                            adapter.setPemanfaatan(dataArray)
+                            adapter.submitList(dataArray)
                             
                             // Calculate and set summary items with payment integration
                             calculateAndSetSummary(dataArray)

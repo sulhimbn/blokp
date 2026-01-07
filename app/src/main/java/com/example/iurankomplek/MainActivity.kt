@@ -27,7 +27,7 @@ class MainActivity : BaseActivity() {
         val userRepository = UserRepositoryFactory.getInstance()
         viewModel = ViewModelProvider(this, UserViewModel.Factory(userRepository))[UserViewModel::class.java]
         
-        adapter = UserAdapter(mutableListOf(), lifecycleScope)
+        adapter = UserAdapter()
         binding.rvUsers.layoutManager = LinearLayoutManager(this)
         binding.rvUsers.adapter = adapter
         
@@ -62,7 +62,7 @@ class MainActivity : BaseActivity() {
                                          user
                                      } else null
                                  }
-                                 adapter.setUsers(validatedUsers)
+                                  adapter.submitList(validatedUsers)
                              } else {
                                  Toast.makeText(this@MainActivity, getString(R.string.no_users_available), Toast.LENGTH_LONG).show()
                              }
