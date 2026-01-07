@@ -5,7 +5,8 @@
         <domain includeSubdomains="true">api.apispreadsheets.com</domain>
         <pin-set expiration="2028-12-31">
             <pin algorithm="sha256">PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=</pin>
-            <!-- Backup pin should be added when certificate is renewed -->
+            <!-- Add backup certificate pin here when available for redundancy -->
+            <!-- Example format: <pin algorithm="sha256">ACTUAL_BACKUP_CERTIFICATE_PIN_HERE</pin> -->
             <!-- To add a new pin: openssl s_client -servername api.apispreadsheets.com -connect api.apispreadsheets.com:443 2>/dev/null | openssl x509 -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | openssl enc -base64 -->
             <!-- Add new pin before removing old one during renewal -->
         </pin-set>
