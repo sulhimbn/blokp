@@ -30,7 +30,7 @@ object SecurityManager {
      */
     fun monitorCertificateExpiration() {
         // This would typically connect to the API and check certificate validity
-        LoggingUtils.logNetworkSecurityWarning("Certificate expiration monitoring should be implemented")
+        Log.w(TAG, "Certificate expiration monitoring should be implemented")
     }
     
     /**

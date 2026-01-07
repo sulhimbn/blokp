@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 
 object ApiConfig {
     // Use mock API in debug mode or when running in Docker
-    private const val USE_MOCK_API = BuildConfig.DEBUG || System.getenv(Constants.Api.DOCKER_ENV_KEY) != null
+    private val USE_MOCK_API = BuildConfig.DEBUG || System.getenv(Constants.Api.DOCKER_ENV_KEY) != null
     private val BASE_URL = if (USE_MOCK_API) {
         Constants.Api.MOCK_BASE_URL
     } else {

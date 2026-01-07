@@ -41,13 +41,13 @@ class NetworkErrorInterceptor(
             
             response
         } catch (e: SocketTimeoutException) {
-            val error = NetworkError.TimeoutError(cause = e)
+            val error = NetworkError.TimeoutError(userMessage = "Request timed out", timeoutDuration = 30000L)
             if (enableLogging) {
                 logError(requestTag, error, null)
             }
             throw error
         } catch (e: UnknownHostException) {
-            val error = NetworkError.ConnectionError(cause = e)
+            val error = NetworkError.ConnectionError(userMessage = "No internet connection", cause = e)
             if (enableLogging) {
                 logError(requestTag, error, null)
             }
@@ -62,7 +62,7 @@ class NetworkErrorInterceptor(
             }
             throw error
         } catch (e: IOException) {
-            val error = NetworkError.ConnectionError(cause = e)
+            val error = NetworkError.ConnectionError(userMessage = "Network error", cause = e)
             if (enableLogging) {
                 logError(requestTag, error, null)
             }
