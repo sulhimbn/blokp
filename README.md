@@ -37,6 +37,7 @@ Aplikasi Iuran BlokP adalah solusi lengkap untuk mengelola pembayaran iuran blok
 - **Bahasa Pemrograman**: Kotlin 100%
 - **Minimum SDK**: Android 7.0 (API 24)
 - **Build System**: Gradle
+- **Arsitektur**: MVVM dengan Repository Pattern
 
 ### Dependencies Utama
 
@@ -46,6 +47,9 @@ Aplikasi Iuran BlokP adalah solusi lengkap untuk mengelola pembayaran iuran blok
 - **Image Loading**: Glide dengan transformasi CircleCrop untuk avatar pengguna
 - **JSON Processing**: Gson Converter untuk parsing response API
 - **Debugging**: Chucker interceptor untuk inspeksi network traffic (hanya di debug mode)
+- **State Management**: StateFlow untuk reactive UI updates
+- **Resilience**: Circuit Breaker pattern untuk fault tolerance
+- **Persistence**: Room Database untuk local storage
 
 ## Struktur Proyek
 
@@ -130,8 +134,27 @@ Lihat [`docs/docker-setup.md`](docs/docker-setup.md) untuk instruksi lengkap set
 Aplikasi menggunakan API Spreadsheet untuk mengambil data pengguna dan pemanfaatan iuran:
 
 - **Base URL**: `https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/`
-- **Endpoint Pengguna**: `GET /` - Mengambil data pengguna/warga
-- **Endpoint Pemanfaatan**: `GET /` - Mengambil data pemanfaatan iuran
+- **Endpoint Pengguna**: `GET /users` - Mengambil data pengguna/warga
+- **Endpoint Pemanfaatan**: `GET /pemanfaatan` - Mengambil data pemanfaatan iuran
+- **Endpoint Vendor**: `GET /vendors` - Mengambil data vendor
+- **Endpoint Pengumuman**: `GET /announcements` - Mengambil pengumuman komunitas
+
+### Environment Configuration
+
+Aplikasi secara otomatis beralih antara environment:
+
+- **Production**: `https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/`
+- **Development (Mock)**: `http://api-mock:5000/data/QjX6hB1ST2IDKaxB/`
+- **Auto-switching**: Berdasarkan `BuildConfig.DEBUG` dan environment variable `DOCKER_ENV`
+
+### Circuit Breaker & Resilience
+
+Aplikasi mengimplementasikan Circuit Breaker pattern untuk fault tolerance:
+
+- **Failure Threshold**: 3 failures sebelum circuit terbuka
+- **Success Threshold**: 2 successes sebelum circuit tertutup
+- **Timeout**: 60 detik sebelum mencoba recovery
+- **Half-Open**: Maksimal 3 requests untuk testing service health
 
 ### Model Data
 
@@ -229,10 +252,24 @@ Aktivitas yang menampilkan laporan keuangan iuran:
 ### Bahasa Pemrograman
 - **Kotlin**: 100% kodebase menggunakan Kotlin
 
+### Modern Architecture
+Aplikasi ini menggunakan arsitektur MVVM modern dengan best practices:
+
+- **MVVM Pattern**: Pemisahan yang jelas antara View (Activity/Fragment), ViewModel (business logic), dan Repository (data layer)
+- **Repository Pattern**: Abstraksi untuk data access dengan Factory pattern untuk instansiasi
+- **StateFlow**: Reactive state management untuk UI updates yang efisien
+- **Circuit Breaker**: Fault tolerance pattern untuk mencegah cascading failures
+- **Factory Pattern**: Konsistent dependency injection untuk ViewModels dan Repositories
+- **Room Database**: Local storage dengan proper entity relationships
+- **DiffUtil**: Efisien RecyclerView updates untuk performa optimal
+
 ### Design Patterns
-- **MVVM Light**: Activity sebagai View, Adapter sebagai View Holder
-- **Repository Pattern**: ApiConfig dan ApiService untuk data access
+- **MVVM**: Activity sebagai View, ViewModel untuk business logic, Repository untuk data access
+- **Repository Pattern**: ApiConfig, ApiService, dan Repository implementations untuk data abstraction
+- **Factory Pattern**: Factory classes untuk ViewModels dan Repositories
 - **Adapter Pattern**: RecyclerView adapters untuk UI binding
+- **Observer Pattern**: StateFlow untuk reactive programming
+- **Circuit Breaker Pattern**: Service resilience untuk fault tolerance
 
 ## Status Proyek
 
