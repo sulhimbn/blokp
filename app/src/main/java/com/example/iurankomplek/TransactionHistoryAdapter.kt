@@ -57,20 +57,20 @@ class TransactionHistoryAdapter(
                 btnRefund.setOnClickListener {
                     val transactionRepository = com.example.iurankomplek.transaction.TransactionRepositoryFactory.getMockInstance(context)
 
-                    coroutineScope.launch(Dispatchers.IO) {
-                        val result = transactionRepository.refundPayment(transaction.id, "User requested refund")
-                        if (result.isSuccess) {
-                            runOnUiThread(context) {
-                                tvStatus.text = PaymentStatus.REFUNDED.name
-                                btnRefund.visibility = View.GONE
-                                Toast.makeText(context, "Refund processed successfully", Toast.LENGTH_SHORT).show()
-                            }
-                        } else {
-                            runOnUiThread(context) {
-                                Toast.makeText(context, "Refund failed: ${result.exceptionOrNull()?.message}", Toast.LENGTH_LONG).show()
-                            }
-                        }
-                    }
+                     coroutineScope.launch(Dispatchers.IO) {
+                         val result = transactionRepository.refundPayment(transaction.id, "User requested refund")
+                         if (result.isSuccess) {
+                             runOnUiThread(context) {
+                                 tvStatus.text = PaymentStatus.REFUNDED.name
+                                 btnRefund.visibility = View.GONE
+                                 Toast.makeText(context, context.getString(R.string.refund_processed_successfully), Toast.LENGTH_SHORT).show()
+                             }
+                         } else {
+                             runOnUiThread(context) {
+                                 Toast.makeText(context, context.getString(R.string.refund_failed, result.exceptionOrNull()?.message), Toast.LENGTH_LONG).show()
+                             }
+                         }
+                     }
                 }
             } else {
                 btnRefund.visibility = View.GONE

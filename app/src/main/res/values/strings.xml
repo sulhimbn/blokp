@@ -27,25 +27,47 @@
      <string name="request_failed_with_status">Request failed with status code: %d</string>
      <string name="financial_calculation_overflow_error">Financial calculation error due to data overflow</string>
     
-    <!-- Payment Screen -->
-    <string name="payment_title">Payment</string>
-    <string name="payment_title_desc">Payment screen title</string>
-    <string name="payment_amount_hint">Enter amount</string>
-    <string name="payment_amount_helper">Amount to pay in your currency</string>
-    <string name="payment_amount_input_desc">Payment amount input field</string>
-    <string name="payment_method_label">Payment Method</string>
-    <string name="payment_method_spinner_desc">Select payment method dropdown</string>
-    <string name="payment_pay_now">Pay Now</string>
-    <string name="payment_pay_now_desc">Submit payment button</string>
-    <string name="payment_view_history">View Transaction History</string>
-    <string name="payment_view_history_desc">Navigate to transaction history button</string>
-    <string name="payment_processing">Processing payment</string>
-    <string name="payment_success">Payment successful</string>
-    <string name="payment_failed">Payment failed</string>
-    <string name="payment_invalid_amount">Please enter a valid amount</string>
-    <string name="payment_network_error">Network error, please try again</string>
-    
-    <!-- Transaction History -->
+     <!-- Payment Screen -->
+     <string name="payment_title">Payment</string>
+     <string name="payment_title_desc">Payment screen title</string>
+     <string name="payment_amount_hint">Enter amount</string>
+     <string name="payment_amount_helper">Amount to pay in your currency</string>
+     <string name="payment_amount_input_desc">Payment amount input field</string>
+     <string name="payment_method_label">Payment Method</string>
+     <string name="payment_method_spinner_desc">Select payment method dropdown</string>
+     <string name="payment_pay_now">Pay Now</string>
+     <string name="payment_pay_now_desc">Submit payment button</string>
+     <string name="payment_view_history">View Transaction History</string>
+     <string name="payment_view_history_desc">Navigate to transaction history button</string>
+     <string name="payment_processing">Processing payment</string>
+     <string name="payment_success">Payment successful</string>
+     <string name="payment_failed">Payment failed</string>
+     <string name="payment_invalid_amount">Please enter a valid amount</string>
+     <string name="payment_network_error">Network error, please try again</string>
+     <string name="total_payments_processed">Total Payments Processed</string>
+     <string name="integrated_payment_transactions">Integrated %d payment transactions (Total: %s)</string>
+     <string name="error_integrating_payment_data">Error integrating payment data: %s</string>
+     <string name="payment_enter_amount">Please enter an amount</string>
+     <string name="payment_amount_greater_than_zero">Amount must be greater than zero</string>
+     <string name="payment_exceeds_max_limit">Amount exceeds maximum allowed limit</string>
+     <string name="payment_max_decimal_places">Amount cannot have more than 2 decimal places</string>
+     <string name="payment_failed_with_error">Payment failed: %s</string>
+     <string name="payment_processed_successfully">Payment processed successfully!</string>
+     <string name="payment_invalid_format">Invalid amount format</string>
+     <string name="payment_invalid_value">Invalid amount value</string>
+     <string name="no_messages_available">No messages available</string>
+     <string name="failed_to_load_messages">Failed to load messages</string>
+     <string name="no_announcements_available">No announcements available</string>
+     <string name="failed_to_load_announcements">Failed to load announcements</string>
+     <string name="work_order_id_not_provided">Work order ID not provided</string>
+     <string name="work_order_not_assigned">Not assigned</string>
+     <string name="refund_processed_successfully">Refund processed successfully</string>
+     <string name="refund_failed">Refund failed: %s</string>
+     <string name="no_community_posts_available">No community posts available</string>
+     <string name="failed_to_load_community_posts">Failed to load community posts</string>
+     <string name="error_with_message">Error: %s</string>
+     
+     <!-- Transaction History -->
     <string name="transaction_item_desc">Transaction history item card</string>
     <string name="transaction_amount">Amount:</string>
     <string name="transaction_amount_value">Transaction amount</string>

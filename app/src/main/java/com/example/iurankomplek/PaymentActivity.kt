@@ -51,33 +51,33 @@ class PaymentActivity : BaseActivity() {
     private fun processPayment() {
         val amountText = binding.etAmount.text.toString().trim()
         
-        // SECURITY: Validate input before processing
-        if (amountText.isEmpty()) {
-            Toast.makeText(this, "Please enter an amount", Toast.LENGTH_SHORT).show()
-            return
-        }
-        
-        try {
-            val amount = BigDecimal(amountText)
-            
-            // SECURITY: Validate amount is positive and within reasonable bounds
-            if (amount <= BigDecimal.ZERO) {
-                Toast.makeText(this, "Amount must be greater than zero", Toast.LENGTH_SHORT).show()
-                return
-            }
-            
-            // SECURITY: Add maximum amount limit to prevent abuse
-            val maxPaymentAmount = BigDecimal.valueOf(Constants.Payment.MAX_PAYMENT_AMOUNT)
-            if (amount > maxPaymentAmount) {
-                Toast.makeText(this, "Amount exceeds maximum allowed limit", Toast.LENGTH_SHORT).show()
-                return
-            }
-            
-            // SECURITY: Check for suspicious decimal places
-            if (amount.scale() > 2) {
-                Toast.makeText(this, "Amount cannot have more than 2 decimal places", Toast.LENGTH_SHORT).show()
-                return
-            }
+         // SECURITY: Validate input before processing
+         if (amountText.isEmpty()) {
+             Toast.makeText(this, getString(R.string.payment_enter_amount), Toast.LENGTH_SHORT).show()
+             return
+         }
+         
+         try {
+             val amount = BigDecimal(amountText)
+             
+             // SECURITY: Validate amount is positive and within reasonable bounds
+             if (amount <= BigDecimal.ZERO) {
+                 Toast.makeText(this, getString(R.string.payment_amount_greater_than_zero), Toast.LENGTH_SHORT).show()
+                 return
+             }
+             
+             // SECURITY: Add maximum amount limit to prevent abuse
+             val maxPaymentAmount = BigDecimal.valueOf(Constants.Payment.MAX_PAYMENT_AMOUNT)
+             if (amount > maxPaymentAmount) {
+                 Toast.makeText(this, getString(R.string.payment_exceeds_max_limit), Toast.LENGTH_SHORT).show()
+                 return
+             }
+             
+             // SECURITY: Check for suspicious decimal places
+             if (amount.scale() > 2) {
+                 Toast.makeText(this, getString(R.string.payment_max_decimal_places), Toast.LENGTH_SHORT).show()
+                 return
+             }
             
             val selectedMethod = when (binding.spinnerPaymentMethod.selectedItemPosition) {
                 0 -> PaymentMethod.CREDIT_CARD
@@ -91,24 +91,25 @@ class PaymentActivity : BaseActivity() {
             paymentViewModel.setAmount(amount)
             paymentViewModel.selectPaymentMethod(selectedMethod)
             
-            // Set up observer for UI state changes
-            lifecycleScope.launch {
-                paymentViewModel.uiState.collect { uiState ->
-                    if (!uiState.isProcessing && uiState.errorMessage != null && uiState.errorMessage.isNotEmpty()) {
-                        Toast.makeText(this@PaymentActivity, "Payment failed: ${uiState.errorMessage}", Toast.LENGTH_LONG).show()
-                    } else if (!uiState.isProcessing && uiState.errorMessage == null && uiState.amount > BigDecimal.ZERO) {
-                        Toast.makeText(this@PaymentActivity, "Payment processed successfully!", Toast.LENGTH_LONG).show()
-                    }
-                }
-            }
-            
-            // Process the payment using the ViewModel
-            paymentViewModel.processPayment()
-            
-        } catch (e: NumberFormatException) {
-            Toast.makeText(this, "Invalid amount format", Toast.LENGTH_SHORT).show()
-        } catch (e: ArithmeticException) {
-            Toast.makeText(this, "Invalid amount value", Toast.LENGTH_SHORT).show()
-        }
-    }
+             // Set up observer for UI state changes
+             lifecycleScope.launch {
+                 paymentViewModel.uiState.collect { uiState ->
+                     if (!uiState.isProcessing && uiState.errorMessage != null && uiState.errorMessage.isNotEmpty()) {
+                         Toast.makeText(this@PaymentActivity, getString(R.string.payment_failed_with_error, uiState.errorMessage), Toast.LENGTH_LONG).show()
+                     } else if (!uiState.isProcessing && uiState.errorMessage == null && uiState.amount > BigDecimal.ZERO) {
+                         Toast.makeText(this@PaymentActivity, getString(R.string.payment_processed_successfully), Toast.LENGTH_LONG).show()
+                     }
+                 }
+             }
+             
+             // Process payment using ViewModel
+              paymentViewModel.processPayment()
+
+          } catch (e: NumberFormatException) {
+               Toast.makeText(this, getString(R.string.payment_invalid_format), Toast.LENGTH_SHORT).show()
+           } catch (e: ArithmeticException) {
+               Toast.makeText(this, getString(R.string.payment_invalid_value), Toast.LENGTH_SHORT).show()
+           }
+       }
+   }
 }

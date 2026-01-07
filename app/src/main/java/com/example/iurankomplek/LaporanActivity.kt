@@ -161,23 +161,22 @@ withContext(Dispatchers.Main) {
              if (completedTransactions.isNotEmpty()) {
                  // Update financial calculations to include actual payment data
                  // Instead of adding payments to total iuran, show payments as collected amounts against outstanding balances
-                 val updatedRekapIuran = currentRekapIuran // Keep the original rekap iuran calculation
                  
                  // Update summary with integrated data
                  val updatedSummaryItems = listOf(
                      LaporanSummaryItem(getString(R.string.jumlah_iuran_bulanan), DataValidator.formatCurrency(currentTotalIuranBulanan)),
                      LaporanSummaryItem(getString(R.string.total_pengeluaran), DataValidator.formatCurrency(currentTotalPengeluaran)),
-                     LaporanSummaryItem(getString(R.string.rekap_total_iuran), DataValidator.formatCurrency(updatedRekapIuran)),
-                     LaporanSummaryItem("Total Payments Processed", DataValidator.formatCurrency(paymentTotal))
+                     LaporanSummaryItem(getString(R.string.rekap_total_iuran), DataValidator.formatCurrency(currentRekapIuran)),
+                     LaporanSummaryItem(getString(R.string.total_payments_processed), DataValidator.formatCurrency(paymentTotal))
                  )
                  
-                 summaryAdapter.setItems(updatedSummaryItems)
-                 
-                 Toast.makeText(
-                     this@LaporanActivity,
-                     "Integrated ${completedTransactions.size} payment transactions (Total: ${DataValidator.formatCurrency(paymentTotal)})",
-                     Toast.LENGTH_LONG
-                 ).show()
+                  summaryAdapter.setItems(updatedSummaryItems)
+                  
+                  Toast.makeText(
+                      this@LaporanActivity,
+                      getString(R.string.integrated_payment_transactions, completedTransactions.size, DataValidator.formatCurrency(paymentTotal)),
+                      Toast.LENGTH_LONG
+                  ).show()
              } else {
                  // If no completed transactions, show original summary without payment data
                  val originalSummaryItems = listOf(
@@ -189,15 +188,15 @@ withContext(Dispatchers.Main) {
                  summaryAdapter.setItems(originalSummaryItems)
              }
          }
-             } catch (e: Exception) {
-                 withContext(Dispatchers.Main) {
-                     Toast.makeText(
-                         this@LaporanActivity,
-                         "Error integrating payment data: ${e.message}",
-                         Toast.LENGTH_LONG
-                     ).show()
-                 }
-             }
+              } catch (e: Exception) {
+                  withContext(Dispatchers.Main) {
+                      Toast.makeText(
+                          this@LaporanActivity,
+                          getString(R.string.error_integrating_payment_data, e.message),
+                          Toast.LENGTH_LONG
+                      ).show()
+                  }
+              }
         }
     }
     
