@@ -66,7 +66,7 @@ enum class ApiErrorCode(val code: String, val defaultMessage: String) {
 sealed class NetworkError(override val cause: Throwable? = null) : Exception() {
     abstract val code: ApiErrorCode
     abstract val userMessage: String
-    abstract val message: String
+    abstract override val message: String
     
     data class HttpError(
         override val code: ApiErrorCode,
