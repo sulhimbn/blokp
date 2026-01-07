@@ -12,6 +12,9 @@ Roadmap ini menggambarkan rencana pengembangan aplikasi IuranKomplek untuk jangk
 - ✅ Docker development environment yang siap
 - ✅ GitHub Actions workflow untuk otomasi
 - ✅ Unit tests untuk logika perhitungan keuangan
+- ✅ DiffUtil implementation untuk RecyclerView performance
+- ✅ Security configuration dengan certificate pinning
+- ✅ Payment gateway integration dengan transaction management
 
 ### Critical Issues
 - 🚨 Mock API data structure mismatch (#47)
@@ -20,12 +23,25 @@ Roadmap ini menggambarkan rencana pengembangan aplikasi IuranKomplek untuk jangk
 - ⚠️ Missing network security configuration (#49)
 - ⚠️ Unused code (LaporanAdapter) (#48)
 
+### Newly Identified Issues (November 2025)
+- 🔴 **Duplicate Swipe Refresh Setup** (#209) - Critical architecture issue
+- 🟡 **Certificate Pinning Expiration** (#210) - Security maintenance needed
+- 🟡 **Inefficient Data Conversion** (#211) - Performance optimization required
+- 🟢 **Missing Package Declaration** (#213) - Code quality improvement
+- 🟡 **Mixed Language Inconsistency** (#214) - Architecture standardization needed
+
 ## Roadmap Timeline
 
-### Phase 1: Stabilization & Security (Week 1-2)
+### Phase 1: Critical Fixes & Security (Week 1-2)
 **Priority: CRITICAL**
 
 #### Week 1: Foundation Fixes
+- [ ] **Fix Duplicate Swipe Refresh Setup** (#209) - **NEW**
+  - Remove redundant setupSwipeRefresh() call in MainActivity
+  - Test swipe refresh functionality
+  - Validate no memory leaks occur
+  - **Impact**: Prevents potential crashes and memory issues
+
 - [ ] **Fix Mock API Data Structure** (#47)
   - Update mock data to match DataItem model
   - Validate API response structure
@@ -38,7 +54,19 @@ Roadmap ini menggambarkan rencana pengembangan aplikasi IuranKomplek untuk jangk
   - Validate calculation accuracy
   - **Impact**: Ensures correct financial reporting
 
-#### Week 2: Security Hardening
+#### Week 2: Security & Performance
+- [ ] **Certificate Pinning Maintenance** (#210) - **NEW**
+  - Add backup certificate pin
+  - Implement certificate rotation strategy
+  - Set up expiration monitoring
+  - **Impact**: Prevents service disruption during certificate renewal
+
+- [ ] **Optimize Data Conversion** (#211) - **NEW**
+  - Remove inefficient DataItem ↔ ValidatedDataItem conversion
+  - Implement direct validation
+  - Profile memory and CPU improvements
+  - **Impact**: Better performance on large datasets
+
 - [ ] **Implement Network Security** (#49)
   - Add network security configuration
   - Implement certificate pinning
@@ -51,21 +79,34 @@ Roadmap ini menggambarkan rencana pengembangan aplikasi IuranKomplek untuk jangk
   - Test compatibility
   - **Impact**: Eliminates security risks
 
-### Phase 2: Code Quality & Performance (Week 3-4)
+### Phase 2: Code Quality & Architecture (Week 3-4)
 **Priority: HIGH**
 
-#### Week 3: Architecture Cleanup
+#### Week 3: Architecture Standardization
+- [ ] **Convert MenuActivity to Kotlin** (#214) - **NEW**
+  - Migrate MenuActivity.java to MenuActivity.kt
+  - Update imports and dependencies
+  - Test functionality after conversion
+  - **Impact**: Consistent language across codebase
+
+- [ ] **Fix Package Declaration** (#213) - **NEW**
+  - Add missing package declaration to LaporanActivity
+  - Validate build tools recognize file correctly
+  - Update IDE configuration if needed
+  - **Impact**: Better tooling support and consistency
+
 - [ ] **Remove Unused Code** (#48)
   - Delete LaporanAdapter and related layouts
   - Clean up unused imports and dependencies
   - Update documentation
   - **Impact**: Reduces code complexity
 
-- [ ] **Implement DiffUtil** (#25)
-  - Replace notifyDataSetChanged() with DiffUtil
-  - Optimize RecyclerView performance
-  - Add smooth animations
-  - **Impact**: Improves UI performance
+#### Week 4: Performance Optimization
+- [ ] **Validate DiffUtil Implementation** - **UPDATED**
+  - Review existing DiffUtil usage in adapters
+  - Optimize callback implementations
+  - Add performance benchmarks
+  - **Impact**: Ensures optimal RecyclerView performance
 
 #### Week 4: Error Handling & Validation
 - [ ] **Enhance API Error Handling** (#22)
