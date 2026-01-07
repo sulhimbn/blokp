@@ -45,22 +45,22 @@ object SecurityManager {
     
     /**
      * SECURITY WARNING: Creates an all-trusting trust manager for development purposes
-     * 
+     *
      * CRITICAL SECURITY RISK: This method disables ALL SSL/TLS certificate validation!
      * - Accepts ANY certificate, including self-signed and invalid certificates
      * - Makes app vulnerable to Man-in-the-Middle (MitM) attacks
      * - Should NEVER be used in production builds
-     * 
+     *
      * Usage restrictions:
      * - ONLY for development/debug builds (BuildConfig.DEBUG = true)
      * - NEVER for release builds
      * - MUST be removed before production deployment
-     * 
+     *
      * If you MUST use this in development:
      * 1. Verify BuildConfig.DEBUG is true before calling
      * 2. Remove all references before production build
      * 3. Consider using a development-specific API endpoint with valid certificates instead
-     * 
+     *
      * Alternative: Use network_security_config.xml with debug-overrides for development
      */
     @Deprecated(
@@ -70,10 +70,12 @@ object SecurityManager {
     )
     fun createInsecureTrustManager(): X509TrustManager {
         if (!BuildConfig.DEBUG) {
-            Log.e(TAG, "SECURITY VIOLATION: createInsecureTrustManager called in release build!")
-            Log.e(TAG, "This creates a critical security vulnerability - DO NOT USE IN PRODUCTION!")
+            val errorMsg = "CRITICAL SECURITY VIOLATION: createInsecureTrustManager called in release build! " +
+                         "This creates a critical security vulnerability - DO NOT USE IN PRODUCTION!"
+            Log.e(TAG, errorMsg)
+            error(errorMsg)
         }
-        
+
         return object : X509TrustManager {
             override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
                 // SECURITY: Does not validate client certificates - accepts ANY
@@ -81,14 +83,14 @@ object SecurityManager {
                     Log.e(TAG, "SECURITY: Client certificate validation disabled in release build!")
                 }
             }
-            
+
             override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
                 // SECURITY: Does not validate server certificates - accepts ANY
                 if (!BuildConfig.DEBUG) {
                     Log.e(TAG, "SECURITY: Server certificate validation disabled in release build!")
                 }
             }
-            
+
             override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
         }
     }
