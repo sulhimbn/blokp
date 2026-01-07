@@ -96,7 +96,7 @@ object ApiConfig {
         return retrofit.create(ApiService::class.java)
     }
     
-    fun resetCircuitBreaker() {
+    suspend fun resetCircuitBreaker() {
         circuitBreaker.reset()
     }
     
