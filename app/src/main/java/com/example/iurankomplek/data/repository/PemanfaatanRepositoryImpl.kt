@@ -1,5 +1,9 @@
 package com.example.iurankomplek.data.repository
 
+import com.example.iurankomplek.data.cache.CacheManager
+import com.example.iurankomplek.data.cache.cacheFirstStrategy
+import com.example.iurankomplek.data.entity.UserWithFinancialRecords
+import com.example.iurankomplek.data.mapper.EntityMapper
 import com.example.iurankomplek.model.PemanfaatanResponse
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.network.model.NetworkError
@@ -13,8 +17,86 @@ class PemanfaatanRepositoryImpl(
     private val circuitBreaker: CircuitBreaker = ApiConfig.circuitBreaker
     private val maxRetries = 3
     
-    override suspend fun getPemanfaatan(): Result<PemanfaatanResponse> = withCircuitBreaker {
-        apiService.getPemanfaatan()
+    override suspend fun getPemanfaatan(forceRefresh: Boolean = false): Result<PemanfaatanResponse> {
+        return cacheFirstStrategy(
+            getFromCache = {
+                val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords()
+                val dataItemList = usersWithFinancials.map { EntityMapper.toLegacyDto(it) }
+                val pemanfaatanResponse = PemanfaatanResponse(dataItemList)
+                if (dataItemList.isEmpty()) null else pemanfaatanResponse
+            },
+            getFromNetwork = {
+                withCircuitBreaker { apiService.getPemanfaatan() }
+                    .getOrThrow()
+            },
+            isCacheFresh = { response ->
+                if (response.data.isNotEmpty()) {
+                    val usersWithFinancials = CacheManager.getUserDao()
+                        .getAllUsersWithFinancialRecords()
+                    if (usersWithFinancials.isNotEmpty()) {
+                        val latestUpdate = usersWithFinancials
+                            .maxOfOrNull { it.user.updatedAt.time }
+                            ?: return@cacheFirstStrategy false
+                        CacheManager.isCacheFresh(latestUpdate)
+                    } else {
+                        false
+                    }
+                } else {
+                    false
+                }
+            },
+            saveToCache = { response ->
+                savePemanfaatanToCache(response)
+            },
+            forceRefresh = forceRefresh
+        )
+    }
+    
+    override suspend fun getCachedPemanfaatan(): Result<PemanfaatanResponse> {
+        return try {
+            val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords()
+            val dataItemList = usersWithFinancials.map { EntityMapper.toLegacyDto(it) }
+            val pemanfaatanResponse = PemanfaatanResponse(dataItemList)
+            Result.success(pemanfaatanResponse)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    
+    override suspend fun clearCache(): Result<Unit> {
+        return try {
+            CacheManager.getFinancialRecordDao().deleteAll()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    
+    private suspend fun savePemanfaatanToCache(response: PemanfaatanResponse) {
+        val userFinancialPairs = EntityMapper.fromLegacyDtoList(response.data)
+        val userDao = CacheManager.getUserDao()
+        val financialRecordDao = CacheManager.getFinancialRecordDao()
+        
+        userFinancialPairs.forEach { (user, financial) ->
+            val existingUser = userDao.getUserByEmail(user.email)
+            val userId = if (existingUser != null) {
+                userDao.update(user.copy(id = existingUser.id, updatedAt = java.util.Date()))
+                existingUser.id
+            } else {
+                userDao.insert(user)
+            }
+            
+            val existingFinancial = financialRecordDao.getLatestFinancialRecordByUserId(userId)
+            if (existingFinancial != null) {
+                financialRecordDao.update(financial.copy(
+                    id = existingFinancial.id,
+                    userId = userId,
+                    updatedAt = java.util.Date()
+                ))
+            } else {
+                financialRecordDao.insert(financial.copy(userId = userId))
+            }
+        }
     }
     
     private suspend fun <T : Any> withCircuitBreaker(
