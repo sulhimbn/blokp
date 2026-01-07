@@ -9,6 +9,7 @@ import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.network.model.NetworkError
 import com.example.iurankomplek.network.resilience.CircuitBreaker
 import com.example.iurankomplek.network.resilience.CircuitBreakerResult
+import kotlinx.coroutines.flow.first
 import retrofit2.HttpException
 
 class PemanfaatanRepositoryImpl(
@@ -20,7 +21,7 @@ class PemanfaatanRepositoryImpl(
     override suspend fun getPemanfaatan(forceRefresh: Boolean): Result<PemanfaatanResponse> {
         return cacheFirstStrategy(
             getFromCache = {
-                val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords()
+                val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
                 val dataItemList = usersWithFinancials.map { EntityMapper.toLegacyDto(it) }
                 val pemanfaatanResponse = PemanfaatanResponse(dataItemList)
                 if (dataItemList.isEmpty()) null else pemanfaatanResponse
@@ -33,6 +34,7 @@ class PemanfaatanRepositoryImpl(
                 if (response.data.isNotEmpty()) {
                     val usersWithFinancials = CacheManager.getUserDao()
                         .getAllUsersWithFinancialRecords()
+                        .first()
                     if (usersWithFinancials.isNotEmpty()) {
                         val latestUpdate = usersWithFinancials
                             .maxOfOrNull { it.user.updatedAt.time }
@@ -54,7 +56,7 @@ class PemanfaatanRepositoryImpl(
     
     override suspend fun getCachedPemanfaatan(): Result<PemanfaatanResponse> {
         return try {
-            val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords()
+            val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
             val dataItemList = usersWithFinancials.map { EntityMapper.toLegacyDto(it) }
             val pemanfaatanResponse = PemanfaatanResponse(dataItemList)
             Result.success(pemanfaatanResponse)
