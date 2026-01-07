@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityTransactionHistoryBinding
-import com.example.iurankomplek.transaction.TransactionRepositoryFactory
+import com.example.iurankomplek.data.repository.TransactionRepositoryFactory
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.TransactionViewModel
 import com.example.iurankomplek.viewmodel.TransactionViewModelFactory

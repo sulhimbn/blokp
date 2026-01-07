@@ -17,9 +17,9 @@ import com.example.iurankomplek.data.mapper.EntityMapper
 import com.example.iurankomplek.model.ValidatedDataItem
 import com.example.iurankomplek.utils.DataValidator
 import com.example.iurankomplek.utils.UiState
-import com.example.iurankomplek.transaction.TransactionDatabase
-import com.example.iurankomplek.transaction.TransactionRepository
-import com.example.iurankomplek.transaction.TransactionRepositoryFactory
+import com.example.iurankomplek.data.database.TransactionDatabase
+import com.example.iurankomplek.data.repository.TransactionRepository
+import com.example.iurankomplek.data.repository.TransactionRepositoryFactory
 import com.example.iurankomplek.payment.MockPaymentGateway
 import com.example.iurankomplek.viewmodel.FinancialViewModel
 import com.example.iurankomplek.viewmodel.FinancialViewModelFactory

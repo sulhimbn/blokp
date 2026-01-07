@@ -13,9 +13,10 @@ import com.example.iurankomplek.R
 import com.example.iurankomplek.payment.MockPaymentGateway
 import com.example.iurankomplek.payment.PaymentStatus
 import com.example.iurankomplek.payment.RefundResponse
-import com.example.iurankomplek.transaction.Transaction
-import com.example.iurankomplek.transaction.TransactionDatabase
-import com.example.iurankomplek.transaction.TransactionRepository
+import com.example.iurankomplek.data.entity.Transaction
+import com.example.iurankomplek.data.database.TransactionDatabase
+import com.example.iurankomplek.data.repository.TransactionRepository
+import com.example.iurankomplek.data.repository.TransactionRepositoryFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -56,7 +57,7 @@ class TransactionHistoryAdapter(
             if (transaction.status == PaymentStatus.COMPLETED) {
                 btnRefund.visibility = View.VISIBLE
                 btnRefund.setOnClickListener {
-                    val transactionRepository = com.example.iurankomplek.transaction.TransactionRepositoryFactory.getMockInstance(context)
+                    val transactionRepository = TransactionRepositoryFactory.getMockInstance(context)
 
                      coroutineScope.launch(Dispatchers.IO) {
                          val result = transactionRepository.refundPayment(transaction.id, "User requested refund")

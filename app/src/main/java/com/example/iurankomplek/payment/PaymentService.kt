@@ -1,7 +1,8 @@
 package com.example.iurankomplek.payment
 
-import com.example.iurankomplek.receipt.ReceiptGenerator
-import com.example.iurankomplek.transaction.TransactionRepository
+import com.example.iurankomplek.utils.ReceiptGenerator
+import com.example.iurankomplek.data.repository.TransactionRepository
+import com.example.iurankomplek.data.dto.Receipt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,7 +17,7 @@ class PaymentService(
         description: String,
         customerId: String,
         paymentMethod: PaymentMethod,
-        onSuccess: (com.example.iurankomplek.receipt.Receipt) -> Unit,
+        onSuccess: (Receipt) -> Unit,
         onError: (String) -> Unit
     ) {
         CoroutineScope(Dispatchers.IO).launch {

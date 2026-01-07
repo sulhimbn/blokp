@@ -1,7 +1,7 @@
 package com.example.iurankomplek.payment
 
 import android.util.Log
-import com.example.iurankomplek.transaction.TransactionRepository
+import com.example.iurankomplek.data.repository.TransactionRepository
 import com.example.iurankomplek.utils.Constants
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel

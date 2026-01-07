@@ -1,6 +1,7 @@
-package com.example.iurankomplek.transaction
+package com.example.iurankomplek.data.dao
 
 import androidx.room.*
+import com.example.iurankomplek.data.entity.Transaction
 import kotlinx.coroutines.flow.Flow
 
 @Dao

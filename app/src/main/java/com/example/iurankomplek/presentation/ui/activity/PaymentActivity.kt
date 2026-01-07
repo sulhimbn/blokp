@@ -13,8 +13,8 @@ import com.example.iurankomplek.databinding.ActivityPaymentBinding
 import com.example.iurankomplek.payment.PaymentMethod
 import com.example.iurankomplek.payment.PaymentViewModel
 import com.example.iurankomplek.payment.PaymentViewModelFactory
-import com.example.iurankomplek.receipt.ReceiptGenerator
-import com.example.iurankomplek.transaction.TransactionRepositoryFactory
+import com.example.iurankomplek.utils.ReceiptGenerator
+import com.example.iurankomplek.data.repository.TransactionRepositoryFactory
 import com.example.iurankomplek.utils.Constants
 import java.math.BigDecimal
 

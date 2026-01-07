@@ -1,10 +1,13 @@
-package com.example.iurankomplek.transaction
+package com.example.iurankomplek.data.database
 
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import android.content.Context
 import androidx.room.TypeConverters
+import com.example.iurankomplek.data.entity.Transaction
+import com.example.iurankomplek.data.dao.TransactionDao
+import com.example.iurankomplek.data.DataTypeConverters
 import com.example.iurankomplek.payment.PaymentMethod
 import com.example.iurankomplek.payment.PaymentStatus
 
@@ -13,7 +16,7 @@ import com.example.iurankomplek.payment.PaymentStatus
     version = 1,
     exportSchema = false
 )
-@TypeConverters(Converters::class)
+@TypeConverters(DataTypeConverters::class)
 abstract class TransactionDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
 

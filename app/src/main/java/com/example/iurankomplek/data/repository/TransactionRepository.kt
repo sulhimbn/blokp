@@ -1,5 +1,6 @@
-package com.example.iurankomplek.transaction
+package com.example.iurankomplek.data.repository
 
+import com.example.iurankomplek.data.entity.Transaction
 import com.example.iurankomplek.model.PaymentResponse
 import com.example.iurankomplek.payment.PaymentRequest
 import com.example.iurankomplek.payment.RefundResponse
