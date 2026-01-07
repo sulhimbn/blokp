@@ -73,8 +73,9 @@ sealed class NetworkError(message: String, override val cause: Throwable? = null
         override val code: ApiErrorCode,
         override val userMessage: String,
         val httpCode: Int,
-        val details: String? = null
-    ) : NetworkError() {
+        val details: String? = null,
+        override val cause: Throwable? = null
+    ) : NetworkError("HTTP Error $httpCode: $userMessage") {
         override val message: String
             get() = "HTTP Error $httpCode: $userMessage"
     }
@@ -82,8 +83,9 @@ sealed class NetworkError(message: String, override val cause: Throwable? = null
     data class TimeoutError(
         override val code: ApiErrorCode = ApiErrorCode.TIMEOUT,
         override val userMessage: String = "Request timed out. Please try again.",
-        val timeoutDuration: Long? = null
-    ) : NetworkError() {
+        val timeoutDuration: Long? = null,
+        override val cause: Throwable? = null
+    ) : NetworkError("Timeout error: $userMessage") {
         override val message: String
             get() = "Timeout error: $userMessage"
     }
@@ -92,15 +94,16 @@ sealed class NetworkError(message: String, override val cause: Throwable? = null
         override val code: ApiErrorCode = ApiErrorCode.NETWORK_ERROR,
         override val userMessage: String = "No internet connection. Please check your network.",
         override val cause: Throwable? = null
-    ) : NetworkError() {
+    ) : NetworkError("Connection error: $userMessage", cause) {
         override val message: String
             get() = "Connection error: $userMessage"
     }
     
     data class CircuitBreakerError(
         override val code: ApiErrorCode = ApiErrorCode.SERVICE_UNAVAILABLE,
-        override val userMessage: String = "Service is temporarily unavailable. Please try again later."
-    ) : NetworkError() {
+        override val userMessage: String = "Service is temporarily unavailable. Please try again later.",
+        override val cause: Throwable? = null
+    ) : NetworkError("Circuit breaker open: $userMessage") {
         override val message: String
             get() = "Circuit breaker open: $userMessage"
     }
@@ -108,8 +111,9 @@ sealed class NetworkError(message: String, override val cause: Throwable? = null
     data class ValidationError(
         override val code: ApiErrorCode = ApiErrorCode.VALIDATION_ERROR,
         override val userMessage: String,
-        val field: String? = null
-    ) : NetworkError() {
+        val field: String? = null,
+        override val cause: Throwable? = null
+    ) : NetworkError("") {
         override val message: String
             get() = "Validation error${field?.let { " on $it" } ?: ""}: $userMessage"
     }
@@ -117,8 +121,9 @@ sealed class NetworkError(message: String, override val cause: Throwable? = null
     data class UnknownNetworkError(
         override val code: ApiErrorCode = ApiErrorCode.UNKNOWN_ERROR,
         override val userMessage: String = "An unexpected error occurred.",
-        val originalException: Throwable? = null
-    ) : NetworkError() {
+        val originalException: Throwable? = null,
+        override val cause: Throwable? = null
+    ) : NetworkError(originalException?.message ?: "Unknown network error") {
         override val message: String
             get() = originalException?.message ?: "Unknown network error"
     }
