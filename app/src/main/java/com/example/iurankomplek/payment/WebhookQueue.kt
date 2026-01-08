@@ -108,7 +108,7 @@ class WebhookQueue(
                     break
                 }
                 Log.e(TAG, "Error processing queue: ${e.message}", e)
-                delay(1000)
+                delay(Constants.Webhook.INITIAL_RETRY_DELAY_MS)
             }
         }
     }
@@ -239,7 +239,7 @@ class WebhookQueue(
         return (cappedDelay + jitter).coerceAtLeast(0)
     }
 
-    suspend fun retryFailedEvents(limit: Int = 50): Int {
+    suspend fun retryFailedEvents(limit: Int = Constants.Webhook.DEFAULT_RETRY_LIMIT): Int {
         val cutoffTime = System.currentTimeMillis()
         val failedEvents = webhookEventDao.getPendingEventsByStatus(
             status = WebhookDeliveryStatus.FAILED,

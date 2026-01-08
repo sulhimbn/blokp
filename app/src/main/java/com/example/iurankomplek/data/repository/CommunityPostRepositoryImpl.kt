@@ -14,7 +14,7 @@ class CommunityPostRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiService
 ) : CommunityPostRepository {
     private val circuitBreaker: CircuitBreaker = ApiConfig.circuitBreaker
-    private val maxRetries = 3
+    private val maxRetries = com.example.iurankomplek.utils.Constants.Network.MAX_RETRIES
     private val cache = ConcurrentHashMap<String, CommunityPost>()
 
     override suspend fun getCommunityPosts(forceRefresh: Boolean): Result<List<CommunityPost>> {

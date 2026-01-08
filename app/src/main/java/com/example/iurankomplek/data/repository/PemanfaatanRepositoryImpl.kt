@@ -17,7 +17,7 @@ class PemanfaatanRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiService
 ) : PemanfaatanRepository {
     private val circuitBreaker: CircuitBreaker = ApiConfig.circuitBreaker
-    private val maxRetries = 3
+    private val maxRetries = com.example.iurankomplek.utils.Constants.Network.MAX_RETRIES
     
     override suspend fun getPemanfaatan(forceRefresh: Boolean): Result<PemanfaatanResponse> {
         return cacheFirstStrategy(

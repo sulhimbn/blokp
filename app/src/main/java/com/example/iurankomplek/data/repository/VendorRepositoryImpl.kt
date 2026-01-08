@@ -15,7 +15,7 @@ class VendorRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiService
 ) : VendorRepository {
     private val circuitBreaker: CircuitBreaker = ApiConfig.circuitBreaker
-    private val maxRetries = 3
+    private val maxRetries = com.example.iurankomplek.utils.Constants.Network.MAX_RETRIES
     
     override suspend fun getVendors(): Result<VendorResponse> = withCircuitBreaker {
         apiService.getVendors()

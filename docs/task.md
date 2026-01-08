@@ -5,6 +5,110 @@ Track architectural refactoring tasks and their status.
 
 ## Completed Modules
 
+### ✅ 29. Hardcoded Value Elimination Module
+**Status**: Completed
+**Completed Date**: 2026-01-08
+**Priority**: HIGH
+**Estimated Time**: 1-2 hours (completed in 1 hour)
+**Description**: Eliminate hardcoded values and replace with centralized constants
+
+**Completed Tasks**:
+- [x] Replace hardcoded `maxRetries = 3` in 6 repository implementations
+- [x] Add CircuitBreaker constants section to Constants.kt
+- [x] Replace hardcoded timeout values in NetworkErrorInterceptor and CircuitBreaker
+- [x] Replace hardcoded delay value in WebhookQueue
+- [x] Add DEFAULT_RETRY_LIMIT constant for WebhookQueue
+- [x] Verify all hardcoded values extracted
+- [x] Update documentation with resolution
+
+**Hardcoded Values Eliminated**:
+- **maxRetries = 3** in 6 repository implementations:
+  - UserRepositoryImpl.kt:20
+  - PemanfaatanRepositoryImpl.kt:20
+  - VendorRepositoryImpl.kt:18
+  - AnnouncementRepositoryImpl.kt:17
+  - MessageRepositoryImpl.kt:17
+  - CommunityPostRepositoryImpl.kt:17
+  - **Replacement**: `com.example.iurankomplek.utils.Constants.Network.MAX_RETRIES`
+
+- **timeoutDuration = 30000L** in NetworkErrorInterceptor.kt:44
+  - **Replacement**: `com.example.iurankomplek.utils.Constants.Network.READ_TIMEOUT * 1000L`
+
+- **timeout = 60000L** in CircuitBreaker.kt:24
+  - **Replacement**: `com.example.iurankomplek.utils.Constants.CircuitBreaker.DEFAULT_TIMEOUT_MS`
+
+- **failureThreshold = 5** in CircuitBreaker.kt:22
+  - **Replacement**: `com.example.iurankomplek.utils.Constants.CircuitBreaker.DEFAULT_FAILURE_THRESHOLD`
+
+- **successThreshold = 2** in CircuitBreaker.kt:23
+  - **Replacement**: `com.example.iurankomplek.utils.Constants.CircuitBreaker.DEFAULT_SUCCESS_THRESHOLD`
+
+- **halfOpenMaxCalls = 3** in CircuitBreaker.kt:25
+  - **Replacement**: `com.example.iurankomplek.utils.Constants.CircuitBreaker.DEFAULT_HALF_OPEN_MAX_CALLS`
+
+- **delay(1000)** in WebhookQueue.kt:111
+  - **Replacement**: `com.example.iurankomplek.utils.Constants.Webhook.INITIAL_RETRY_DELAY_MS`
+
+- **limit: Int = 50** in WebhookQueue.kt:242
+  - **Replacement**: `limit: Int = com.example.iurankomplek.utils.Constants.Webhook.DEFAULT_RETRY_LIMIT`
+
+**New Constants Added**:
+- **CircuitBreaker section** in Constants.kt:
+  - `DEFAULT_TIMEOUT_MS = 60000L`
+  - `DEFAULT_FAILURE_THRESHOLD = 5`
+  - `DEFAULT_SUCCESS_THRESHOLD = 2`
+  - `DEFAULT_HALF_OPEN_MAX_CALLS = 3`
+
+- **Webhook.DEFAULT_RETRY_LIMIT = 50**
+
+**Files Modified**:
+- `app/src/main/java/com/example/iurankomplek/data/repository/UserRepositoryImpl.kt` (UPDATED)
+- `app/src/main/java/com/example/iurankomplek/data/repository/PemanfaatanRepositoryImpl.kt` (UPDATED)
+- `app/src/main/java/com/example/iurankomplek/data/repository/VendorRepositoryImpl.kt` (UPDATED)
+- `app/src/main/java/com/example/iurankomplek/data/repository/AnnouncementRepositoryImpl.kt` (UPDATED)
+- `app/src/main/java/com/example/iurankomplek/data/repository/MessageRepositoryImpl.kt` (UPDATED)
+- `app/src/main/java/com/example/iurankomplek/data/repository/CommunityPostRepositoryImpl.kt` (UPDATED)
+- `app/src/main/java/com/example/iurankomplek/network/interceptor/NetworkErrorInterceptor.kt` (UPDATED)
+- `app/src/main/java/com/example/iurankomplek/network/resilience/CircuitBreaker.kt` (UPDATED)
+- `app/src/main/java/com/example/iurankomplek/payment/WebhookQueue.kt` (UPDATED)
+- `app/src/main/java/com/example/iurankomplek/utils/Constants.kt` (UPDATED)
+
+**Impact**:
+- Zero hardcoded numeric values in repository implementations
+- Centralized configuration management via Constants.kt
+- Improved maintainability (single source of truth for retry/timeout values)
+- Reduced risk of configuration inconsistencies across codebase
+- Better alignment with "Zero Hardcoding" core principle
+
+**Anti-Patterns Eliminated**:
+- ✅ No more hardcoded retry values scattered across 6 repositories
+- ✅ No more hardcoded timeout values in network components
+- ✅ No more hardcoded delay values in webhook processing
+- ✅ No more magic numbers in configuration defaults
+- ✅ All numeric values now use named constants
+
+**Best Practices Followed**:
+- ✅ **DRY Principle**: Single source of truth for configuration values
+- ✅ **Single Responsibility**: Constants.kt manages all constants
+- ✅ **Maintainability**: Changes in one place affect all usages
+- ✅ **Readability**: Named constants are self-documenting
+- ✅ **Consistency**: All retry/timeout values use same constant pattern
+
+**Success Criteria**:
+- [x] All hardcoded maxRetries values replaced with Constants.Network.MAX_RETRIES
+- [x] CircuitBreaker default parameters extracted to Constants.CircuitBreaker
+- [x] NetworkErrorInterceptor timeout value extracted to constant
+- [x] WebhookQueue delay value extracted to constant
+- [x] WebhookQueue retry limit extracted to constant
+- [x] No remaining hardcoded retry/timeout/delay values found
+- [x] All changes follow existing constant naming conventions
+- [x] Documentation updated with resolution
+
+**Dependencies**: None (independent module, eliminates hardcoded values)
+**Documentation**: Updated docs/task.md with hardcoded value elimination module completion
+
+---
+
 ### ✅ 28. Data Architecture Testing Module (Database Layer)
 **Status**: Completed
 **Completed Date**: 2026-01-07

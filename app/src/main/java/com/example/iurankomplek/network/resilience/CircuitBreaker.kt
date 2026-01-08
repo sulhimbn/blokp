@@ -19,10 +19,10 @@ sealed class CircuitBreakerResult<out T> {
 }
 
 class CircuitBreaker(
-    private val failureThreshold: Int = 5,
-    private val successThreshold: Int = 2,
-    private val timeout: Long = 60000L,
-    private val halfOpenMaxCalls: Int = 3
+    private val failureThreshold: Int = com.example.iurankomplek.utils.Constants.CircuitBreaker.DEFAULT_FAILURE_THRESHOLD,
+    private val successThreshold: Int = com.example.iurankomplek.utils.Constants.CircuitBreaker.DEFAULT_SUCCESS_THRESHOLD,
+    private val timeout: Long = com.example.iurankomplek.utils.Constants.CircuitBreaker.DEFAULT_TIMEOUT_MS,
+    private val halfOpenMaxCalls: Int = com.example.iurankomplek.utils.Constants.CircuitBreaker.DEFAULT_HALF_OPEN_MAX_CALLS
 ) {
     private val stateMutex = Mutex()
     

@@ -86,5 +86,14 @@ object Constants {
         const val IDEMPOTENCY_KEY_PREFIX = "whk_"
         const val MAX_EVENT_RETENTION_DAYS = 30
         const val RETRY_JITTER_MS = 500L
+        const val DEFAULT_RETRY_LIMIT = 50
+    }
+
+    // Circuit Breaker Constants
+    object CircuitBreaker {
+        const val DEFAULT_TIMEOUT_MS = 60000L
+        const val DEFAULT_FAILURE_THRESHOLD = 5
+        const val DEFAULT_SUCCESS_THRESHOLD = 2
+        const val DEFAULT_HALF_OPEN_MAX_CALLS = 3
     }
 }

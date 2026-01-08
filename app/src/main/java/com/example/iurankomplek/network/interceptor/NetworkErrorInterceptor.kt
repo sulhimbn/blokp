@@ -41,7 +41,10 @@ class NetworkErrorInterceptor(
             
             response
         } catch (e: SocketTimeoutException) {
-            val error = NetworkError.TimeoutError(userMessage = "Request timed out", timeoutDuration = 30000L)
+            val error = NetworkError.TimeoutError(
+                userMessage = "Request timed out", 
+                timeoutDuration = com.example.iurankomplek.utils.Constants.Network.READ_TIMEOUT * 1000L
+            )
             if (enableLogging) {
                 logError(requestTag, error, null)
             }

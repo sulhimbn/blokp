@@ -17,7 +17,7 @@ class UserRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiService
 ) : UserRepository {
     private val circuitBreaker: CircuitBreaker = ApiConfig.circuitBreaker
-    private val maxRetries = 3
+    private val maxRetries = com.example.iurankomplek.utils.Constants.Network.MAX_RETRIES
     
     override suspend fun getUsers(forceRefresh: Boolean): Result<UserResponse> {
         return cacheFirstStrategy(
