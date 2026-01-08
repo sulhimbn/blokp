@@ -2,8 +2,8 @@ package com.example.iurankomplek.accessibility
 
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
-import android.view.accessibility.AccessibilityNodeInfo
 import androidx.core.view.AccessibilityDelegateCompat
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import com.example.iurankomplek.R
 
 class ListItemAccessibilityDelegate(
@@ -14,7 +14,7 @@ class ListItemAccessibilityDelegate(
     private val totalIuranIndividu: String?
 ) : AccessibilityDelegateCompat() {
 
-    override fun onInitializeAccessibilityNodeInfo(host: View, info: AccessibilityNodeInfo) {
+    override fun onInitializeAccessibilityNodeInfo(host: View, info: AccessibilityNodeInfoCompat) {
         super.onInitializeAccessibilityNodeInfo(host, info)
         
         val description = buildDescription()
