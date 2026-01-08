@@ -13,20 +13,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityLaporanBinding
 import com.example.iurankomplek.data.repository.PemanfaatanRepositoryFactory
-import com.example.iurankomplek.data.mapper.EntityMapper
-import com.example.iurankomplek.model.ValidatedDataItem
 import com.example.iurankomplek.utils.InputSanitizer
 import com.example.iurankomplek.utils.UiState
-import com.example.iurankomplek.data.database.TransactionDatabase
-import com.example.iurankomplek.data.repository.TransactionRepository
 import com.example.iurankomplek.data.repository.TransactionRepositoryFactory
-import com.example.iurankomplek.payment.MockPaymentGateway
 import com.example.iurankomplek.presentation.viewmodel.FinancialViewModel
-import com.example.iurankomplek.presentation.viewmodel.FinancialViewModelFactory
 import com.example.iurankomplek.presentation.ui.helper.RecyclerViewHelper
 import com.example.iurankomplek.presentation.ui.helper.SwipeRefreshHelper
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -35,20 +28,25 @@ class LaporanActivity : BaseActivity() {
     private lateinit var summaryAdapter: LaporanSummaryAdapter
     private lateinit var binding: ActivityLaporanBinding
     private lateinit var viewModel: FinancialViewModel
-    private lateinit var transactionRepository: TransactionRepository
-
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLaporanBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Initialize transaction repository for payment integration
-        initializeTransactionRepository()
-
-        // Initialize ViewModel with use case
+        // Initialize ViewModel with use case and payment integration
         val pemanfaatanRepository = PemanfaatanRepositoryFactory.getInstance()
         val loadFinancialDataUseCase = com.example.iurankomplek.domain.usecase.LoadFinancialDataUseCase(pemanfaatanRepository)
-        viewModel = ViewModelProvider(this, FinancialViewModel.Factory(loadFinancialDataUseCase))[FinancialViewModel::class.java]
+        val paymentSummaryIntegrationUseCase = com.example.iurankomplek.domain.usecase.PaymentSummaryIntegrationUseCase(
+            TransactionRepositoryFactory.getMockInstance(this)
+        )
+        viewModel = ViewModelProvider(
+            this,
+            FinancialViewModel.Factory(
+                loadFinancialDataUseCase,
+                paymentSummaryIntegrationUseCase = paymentSummaryIntegrationUseCase
+            )
+        )[FinancialViewModel::class.java]
 
         adapter = PemanfaatanAdapter()
         summaryAdapter = LaporanSummaryAdapter()
@@ -165,29 +163,25 @@ class LaporanActivity : BaseActivity() {
     }
     
     private fun calculateAndSetSummary(dataArray: List<com.example.iurankomplek.data.dto.LegacyDataItemDto>) {
-        try {
-            val validateUseCase = com.example.iurankomplek.domain.usecase.ValidateFinancialDataUseCase()
-            val calculateTotalsUseCase = com.example.iurankomplek.domain.usecase.CalculateFinancialTotalsUseCase()
-
-            if (!validateUseCase.validateCalculations(dataArray)) {
-                Toast.makeText(this, getString(R.string.invalid_financial_data_detected), Toast.LENGTH_LONG).show()
-                return
-            }
-
-            val totals = calculateTotalsUseCase(dataArray)
-
-            summaryAdapter.setItems(createSummaryItems(totals.totalIuranBulanan, totals.totalPengeluaran, totals.rekapIuran))
-
-            integratePaymentTransactions(
-                totals.totalIuranBulanan,
-                totals.totalPengeluaran,
-                totals.rekapIuran
-            )
-        } catch (e: ArithmeticException) {
-            Toast.makeText(this, getString(R.string.financial_calculation_overflow_error), Toast.LENGTH_LONG).show()
-        } catch (e: IllegalArgumentException) {
-            Toast.makeText(this, getString(R.string.invalid_financial_data_detected), Toast.LENGTH_LONG).show()
+        val summary = viewModel.calculateFinancialSummary(dataArray)
+        
+        if (!summary.isValid) {
+            val errorMessage = summary.validationError ?: getString(R.string.invalid_financial_data_detected)
+            Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
+            return
         }
+
+        summaryAdapter.setItems(createSummaryItems(
+            summary.totalIuranBulanan,
+            summary.totalPengeluaran,
+            summary.rekapIuran
+        ))
+
+        integratePaymentTransactions(
+            summary.totalIuranBulanan,
+            summary.totalPengeluaran,
+            summary.rekapIuran
+        )
     }
 
     private fun createSummaryItems(
@@ -206,34 +200,27 @@ class LaporanActivity : BaseActivity() {
         rekapIuran: Int
     ) {
         lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val completedTransactions = fetchCompletedTransactions()
-                val paymentTotal = calculatePaymentTotal(completedTransactions)
+            val paymentResult = viewModel.integratePaymentTransactions()
 
-                withContext(Dispatchers.Main) {
-                    if (completedTransactions.isNotEmpty()) {
-                        updateSummaryWithPayments(totalIuranBulanan, totalPengeluaran, rekapIuran, paymentTotal, completedTransactions.size)
-                    }
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
+            withContext(Dispatchers.Main) {
+                if (paymentResult?.isIntegrated == true) {
+                    updateSummaryWithPayments(
+                        totalIuranBulanan,
+                        totalPengeluaran,
+                        rekapIuran,
+                        paymentResult.paymentTotal,
+                        paymentResult.transactionCount
+                    )
+                } else if (paymentResult?.error != null) {
                     Toast.makeText(
                         this@LaporanActivity,
-                        getString(R.string.error_integrating_payment_data, e.message),
+                        getString(R.string.error_integrating_payment_data, paymentResult.error),
                         Toast.LENGTH_LONG
                     ).show()
                 }
             }
         }
     }
-
-    private suspend fun fetchCompletedTransactions() =
-        transactionRepository.getTransactionsByStatus(
-            com.example.iurankomplek.payment.PaymentStatus.COMPLETED
-        ).first()
-
-    private fun calculatePaymentTotal(transactions: List<com.example.iurankomplek.data.transaction.Transaction>) =
-        transactions.sumOf { it.amount.toInt() }
 
     private fun updateSummaryWithPayments(
         totalIuranBulanan: Int,
@@ -255,9 +242,5 @@ class LaporanActivity : BaseActivity() {
             getString(R.string.integrated_payment_transactions, transactionCount, InputSanitizer.formatCurrency(paymentTotal)),
             Toast.LENGTH_LONG
         ).show()
-    }
-    
-    private fun initializeTransactionRepository() {
-        transactionRepository = TransactionRepositoryFactory.getMockInstance(this)
     }
 }
