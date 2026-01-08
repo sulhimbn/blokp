@@ -10,9 +10,10 @@ import com.example.iurankomplek.data.dao.TransactionDao
 import com.example.iurankomplek.data.DataTypeConverters
 import com.example.iurankomplek.payment.PaymentMethod
 import com.example.iurankomplek.payment.PaymentStatus
+import com.example.iurankomplek.data.entity.UserEntity
 
 @Database(
-    entities = [Transaction::class],
+    entities = [Transaction::class, UserEntity::class],
     version = 2,
     exportSchema = true
 )
