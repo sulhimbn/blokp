@@ -429,12 +429,14 @@ We welcome contributions! Please follow these guidelines:
 
 ### For Developers
 
-- [**API Documentation**](docs/API.md) - Complete API endpoint specifications
+- [**API Documentation Hub**](docs/API_DOCS_HUB.md) - Unified entry point for all API documentation
+- [**API Versioning**](docs/API_VERSIONING.md) - API versioning strategy and migration guide
+- [**API Endpoint Catalog**](docs/API_ENDPOINT_CATALOG.md) - Complete endpoint reference with schemas
+- [**API Error Codes**](docs/API_ERROR_CODES.md) - Comprehensive error reference with recovery strategies
 - [**Architecture Documentation**](docs/ARCHITECTURE.md) - System architecture and component relationships
+- [**Architecture Blueprint**](docs/blueprint.md) - Detailed architecture blueprint
 - [**Development Guidelines**](docs/DEVELOPMENT.md) - Coding standards and development workflow
 - [**Troubleshooting Guide**](docs/TROUBLESHOOTING.md) - Common issues and solutions
-- [**Architecture Blueprint**](docs/blueprint.md) - Detailed architecture blueprint
-- [**API Standardization**](docs/API_STANDARDIZATION.md) - API versioning and migration guide
 
 ### For Users
 
@@ -443,9 +445,9 @@ We welcome contributions! Please follow these guidelines:
 
 ### Additional Resources
 
-- [**Integration Patterns**](docs/API_INTEGRATION_PATTERNS.md) - Circuit breaker, retry logic
+- [**API Integration Patterns**](docs/API_INTEGRATION_PATTERNS.md) - Circuit breaker, retry logic
 - [**Caching Strategy**](docs/CACHING_STRATEGY.md) - Offline support and sync
-- [**Security Audit**](docs/SECURITY_AUDIT_REPORT.md) - Security architecture
+- [**Security Audit Report**](docs/SECURITY_AUDIT_REPORT.md) - Security architecture
 - [**Database Schema**](docs/DATABASE_SCHEMA.md) - Database structure
 
 ## 📄 License
