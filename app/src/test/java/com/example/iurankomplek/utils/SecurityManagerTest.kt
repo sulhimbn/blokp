@@ -33,68 +33,6 @@ class SecurityManagerTest {
         }
     }
 
-    @Suppress("INSECURE_TRUST_MANAGER")
-    @Test
-    fun `createInsecureTrustManager returns non-null trust manager`() {
-        // Act
-        val trustManager = SecurityManager.createInsecureTrustManager()
-
-        // Assert
-        assertNotNull(trustManager)
-    }
-
-    @Suppress("INSECURE_TRUST_MANAGER")
-    @Test
-    fun `createInsecureTrustManager implements X509TrustManager interface`() {
-        // Act
-        val trustManager = SecurityManager.createInsecureTrustManager()
-
-        // Assert
-        assertTrue(trustManager is javax.net.ssl.X509TrustManager)
-    }
-
-    @Suppress("INSECURE_TRUST_MANAGER")
-    @Test
-    fun `createInsecureTrustManager checkClientTrusted does not throw exception`() {
-        // Arrange
-        val trustManager = SecurityManager.createInsecureTrustManager()
-
-        // Act & Assert - Should not throw exception
-        try {
-            trustManager.checkClientTrusted(null, "RSA")
-        } catch (e: Exception) {
-            fail("checkClientTrusted should not throw exception: ${e.message}")
-        }
-    }
-
-    @Suppress("INSECURE_TRUST_MANAGER")
-    @Test
-    fun `createInsecureTrustManager checkServerTrusted does not throw exception`() {
-        // Arrange
-        val trustManager = SecurityManager.createInsecureTrustManager()
-
-        // Act & Assert - Should not throw exception
-        try {
-            trustManager.checkServerTrusted(null, "RSA")
-        } catch (e: Exception) {
-            fail("checkServerTrusted should not throw exception: ${e.message}")
-        }
-    }
-
-    @Suppress("INSECURE_TRUST_MANAGER")
-    @Test
-    fun `createInsecureTrustManager getAcceptedIssuers returns empty array`() {
-        // Arrange
-        val trustManager = SecurityManager.createInsecureTrustManager()
-
-        // Act
-        val issuers = trustManager.acceptedIssuers
-
-        // Assert
-        assertNotNull(issuers)
-        assertEquals(0, issuers.size)
-    }
-
     @Test
     fun `checkSecurityThreats returns list`() {
         // Act
@@ -133,19 +71,6 @@ class SecurityManagerTest {
 
         // Assert - Object instances should be the same
         assertSame(instance1, instance2)
-    }
-
-    @Suppress("INSECURE_TRUST_MANAGER")
-    @Test
-    fun `createInsecureTrustManager is documented for development only`() {
-        // Note: This is a documentation test to ensure that insecure trust manager
-        // is clearly marked for development use only
-
-        // Act
-        val trustManager = SecurityManager.createInsecureTrustManager()
-
-        // Assert - Just verify it exists and can be called
-        assertNotNull(trustManager)
     }
 
     @Test

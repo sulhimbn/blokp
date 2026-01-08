@@ -1,13 +1,26 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Sample backup rules file; uncomment and customize as necessary.
-   See https://developer.android.com/guide/topics/data/autobackup
-   for details.
-   Note: This file is ignored for devices older that API 31
-   See https://developer.android.com/about/versions/12/backup-restore
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Backup rules for Android auto backup (API 31+)
+
+    SECURITY: Exclude sensitive data from cloud backup to prevent:
+    - API keys or tokens
+    - User credentials
+    - Financial transaction data
+    - Private user information
+
+    Reference: https://developer.android.com/guide/topics/data/autobackup
 -->
 <full-backup-content>
-    <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
--->
+    <!-- Exclude database files (contains sensitive financial and user data) -->
+    <exclude domain="database" path="." />
+
+    <!-- Exclude shared preferences (may contain API tokens or sensitive settings) -->
+    <exclude domain="sharedpref" path="." />
+
+    <!-- Exclude cache and temporary files -->
+    <exclude domain="cache" path="." />
+    <exclude domain="no_backup" path="." />
+
+    <!-- Exclude app-specific directories that may contain sensitive data -->
+    <exclude domain="file" path="." />
 </full-backup-content>
