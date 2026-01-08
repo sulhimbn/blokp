@@ -1,6 +1,7 @@
 package com.example.iurankomplek
 
 import com.example.iurankomplek.model.Announcement
+import com.example.iurankomplek.presentation.adapter.AnnouncementAdapter
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test

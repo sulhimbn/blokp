@@ -1,6 +1,7 @@
 package com.example.iurankomplek
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.example.iurankomplek.core.base.BaseActivity
 import com.example.iurankomplek.network.ApiService
 import com.example.iurankomplek.network.ApiConfig
 import kotlinx.coroutines.Dispatchers
@@ -38,7 +39,7 @@ class BaseActivityTest {
         Dispatchers.setMain(testDispatcher)
         mockWebServer = MockWebServer()
         mockWebServer.start()
-        apiService = ApiConfig.getApiService(mockWebServer.url("/").toString())
+        apiService = ApiConfig.getApiService()
     }
 
     @After
