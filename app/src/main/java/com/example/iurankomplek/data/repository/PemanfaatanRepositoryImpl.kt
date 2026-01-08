@@ -6,7 +6,7 @@ import com.example.iurankomplek.data.entity.FinancialRecordEntity
 import com.example.iurankomplek.data.entity.UserEntity
 import com.example.iurankomplek.data.entity.UserWithFinancialRecords
 import com.example.iurankomplek.data.mapper.EntityMapper
-import com.example.iurankomplek.model.PemanfaatanResponse
+import com.example.iurankomplek.data.api.models.PemanfaatanResponse
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.network.model.NetworkError
 import com.example.iurankomplek.network.resilience.CircuitBreaker

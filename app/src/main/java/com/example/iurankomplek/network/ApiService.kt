@@ -1,6 +1,7 @@
 package com.example.iurankomplek.network
 
-import com.example.iurankomplek.model.*
+import com.example.iurankomplek.data.api.models.UserResponse
+import com.example.iurankomplek.data.api.models.PemanfaatanResponse
 import com.example.iurankomplek.network.model.*
 import retrofit2.Response
 import retrofit2.http.*

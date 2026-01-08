@@ -5,6 +5,83 @@ Track architectural refactoring tasks and their status.
 
 ## Completed Modules
 
+### ✅ 42. Data Layer Dependency Cleanup (Model Package Architecture Fix)
+**Status**: Completed
+**Completed Date**: 2026-01-08
+**Priority**: HIGH
+**Estimated Time**: 0.5 hours (completed in 0.3 hours)
+**Description**: Fix architectural violation where Response classes in model/ package depended on data/dto/ package
+
+**Architectural Issue Identified**:
+- ❌ **Before**: UserResponse and PemanfaatanResponse in `model/` package (domain layer)
+- ❌ **Before**: Response classes imported `LegacyDataItemDto` from `data/dto/` (data layer)
+- ❌ **Before Impact**: Domain layer depends on data layer (violates dependency inversion principle)
+- ❌ **Before Impact**: Creates circular dependency potential
+- ❌ **Before Impact**: Violates clean architecture layer separation
+- ❌ **Before Impact**: Makes domain models not truly independent
+
+**Completed Tasks**:
+- [x] Move UserResponse.kt from `model/` to `data/api/models/`
+- [x] Move PemanfaatanResponse.kt from `model/` to `data/api/models/`
+- [x] Update package declarations in both Response classes
+- [x] Update import in UserViewModel.kt
+- [x] Update import in FinancialViewModel.kt
+- [x] Update import in UserRepository.kt
+- [x] Update import in PemanfaatanRepository.kt
+- [x] Update import in UserRepositoryImpl.kt
+- [x] Update import in PemanfaatanRepositoryImpl.kt
+- [x] Update import in ApiService.kt (replaced wildcard with specific imports)
+
+**Architectural Improvements**:
+- ✅ **Layer Separation**: Response classes now in `data/api/models/` (correct layer)
+- ✅ **Dependency Inversion**: Model package no longer depends on data layer
+- ✅ **Clean Architecture**: Domain models remain independent of data layer
+- ✅ **No Circular Dependencies**: Clear dependency flow (data → presentation, not model → data)
+- ✅ **Proper Package Organization**: Response classes belong to API layer
+- ✅ **Single Responsibility**: Each package has clear purpose
+
+**Files Moved**:
+- `app/src/main/java/com/example/iurankomplek/data/api/models/UserResponse.kt` (MOVED)
+- `app/src/main/java/com/example/iurankomplek/data/api/models/PemanfaatanResponse.kt` (MOVED)
+
+**Files Modified (8 total)**:
+- `app/src/main/java/com/example/iurankomplek/data/api/models/UserResponse.kt` (UPDATED - package declaration)
+- `app/src/main/java/com/example/iurankomplek/data/api/models/PemanfaatanResponse.kt` (UPDATED - package declaration)
+- `app/src/main/java/com/example/iurankomplek/presentation/viewmodel/UserViewModel.kt` (UPDATED - import)
+- `app/src/main/java/com/example/iurankomplek/presentation/viewmodel/FinancialViewModel.kt` (UPDATED - import)
+- `app/src/main/java/com/example/iurankomplek/data/repository/UserRepository.kt` (UPDATED - import)
+- `app/src/main/java/com/example/iurankomplek/data/repository/PemanfaatanRepository.kt` (UPDATED - import)
+- `app/src/main/java/com/example/iurankomplek/data/repository/UserRepositoryImpl.kt` (UPDATED - import)
+- `app/src/main/java/com/example/iurankomplek/data/repository/PemanfaatanRepositoryImpl.kt` (UPDATED - import)
+- `app/src/main/java/com/example/iurankomplek/network/ApiService.kt` (UPDATED - import, replaced wildcard)
+
+**Anti-Patterns Eliminated**:
+- ✅ No more domain layer depending on data layer
+- ✅ No more architectural violations in package structure
+- ✅ No more circular dependency potential
+- ✅ No more Response classes in wrong package
+
+**Best Practices Followed**:
+- ✅ **Layer Separation**: Clear boundaries between layers
+- ✅ **Dependency Inversion Principle**: Dependencies flow inward only
+- ✅ **Clean Architecture**: Domain layer independent of implementation
+- ✅ **Package Organization**: Code in appropriate packages
+- ✅ **Single Responsibility**: Each package has one clear purpose
+
+**Success Criteria**:
+- [x] Response classes moved to data/api/models/
+- [x] Package declarations updated
+- [x] All imports updated (8 files)
+- [x] No compilation errors (imports verified)
+- [x] No domain layer dependencies on data layer
+- [x] Clean architecture maintained
+
+**Dependencies**: None (independent architectural fix)
+**Documentation**: Updated docs/task.md with architectural fix completion
+**Impact**: Critical architectural improvement, fixes dependency inversion violation, ensures clean architecture compliance
+
+---
+
 ### ✅ 41. Presentation Layer Package Consistency Fix
 **Status**: Completed
 **Completed Date**: 2026-01-08

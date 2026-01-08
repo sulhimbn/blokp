@@ -1,4 +1,4 @@
-package com.example.iurankomplek.model
+package com.example.iurankomplek.data.api.models
 
 import com.example.iurankomplek.data.dto.LegacyDataItemDto
 

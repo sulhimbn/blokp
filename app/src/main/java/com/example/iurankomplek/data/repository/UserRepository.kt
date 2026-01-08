@@ -1,6 +1,6 @@
 package com.example.iurankomplek.data.repository
 
-import com.example.iurankomplek.model.UserResponse
+import com.example.iurankomplek.data.api.models.UserResponse
 
 interface UserRepository {
     suspend fun getUsers(forceRefresh: Boolean = false): Result<UserResponse>

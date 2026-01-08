@@ -166,10 +166,13 @@ app/
 │       │   └── RetryableRequestInterceptor.kt ✅ (retry marking)
 │       └── models/
 │           ├── DataItem.kt ✅ (legacy model)
-│           ├── UserResponse.kt ✅
-│           ├── PemanfaatanResponse.kt ✅
 │           ├── ValidatedDataItem.kt ✅
 │           └── ApiError.kt ✅ NEW (standardized error models)
+│   ├── data/
+│   │   ├── api/
+│   │   │   └── models/ ✅ NEW
+│   │   │       ├── UserResponse.kt ✅ NEW
+│   │   │       └── PemanfaatanResponse.kt ✅ NEW
 ├── domain/
 │   └── model/
 │       └── [Domain models - now using entities from data/entity]
