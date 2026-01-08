@@ -28,6 +28,7 @@ object TransactionConstraints {
         const val IDX_USER_ID = "idx_transactions_user_id"
         const val IDX_STATUS = "idx_transactions_status"
         const val IDX_USER_STATUS = "idx_transactions_user_status"
+        const val IDX_STATUS_DELETED = "idx_transactions_status_deleted"
         const val IDX_CREATED_AT = "idx_transactions_created_at"
         const val IDX_UPDATED_AT = "idx_transactions_updated_at"
     }
@@ -54,6 +55,7 @@ object TransactionConstraints {
     val INDEX_USER_ID_SQL = "CREATE INDEX ${Indexes.IDX_USER_ID} ON ${TABLE_NAME}(${Columns.USER_ID})"
     val INDEX_STATUS_SQL = "CREATE INDEX ${Indexes.IDX_STATUS} ON ${TABLE_NAME}(${Columns.STATUS})"
     val INDEX_USER_STATUS_SQL = "CREATE INDEX ${Indexes.IDX_USER_STATUS} ON ${TABLE_NAME}(${Columns.USER_ID}, ${Columns.STATUS})"
+    val INDEX_STATUS_DELETED_SQL = "CREATE INDEX ${Indexes.IDX_STATUS_DELETED} ON ${TABLE_NAME}(${Columns.STATUS}, ${Columns.IS_DELETED}) WHERE ${Columns.IS_DELETED} = 0"
     val INDEX_CREATED_AT_SQL = "CREATE INDEX ${Indexes.IDX_CREATED_AT} ON ${TABLE_NAME}(${Columns.CREATED_AT})"
     val INDEX_UPDATED_AT_SQL = "CREATE INDEX ${Indexes.IDX_UPDATED_AT} ON ${TABLE_NAME}(${Columns.UPDATED_AT})"
 }
