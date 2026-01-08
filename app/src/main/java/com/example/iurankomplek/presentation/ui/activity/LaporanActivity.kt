@@ -68,7 +68,7 @@ class LaporanActivity : BaseActivity() {
 
         binding.rvSummary.layoutManager = LinearLayoutManager(this)
         binding.rvSummary.setHasFixedSize(true)
-        binding.rvSummary.setItemViewCacheSize(10)
+        binding.rvSummary.setItemViewCacheSize(20)
         binding.rvSummary.focusable = true
         binding.rvSummary.focusableInTouchMode = true
         binding.rvSummary.adapter = summaryAdapter

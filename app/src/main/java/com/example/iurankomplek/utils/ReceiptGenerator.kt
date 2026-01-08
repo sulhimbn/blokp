@@ -28,7 +28,7 @@ class ReceiptGenerator {
     private fun generateReceiptNumber(): String {
         val dateFormat = SimpleDateFormat("yyyyMMdd", Locale.US)
         val date = dateFormat.format(Date())
-        val random = kotlin.random.Random.nextInt(9999 - 1000 + 1) + 1000
+        val random = kotlin.random.Random.nextInt(Constants.Receipt.RANDOM_MAX - Constants.Receipt.RANDOM_MIN + 1) + Constants.Receipt.RANDOM_MIN
         return "RCPT-$date-$random"
     }
 

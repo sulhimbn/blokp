@@ -50,10 +50,10 @@ class MockPaymentGateway : PaymentGateway {
 
     private fun calculateRefundAmount(transactionId: String): BigDecimal {
         // In a real implementation, this would look up the original transaction
-        // For mock, we'll return a value based on the transaction ID
+        // For mock, we'll return a value based on transaction ID
         val hash = transactionId.hashCode().toString()
-        val amountDigits = hash.takeLast(4) // Take last 4 digits of the hash
-        val amount = if (amountDigits.toIntOrNull() ?: 0 > 0) amountDigits.toInt() else 1000
+        val amountDigits = hash.takeLast(4) // Take last 4 digits of hash
+        val amount = if (amountDigits.toIntOrNull() ?: 0 > 0) amountDigits.toInt() else com.example.iurankomplek.utils.Constants.Payment.DEFAULT_REFUND_AMOUNT_MIN
         return BigDecimal(amount.toString())
     }
 

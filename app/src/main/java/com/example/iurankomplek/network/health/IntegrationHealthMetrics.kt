@@ -119,7 +119,7 @@ class IntegrationHealthTracker {
         synchronized(responseTimes) {
             val times = responseTimes.getOrPut(key) { mutableListOf() }
             times.add(responseTimeMs)
-            if (times.size > 1000) {
+            if (times.size > com.example.iurankomplek.utils.Constants.HealthMonitoring.MAX_RESPONSE_TIMES_HISTORY) {
                 times.removeAt(0)
             }
         }

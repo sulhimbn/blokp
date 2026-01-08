@@ -14,8 +14,8 @@ object CacheManager {
     
     @Volatile
     private var database: AppDatabase? = null
-    
-    private var CACHE_FRESHNESS_THRESHOLD_MS = 5 * 60 * 1000L // 5 minutes
+
+    private var CACHE_FRESHNESS_THRESHOLD_MS = CacheConstants.DEFAULT_CACHE_FRESHNESS_MS
     
     fun initialize(context: Context) {
         if (database == null) {

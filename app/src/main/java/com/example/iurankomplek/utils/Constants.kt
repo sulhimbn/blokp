@@ -21,6 +21,7 @@ object Constants {
         // Rate Limiting Constants
         const val MAX_REQUESTS_PER_SECOND = 10
         const val MAX_REQUESTS_PER_MINUTE = 60
+        const val MILLISECONDS_PER_SECOND = 1000L
         const val ONE_MINUTE_MS = 60000L
     }
     
@@ -94,6 +95,12 @@ object Constants {
         const val MAX_PAYMENT_AMOUNT = 999999999.99
     }
 
+    // Receipt Constants
+    object Receipt {
+        const val RANDOM_MIN = 1000
+        const val RANDOM_MAX = 9999
+    }
+
     // Webhook Constants
     object Webhook {
         const val MAX_RETRIES = 5
@@ -132,5 +139,15 @@ object Constants {
         const val CALCULATION_OVERFLOW_INDIVIDU = "Individual iuran calculation would cause overflow"
         const val CALCULATION_OVERFLOW_TOTAL_INDIVIDU = "Total iuran individu calculation would cause overflow"
         const val CALCULATION_UNDERFLOW_REKAP = "Rekap iuran calculation would cause underflow"
+    }
+
+    // Health Monitoring Constants
+    object HealthMonitoring {
+        const val MAX_RESPONSE_TIMES_HISTORY = 1000
+    }
+
+    // Network Error Constants
+    object NetworkError {
+        const val REQUEST_ID_RANDOM_RANGE = 10000
     }
 }

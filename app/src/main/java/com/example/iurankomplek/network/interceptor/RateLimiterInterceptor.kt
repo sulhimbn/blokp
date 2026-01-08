@@ -79,7 +79,7 @@ class RateLimiterInterceptor(
 
         val lastTimestamp = requestTimestamps.last()
         val timeSinceLastRequest = currentTime - lastTimestamp
-        val minInterval = 1000L / maxRequestsPerSecond
+        val minInterval = com.example.iurankomplek.utils.Constants.Network.MILLISECONDS_PER_SECOND / maxRequestsPerSecond
 
         return timeSinceLastRequest < minInterval
     }
