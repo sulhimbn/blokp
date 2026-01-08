@@ -5,11 +5,8 @@ import com.example.iurankomplek.model.SingleVendorResponse
 import com.example.iurankomplek.model.WorkOrderResponse
 import com.example.iurankomplek.model.SingleWorkOrderResponse
 import com.example.iurankomplek.network.ApiConfig
-import com.example.iurankomplek.network.model.NetworkError
 import com.example.iurankomplek.network.resilience.CircuitBreaker
 import com.example.iurankomplek.network.resilience.CircuitBreakerResult
-import kotlin.math.pow
-import retrofit2.HttpException
 
 class VendorRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiService
@@ -17,11 +14,11 @@ class VendorRepositoryImpl(
     private val circuitBreaker: CircuitBreaker = ApiConfig.circuitBreaker
     private val maxRetries = com.example.iurankomplek.utils.Constants.Network.MAX_RETRIES
     
-    override suspend fun getVendors(): Result<VendorResponse> = withCircuitBreaker {
+    override suspend fun getVendors(): Result<VendorResponse> = executeWithCircuitBreaker {
         apiService.getVendors()
     }
-    
-    override suspend fun getVendor(id: String): Result<SingleVendorResponse> = withCircuitBreaker {
+
+    override suspend fun getVendor(id: String): Result<SingleVendorResponse> = executeWithCircuitBreaker {
         apiService.getVendor(id)
     }
     
@@ -36,7 +33,7 @@ class VendorRepositoryImpl(
         insuranceInfo: String,
         contractStart: String,
         contractEnd: String
-    ): Result<SingleVendorResponse> = withCircuitBreaker {
+    ): Result<SingleVendorResponse> = executeWithCircuitBreaker {
         apiService.createVendor(
             name, contactPerson, phoneNumber, email, specialty, address,
             licenseNumber, insuranceInfo, contractStart, contractEnd
@@ -56,18 +53,18 @@ class VendorRepositoryImpl(
         contractStart: String,
         contractEnd: String,
         isActive: Boolean
-    ): Result<SingleVendorResponse> = withCircuitBreaker {
+    ): Result<SingleVendorResponse> = executeWithCircuitBreaker {
         apiService.updateVendor(
             id, name, contactPerson, phoneNumber, email, specialty, address,
             licenseNumber, insuranceInfo, contractStart, contractEnd, isActive
         )
     }
     
-    override suspend fun getWorkOrders(): Result<WorkOrderResponse> = withCircuitBreaker {
+    override suspend fun getWorkOrders(): Result<WorkOrderResponse> = executeWithCircuitBreaker {
         apiService.getWorkOrders()
     }
     
-    override suspend fun getWorkOrder(id: String): Result<SingleWorkOrderResponse> = withCircuitBreaker {
+    override suspend fun getWorkOrder(id: String): Result<SingleWorkOrderResponse> = executeWithCircuitBreaker {
         apiService.getWorkOrder(id)
     }
     
@@ -79,7 +76,7 @@ class VendorRepositoryImpl(
         propertyId: String,
         reporterId: String,
         estimatedCost: Double
-    ): Result<SingleWorkOrderResponse> = withCircuitBreaker {
+    ): Result<SingleWorkOrderResponse> = executeWithCircuitBreaker {
         apiService.createWorkOrder(
             title, description, category, priority, propertyId, reporterId, estimatedCost
         )
@@ -89,7 +86,7 @@ class VendorRepositoryImpl(
         workOrderId: String,
         vendorId: String,
         scheduledDate: String?
-    ): Result<SingleWorkOrderResponse> = withCircuitBreaker {
+    ): Result<SingleWorkOrderResponse> = executeWithCircuitBreaker {
         apiService.assignVendorToWorkOrder(workOrderId, vendorId, scheduledDate)
     }
     
@@ -97,95 +94,24 @@ class VendorRepositoryImpl(
         workOrderId: String,
         status: String,
         notes: String?
-    ): Result<SingleWorkOrderResponse> = withCircuitBreaker {
+    ): Result<SingleWorkOrderResponse> = executeWithCircuitBreaker {
         apiService.updateWorkOrderStatus(workOrderId, status, notes)
     }
-    
-    private suspend fun <T : Any> withCircuitBreaker(
+
+    private suspend fun <T : Any> executeWithCircuitBreaker(
         apiCall: suspend () -> retrofit2.Response<T>
     ): Result<T> {
         val circuitBreakerResult = circuitBreaker.execute {
-            var currentRetry = 0
-            var lastException: Exception? = null
-            
-            while (currentRetry <= maxRetries) {
-                try {
-                    val response = apiCall()
-                    if (response.isSuccessful) {
-                        response.body()?.let { return@execute it }
-                            ?: throw Exception("Response body is null")
-                    } else {
-                        val isRetryable = isRetryableError(response.code())
-                        if (currentRetry < maxRetries && isRetryable) {
-                            val delayMillis = calculateDelay(currentRetry + 1)
-                            kotlinx.coroutines.delay(delayMillis)
-                            currentRetry++
-                        } else {
-                            throw HttpException(response)
-                        }
-                    }
-                } catch (e: NetworkError) {
-                    lastException = e
-                    if (shouldRetryOnNetworkError(e, currentRetry, maxRetries)) {
-                        val delayMillis = calculateDelay(currentRetry + 1)
-                        kotlinx.coroutines.delay(delayMillis)
-                        currentRetry++
-                    } else {
-                        break
-                    }
-                } catch (e: Exception) {
-                    lastException = e
-                    if (shouldRetryOnException(e, currentRetry, maxRetries)) {
-                        val delayMillis = calculateDelay(currentRetry + 1)
-                        kotlinx.coroutines.delay(delayMillis)
-                        currentRetry++
-                    } else {
-                        break
-                    }
-                }
-            }
-            
-            throw lastException ?: Exception("Unknown error occurred")
+            com.example.iurankomplek.utils.RetryHelper.executeWithRetry(
+                apiCall = apiCall,
+                maxRetries = maxRetries
+            ).getOrThrow()
         }
-        
+
         return when (circuitBreakerResult) {
             is CircuitBreakerResult.Success -> Result.success(circuitBreakerResult.value)
             is CircuitBreakerResult.Failure -> Result.failure(circuitBreakerResult.exception)
-            is CircuitBreakerResult.CircuitOpen -> Result.failure(NetworkError.CircuitBreakerError())
+            is CircuitBreakerResult.CircuitOpen -> Result.failure(com.example.iurankomplek.network.model.NetworkError.CircuitBreakerError())
         }
-    }
-    
-    private fun isRetryableError(httpCode: Int): Boolean {
-        return httpCode in 408..429 || httpCode / 100 == 5
-    }
-    
-    private fun shouldRetryOnNetworkError(error: NetworkError, currentRetry: Int, maxRetries: Int): Boolean {
-        if (currentRetry >= maxRetries) return false
-        
-        return when (error) {
-            is NetworkError.TimeoutError,
-            is NetworkError.ConnectionError -> true
-            is NetworkError.HttpError -> {
-                error.httpCode in listOf(408, 429) || error.httpCode / 100 == 5
-            }
-            else -> false
-        }
-    }
-    
-    private fun shouldRetryOnException(e: Exception, currentRetry: Int, maxRetries: Int): Boolean {
-        if (currentRetry >= maxRetries) return false
-        
-        return when (e) {
-            is java.net.SocketTimeoutException,
-            is java.net.UnknownHostException,
-            is javax.net.ssl.SSLException -> true
-            else -> false
-        }
-    }
-    
-    private fun calculateDelay(currentRetry: Int): Long {
-        val exponentialDelay = (com.example.iurankomplek.utils.Constants.Network.INITIAL_RETRY_DELAY_MS * 2.0.pow((currentRetry - 1).toDouble())).toLong()
-        val jitter = (kotlin.random.Random.nextDouble() * com.example.iurankomplek.utils.Constants.Network.INITIAL_RETRY_DELAY_MS).toLong()
-        return minOf(exponentialDelay + jitter, com.example.iurankomplek.utils.Constants.Network.MAX_RETRY_DELAY_MS)
     }
 }
