@@ -7,6 +7,7 @@ IuranKomplek API menyediakan endpoints untuk mengambil data pengguna dan informa
 ## API Specification
 
 **[OpenAPI 3.0 Specification](openapi.yaml)** - Machine-readable API contract (OpenAPI/Swagger)
+**[API Integration Patterns](API_INTEGRATION_PATTERNS.md)** - Circuit breaker, rate limiting, retry logic
 
 The OpenAPI specification provides:
 - Standardized API contract for all endpoints
@@ -14,6 +15,28 @@ The OpenAPI specification provides:
 - Error response specifications
 - Authentication methods
 - Tooling support (Swagger UI, code generation)
+
+## API Versioning
+
+The application supports two API versions:
+
+### Legacy API (ApiService)
+- Base path: `/data/{SPREADSHEET_ID}/`
+- Response format: Direct data objects
+- Use case: Backward compatibility
+- Status: Maintained for compatibility
+
+### Version 1 API (ApiServiceV1) - **Recommended**
+- Base path: `/api/v1/`
+- Response format: Standardized wrappers (`ApiResponse<T>`, `ApiListResponse<T>`)
+- Features:
+  - Consistent error handling
+  - Request tracking (request_id)
+  - Timestamps for all responses
+  - Pagination support
+  - Rate limiting and circuit breaker protection
+- Use case: New integrations, improved resilience
+- Status: **Active development**
 
 ## Integration Patterns
 
@@ -71,67 +94,253 @@ Aplikasi secara otomatis beralih antara production dan development API berdasark
 
 ## Endpoints
 
-### User & Financial Data Endpoints
+### User & Financial Data Endpoints (API v1)
 
-#### GET /data/QjX6hB1ST2IDKaxB/users
+#### GET /api/v1/users
 
-Mengambil data pengguna/warga.
+Mengambil data pengguna/warga dengan wrapper standar.
 
-#### GET /data/QjX6hB1ST2IDKaxB/pemanfaatan
+**Response Format:**
+```json
+{
+  "data": {
+    "users": [...]
+  },
+  "request_id": "req_1234567890",
+  "timestamp": 1704672000000
+}
+```
 
-Mengambil data pemanfaatan iuran.
+#### GET /api/v1/pemanfaatan
 
-### Communication Endpoints
+Mengambil data pemanfaatan iuran dengan wrapper standar.
 
-#### GET /data/QjX6hB1ST2IDKaxB/announcements
+**Response Format:**
+```json
+{
+  "data": {
+    "financial_records": [...]
+  },
+  "request_id": "req_1234567890",
+  "timestamp": 1704672000000
+}
+```
 
-Mengambil pengumuman komunitas.
+### Communication Endpoints (API v1)
 
-#### GET /data/QjX6hB1ST2IDKaxB/messages?userId={userId}
+#### GET /api/v1/announcements
+
+Mengambil pengumuman komunitas dengan wrapper standar dan pagination.
+
+**Response Format:**
+```json
+{
+  "data": [
+    {"id": 1, "title": "Pengumuman 1", ...},
+    {"id": 2, "title": "Pengumuman 2", ...}
+  ],
+  "pagination": {
+    "page": 1,
+    "page_size": 20,
+    "total_items": 50,
+    "total_pages": 3,
+    "has_next": true,
+    "has_previous": false
+  },
+  "request_id": "req_1234567890",
+  "timestamp": 1704672000000
+}
+```
+
+#### GET /api/v1/messages?userId={userId}
 
 Mengambil pesan untuk pengguna tertentu.
 
-#### GET /data/QjX6hB1ST2IDKaxB/messages/{receiverId}?senderId={senderId}
+#### GET /api/v1/messages/{receiverId}?senderId={senderId}
 
 Mengambil percakapan dengan pengguna tertentu.
 
-#### POST /data/QjX6hB1ST2IDKaxB/messages
+#### POST /api/v1/messages
 
 Mengirim pesan baru.
 
-### Payment Processing Endpoints
+**Request Format:**
+```json
+{
+  "sender_id": "user_123",
+  "receiver_id": "user_456",
+  "content": "Halo, apa kabar?",
+  "timestamp": 1704672000000
+}
+```
 
-#### POST /data/QjX6hB1ST2IDKaxB/payments/initiate
+**Response Format:**
+```json
+{
+  "data": {
+    "id": "msg_789",
+    "sender_id": "user_123",
+    "receiver_id": "user_456",
+    "content": "Halo, apa kabar?",
+    "timestamp": 1704672000000
+  },
+  "request_id": "req_1234567890",
+  "timestamp": 1704672000000
+}
+```
+
+### Payment Processing Endpoints (API v1)
+
+#### POST /api/v1/payments/initiate
 
 Memulai proses pembayaran.
 
-#### GET /data/QjX6hB1ST2IDKaxB/payments/{id}/status
+**Request Format:**
+```json
+{
+  "amount": "150000",
+  "description": "Pembayaran iuran bulanan",
+  "customer_id": "user_123",
+  "payment_method": "BANK_TRANSFER"
+}
+```
+
+**Response Format:**
+```json
+{
+  "data": {
+    "transaction_id": "txn_abc123",
+    "status": "PENDING",
+    "amount": 150000,
+    "payment_method": "BANK_TRANSFER",
+    "created_at": 1704672000000
+  },
+  "request_id": "req_1234567890",
+  "timestamp": 1704672000000
+}
+```
+
+#### GET /api/v1/payments/{id}/status
 
 Mengambil status pembayaran.
 
-#### POST /data/QjX6hB1ST2IDKaxB/payments/{id}/confirm
+**Response Format:**
+```json
+{
+  "data": {
+    "transaction_id": "txn_abc123",
+    "status": "COMPLETED",
+    "amount": 150000,
+    "updated_at": 1704672001000
+  },
+  "request_id": "req_1234567890",
+  "timestamp": 1704672001000
+}
+```
+
+#### POST /api/v1/payments/{id}/confirm
 
 Mengonfirmasi pembayaran.
 
-### Vendor Management Endpoints
+**Response Format:**
+```json
+{
+  "data": {
+    "transaction_id": "txn_abc123",
+    "status": "COMPLETED",
+    "confirmed_at": 1704672002000
+  },
+  "request_id": "req_1234567890",
+  "timestamp": 1704672002000
+}
+```
 
-#### GET /data/QjX6hB1ST2IDKaxB/vendors
+### Vendor Management Endpoints (API v1)
 
-Mengambil daftar vendor.
+#### GET /api/v1/vendors
 
-#### POST /data/QjX6hB1ST2IDKaxB/vendors
+Mengambil daftar vendor dengan pagination.
+
+**Response Format:**
+```json
+{
+  "data": {
+    "vendors": [...]
+  },
+  "pagination": {
+    "page": 1,
+    "page_size": 20,
+    "total_items": 15,
+    "total_pages": 1,
+    "has_next": false,
+    "has_previous": false
+  },
+  "request_id": "req_1234567890",
+  "timestamp": 1704672000000
+}
+```
+
+#### POST /api/v1/vendors
 
 Membuat vendor baru.
 
-### Work Order Endpoints
+**Request Format:**
+```json
+{
+  "name": "Vendor ABC",
+  "contact": "08123456789",
+  "address": "Jl. Contoh No. 123",
+  "services": ["Perbaikan", "Kebersihan"]
+}
+```
 
-#### GET /data/QjX6hB1ST2IDKaxB/work-orders
+#### PUT /api/v1/vendors/{id}
 
-Mengambil daftar work order.
+Update vendor yang sudah ada.
 
-#### POST /data/QjX6hB1ST2IDKaxB/work-orders
+#### GET /api/v1/vendors/{id}
+
+Mengambil detail vendor tertentu.
+
+### Work Order Endpoints (API v1)
+
+#### GET /api/v1/work-orders
+
+Mengambil daftar work order dengan pagination.
+
+#### POST /api/v1/work-orders
 
 Membuat work order baru.
+
+#### PUT /api/v1/work-orders/{id}/assign
+
+Menugaskan vendor ke work order.
+
+#### PUT /api/v1/work-orders/{id}/status
+
+Update status work order.
+
+#### GET /api/v1/work-orders/{id}
+
+Mengambil detail work order tertentu.
+
+### Legacy Endpoints (Backward Compatibility)
+
+#### GET /data/QjX6hB1ST2IDKaxB/users
+
+Mengambil data pengguna/warga (legacy format).
+
+#### GET /data/QjX6hB1ST2IDKaxB/pemanfaatan
+
+Mengambil data pemanfaatan iuran (legacy format).
+
+#### GET /data/QjX6hB1ST2IDKaxB/announcements
+
+Mengambil pengumuman komunitas (legacy format).
+
+#### GET /data/QjX6hB1ST2IDKaxB/messages?userId={userId}
+
+Mengambil pesan untuk pengguna tertentu (legacy format).
 
 #### Request (Users Endpoint)
 ```http
@@ -148,6 +357,103 @@ Accept: application/json
 ```
 
 #### Response Format
+
+##### API v1 - Standardized Response Wrappers
+
+API v1 uses standardized response wrappers for all endpoints:
+
+**Single Object Response (ApiResponse<T>)**
+```json
+{
+  "data": {
+    "user": {
+      "id": "user_123",
+      "first_name": "John",
+      "last_name": "Doe",
+      "email": "john.doe@example.com",
+      "alamat": "Jl. Contoh No. 123, Jakarta",
+      "iuran_perwarga": 150000,
+      "total_iuran_rekap": 1800000,
+      "jumlah_iuran_bulanan": 150000,
+      "total_iuran_individu": 150000,
+      "pengeluaran_iuran_warga": 50000,
+      "pemanfaatan_iuran": "Perbaikan jalan komplek",
+      "avatar": "https://example.com/avatar.jpg"
+    }
+  },
+  "request_id": "req_1234567890",
+  "timestamp": 1704672000000
+}
+```
+
+**List Response with Pagination (ApiListResponse<T>)**
+```json
+{
+  "data": [
+    {
+      "first_name": "John",
+      "last_name": "Doe",
+      "email": "john.doe@example.com",
+      "alamat": "Jl. Contoh No. 123, Jakarta",
+      "iuran_perwarga": 150000,
+      "total_iuran_rekap": 1800000,
+      "jumlah_iuran_bulanan": 150000,
+      "total_iuran_individu": 150000,
+      "pengeluaran_iuran_warga": 50000,
+      "pemanfaatan_iuran": "Perbaikan jalan komplek",
+      "avatar": "https://example.com/avatar.jpg"
+    },
+    {
+      "first_name": "Jane",
+      "last_name": "Smith",
+      "email": "jane.smith@example.com",
+      "alamat": "Jl. Contoh No. 456, Jakarta",
+      "iuran_perwarga": 150000,
+      "total_iuran_rekap": 1800000,
+      "jumlah_iuran_bulanan": 150000,
+      "total_iuran_individu": 150000,
+      "pengeluaran_iuran_warga": 60000,
+      "pemanfaatan_iuran": "Perbaikan taman komplek",
+      "avatar": "https://example.com/avatar2.jpg"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "page_size": 20,
+    "total_items": 50,
+    "total_pages": 3,
+    "has_next": true,
+    "has_previous": false
+  },
+  "request_id": "req_1234567890",
+  "timestamp": 1704672000000
+}
+```
+
+**Response Wrapper Fields:**
+
+| Field | Type | Description | Example |
+|-------|------|-------------|---------|
+| `data` | T or List<T> | Response data (single object or list) | See above |
+| `pagination` | PaginationMetadata | Pagination metadata (for list responses) | See below |
+| `request_id` | String | Unique request identifier for tracing | "req_1234567890" |
+| `timestamp` | Long | Response timestamp in milliseconds | 1704672000000 |
+
+**Pagination Metadata Fields:**
+
+| Field | Type | Description | Example |
+|-------|------|-------------|---------|
+| `page` | Integer | Current page number (1-indexed) | 1 |
+| `page_size` | Integer | Number of items per page | 20 |
+| `total_items` | Integer | Total number of items across all pages | 50 |
+| `total_pages` | Integer | Total number of pages | 3 |
+| `has_next` | Boolean | Whether there is a next page | true |
+| `has_previous` | Boolean | Whether there is a previous page | false |
+
+##### Legacy API Response Format
+
+Legacy endpoints return direct data without wrapper:
+
 ```json
 {
   "data": [
@@ -189,6 +495,8 @@ Accept: application/json
 ### Android (Kotlin) with MVVM Architecture
 
 #### Service Interface
+
+**Legacy API (ApiService):**
 ```kotlin
 interface ApiService {
     @GET("users")
@@ -199,157 +507,301 @@ interface ApiService {
     
     @GET("vendors")
     suspend fun getVendors(): Response<VendorResponse>
-    
-    // Payment endpoints
-    @POST("payments/initiate")
-    suspend fun initiatePayment(
-        @Query("amount") amount: String,
-        @Query("description") description: String,
-        @Query("customerId") customerId: String,
-        @Query("paymentMethod") paymentMethod: String
-    ): Response<PaymentResponse>
-    
-    // Communication endpoints
-    @GET("announcements")
-    suspend fun getAnnouncements(): Response<AnnouncementResponse>
-    
-    @GET("messages")
-    suspend fun getMessages(@Query("userId") userId: String): Response<MessageResponse>
-    
-    // Work order endpoints
-    @GET("work-orders")
-    suspend fun getWorkOrders(): Response<WorkOrderResponse>
 }
 ```
 
-#### Configuration with Circuit Breaker
+**API v1 (ApiServiceV1) - Recommended:**
 ```kotlin
-object ApiConfig {
-    private val USE_MOCK_API = BuildConfig.DEBUG || System.getenv("DOCKER_ENV") != null
-    private val BASE_URL = if (USE_MOCK_API) {
-        "http://api-mock:5000/data/QjX6hB1ST2IDKaxB/"
-    } else {
-        "https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/"
-    }
+interface ApiServiceV1 {
+    @GET("api/v1/users")
+    suspend fun getUsers(): Response<ApiResponse<UserResponse>>
     
-    // Circuit breaker for service resilience
-    val circuitBreaker: CircuitBreaker = CircuitBreaker(
-        failureThreshold = 3,
-        successThreshold = 2,
-        timeout = 60000L,
-        halfOpenMaxCalls = 3
-    )
+    @GET("api/v1/pemanfaatan")
+    suspend fun getPemanfaatan(): Response<ApiResponse<PemanfaatanResponse>>
     
-    // Singleton pattern with thread-safe initialization
-    @Volatile
-    private var apiServiceInstance: ApiService? = null
+    @GET("api/v1/announcements")
+    suspend fun getAnnouncements(): Response<ApiListResponse<Announcement>>
     
-    fun getApiService(): ApiService {
-        return apiServiceInstance ?: synchronized(this) {
-            apiServiceInstance ?: createApiService().also { apiServiceInstance = it }
-        }
-    }
+    @GET("api/v1/messages")
+    suspend fun getMessages(@Query("userId") userId: String): Response<ApiListResponse<Message>>
     
-    private fun createApiService(): ApiService {
-        val okHttpClient = if (!USE_MOCK_API) {
-            SecurityConfig.getSecureOkHttpClient()
-                .newBuilder()
-                .addInterceptor(RequestIdInterceptor())
-                .addInterceptor(RetryableRequestInterceptor())
-                .addInterceptor(NetworkErrorInterceptor(enableLogging = BuildConfig.DEBUG))
-                .build()
-        } else {
-            OkHttpClient.Builder()
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(30, TimeUnit.SECONDS)
-                .addInterceptor(RequestIdInterceptor())
-                .addInterceptor(RetryableRequestInterceptor())
-                .addInterceptor(NetworkErrorInterceptor(enableLogging = true))
-                .apply {
-                    if (BuildConfig.DEBUG) {
-                        addInterceptor(HttpLoggingInterceptor().apply {
-                            level = HttpLoggingInterceptor.Level.BODY
-                        })
-                    }
-                }
-                .build()
-        }
-        
-        val retrofit = Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        return retrofit.create(ApiService::class.java)
-    }
+    @POST("api/v1/messages")
+    suspend fun sendMessage(@Body request: SendMessageRequest): Response<ApiResponse<Message>>
+    
+    @POST("api/v1/payments/initiate")
+    suspend fun initiatePayment(@Body request: InitiatePaymentRequest): Response<ApiResponse<PaymentResponse>>
+    
+    @GET("api/v1/payments/{id}/status")
+    suspend fun getPaymentStatus(@Path("id") id: String): Response<ApiResponse<PaymentStatusResponse>>
+    
+    @POST("api/v1/payments/{id}/confirm")
+    suspend fun confirmPayment(@Path("id") id: String): Response<ApiResponse<PaymentConfirmationResponse>>
+    
+    @GET("api/v1/vendors")
+    suspend fun getVendors(): Response<ApiResponse<VendorResponse>>
+    
+    @POST("api/v1/vendors")
+    suspend fun createVendor(@Body request: CreateVendorRequest): Response<ApiResponse<SingleVendorResponse>>
+    
+    @PUT("api/v1/vendors/{id}")
+    suspend fun updateVendor(
+        @Path("id") id: String,
+        @Body request: UpdateVendorRequest
+    ): Response<ApiResponse<SingleVendorResponse>>
+    
+    @GET("api/v1/work-orders")
+    suspend fun getWorkOrders(): Response<ApiResponse<WorkOrderResponse>>
+    
+    @POST("api/v1/work-orders")
+    suspend fun createWorkOrder(@Body request: CreateWorkOrderRequest): Response<ApiResponse<SingleWorkOrderResponse>>
+    
+    @PUT("api/v1/work-orders/{id}/assign")
+    suspend fun assignVendorToWorkOrder(
+        @Path("id") id: String,
+        @Body request: AssignVendorRequest
+    ): Response<ApiResponse<SingleWorkOrderResponse>>
+    
+    @PUT("api/v1/work-orders/{id}/status")
+    suspend fun updateWorkOrderStatus(
+        @Path("id") id: String,
+        @Body request: UpdateWorkOrderRequest
+    ): Response<ApiResponse<SingleWorkOrderResponse>>
 }
 ```
 
-#### Repository Pattern with Circuit Breaker
+#### Configuration with Circuit Breaker and Rate Limiting
+```kotlin
+ object ApiConfig {
+     private val USE_MOCK_API = BuildConfig.DEBUG || System.getenv("DOCKER_ENV") != null
+     private val BASE_URL = if (USE_MOCK_API) {
+         Constants.Api.MOCK_BASE_URL + BuildConfig.API_SPREADSHEET_ID + "/"
+     } else {
+         Constants.Api.PRODUCTION_BASE_URL + BuildConfig.API_SPREADSHEET_ID + "/"
+     }
+     
+     // Connection pool for efficient HTTP connection reuse
+     private val connectionPool = ConnectionPool(
+         Constants.Network.MAX_IDLE_CONNECTIONS,
+         Constants.Network.KEEP_ALIVE_DURATION_MINUTES,
+         TimeUnit.MINUTES
+     )
+     
+     // Circuit breaker for service resilience
+     val circuitBreaker: CircuitBreaker = CircuitBreaker(
+         failureThreshold = Constants.Network.MAX_RETRIES,
+         successThreshold = 2,
+         timeout = Constants.Network.MAX_RETRY_DELAY_MS,
+         halfOpenMaxCalls = 3
+     )
+     
+     // Rate limiter for preventing API overload
+     val rateLimiter: RateLimiterInterceptor = RateLimiterInterceptor(
+         maxRequestsPerSecond = Constants.Network.MAX_REQUESTS_PER_SECOND,
+         maxRequestsPerMinute = Constants.Network.MAX_REQUESTS_PER_MINUTE,
+         enableLogging = BuildConfig.DEBUG
+     )
+     
+     // Singleton pattern with thread-safe initialization
+     @Volatile
+     private var apiServiceV1Instance: ApiServiceV1? = null
+     
+     fun getApiServiceV1(): ApiServiceV1 {
+         return apiServiceV1Instance ?: synchronized(this) {
+             apiServiceV1Instance ?: createApiServiceV1().also { apiServiceV1Instance = it }
+         }
+     }
+     
+     private fun createApiServiceV1(): ApiServiceV1 {
+         val okHttpClient = if (!USE_MOCK_API) {
+             // Use secure client for production
+             SecurityConfig.getSecureOkHttpClient()
+                 .newBuilder()
+                 .connectionPool(connectionPool)
+                 .addInterceptor(RequestIdInterceptor())
+                 .addInterceptor(rateLimiter)
+                 .addInterceptor(RetryableRequestInterceptor())
+                 .addInterceptor(NetworkErrorInterceptor(enableLogging = BuildConfig.DEBUG))
+                 .build()
+         } else {
+             // For debug/mock, use basic client but log warning
+             val clientBuilder = OkHttpClient.Builder()
+                 .connectTimeout(Constants.Network.CONNECT_TIMEOUT, TimeUnit.SECONDS)
+                 .readTimeout(Constants.Network.READ_TIMEOUT, TimeUnit.SECONDS)
+                 .connectionPool(connectionPool)
+                 .addInterceptor(RequestIdInterceptor())
+                 .addInterceptor(rateLimiter)
+                 .addInterceptor(RetryableRequestInterceptor())
+                 .addInterceptor(NetworkErrorInterceptor(enableLogging = true))
+             
+             // Add logging interceptor only for debug builds
+             if (BuildConfig.DEBUG) {
+                 val loggingInterceptor = okhttp3.logging.HttpLoggingInterceptor().apply {
+                     level = okhttp3.logging.HttpLoggingInterceptor.Level.BODY
+                 }
+                 clientBuilder.addInterceptor(loggingInterceptor)
+             }
+             
+             clientBuilder.build()
+         }
+         
+         val retrofit = Retrofit.Builder()
+             .baseUrl(BASE_URL)
+             .client(okHttpClient)
+             .addConverterFactory(GsonConverterFactory.create())
+             .build()
+         return retrofit.create(ApiServiceV1::class.java)
+     }
+     
+     suspend fun resetCircuitBreaker() {
+         circuitBreaker.reset()
+     }
+     
+     fun getCircuitBreakerState(): CircuitBreakerState {
+         return circuitBreaker.getState()
+     }
+     
+     fun getRateLimiterStats(): Map<String, RateLimiterInterceptor.EndpointStats> {
+         return rateLimiter.getAllStats()
+     }
+     
+     fun resetRateLimiter() {
+         rateLimiter.reset()
+     }
+ }
+```
+
+**Interceptor Chain Order:**
+1. **RequestIdInterceptor** - Adds unique request ID for tracing
+2. **RateLimiterInterceptor** - Enforces rate limits (token bucket algorithm)
+3. **RetryableRequestInterceptor** - Marks safe-to-retry requests
+4. **NetworkErrorInterceptor** - Parses errors and converts to NetworkError
+
+**Interceptors Purpose:**
+- **RequestIdInterceptor**: Request tracking and debugging
+- **RateLimiterInterceptor**: API abuse prevention, burst handling
+- **RetryableRequestInterceptor**: Retry logic optimization
+- **NetworkErrorInterceptor**: Standardized error handling, exception conversion
+```
+
+#### Repository Pattern with Circuit Breaker and Retry
+
+**API v1 Repository with Resilience:**
 ```kotlin
 interface UserRepository {
-    suspend fun getUsers(): Result<List<DataItem>>
+    suspend fun getUsers(forceRefresh: Boolean = false): Result<UserResponse>
+    suspend fun getUserById(userId: String): Result<User>
 }
 
 class UserRepositoryImpl(
-    private val apiService: ApiService
+    private val apiService: ApiServiceV1,
+    private val circuitBreaker: CircuitBreaker
 ) : UserRepository {
     
-    override suspend fun getUsers(): Result<List<DataItem>> {
-        return withCircuitBreaker(ApiConfig.circuitBreaker) {
+    override suspend fun getUsers(forceRefresh: Boolean): Result<UserResponse> {
+        return executeWithCircuitBreaker {
             val response = apiService.getUsers()
             if (response.isSuccessful && response.body() != null) {
                 Result.success(response.body()!!.data)
             } else {
-                Result.failure(NetworkException(response.code()))
+                throw NetworkError.HttpError(
+                    code = ApiErrorCode.fromHttpCode(response.code()),
+                    userMessage = "Gagal memuat data pengguna",
+                    httpCode = response.code(),
+                    details = response.body()?.error?.details
+                )
+            }
+        }
+    }
+    
+    private suspend fun <T> executeWithCircuitBreaker(block: suspend () -> T): Result<T> {
+        return when (val result = circuitBreaker.execute { block() }) {
+            is CircuitBreakerResult.Success -> Result.success(result.value)
+            is CircuitBreakerResult.Failure -> Result.failure(result.exception)
+            is CircuitBreakerResult.CircuitOpen -> {
+                Result.failure(NetworkError.CircuitBreakerError(
+                    userMessage = "Layanan sementara tidak tersedia. Silakan coba lagi nanti."
+                ))
             }
         }
     }
 }
 
-// Factory pattern for consistent instantiation
-object UserRepositoryFactory {
-    private var instance: UserRepository? = null
-    
-    fun getInstance(): UserRepository {
-        return instance ?: synchronized(this) {
-            instance ?: UserRepositoryImpl(ApiConfig.getApiService()).also { 
-                instance = it 
-            }
-        }
+// Dependency Injection for consistent instantiation
+class DependencyContainer {
+    private val apiService: ApiServiceV1 by lazy {
+        ApiConfig.getApiServiceV1()
     }
+    
+    private val circuitBreaker: CircuitBreaker by lazy {
+        ApiConfig.circuitBreaker
+    }
+    
+    private val userRepository: UserRepository by lazy {
+        UserRepositoryImpl(apiService, circuitBreaker)
+    }
+    
+    fun getUserRepository(): UserRepository = userRepository
 }
 ```
 
-#### ViewModel with StateFlow
+#### ViewModel with StateFlow and Error Handling
 ```kotlin
 class UserViewModel(
     private val repository: UserRepository
 ) : ViewModel() {
     
-    private val _uiState = MutableStateFlow<UiState<List<DataItem>>>(UiState.Loading)
-    val uiState: StateFlow<UiState<List<DataItem>>> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow<UiState<UserResponse>>(UiState.Loading)
+    val uiState: StateFlow<UiState<UserResponse>> = _uiState.asStateFlow()
     
-    fun loadUsers() {
+    fun loadUsers(forceRefresh: Boolean = false) {
         viewModelScope.launch {
             _uiState.value = UiState.Loading
-            repository.getUsers()
-                .onSuccess { users ->
-                    _uiState.value = UiState.Success(users)
+            
+            repository.getUsers(forceRefresh)
+                .onSuccess { userResponse ->
+                    if (userResponse.users.isEmpty()) {
+                        _uiState.value = UiState.Error("Tidak ada data pengguna")
+                    } else {
+                        _uiState.value = UiState.Success(userResponse)
+                    }
                 }
                 .onFailure { error ->
-                    _uiState.value = UiState.Error(error.message ?: "Unknown error")
+                    val message = when (error) {
+                        is NetworkError.HttpError -> {
+                            when (error.code) {
+                                ApiErrorCode.RATE_LIMIT_EXCEEDED -> 
+                                    "Terlalu banyak permintaan. Silakan tunggu sebentar."
+                                ApiErrorCode.SERVICE_UNAVAILABLE ->
+                                    "Layanan sementara tidak tersedia. Silakan coba lagi nanti."
+                                else -> error.userMessage
+                            }
+                        }
+                        is NetworkError.CircuitBreakerError ->
+                            "Layanan sementara tidak tersedia. Silakan coba lagi nanti."
+                        is NetworkError.TimeoutError ->
+                            "Waktu permintaan habis. Silakan coba lagi."
+                        is NetworkError.ConnectionError ->
+                            "Tidak ada koneksi internet. Silakan periksa jaringan Anda."
+                        else -> "Terjadi kesalahan yang tidak terduga."
+                    }
+                    _uiState.value = UiState.Error(message)
                 }
         }
     }
+    
+    fun refreshUsers() {
+        loadUsers(forceRefresh = true)
+    }
 }
 
-// Factory for ViewModel instantiation
-class UserViewModelFactory : ViewModelProvider.Factory {
+// Factory for ViewModel instantiation with dependency injection
+class UserViewModelFactory(
+    private val repository: UserRepository
+) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(UserViewModel::class.java)) {
-            return UserViewModel(UserRepositoryFactory.getInstance()) as T
+            return UserViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
@@ -360,7 +812,10 @@ class UserViewModelFactory : ViewModelProvider.Factory {
 ```kotlin
 class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
-    private val viewModel: UserViewModel by viewModels { UserViewModelFactory() }
+    private val viewModel: UserViewModel by viewModels {
+        UserViewModelFactory(DependencyContainer().getUserRepository())
+    }
+    private lateinit var adapter: UserAdapter
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -369,6 +824,7 @@ class MainActivity : BaseActivity() {
         
         setupRecyclerView()
         observeViewModel()
+        setupSwipeRefresh()
         viewModel.loadUsers()
     }
     
@@ -376,28 +832,45 @@ class MainActivity : BaseActivity() {
         lifecycleScope.launch {
             viewModel.uiState.collect { state ->
                 when (state) {
-                    is UiState.Loading -> showLoading()
-                    is UiState.Success -> showUsers(state.data)
-                    is UiState.Error -> showError(state.message)
+                    is UiState.Loading -> {
+                        binding.progressBar.visibility = View.VISIBLE
+                        binding.rvUsers.visibility = View.GONE
+                        binding.errorLayout.visibility = View.GONE
+                    }
+                    is UiState.Success -> {
+                        binding.progressBar.visibility = View.GONE
+                        binding.rvUsers.visibility = View.VISIBLE
+                        binding.errorLayout.visibility = View.GONE
+                        adapter.submitList(state.data.users)
+                        binding.swipeRefresh.isRefreshing = false
+                    }
+                    is UiState.Error -> {
+                        binding.progressBar.visibility = View.GONE
+                        binding.rvUsers.visibility = View.GONE
+                        binding.errorLayout.visibility = View.VISIBLE
+                        binding.errorMessage.text = state.message
+                        binding.swipeRefresh.isRefreshing = false
+                        announceForAccessibility(state.message)
+                    }
                 }
             }
         }
     }
     
-    private fun showLoading() {
-        binding.progressBar.visibility = View.VISIBLE
-        binding.rvUsers.visibility = View.GONE
+    private fun setupRecyclerView() {
+        adapter = UserAdapter(DependencyContainer().getUserRepository())
+        binding.rvUsers.apply {
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            adapter = this@MainActivity.adapter
+            setHasFixedSize(true)
+            itemAnimator = null // Improve performance
+        }
     }
     
-    private fun showUsers(users: List<DataItem>) {
-        binding.progressBar.visibility = View.GONE
-        binding.rvUsers.visibility = View.VISIBLE
-        adapter.submitList(users)
-    }
-    
-    private fun showError(message: String) {
-        binding.progressBar.visibility = View.GONE
-        Toast.makeText(this, "Error: $message", Toast.LENGTH_SHORT).show()
+    private fun setupSwipeRefresh() {
+        binding.swipeRefresh.setOnRefreshListener {
+            viewModel.refreshUsers()
+        }
     }
     
     override fun onDestroy() {
@@ -418,12 +891,113 @@ class MainActivity : BaseActivity() {
 | 401 | Unauthorized | Check authentication |
 | 403 | Forbidden | Check permissions |
 | 404 | Not Found | Verify endpoint URL |
+| 422 | Unprocessable Entity | Check validation errors |
 | 408 | Request Timeout | Retry with backoff |
 | 429 | Too Many Requests | Wait and retry |
-| 500 | Server Error | Retry with backoff |
+| 500 | Internal Server Error | Retry with backoff |
 | 503 | Service Unavailable | Display offline message |
 
 ### Error Response Format
+
+#### API v1 - Standardized Error Response
+
+API v1 uses standardized error response format with detailed error information:
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid request parameters",
+    "details": "Email field is required",
+    "field": "email"
+  },
+  "request_id": "req_1234567890",
+  "timestamp": 1704672000000
+}
+```
+
+**Error Response Fields:**
+
+| Field | Type | Description | Example |
+|-------|------|-------------|---------|
+| `error` | ApiErrorDetail | Error detail object | See below |
+| `request_id` | String | Unique request identifier | "req_1234567890" |
+| `timestamp` | Long | Response timestamp in milliseconds | 1704672000000 |
+
+**ApiErrorDetail Fields:**
+
+| Field | Type | Description | Example |
+|-------|------|-------------|---------|
+| `code` | String | Standard error code | "VALIDATION_ERROR" |
+| `message` | String | Human-readable error message | "Invalid request parameters" |
+| `details` | String | Additional error details (optional) | "Email field is required" |
+| `field` | String | Field with validation error (optional) | "email" |
+
+**Standard Error Codes:**
+
+| Error Code | HTTP Status | Description | User Action |
+|-------------|--------------|-------------|--------------|
+| `BAD_REQUEST` | 400 | Invalid request parameters | Check request body |
+| `UNAUTHORIZED` | 401 | Authentication required | Log in again |
+| `FORBIDDEN` | 403 | Access denied | Check permissions |
+| `NOT_FOUND` | 404 | Resource not found | Verify resource ID |
+| `CONFLICT` | 409 | Resource conflict | Check for duplicates |
+| `VALIDATION_ERROR` | 422 | Validation failed | Fix validation errors |
+| `RATE_LIMIT_EXCEEDED` | 429 | Too many requests | Wait and retry |
+| `INTERNAL_SERVER_ERROR` | 500 | Server error | Retry with backoff |
+| `SERVICE_UNAVAILABLE` | 503 | Service unavailable | Display offline message |
+| `TIMEOUT` | 504 | Request timeout | Retry with backoff |
+| `NETWORK_ERROR` | N/A | Network connection error | Check internet connection |
+| `UNKNOWN_ERROR` | N/A | Unexpected error | Contact support |
+
+**Error Response Examples:**
+
+**Validation Error:**
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid request parameters",
+    "details": "Email is already registered",
+    "field": "email"
+  },
+  "request_id": "req_1234567890",
+  "timestamp": 1704672000000
+}
+```
+
+**Rate Limit Error:**
+```json
+{
+  "error": {
+    "code": "RATE_LIMIT_EXCEEDED",
+    "message": "Too many requests",
+    "details": "Rate limit: 10 requests/second. Retry after: 500ms",
+    "field": null
+  },
+  "request_id": "req_1234567890",
+  "timestamp": 1704672000000
+}
+```
+
+**Not Found Error:**
+```json
+{
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "Resource not found",
+    "details": "Vendor with ID 'vendor_123' does not exist",
+    "field": "id"
+  },
+  "request_id": "req_1234567890",
+  "timestamp": 1704672000000
+}
+```
+
+#### Legacy Error Response Format
+
+Legacy endpoints use simple error format:
+
 ```json
 {
   "error": "Data not found",
@@ -431,18 +1005,19 @@ class MainActivity : BaseActivity() {
 }
 ```
 
+**Note:** For new integrations, use API v1 for standardized error handling and better resilience.
+
 ### Circuit Breaker Pattern
+
 The application implements a Circuit Breaker pattern to prevent cascading failures:
 
-```kotlin
-// Circuit Breaker States
-enum class CircuitBreakerState {
-    CLOSED,    // Normal operation
-    OPEN,      // Circuit is open, requests fail fast
-    HALF_OPEN  // Testing if service has recovered
-}
+**Circuit Breaker States:**
+- **CLOSED**: Normal operation, requests pass through
+- **OPEN**: Circuit is open, requests fail fast without hitting the service
+- **HALF_OPEN**: Testing if service has recovered (limited requests allowed)
 
-// Circuit Breaker Configuration
+**Circuit Breaker Configuration:**
+```kotlin
 CircuitBreaker(
     failureThreshold = 3,      // Failures before opening circuit
     successThreshold = 2,      // Successes before closing circuit
@@ -450,6 +1025,87 @@ CircuitBreaker(
     halfOpenMaxCalls = 3        // Max requests in half-open state
 )
 ```
+
+**State Transitions:**
+1. **CLOSED → OPEN**: After 3 consecutive failures
+2. **OPEN → HALF_OPEN**: After 60 seconds (timeout)
+3. **HALF_OPEN → CLOSED**: After 2 consecutive successes
+4. **HALF_OPEN → OPEN**: On any failure
+
+**Usage in Repositories:**
+```kotlin
+class UserRepositoryImpl(
+    private val apiService: ApiServiceV1
+) : UserRepository {
+
+    override suspend fun getUsers(): Result<List<User>> {
+        return executeWithCircuitBreaker {
+            val response = apiService.getUsers()
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!.data.users)
+            } else {
+                throw NetworkError.HttpError(
+                    code = ApiErrorCode.fromHttpCode(response.code()),
+                    userMessage = "Failed to load users",
+                    httpCode = response.code()
+                )
+            }
+        }
+    }
+}
+```
+
+### Rate Limiting Pattern
+
+The application implements multi-level rate limiting to prevent API abuse:
+
+**Rate Limiting Configuration:**
+```kotlin
+RateLimiterInterceptor(
+    maxRequestsPerSecond = 10,  // Token bucket refill rate
+    maxRequestsPerMinute = 600,  // Per-minute limit
+    useTokenBucket = true         // Use token bucket algorithm
+)
+```
+
+**Token Bucket Algorithm:**
+- Bucket starts with 600 tokens (maxRequestsPerMinute)
+- Tokens refill at 10 tokens/second (maxRequestsPerSecond)
+- Each request consumes 1 token
+- Requests are blocked when bucket is empty
+- Allows temporary bursts (up to 600 requests instantly)
+
+**Rate Limit Error Handling:**
+```kotlin
+try {
+    val response = apiService.getUsers()
+    processResponse(response)
+} catch (e: NetworkError.HttpError) {
+    if (e.code == ApiErrorCode.RATE_LIMIT_EXCEEDED) {
+        val waitTime = ApiConfig.rateLimiter.getTimeToNextToken()
+        showRetryDialog(
+            message = "Terlalu banyak permintaan. Coba lagi dalam ${waitTime}ms.",
+            waitTime = waitTime
+        )
+    }
+}
+```
+
+**Rate Limiter Monitoring:**
+```kotlin
+val stats = ApiConfig.getRateLimiterStats()
+stats.forEach { (endpoint, stats) ->
+    println("Endpoint: $endpoint")
+    println("Requests: ${stats.requestCount}")
+    println("Last Request: ${stats.lastRequestTime}")
+}
+```
+
+**Per-Endpoint Rate Limiting:**
+Rate limiting is tracked per endpoint:
+- `GET:/api/v1/users` - Separate limit for users endpoint
+- `GET:/api/v1/pemanfaatan` - Separate limit for pemanfaatan endpoint
+- `POST:/api/v1/messages` - Separate limit for messages endpoint
 
 ### Client Error Handling with StateFlow
 ```kotlin
