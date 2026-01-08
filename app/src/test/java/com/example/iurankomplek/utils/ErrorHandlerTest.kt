@@ -1,16 +1,22 @@
 package com.example.iurankomplek.utils
 
+import android.content.Context
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import retrofit2.HttpException
 import okhttp3.ResponseBody
 import java.net.UnknownHostException
 import java.net.SocketTimeoutException
 import java.io.IOException
 
+@RunWith(RobolectricTestRunner::class)
 class ErrorHandlerTest {
 
-    private val errorHandler = ErrorHandler()
+    private val context: Context = RuntimeEnvironment.getApplication()
+    private val errorHandler = ErrorHandler(context)
 
     @Test
     fun `handleError should return correct message for UnknownHostException`() {
@@ -81,7 +87,7 @@ class ErrorHandlerTest {
             .message("I'm a teapot")
             .build())
         val result = errorHandler.handleError(exception)
-        assertEquals("HTTP Error: 418", result)
+        assertEquals("Request failed with status code: 418", result)
     }
 
     @Test

@@ -1,19 +1,25 @@
 package com.example.iurankomplek.utils
 
+import android.content.Context
 import com.example.iurankomplek.network.NetworkError
 import com.example.iurankomplek.network.resilience.CircuitBreakerException
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import retrofit2.HttpException
 import retrofit2.Response
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.io.IOException
 
+@RunWith(RobolectricTestRunner::class)
 class ErrorHandlerTest {
-    
-    private val errorHandler = ErrorHandler()
+
+    private val context: Context = RuntimeEnvironment.getApplication()
+    private val errorHandler = ErrorHandler(context)
     
     @Test
     fun `handleError with UnknownHostException returns connection message`() {

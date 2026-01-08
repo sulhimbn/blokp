@@ -1,18 +1,25 @@
 package com.example.iurankomplek
 
+import android.content.Context
 import com.example.iurankomplek.data.repository.BaseRepository
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.utils.*
 import com.example.iurankomplek.viewmodel.BaseViewModel
 import org.junit.Test
 import org.junit.Assert.*
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import java.util.concurrent.TimeUnit
 
 /**
  * Test suite to verify foundation infrastructure components are properly implemented
  * as required by issue #158: Foundation Infrastructure Setup for HOA Management
  */
+@RunWith(RobolectricTestRunner::class)
 class FoundationInfrastructureTest {
+
+    private val context: Context = RuntimeEnvironment.getApplication()
 
     @Test
     fun `test security configuration is properly implemented`() {
@@ -43,7 +50,7 @@ class FoundationInfrastructureTest {
 
     @Test
     fun `test error handler is implemented`() {
-        val errorHandler = ErrorHandler()
+        val errorHandler = ErrorHandler(context)
         val message = errorHandler.handleError(Exception("Test error"))
         assertNotNull("Error handler should return error message", message)
         assertTrue("Error message should not be empty", message.isNotEmpty())

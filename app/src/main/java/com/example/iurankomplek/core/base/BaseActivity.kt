@@ -18,12 +18,12 @@ import javax.net.ssl.SSLException
 import retrofit2.Response
 
 abstract class BaseActivity : AppCompatActivity() {
-    private val errorHandler = ErrorHandler()
+    private val errorHandler = ErrorHandler(this)
 
     protected fun <T> executeWithRetry(
-        maxRetries: Int = 3,
-        initialDelayMs: Long = 1000,
-        maxDelayMs: Long = 30000,
+        maxRetries: Int = Constants.Network.MAX_RETRIES,
+        initialDelayMs: Long = Constants.Network.INITIAL_RETRY_DELAY_MS,
+        maxDelayMs: Long = Constants.Network.MAX_RETRY_DELAY_MS,
         operation: suspend () -> Response<T>,
         onSuccess: (T) -> Unit,
         onError: (String) -> Unit,

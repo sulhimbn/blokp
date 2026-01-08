@@ -1,5 +1,7 @@
 package com.example.iurankomplek.utils
 
+import android.content.Context
+import com.example.iurankomplek.R
 import com.example.iurankomplek.network.NetworkError
 import com.example.iurankomplek.network.resilience.CircuitBreakerException
 import retrofit2.HttpException
@@ -15,60 +17,60 @@ data class ErrorContext(
     val timestamp: Long = System.currentTimeMillis()
 )
 
-class ErrorHandler {
+class ErrorHandler(private val context: Context) {
     fun handleError(
         throwable: Throwable,
-        context: ErrorContext? = null
+        errorContext: ErrorContext? = null
     ): String {
         val userMessage = getUserMessage(throwable)
-        
-        logError(throwable, context, userMessage)
-        
+
+        logError(throwable, errorContext, userMessage)
+
         return userMessage
     }
-    
+
     private fun getUserMessage(throwable: Throwable): String {
         return when (throwable) {
-            is UnknownHostException -> "No internet connection"
-            is SocketTimeoutException -> "Connection timeout"
-            is CircuitBreakerException -> "Service temporarily unavailable"
+            is UnknownHostException -> context.getString(R.string.no_internet_connection)
+            is SocketTimeoutException -> context.getString(R.string.error_connection_timeout)
+            is CircuitBreakerException -> context.getString(R.string.error_service_temporarily_unavailable)
             is HttpException -> {
                 when (throwable.code()) {
-                    400 -> "Invalid request"
-                    401 -> "Unauthorized access"
-                    403 -> "Forbidden"
-                    404 -> "Resource not found"
-                    408 -> "Request timeout"
-                    429 -> "Too many requests. Please slow down."
-                    500 -> "Server error"
-                    502 -> "Bad gateway"
-                    503 -> "Service unavailable"
-                    504 -> "Gateway timeout"
-                    else -> "HTTP Error: ${throwable.code()}"
+                    400 -> context.getString(R.string.error_invalid_request)
+                    401 -> context.getString(R.string.error_unauthorized_access)
+                    403 -> context.getString(R.string.error_forbidden)
+                    404 -> context.getString(R.string.error_resource_not_found)
+                    408 -> context.getString(R.string.error_request_timeout)
+                    429 -> context.getString(R.string.error_too_many_requests)
+                    500 -> context.getString(R.string.error_server_error)
+                    502 -> context.getString(R.string.error_bad_gateway)
+                    503 -> context.getString(R.string.error_service_unavailable)
+                    504 -> context.getString(R.string.error_gateway_timeout)
+                    else -> context.getString(R.string.request_failed_with_status, throwable.code())
                 }
             }
-            is IOException -> "Network error occurred"
-            else -> "An error occurred: ${throwable.message}"
+            is IOException -> context.getString(R.string.error_network_occurred)
+            else -> context.getString(R.string.error_an_error_occurred, throwable.message)
         }
     }
     
     private fun logError(
         throwable: Throwable,
-        context: ErrorContext?,
+        errorContext: ErrorContext?,
         userMessage: String
     ) {
-        val requestId = context?.requestId ?: generateRequestId()
-        val endpoint = context?.endpoint ?: "unknown"
-        
+        val requestId = errorContext?.requestId ?: generateRequestId()
+        val endpoint = errorContext?.endpoint ?: "unknown"
+
         val logMessage = buildString {
             append("Error [ID: $requestId] ")
             append("at $endpoint: ")
             append("$userMessage")
-            
-            if (context?.httpCode != null) {
-                append(" (HTTP ${context.httpCode})")
+
+            if (errorContext?.httpCode != null) {
+                append(" (HTTP ${errorContext.httpCode})")
             }
-            
+
             if (throwable is HttpException) {
                 val errorBody = throwable.response()?.errorBody()?.string()
                 if (!errorBody.isNullOrBlank()) {
@@ -76,7 +78,7 @@ class ErrorHandler {
                 }
             }
         }
-        
+
         when (throwable) {
             is CircuitBreakerException -> {
                 android.util.Log.w(Constants.Tags.BASE_ACTIVITY, logMessage, throwable)

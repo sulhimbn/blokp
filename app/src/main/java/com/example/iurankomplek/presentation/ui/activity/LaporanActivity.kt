@@ -76,60 +76,89 @@ class LaporanActivity : BaseActivity() {
         lifecycleScope.launch {
             viewModel.financialState.collect { state ->
                 when (state) {
-                    is UiState.Idle -> {
-                    }
-                     is UiState.Loading -> {
-                         binding.progressBar.visibility = View.VISIBLE
-                         binding.emptyStateTextView.visibility = View.GONE
-                         binding.errorStateLayout.visibility = View.GONE
-                         binding.swipeRefreshLayout.isRefreshing = true
-                     }
-                       is UiState.Success -> {
-                           binding.progressBar.visibility = View.GONE
-                           binding.swipeRefreshLayout.isRefreshing = false
-                           state.data.data?.let { dataArray ->
-                              if (dataArray.isEmpty()) {
-                                  binding.progressBar.visibility = View.GONE
-                                  binding.emptyStateTextView.visibility = View.VISIBLE
-                                  binding.errorStateLayout.visibility = View.GONE
-                                  return@let
-                              }
-
-                              binding.rvLaporan.visibility = View.VISIBLE
-                              binding.rvSummary.visibility = View.VISIBLE
-                              binding.progressBar.visibility = View.GONE
-                              binding.emptyStateTextView.visibility = View.GONE
-                              binding.errorStateLayout.visibility = View.GONE
-
-                            // Convert LegacyDataItemDto to DataItem and set on adapter
-                               val dataItems = EntityMapper.toDataItemList(dataArray)
-                               adapter.submitList(dataItems)
-
-                               // Calculate and set summary items with payment integration
-                               calculateAndSetSummary(dataItems)
-                            } ?: run {
-                                binding.progressBar.visibility = View.GONE
-                                binding.rvLaporan.visibility = View.GONE
-                                binding.rvSummary.visibility = View.GONE
-                                binding.emptyStateTextView.visibility = View.GONE
-                                binding.errorStateLayout.visibility = View.VISIBLE
-                                binding.errorStateTextView.text = getString(R.string.invalid_response_format)
-                                binding.retryTextView.setOnClickListener { viewModel.loadFinancialData() }
-                            }
-                  }
-                      is UiState.Error -> {
-                         binding.progressBar.visibility = View.GONE
-                         binding.rvLaporan.visibility = View.GONE
-                         binding.rvSummary.visibility = View.GONE
-                         binding.emptyStateTextView.visibility = View.GONE
-                         binding.errorStateLayout.visibility = View.VISIBLE
-                         binding.errorStateTextView.text = state.error
-                         binding.swipeRefreshLayout.isRefreshing = false
-                         binding.retryTextView.setOnClickListener { viewModel.loadFinancialData() }
-                     }
+                    is UiState.Idle -> handleIdleState()
+                    is UiState.Loading -> handleLoadingState()
+                    is UiState.Success -> handleSuccessState(state)
+                    is UiState.Error -> handleErrorState(state.error)
                 }
             }
         }
+    }
+
+    private fun handleIdleState() {
+    }
+
+    private fun handleLoadingState() {
+        setUIState(
+            loading = true,
+            showEmpty = false,
+            showError = false,
+            showContent = false
+        )
+        binding.swipeRefreshLayout.isRefreshing = true
+    }
+
+    private fun handleSuccessState(state: UiState.Success<com.example.iurankomplek.data.dto.PemanfaatanResponse>) {
+        setUIState(
+            loading = false,
+            showEmpty = false,
+            showError = false,
+            showContent = false
+        )
+        binding.swipeRefreshLayout.isRefreshing = false
+
+        state.data.data?.let { dataArray ->
+            if (dataArray.isEmpty()) {
+                setUIState(
+                    loading = false,
+                    showEmpty = true,
+                    showError = false,
+                    showContent = false
+                )
+                return
+            }
+
+            setUIState(
+                loading = false,
+                showEmpty = false,
+                showError = false,
+                showContent = true
+            )
+
+            val dataItems = EntityMapper.toDataItemList(dataArray)
+            adapter.submitList(dataItems)
+
+            calculateAndSetSummary(dataItems)
+        } ?: run {
+            setUIState(
+                loading = false,
+                showEmpty = false,
+                showError = true,
+                showContent = false
+            )
+            binding.errorStateTextView.text = getString(R.string.invalid_response_format)
+            binding.retryTextView.setOnClickListener { viewModel.loadFinancialData() }
+        }
+    }
+
+    private fun handleErrorState(error: String) {
+        setUIState(
+            loading = false,
+            showEmpty = false,
+            showError = true,
+            showContent = false
+        )
+        binding.errorStateTextView.text = error
+        binding.swipeRefreshLayout.isRefreshing = false
+        binding.retryTextView.setOnClickListener { viewModel.loadFinancialData() }
+    }
+
+    private fun setUIState(loading: Boolean, showEmpty: Boolean, showError: Boolean, showContent: Boolean) {
+        binding.progressBar.visibility = if (loading) View.VISIBLE else View.GONE
+        binding.emptyStateTextView.visibility = if (showEmpty) View.VISIBLE else View.GONE
+        binding.errorStateLayout.visibility = if (showError) View.VISIBLE else View.GONE
+        binding.rvLaporan.visibility = if (showContent) View.VISIBLE else View.GONE
+        binding.rvSummary.visibility = if (showContent) View.VISIBLE else View.GONE
     }
     
     private fun calculateAndSetSummary(dataArray: List<com.example.iurankomplek.model.DataItem>) {

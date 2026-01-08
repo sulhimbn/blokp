@@ -32,7 +32,7 @@ object FinancialCalculator {
      */
     fun calculateTotalIuranBulanan(items: List<DataItem>): Int {
         if (!validateDataItems(items)) {
-            throw IllegalArgumentException("Invalid financial data detected")
+            throw IllegalArgumentException(Constants.ErrorMessages.FINANCIAL_DATA_INVALID)
         }
         return calculateTotalIuranBulananInternal(items)
     }
@@ -42,7 +42,7 @@ object FinancialCalculator {
      */
     fun calculateTotalPengeluaran(items: List<DataItem>): Int {
         if (!validateDataItems(items)) {
-            throw IllegalArgumentException("Invalid financial data detected")
+            throw IllegalArgumentException(Constants.ErrorMessages.FINANCIAL_DATA_INVALID)
         }
         return calculateTotalPengeluaranInternal(items)
     }
@@ -52,7 +52,7 @@ object FinancialCalculator {
      */
     fun calculateTotalIuranIndividu(items: List<DataItem>): Int {
         if (!validateDataItems(items)) {
-            throw IllegalArgumentException("Invalid financial data detected")
+            throw IllegalArgumentException(Constants.ErrorMessages.FINANCIAL_DATA_INVALID)
         }
         return calculateTotalIuranIndividuInternal(items)
     }
@@ -62,7 +62,7 @@ object FinancialCalculator {
      */
     fun calculateRekapIuran(items: List<DataItem>): Int {
         if (!validateDataItems(items)) {
-            throw IllegalArgumentException("Invalid financial data detected")
+            throw IllegalArgumentException(Constants.ErrorMessages.FINANCIAL_DATA_INVALID)
         }
         return calculateRekapIuranInternal(items)
     }
@@ -75,7 +75,7 @@ object FinancialCalculator {
         for (item in items) {
             val value = item.iuran_perwarga
             if (value > Int.MAX_VALUE - total) {
-                throw ArithmeticException("Total iuran bulanan calculation would cause overflow")
+                throw ArithmeticException(Constants.ErrorMessages.CALCULATION_OVERFLOW_IURAN_BULANAN)
             }
             total += value
         }
@@ -90,7 +90,7 @@ object FinancialCalculator {
         for (item in items) {
             val value = item.pengeluaran_iuran_warga
             if (value > Int.MAX_VALUE - total) {
-                throw ArithmeticException("Total pengeluaran calculation would cause overflow")
+                throw ArithmeticException(Constants.ErrorMessages.CALCULATION_OVERFLOW_PENGELUARAN)
             }
             total += value
         }
@@ -105,12 +105,12 @@ object FinancialCalculator {
         for (item in items) {
             var value = item.total_iuran_individu
             if (value > Int.MAX_VALUE / Constants.Financial.IURAN_MULTIPLIER) {
-                throw ArithmeticException("Individual iuran calculation would cause overflow")
+                throw ArithmeticException(Constants.ErrorMessages.CALCULATION_OVERFLOW_INDIVIDU)
             }
             value *= Constants.Financial.IURAN_MULTIPLIER
             
             if (value > Int.MAX_VALUE - total) {
-                throw ArithmeticException("Total iuran individu calculation would cause overflow")
+                throw ArithmeticException(Constants.ErrorMessages.CALCULATION_OVERFLOW_TOTAL_INDIVIDU)
             }
             total += value
         }
@@ -126,7 +126,7 @@ object FinancialCalculator {
         
         if (totalIuranIndividu < totalPengeluaran) {
             if (totalPengeluaran > Int.MAX_VALUE - (totalIuranIndividu.inv() + 1)) {
-                throw ArithmeticException("Rekap iuran calculation would cause underflow")
+                throw ArithmeticException(Constants.ErrorMessages.CALCULATION_UNDERFLOW_REKAP)
             }
         }
         

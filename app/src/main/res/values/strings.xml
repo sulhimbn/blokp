@@ -15,11 +15,27 @@
     <string name="invalid_response_format">Invalid response format</string>
     <string name="no_financial_data_available">No financial data available</string>
     <string name="no_data_available">No data available</string>
-    <string name="invalid_financial_data_detected">Invalid financial data detected</string>
-    <string name="financial_data_exceeds_maximum">Financial data exceeds maximum allowed value</string>
-    <string name="error_loading_data">Error loading data</string>
-    <string name="retry_failed">Failed to load data after multiple attempts</string>
-    <string name="retry_loading_data">Tap to retry</string>
+     <string name="invalid_financial_data_detected">Invalid financial data detected</string>
+     <string name="financial_data_exceeds_maximum">Financial data exceeds maximum allowed value</string>
+     <string name="error_loading_data">Error loading data</string>
+     <string name="retry_failed">Failed to load data after multiple attempts</string>
+     <string name="retry_loading_data">Tap to retry</string>
+
+     <!-- Error Handler Messages -->
+     <string name="error_connection_timeout">Connection timeout</string>
+     <string name="error_service_temporarily_unavailable">Service temporarily unavailable</string>
+     <string name="error_invalid_request">Invalid request</string>
+     <string name="error_unauthorized_access">Unauthorized access</string>
+     <string name="error_forbidden">Forbidden</string>
+     <string name="error_resource_not_found">Resource not found</string>
+     <string name="error_request_timeout">Request timeout</string>
+     <string name="error_too_many_requests">Too many requests. Please slow down.</string>
+     <string name="error_server_error">Server error</string>
+     <string name="error_bad_gateway">Bad gateway</string>
+     <string name="error_service_unavailable">Service unavailable</string>
+     <string name="error_gateway_timeout">Gateway timeout</string>
+     <string name="error_network_occurred">Network error occurred</string>
+     <string name="error_an_error_occurred">An error occurred: %s</string>
      <string name="jumlah_iuran_bulanan">1. Jumlah Iuran Bulanan</string>
      <string name="total_pengeluaran">2. Total Pengeluaran</string>
      <string name="rekap_total_iuran">3. Rekap Total Iuran</string>

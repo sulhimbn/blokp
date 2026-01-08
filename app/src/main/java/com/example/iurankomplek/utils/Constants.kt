@@ -13,14 +13,15 @@ object Constants {
         const val MAX_RETRIES = 3
         const val INITIAL_RETRY_DELAY_MS = 1000L
         const val MAX_RETRY_DELAY_MS = 30000L
-        
+
         // Connection Pool Constants
         const val MAX_IDLE_CONNECTIONS = 5
         const val KEEP_ALIVE_DURATION_MINUTES = 5L
-        
+
         // Rate Limiting Constants
         const val MAX_REQUESTS_PER_SECOND = 10
         const val MAX_REQUESTS_PER_MINUTE = 60
+        const val ONE_MINUTE_MS = 60000L
     }
     
     // API Constants
@@ -121,5 +122,15 @@ object Constants {
     // Intent Constants
     object Intent {
         const val WORK_ORDER_ID = "WORK_ORDER_ID"
+    }
+
+    // Error Messages Constants
+    object ErrorMessages {
+        const val FINANCIAL_DATA_INVALID = "Invalid financial data detected"
+        const val CALCULATION_OVERFLOW_IURAN_BULANAN = "Total iuran bulanan calculation would cause overflow"
+        const val CALCULATION_OVERFLOW_PENGELUARAN = "Total pengeluaran calculation would cause overflow"
+        const val CALCULATION_OVERFLOW_INDIVIDU = "Individual iuran calculation would cause overflow"
+        const val CALCULATION_OVERFLOW_TOTAL_INDIVIDU = "Total iuran individu calculation would cause overflow"
+        const val CALCULATION_UNDERFLOW_REKAP = "Rekap iuran calculation would cause underflow"
     }
 }

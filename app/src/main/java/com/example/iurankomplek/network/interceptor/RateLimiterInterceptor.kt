@@ -2,6 +2,7 @@ package com.example.iurankomplek.network.interceptor
 
 import com.example.iurankomplek.network.model.ApiErrorCode
 import com.example.iurankomplek.network.model.NetworkError
+import com.example.iurankomplek.utils.Constants
 import okhttp3.Interceptor
 import okhttp3.Response
 import java.util.concurrent.ConcurrentHashMap
@@ -10,8 +11,8 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 
 class RateLimiterInterceptor(
-    private val maxRequestsPerSecond: Int = 10,
-    private val maxRequestsPerMinute: Int = 60,
+    private val maxRequestsPerSecond: Int = Constants.Network.MAX_REQUESTS_PER_SECOND,
+    private val maxRequestsPerMinute: Int = Constants.Network.MAX_REQUESTS_PER_MINUTE,
     private val enableLogging: Boolean = false,
     private val tag: String = "RateLimiterInterceptor"
 ) : Interceptor {
@@ -62,7 +63,7 @@ class RateLimiterInterceptor(
     }
 
     private fun cleanupOldTimestamps(currentTime: Long) {
-        val oneMinuteAgo = currentTime - 60000
+        val oneMinuteAgo = currentTime - Constants.Network.ONE_MINUTE_MS
         while (requestTimestamps.isNotEmpty()) {
             val oldestTimestamp = requestTimestamps.peek()
             if (oldestTimestamp != null && oldestTimestamp < oneMinuteAgo) {
