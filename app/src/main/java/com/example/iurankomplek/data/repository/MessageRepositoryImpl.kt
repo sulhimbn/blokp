@@ -34,7 +34,7 @@ class MessageRepositoryImpl(
     }
 
     override suspend fun sendMessage(senderId: String, receiverId: String, content: String): Result<Message> {
-        return withCircuitBreaker<Message> { apiService.sendMessage(senderId, receiverId, content) }
+        return executeWithCircuitBreaker { apiService.sendMessage(senderId, receiverId, content) }
     }
 
     override suspend fun getCachedMessages(userId: String): Result<List<Message>> {
@@ -63,7 +63,7 @@ class MessageRepositoryImpl(
             com.example.iurankomplek.utils.RetryHelper.executeWithRetry(
                 apiCall = apiCall,
                 maxRetries = maxRetries
-            ).getOrThrow()
+            )
         }
 
         return when (circuitBreakerResult) {

@@ -34,7 +34,7 @@ class PemanfaatanRepositoryImpl(
                     com.example.iurankomplek.utils.RetryHelper.executeWithRetry(
                         apiCall = { apiService.getPemanfaatan() },
                         maxRetries = maxRetries
-                    ).getOrThrow()
+                    )
                 }.getOrThrow()
             },
             isCacheFresh = { response ->

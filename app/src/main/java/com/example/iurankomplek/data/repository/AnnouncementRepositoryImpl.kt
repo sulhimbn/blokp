@@ -48,7 +48,7 @@ class AnnouncementRepositoryImpl(
             com.example.iurankomplek.utils.RetryHelper.executeWithRetry(
                 apiCall = apiCall,
                 maxRetries = maxRetries
-            ).getOrThrow()
+            )
         }
 
         return when (circuitBreakerResult) {

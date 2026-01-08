@@ -9,10 +9,10 @@ import kotlin.math.pow
 
 object RetryHelper {
 
-    fun <T : Any> executeWithRetry(
+    suspend fun <T : Any> executeWithRetry(
         apiCall: suspend () -> retrofit2.Response<T>,
         maxRetries: Int = Constants.Network.MAX_RETRIES
-    ): Result<T> {
+    ): T {
         var currentRetry = 0
         var lastException: Exception? = null
 
@@ -20,8 +20,7 @@ object RetryHelper {
             try {
                 val response = apiCall()
                 if (response.isSuccessful) {
-                    response.body()?.let { return Result.success(it) }
-                        ?: throw Exception("Response body is null")
+                    return response.body() ?: throw Exception("Response body is null")
                 } else {
                     val isRetryable = isRetryableError(response.code())
                     if (currentRetry < maxRetries && isRetryable) {
@@ -53,7 +52,7 @@ object RetryHelper {
             }
         }
 
-        return Result.failure(lastException ?: Exception("Unknown error occurred"))
+        throw lastException ?: Exception("Unknown error occurred")
     }
 
     private fun isRetryableError(httpCode: Int): Boolean {

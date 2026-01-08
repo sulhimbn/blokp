@@ -105,7 +105,7 @@ class VendorRepositoryImpl(
             com.example.iurankomplek.utils.RetryHelper.executeWithRetry(
                 apiCall = apiCall,
                 maxRetries = maxRetries
-            ).getOrThrow()
+            )
         }
 
         return when (circuitBreakerResult) {

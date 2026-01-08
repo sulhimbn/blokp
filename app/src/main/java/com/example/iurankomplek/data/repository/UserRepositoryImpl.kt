@@ -31,7 +31,7 @@ class UserRepositoryImpl(
                     com.example.iurankomplek.utils.RetryHelper.executeWithRetry(
                         apiCall = { apiService.getUsers() },
                         maxRetries = maxRetries
-                    ).getOrThrow()
+                    )
                 }.getOrThrow()
             },
             isCacheFresh = { response ->

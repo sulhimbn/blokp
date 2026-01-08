@@ -20,7 +20,7 @@ class CommunityPostRepositoryImpl(
             return Result.success(cache.values.toList())
         }
 
-        return withCircuitBreakerWithCache { apiService.getCommunityPosts() }
+        return executeWithCircuitBreaker { apiService.getCommunityPosts() }
     }
 
     override suspend fun createCommunityPost(
@@ -29,7 +29,7 @@ class CommunityPostRepositoryImpl(
         content: String,
         category: String
     ): Result<CommunityPost> {
-        return withCircuitBreaker<CommunityPost> {
+        return executeWithCircuitBreaker {
             apiService.createCommunityPost(authorId, title, content, category)
         }
     }
@@ -59,7 +59,7 @@ class CommunityPostRepositoryImpl(
             com.example.iurankomplek.utils.RetryHelper.executeWithRetry(
                 apiCall = apiCall,
                 maxRetries = maxRetries
-            ).getOrThrow()
+            )
         }
 
         return when (circuitBreakerResult) {
