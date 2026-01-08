@@ -1,6 +1,6 @@
 package com.example.iurankomplek
 
-import com.example.iurankomplek.model.UserResponse
+import com.example.iurankomplek.data.api.models.UserResponse
 import com.example.iurankomplek.data.dto.LegacyDataItemDto
 import com.example.iurankomplek.network.ApiService
 import com.google.gson.Gson

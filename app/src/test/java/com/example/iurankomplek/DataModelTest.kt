@@ -1,7 +1,7 @@
 package com.example.iurankomplek
 
 import com.example.iurankomplek.model.DataItem
-import com.example.iurankomplek.model.UserResponse
+import com.example.iurankomplek.data.api.models.UserResponse
 import com.example.iurankomplek.model.PemanfaatanResponse
 import org.junit.Test
 import org.junit.Assert.*

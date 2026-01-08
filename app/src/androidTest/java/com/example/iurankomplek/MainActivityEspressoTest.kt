@@ -8,7 +8,7 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.example.iurankomplek.data.dto.LegacyDataItemDto
-import com.example.iurankomplek.model.UserResponse
+import com.example.iurankomplek.data.api.models.UserResponse
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.network.ApiService
 import com.example.iurankomplek.presentation.ui.activity.MainActivity

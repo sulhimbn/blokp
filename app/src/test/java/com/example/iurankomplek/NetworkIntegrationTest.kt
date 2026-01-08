@@ -2,7 +2,7 @@ package com.example.iurankomplek
 
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.network.ApiService
-import com.example.iurankomplek.model.UserResponse
+import com.example.iurankomplek.data.api.models.UserResponse
 import com.google.gson.Gson
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
