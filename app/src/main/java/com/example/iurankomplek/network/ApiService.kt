@@ -2,13 +2,23 @@ package com.example.iurankomplek.network
 
 import com.example.iurankomplek.data.api.models.UserResponse
 import com.example.iurankomplek.data.api.models.PemanfaatanResponse
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.PUT
-import retrofit2.http.Path
-import retrofit2.http.Query
-import retrofit2.http.Response
+import com.example.iurankomplek.model.Announcement
+import com.example.iurankomplek.model.Message
+import com.example.iurankomplek.model.CommunityPost
+import com.example.iurankomplek.model.PaymentResponse
+import com.example.iurankomplek.model.PaymentStatusResponse
+import com.example.iurankomplek.model.PaymentConfirmationResponse
+import com.example.iurankomplek.model.VendorResponse
+import com.example.iurankomplek.model.SingleVendorResponse
+import com.example.iurankomplek.model.WorkOrderResponse
+import com.example.iurankomplek.model.SingleWorkOrderResponse
+import retrofit2.Body
+import retrofit2.GET
+import retrofit2.POST
+import retrofit2.PUT
+import retrofit2.Path
+import retrofit2.Query
+import retrofit2.Response
 
 interface ApiService {
     
