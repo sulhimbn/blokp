@@ -12,57 +12,57 @@ import java.math.BigDecimal
 import java.util.Date
 
 @Entity(
-    tableName = DatabaseConstraints.Transactions.TABLE_NAME,
+    tableName = "transactions",
     foreignKeys = [
         ForeignKey(
             entity = UserEntity::class,
-            parentColumns = [DatabaseConstraints.Users.Columns.ID],
-            childColumns = [DatabaseConstraints.Transactions.Columns.USER_ID],
+            parentColumns = ["id"],
+            childColumns = ["user_id"],
             onDelete = ForeignKey.RESTRICT,
             onUpdate = ForeignKey.CASCADE
         )
     ],
     indices = [
-        Index(value = [DatabaseConstraints.Transactions.Columns.USER_ID]),
-        Index(value = [DatabaseConstraints.Transactions.Columns.STATUS]),
-        Index(value = [DatabaseConstraints.Transactions.Columns.USER_ID, DatabaseConstraints.Transactions.Columns.STATUS]),
-        Index(value = [DatabaseConstraints.Transactions.Columns.CREATED_AT]),
-        Index(value = [DatabaseConstraints.Transactions.Columns.UPDATED_AT])
+        Index(value = ["user_id"]),
+        Index(value = ["status"]),
+        Index(value = ["user_id", "status"]),
+        Index(value = ["created_at"]),
+        Index(value = ["updated_at"])
     ]
 )
 data class Transaction(
     @PrimaryKey
-    @ColumnInfo(name = DatabaseConstraints.Transactions.Columns.ID)
+    @ColumnInfo(name = "id")
     val id: String,
 
-    @ColumnInfo(name = DatabaseConstraints.Transactions.Columns.USER_ID)
+    @ColumnInfo(name = "user_id")
     val userId: Long,
 
-    @ColumnInfo(name = DatabaseConstraints.Transactions.Columns.AMOUNT)
+    @ColumnInfo(name = "amount")
     val amount: BigDecimal,
 
-    @ColumnInfo(name = DatabaseConstraints.Transactions.Columns.CURRENCY, defaultValue = "'IDR'")
+    @ColumnInfo(name = "currency", defaultValue = "'IDR'")
     val currency: String = "IDR",
 
-    @ColumnInfo(name = DatabaseConstraints.Transactions.Columns.STATUS)
+    @ColumnInfo(name = "status")
     val status: PaymentStatus,
 
-    @ColumnInfo(name = DatabaseConstraints.Transactions.Columns.PAYMENT_METHOD)
+    @ColumnInfo(name = "payment_method")
     val paymentMethod: PaymentMethod,
 
-    @ColumnInfo(name = DatabaseConstraints.Transactions.Columns.DESCRIPTION)
+    @ColumnInfo(name = "description")
     val description: String,
 
-    @ColumnInfo(name = DatabaseConstraints.Transactions.Columns.IS_DELETED)
+    @ColumnInfo(name = "is_deleted")
     val isDeleted: Boolean = false,
 
-    @ColumnInfo(name = DatabaseConstraints.Transactions.Columns.CREATED_AT)
+    @ColumnInfo(name = "created_at")
     val createdAt: Date = Date(),
 
-    @ColumnInfo(name = DatabaseConstraints.Transactions.Columns.UPDATED_AT)
+    @ColumnInfo(name = "updated_at")
     val updatedAt: Date = Date(),
 
-    @ColumnInfo(name = DatabaseConstraints.Transactions.Columns.METADATA)
+    @ColumnInfo(name = "metadata")
     val metadata: String = ""
 ) {
     init {

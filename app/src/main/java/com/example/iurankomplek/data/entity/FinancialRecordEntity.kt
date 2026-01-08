@@ -9,54 +9,54 @@ import com.example.iurankomplek.data.constraints.DatabaseConstraints
 import java.util.Date
 
 @Entity(
-    tableName = DatabaseConstraints.FinancialRecords.TABLE_NAME,
+    tableName = "financial_records",
     foreignKeys = [
         ForeignKey(
             entity = UserEntity::class,
-            parentColumns = [DatabaseConstraints.Users.Columns.ID],
-            childColumns = [DatabaseConstraints.FinancialRecords.Columns.USER_ID],
+            parentColumns = ["id"],
+            childColumns = ["user_id"],
             onDelete = ForeignKey.CASCADE,
             onUpdate = ForeignKey.CASCADE
         )
     ],
     indices = [
-        Index(value = [DatabaseConstraints.FinancialRecords.Columns.USER_ID, DatabaseConstraints.FinancialRecords.Columns.UPDATED_AT]),
-        Index(value = [DatabaseConstraints.FinancialRecords.Columns.USER_ID, DatabaseConstraints.FinancialRecords.Columns.TOTAL_IURAN_REKAP])
+        Index(value = ["user_id", "updated_at"]),
+        Index(value = ["user_id", "total_iuran_rekap"])
     ]
 )
 data class FinancialRecordEntity(
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = DatabaseConstraints.FinancialRecords.Columns.ID)
+    @ColumnInfo(name = "id")
     val id: Long = 0,
 
-    @ColumnInfo(name = DatabaseConstraints.FinancialRecords.Columns.USER_ID)
+    @ColumnInfo(name = "user_id")
     val userId: Long,
 
-    @ColumnInfo(name = DatabaseConstraints.FinancialRecords.Columns.IURAN_PERWARGA, defaultValue = "0")
+    @ColumnInfo(name = "iuran_perwarga", defaultValue = "0")
     val iuranPerwarga: Int,
 
-    @ColumnInfo(name = DatabaseConstraints.FinancialRecords.Columns.JUMLAH_IURAN_BULANAN, defaultValue = "0")
+    @ColumnInfo(name = "jumlah_iuran_bulanan", defaultValue = "0")
     val jumlahIuranBulanan: Int,
 
-    @ColumnInfo(name = DatabaseConstraints.FinancialRecords.Columns.TOTAL_IURAN_INDIVIDU, defaultValue = "0")
+    @ColumnInfo(name = "total_iuran_individu", defaultValue = "0")
     val totalIuranIndividu: Int,
 
-    @ColumnInfo(name = DatabaseConstraints.FinancialRecords.Columns.PENGELUARAN_IURAN_WARGA, defaultValue = "0")
+    @ColumnInfo(name = "pengeluaran_iuran_warga", defaultValue = "0")
     val pengeluaranIuranWarga: Int,
 
-    @ColumnInfo(name = DatabaseConstraints.FinancialRecords.Columns.TOTAL_IURAN_REKAP, defaultValue = "0")
+    @ColumnInfo(name = "total_iuran_rekap", defaultValue = "0")
     val totalIuranRekap: Int,
 
-    @ColumnInfo(name = DatabaseConstraints.FinancialRecords.Columns.PEMANFAATAN_IURAN)
+    @ColumnInfo(name = "pemanfaatan_iuran")
     val pemanfaatanIuran: String,
 
-    @ColumnInfo(name = DatabaseConstraints.FinancialRecords.Columns.IS_DELETED)
+    @ColumnInfo(name = "is_deleted")
     val isDeleted: Boolean = false,
 
-    @ColumnInfo(name = DatabaseConstraints.FinancialRecords.Columns.CREATED_AT)
+    @ColumnInfo(name = "created_at")
     val createdAt: Date = Date(),
 
-    @ColumnInfo(name = DatabaseConstraints.FinancialRecords.Columns.UPDATED_AT)
+    @ColumnInfo(name = "updated_at")
     val updatedAt: Date = Date()
 ) {
     init {

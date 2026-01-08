@@ -8,39 +8,39 @@ import com.example.iurankomplek.data.constraints.DatabaseConstraints
 import java.util.Date
 
 @Entity(
-    tableName = DatabaseConstraints.Users.TABLE_NAME,
+    tableName = "users",
     indices = [
-        Index(value = [DatabaseConstraints.Users.Columns.EMAIL], unique = true),
-        Index(value = [DatabaseConstraints.Users.Columns.LAST_NAME, DatabaseConstraints.Users.Columns.FIRST_NAME])
+        Index(value = ["email"], unique = true),
+        Index(value = ["last_name", "first_name"])
     ]
 )
 data class UserEntity(
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = DatabaseConstraints.Users.Columns.ID)
+    @ColumnInfo(name = "id")
     val id: Long = 0,
 
-    @ColumnInfo(name = DatabaseConstraints.Users.Columns.EMAIL)
+    @ColumnInfo(name = "email")
     val email: String,
 
-    @ColumnInfo(name = DatabaseConstraints.Users.Columns.FIRST_NAME)
+    @ColumnInfo(name = "first_name")
     val firstName: String,
 
-    @ColumnInfo(name = DatabaseConstraints.Users.Columns.LAST_NAME)
+    @ColumnInfo(name = "last_name")
     val lastName: String,
 
-    @ColumnInfo(name = DatabaseConstraints.Users.Columns.ALAMAT)
+    @ColumnInfo(name = "alamat")
     val alamat: String,
 
-    @ColumnInfo(name = DatabaseConstraints.Users.Columns.AVATAR)
+    @ColumnInfo(name = "avatar")
     val avatar: String,
 
-    @ColumnInfo(name = DatabaseConstraints.Users.Columns.IS_DELETED)
+    @ColumnInfo(name = "is_deleted")
     val isDeleted: Boolean = false,
 
-    @ColumnInfo(name = DatabaseConstraints.Users.Columns.CREATED_AT)
+    @ColumnInfo(name = "created_at")
     val createdAt: Date = Date(),
 
-    @ColumnInfo(name = DatabaseConstraints.Users.Columns.UPDATED_AT)
+    @ColumnInfo(name = "updated_at")
     val updatedAt: Date = Date()
 ) {
     init {
