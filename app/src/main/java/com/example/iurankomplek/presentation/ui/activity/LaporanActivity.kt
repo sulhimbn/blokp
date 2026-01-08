@@ -23,8 +23,8 @@ import com.example.iurankomplek.data.repository.TransactionRepositoryFactory
 import com.example.iurankomplek.payment.MockPaymentGateway
 import com.example.iurankomplek.presentation.viewmodel.FinancialViewModel
 import com.example.iurankomplek.presentation.viewmodel.FinancialViewModelFactory
-import android.content.res.Configuration
-import androidx.recyclerview.widget.GridLayoutManager
+import com.example.iurankomplek.presentation.ui.helper.RecyclerViewHelper
+import com.example.iurankomplek.presentation.ui.helper.SwipeRefreshHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -53,92 +53,27 @@ class LaporanActivity : BaseActivity() {
         adapter = PemanfaatanAdapter()
         summaryAdapter = LaporanSummaryAdapter()
 
-        val orientation = resources.configuration.orientation
-        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            val gridLayoutManager = GridLayoutManager(this, 2)
-            binding.rvLaporan.layoutManager = gridLayoutManager
-        } else {
-            binding.rvLaporan.layoutManager = LinearLayoutManager(this)
-        }
-        binding.rvLaporan.setHasFixedSize(true)
-        binding.rvLaporan.setItemViewCacheSize(20)
-        binding.rvLaporan.focusable = true
-        binding.rvLaporan.focusableInTouchMode = true
-        binding.rvLaporan.adapter = adapter
+        RecyclerViewHelper.configureRecyclerView(
+            recyclerView = binding.rvLaporan,
+            itemCount = 20,
+            enableKeyboardNav = true,
+            adapter = adapter,
+            orientation = resources.configuration.orientation,
+            screenWidthDp = resources.configuration.screenWidthDp
+        )
 
         binding.rvSummary.layoutManager = LinearLayoutManager(this)
         binding.rvSummary.setHasFixedSize(true)
         binding.rvSummary.setItemViewCacheSize(20)
-        binding.rvSummary.focusable = true
-        binding.rvSummary.focusableInTouchMode = true
         binding.rvSummary.adapter = summaryAdapter
 
-        setupRecyclerViewKeyboardNavigation()
-
-         setupSwipeRefresh()
+         SwipeRefreshHelper.configureSwipeRefresh(binding.swipeRefreshLayout) {
+             viewModel.loadFinancialData()
+         }
          observeFinancialState()
          viewModel.loadFinancialData()
      }
      
-      private fun setupSwipeRefresh() {
-          binding.swipeRefreshLayout.setOnRefreshListener {
-              viewModel.loadFinancialData()
-          }
-      }
-
-      private fun announceForAccessibility(text: String) {
-          binding.swipeRefreshLayout.announceForAccessibility(text)
-      }
-
-      private fun setupRecyclerViewKeyboardNavigation() {
-          binding.rvLaporan.setOnKeyListener { _, keyCode, event ->
-              if (event.action == android.view.KeyEvent.ACTION_DOWN) {
-                  when (keyCode) {
-                      android.view.KeyEvent.KEYCODE_DPAD_DOWN,
-                      android.view.KeyEvent.KEYCODE_DPAD_UP -> {
-                          val layoutManager = binding.rvLaporan.layoutManager as? LinearLayoutManager
-                          layoutManager?.let {
-                              val firstVisible = it.findFirstVisibleItemPosition()
-                              val lastVisible = it.findLastVisibleItemPosition()
-                              if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_DOWN && lastVisible < adapter.itemCount - 1) {
-                                  binding.rvLaporan.smoothScrollToPosition(lastVisible + 1)
-                              } else if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_UP && firstVisible > 0) {
-                                  binding.rvLaporan.smoothScrollToPosition(firstVisible - 1)
-                              }
-                              true
-                          } ?: false
-                      }
-                      else -> false
-                  }
-              } else {
-                  false
-              }
-          }
-
-          binding.rvSummary.setOnKeyListener { _, keyCode, event ->
-              if (event.action == android.view.KeyEvent.ACTION_DOWN) {
-                  when (keyCode) {
-                      android.view.KeyEvent.KEYCODE_DPAD_DOWN,
-                      android.view.KeyEvent.KEYCODE_DPAD_UP -> {
-                          val layoutManager = binding.rvSummary.layoutManager as? LinearLayoutManager
-                          layoutManager?.let {
-                              val firstVisible = it.findFirstVisibleItemPosition()
-                              val lastVisible = it.findLastVisibleItemPosition()
-                              if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_DOWN && lastVisible < summaryAdapter.itemCount - 1) {
-                                  binding.rvSummary.smoothScrollToPosition(lastVisible + 1)
-                              } else if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_UP && firstVisible > 0) {
-                                  binding.rvSummary.smoothScrollToPosition(firstVisible - 1)
-                              }
-                              true
-                          } ?: false
-                      }
-                      else -> false
-                  }
-              } else {
-                  false
-              }
-          }
-      }
     
     private fun observeFinancialState() {
         lifecycleScope.launch {
@@ -174,7 +109,7 @@ class LaporanActivity : BaseActivity() {
             showContent = false
         )
         binding.swipeRefreshLayout.isRefreshing = false
-        announceForAccessibility(getString(R.string.swipe_refresh_complete))
+        SwipeRefreshHelper.announceRefreshComplete(binding.swipeRefreshLayout, this)
 
         state.data.data?.let { dataArray ->
             if (dataArray.isEmpty()) {

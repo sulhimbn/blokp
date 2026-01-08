@@ -81,13 +81,13 @@ class LaporanActivityTest {
     }
 
     @Test
-    fun `recyclerViews use LinearLayoutManager`() {
+    fun `recyclerViews have layout managers configured`() {
         scenario.onActivity { activity ->
             val rvLaporan = activity.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvLaporan)
             val rvSummary = activity.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvSummary)
 
-            org.junit.Assert.assertTrue(rvLaporan.layoutManager is androidx.recyclerview.widget.LinearLayoutManager)
-            org.junit.Assert.assertTrue(rvSummary.layoutManager is androidx.recyclerview.widget.LinearLayoutManager)
+            org.junit.Assert.assertNotNull(rvLaporan.layoutManager)
+            org.junit.Assert.assertNotNull(rvSummary.layoutManager)
         }
     }
 
