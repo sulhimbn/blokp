@@ -789,6 +789,96 @@ class BaseActivityTest {
         assertTrue(successCalled)
         assertEquals(2, callCount)
     }
+
+    @Test
+    fun `onDestroy should cancel pending retry operations`() = runTest {
+        activity = TestBaseActivity()
+        var successCalled = false
+        var callCount = 0
+
+        activity.executeWithRetry(
+            maxRetries = 5,
+            initialDelayMs = 5000,
+            operation = {
+                callCount++
+                throw SocketTimeoutException()
+            },
+            onSuccess = { fail("onSuccess should not be called") },
+            onError = { fail("onError should not be called after destroy") }
+        )
+
+        advanceTimeBy(100)
+        assertEquals(1, callCount)
+
+        activity.onDestroy()
+        advanceTimeBy(6000)
+        assertEquals(1, callCount)
+        assertFalse(successCalled)
+    }
+
+    @Test
+    fun `onDestroy should cancel multiple pending retry operations`() = runTest {
+        activity = TestBaseActivity()
+        val callCount1 = mutableListOf<Int>()
+        val callCount2 = mutableListOf<Int>()
+
+        activity.executeWithRetry(
+            maxRetries = 3,
+            initialDelayMs = 5000,
+            operation = {
+                callCount1.add(callCount1.size + 1)
+                throw SocketTimeoutException()
+            },
+            onSuccess = { fail("onSuccess should not be called") },
+            onError = { fail("onError should not be called after destroy") }
+        )
+
+        activity.executeWithRetry(
+            maxRetries = 3,
+            initialDelayMs = 5000,
+            operation = {
+                callCount2.add(callCount2.size + 1)
+                throw SocketTimeoutException()
+            },
+            onSuccess = { fail("onSuccess should not be called") },
+            onError = { fail("onError should not be called after destroy") }
+        )
+
+        advanceTimeBy(100)
+        assertEquals(1, callCount1.size)
+        assertEquals(1, callCount2.size)
+
+        activity.onDestroy()
+        advanceTimeBy(6000)
+        assertEquals(1, callCount1.size)
+        assertEquals(1, callCount2.size)
+    }
+
+    @Test
+    fun `onDestroy should not affect already executing operations`() = runTest {
+        activity = TestBaseActivity()
+        val latch = CountDownLatch(1)
+        var successCalled = false
+
+        activity.executeWithRetry(
+            maxRetries = 0,
+            operation = {
+                Response.success("Success")
+            },
+            onSuccess = {
+                successCalled = true
+                latch.countDown()
+            },
+            onError = { fail("onError should not be called") }
+        )
+
+        advanceUntilIdle()
+        assertTrue(latch.await(2, TimeUnit.SECONDS))
+        assertTrue(successCalled)
+
+        activity.onDestroy()
+        assertTrue(successCalled)
+    }
 }
 
 class TestBaseActivity : BaseActivity()

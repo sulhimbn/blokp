@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.example.iurankomplek.utils.Constants
 import com.example.iurankomplek.utils.ErrorHandler
@@ -23,6 +24,8 @@ abstract class BaseActivity : AppCompatActivity() {
     private val accessibilityManager by lazy {
         getSystemService(android.view.accessibility.AccessibilityManager::class.java)
     }
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private val pendingRetryRunnables = mutableMapOf<String, Runnable>()
 
     protected fun announceForAccessibility(text: String) {
         if (accessibilityManager.isEnabled) {
@@ -126,7 +129,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
         Log.d("BaseActivity", "Scheduling retry $retryCount in ${delay}ms")
 
-        Handler(Looper.getMainLooper()).postDelayed({
+        val runnable = Runnable {
             executeWithRetry(
                 maxRetries = maxRetries,
                 initialDelayMs = initialDelayMs,
@@ -136,6 +139,27 @@ abstract class BaseActivity : AppCompatActivity() {
                 onError = onError,
                 currentRetry = retryCount
             )
-        }, delay)
+        }
+
+        val retryId = "${System.currentTimeMillis()}_${retryCount}"
+        pendingRetryRunnables[retryId] = runnable
+        mainHandler.postDelayed(runnable, delay)
+
+        mainHandler.postDelayed({
+            pendingRetryRunnables.remove(retryId)
+        }, delay + 1000)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        cancelPendingRetries()
+    }
+
+    private fun cancelPendingRetries() {
+        pendingRetryRunnables.values.forEach { runnable ->
+            mainHandler.removeCallbacks(runnable)
+        }
+        pendingRetryRunnables.clear()
+        Log.d("BaseActivity", "Cancelled ${pendingRetryRunnables.size} pending retry operations")
     }
 }
