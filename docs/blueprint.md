@@ -343,13 +343,19 @@ app/
 
 ## Key Design Decisions ✅
 
-### 1. Repository Pattern ✅
-- Single source of truth for data
-- Abstracts data source (API vs future Cache)
-- Enables testing with mock repositories
-- Implemented for all data types (Users, Financial, Vendors, Transactions) ✅ UPDATED
-- Factory pattern for consistent repository instantiation ✅ NEW
-- Interface-based design for dependency inversion ✅ UPDATED
+ ### 1. Repository Pattern ✅
+ - Single source of truth for data
+ - Abstracts data source (API vs future Cache)
+ - Enables testing with mock repositories
+ - Implemented for all data types (Users, Financial, Vendors, Transactions) ✅ UPDATED
+ - Factory pattern for consistent repository instantiation ✅ NEW
+ - Interface-based design for dependency inversion ✅ UPDATED
+ - **Unified Repository Pattern** (Module 88 - 2026-01-08) ✅ NEW
+   * Strategy Pattern for pluggable caching (InMemoryCacheStrategy, DatabaseCacheStrategy, NoCacheStrategy)
+   * BaseRepositoryV2 provides unified error handling and circuit breaker protection
+   * Eliminated code duplication (circuit breaker logic centralized)
+   * Consistent pattern for all repositories (simple and complex)
+   * 28 test cases for cache strategies and unified repository pattern
 
 ### 2. ViewModels ✅
 - Survive configuration changes
