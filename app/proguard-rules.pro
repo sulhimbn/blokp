@@ -109,6 +109,24 @@
 }
 
 # ========================================================
+# RATE LIMITING (SECURITY-002)
+# ========================================================
+
+# Keep rate limiter logic but obfuscate implementation
+-keep,allowobfuscation class com.example.iurankomplek.utils.RateLimiter {
+    public *;
+}
+
+-keep,allowobfuscation class com.example.iurankomplek.utils.MultiLevelRateLimiter {
+    public *;
+}
+
+# Keep rate limiter interceptor for network layer
+-keep,allowobfuscation class com.example.iurankomplek.network.interceptor.RateLimiterInterceptor {
+    public *;
+}
+
+# ========================================================
 # KOTLIN & COROUTINES
 # ========================================================
 
