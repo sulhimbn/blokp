@@ -4,15 +4,10 @@ import com.example.iurankomplek.model.VendorResponse
 import com.example.iurankomplek.model.SingleVendorResponse
 import com.example.iurankomplek.model.WorkOrderResponse
 import com.example.iurankomplek.model.SingleWorkOrderResponse
-import com.example.iurankomplek.network.ApiConfig
-import com.example.iurankomplek.network.resilience.CircuitBreaker
-import com.example.iurankomplek.network.resilience.CircuitBreakerResult
 
 class VendorRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiService
-) : VendorRepository {
-    private val circuitBreaker: CircuitBreaker = ApiConfig.circuitBreaker
-    private val maxRetries = com.example.iurankomplek.utils.Constants.Network.MAX_RETRIES
+) : VendorRepository(), BaseRepository() {
     
     override suspend fun getVendors(): Result<VendorResponse> = executeWithCircuitBreaker {
         apiService.getVendors()
@@ -96,22 +91,5 @@ class VendorRepositoryImpl(
         notes: String?
     ): Result<SingleWorkOrderResponse> = executeWithCircuitBreaker {
         apiService.updateWorkOrderStatus(workOrderId, status, notes)
-    }
-
-    private suspend fun <T : Any> executeWithCircuitBreaker(
-        apiCall: suspend () -> retrofit2.Response<T>
-    ): Result<T> {
-        val circuitBreakerResult = circuitBreaker.execute {
-            com.example.iurankomplek.utils.RetryHelper.executeWithRetry(
-                apiCall = apiCall,
-                maxRetries = maxRetries
-            )
-        }
-
-        return when (circuitBreakerResult) {
-            is CircuitBreakerResult.Success -> Result.success(circuitBreakerResult.value)
-            is CircuitBreakerResult.Failure -> Result.failure(circuitBreakerResult.exception)
-            is CircuitBreakerResult.CircuitOpen -> Result.failure(com.example.iurankomplek.network.model.NetworkError.CircuitBreakerError())
-        }
     }
 }
