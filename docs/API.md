@@ -4,6 +4,17 @@
 
 IuranKomplek API menyediakan endpoints untuk mengambil data pengguna dan informasi pemanfaatan iuran komplek. API menggunakan layanan pihak ketiga (API Spreadsheets) untuk penyimpanan data.
 
+## API Specification
+
+**[OpenAPI 3.0 Specification](openapi.yaml)** - Machine-readable API contract (OpenAPI/Swagger)
+
+The OpenAPI specification provides:
+- Standardized API contract for all endpoints
+- Schema definitions for request/response models
+- Error response specifications
+- Authentication methods
+- Tooling support (Swagger UI, code generation)
+
 ## Integration Patterns
 
 For detailed information about resilience patterns, error handling, and API integration architecture, see:
