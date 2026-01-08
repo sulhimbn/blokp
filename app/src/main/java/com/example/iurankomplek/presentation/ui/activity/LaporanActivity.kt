@@ -21,8 +21,8 @@ import com.example.iurankomplek.data.database.TransactionDatabase
 import com.example.iurankomplek.data.repository.TransactionRepository
 import com.example.iurankomplek.data.repository.TransactionRepositoryFactory
 import com.example.iurankomplek.payment.MockPaymentGateway
-import com.example.iurankomplek.viewmodel.FinancialViewModel
-import com.example.iurankomplek.viewmodel.FinancialViewModelFactory
+import com.example.iurankomplek.presentation.viewmodel.FinancialViewModel
+import com.example.iurankomplek.presentation.viewmodel.FinancialViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch

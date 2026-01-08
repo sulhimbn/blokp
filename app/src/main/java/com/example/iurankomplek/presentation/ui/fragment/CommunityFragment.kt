@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.FragmentCommunityBinding
 import com.example.iurankomplek.data.repository.CommunityPostRepositoryFactory
 import com.example.iurankomplek.utils.UiState
-import com.example.iurankomplek.viewmodel.CommunityPostViewModel
+import com.example.iurankomplek.presentation.viewmodel.CommunityPostViewModel
 import kotlinx.coroutines.launch
 
 class CommunityFragment : Fragment() {

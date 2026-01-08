@@ -1,4 +1,4 @@
-package com.example.iurankomplek.viewmodel
+package com.example.iurankomplek.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

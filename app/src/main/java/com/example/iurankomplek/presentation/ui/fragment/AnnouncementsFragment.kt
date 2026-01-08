@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.FragmentAnnouncementsBinding
 import com.example.iurankomplek.data.repository.AnnouncementRepositoryFactory
 import com.example.iurankomplek.utils.UiState
-import com.example.iurankomplek.viewmodel.AnnouncementViewModel
+import com.example.iurankomplek.presentation.viewmodel.AnnouncementViewModel
 import kotlinx.coroutines.launch
 
 class AnnouncementsFragment : Fragment() {

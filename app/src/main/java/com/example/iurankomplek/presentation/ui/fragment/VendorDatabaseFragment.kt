@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import com.example.iurankomplek.databinding.FragmentVendorDatabaseBinding
 import com.example.iurankomplek.data.repository.VendorRepositoryFactory
 import com.example.iurankomplek.utils.UiState
-import com.example.iurankomplek.viewmodel.VendorViewModel
+import com.example.iurankomplek.presentation.viewmodel.VendorViewModel
 
 class VendorDatabaseFragment : Fragment() {
 

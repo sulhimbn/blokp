@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.FragmentMessagesBinding
 import com.example.iurankomplek.data.repository.MessageRepositoryFactory
 import com.example.iurankomplek.utils.UiState
-import com.example.iurankomplek.viewmodel.MessageViewModel
+import com.example.iurankomplek.presentation.viewmodel.MessageViewModel
 import kotlinx.coroutines.launch
 
 class MessagesFragment : Fragment() {

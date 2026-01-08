@@ -173,25 +173,27 @@ app/
 ├── domain/
 │   └── model/
 │       └── [Domain models - now using entities from data/entity]
-├── presentation/
-│   ├── ui/
-│   │   ├── MainActivity.kt ✅ (extends BaseActivity)
-│   │   ├── LaporanActivity.kt ✅ (extends BaseActivity)
-│   │   └── MenuActivity.kt ✅ (100% Kotlin)
-│   ├── viewmodel/
-│   │   ├── UserViewModel.kt ✅ (StateFlow)
-│   │   ├── FinancialViewModel.kt ✅ (StateFlow)
-│   │   └── VendorViewModel.kt ✅ (StateFlow)
-│   └── adapter/
- │   │   ├── AnnouncementViewModel.kt ✅ NEW (StateFlow)
-│   │   ├── MessageViewModel.kt ✅ NEW (StateFlow)
-│   │   ├── CommunityPostViewModel.kt ✅ NEW (StateFlow)
-│   │   ├── TransactionViewModel.kt ✅ NEW (StateFlow)
-│   │   └── TransactionViewModelFactory.kt ✅ NEW
-│       ├── UserAdapter.kt ✅ (DiffUtil)
-│       ├── PemanfaatanAdapter.kt ✅ (DiffUtil)
-│       ├── VendorAdapter.kt ✅ (DiffUtil)
-│       └── [Other adapters...]
+ ├── presentation/
+ │   ├── ui/
+ │   │   ├── MainActivity.kt ✅ (extends BaseActivity)
+ │   │   ├── LaporanActivity.kt ✅ (extends BaseActivity)
+ │   │   └── MenuActivity.kt ✅ (100% Kotlin)
+ │   ├── viewmodel/
+ │   │   ├── UserViewModel.kt ✅ (StateFlow)
+ │   │   ├── FinancialViewModel.kt ✅ (StateFlow)
+ │   │   ├── VendorViewModel.kt ✅ (StateFlow)
+ │   │   ├── AnnouncementViewModel.kt ✅ (StateFlow)
+ │   │   ├── MessageViewModel.kt ✅ (StateFlow)
+ │   │   ├── CommunityPostViewModel.kt ✅ (StateFlow)
+ │   │   ├── TransactionViewModel.kt ✅ (StateFlow)
+ │   │   ├── UserViewModelFactory.kt ✅
+ │   │   ├── FinancialViewModelFactory.kt ✅
+ │   │   └── TransactionViewModelFactory.kt ✅
+ │   └── adapter/
+ │       ├── UserAdapter.kt ✅ (DiffUtil)
+ │       ├── PemanfaatanAdapter.kt ✅ (DiffUtil)
+ │       ├── VendorAdapter.kt ✅ (DiffUtil)
+ │       └── [Other adapters...]
 ├── core/
 │   └── base/
 │       └── BaseActivity.kt ✅ (retry logic, error handling)

@@ -1,4 +1,4 @@
-package com.example.iurankomplek.viewmodel
+package com.example.iurankomplek.presentation.viewmodel
 
 object TransactionViewModelFactory {
     private var instance: TransactionViewModelFactory? = null

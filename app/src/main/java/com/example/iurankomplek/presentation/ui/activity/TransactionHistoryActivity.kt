@@ -11,8 +11,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityTransactionHistoryBinding
 import com.example.iurankomplek.data.repository.TransactionRepositoryFactory
 import com.example.iurankomplek.utils.UiState
-import com.example.iurankomplek.viewmodel.TransactionViewModel
-import com.example.iurankomplek.viewmodel.TransactionViewModelFactory
+import com.example.iurankomplek.presentation.viewmodel.TransactionViewModel
+import com.example.iurankomplek.presentation.viewmodel.TransactionViewModelFactory
 import com.example.iurankomplek.payment.PaymentStatus
 import kotlinx.coroutines.launch
 
