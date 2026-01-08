@@ -118,7 +118,7 @@ class RateLimiter(
             val tokensToAdd = (elapsedMs.toDouble() / timeWindowMs) * maxRequests
             
             // Refill tokens but don't exceed max capacity
-            availableTokens = max(0.0, min(maxRequests.toDouble(), availableTokens + tokensToAdd))
+            availableTokens = kotlin.math.max(0.0, kotlin.math.min(maxRequests.toDouble(), availableTokens + tokensToAdd))
             
             // Update last refill timestamp
             lastRefillTimestampMs = now

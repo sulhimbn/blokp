@@ -102,12 +102,26 @@ class ErrorHandler(private val context: Context) {
     
     fun toNetworkError(throwable: Throwable): NetworkError {
         return when (throwable) {
-            is UnknownHostException -> NetworkError.ConnectionError("No internet connection")
-            is SocketTimeoutException -> NetworkError.TimeoutError("Connection timeout")
-            is CircuitBreakerException -> NetworkError.CircuitBreakerError(throwable.message ?: "Service unavailable")
-            is HttpException -> NetworkError.HttpError(throwable.code(), throwable.message ?: "HTTP error")
-            is IOException -> NetworkError.ConnectionError("Network error occurred")
-            else -> NetworkError.UnknownNetworkError(throwable.message ?: "Unknown error")
+            is UnknownHostException -> NetworkError.ConnectionError(userMessage = "No internet connection")
+            is SocketTimeoutException -> NetworkError.TimeoutError(userMessage = "Connection timeout")
+            is CircuitBreakerException -> NetworkError.CircuitBreakerError(
+                code = com.example.iurankomplek.network.model.ApiErrorCode.SERVICE_UNAVAILABLE,
+                userMessage = throwable.message ?: "Service unavailable"
+            )
+            is HttpException -> {
+                val httpCode = throwable.code()
+                val apiErrorCode = com.example.iurankomplek.network.model.ApiErrorCode.fromHttpCode(httpCode)
+                NetworkError.HttpError(
+                    code = apiErrorCode,
+                    userMessage = throwable.message ?: "HTTP error",
+                    httpCode = httpCode
+                )
+            }
+            is IOException -> NetworkError.ConnectionError(userMessage = "Network error occurred")
+            else -> NetworkError.UnknownNetworkError(
+                code = com.example.iurankomplek.network.model.ApiErrorCode.UNKNOWN_ERROR,
+                userMessage = throwable.message ?: "Unknown error"
+            )
         }
     }
 }

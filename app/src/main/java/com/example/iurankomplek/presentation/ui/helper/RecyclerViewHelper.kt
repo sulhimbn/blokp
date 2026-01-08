@@ -98,7 +98,7 @@ object RecyclerViewHelper {
      * @param adapter RecyclerView adapter
      * @param keyCode The key code pressed
      * @param columnCount Number of columns
-     * @return true if the key was handled
+     * @return true if key was handled
      */
     private fun handleKeyNavigation(
         recyclerView: RecyclerView,
@@ -109,16 +109,18 @@ object RecyclerViewHelper {
         val layoutManager = recyclerView.layoutManager
         
         return when (layoutManager) {
-            is LinearLayoutManager -> handleLinearNavigation(layoutManager, adapter, keyCode)
-            is GridLayoutManager -> handleGridNavigation(layoutManager, adapter, keyCode, columnCount)
+            is LinearLayoutManager -> handleLinearNavigation(recyclerView, layoutManager, adapter, keyCode)
+            is GridLayoutManager -> handleGridNavigation(recyclerView, layoutManager, adapter, keyCode, columnCount)
             else -> false
         }
+    }
     }
 
     /**
      * Handle navigation for LinearLayoutManager (single column)
      */
     private fun handleLinearNavigation(
+        recyclerView: RecyclerView,
         layoutManager: LinearLayoutManager,
         adapter: RecyclerView.Adapter<*>,
         keyCode: Int
@@ -129,7 +131,7 @@ object RecyclerViewHelper {
         return when (keyCode) {
             KeyEvent.KEYCODE_DPAD_DOWN -> {
                 if (lastVisible < adapter.itemCount - 1) {
-                    layoutManager.smoothScrollToPosition(lastVisible + 1)
+                    recyclerView.smoothScrollToPosition(lastVisible + 1)
                     true
                 } else {
                     false
@@ -137,7 +139,7 @@ object RecyclerViewHelper {
             }
             KeyEvent.KEYCODE_DPAD_UP -> {
                 if (firstVisible > 0) {
-                    layoutManager.smoothScrollToPosition(firstVisible - 1)
+                    recyclerView.smoothScrollToPosition(firstVisible - 1)
                     true
                 } else {
                     false
@@ -151,6 +153,7 @@ object RecyclerViewHelper {
      * Handle navigation for GridLayoutManager (multi-column)
      */
     private fun handleGridNavigation(
+        recyclerView: RecyclerView,
         layoutManager: GridLayoutManager,
         adapter: RecyclerView.Adapter<*>,
         keyCode: Int,
@@ -163,7 +166,7 @@ object RecyclerViewHelper {
             KeyEvent.KEYCODE_DPAD_DOWN -> {
                 val targetPosition = lastVisible + columnCount
                 if (targetPosition < adapter.itemCount) {
-                    layoutManager.smoothScrollToPosition(targetPosition)
+                    recyclerView.smoothScrollToPosition(targetPosition)
                     true
                 } else {
                     false
@@ -172,7 +175,7 @@ object RecyclerViewHelper {
             KeyEvent.KEYCODE_DPAD_UP -> {
                 val targetPosition = firstVisible - columnCount
                 if (targetPosition >= 0) {
-                    layoutManager.smoothScrollToPosition(targetPosition)
+                    recyclerView.smoothScrollToPosition(targetPosition)
                     true
                 } else {
                     false
@@ -180,7 +183,7 @@ object RecyclerViewHelper {
             }
             KeyEvent.KEYCODE_DPAD_RIGHT -> {
                 if (lastVisible < adapter.itemCount - 1) {
-                    layoutManager.smoothScrollToPosition(lastVisible + 1)
+                    recyclerView.smoothScrollToPosition(lastVisible + 1)
                     true
                 } else {
                     false
@@ -188,7 +191,7 @@ object RecyclerViewHelper {
             }
             KeyEvent.KEYCODE_DPAD_LEFT -> {
                 if (firstVisible > 0) {
-                    layoutManager.smoothScrollToPosition(firstVisible - 1)
+                    recyclerView.smoothScrollToPosition(firstVisible - 1)
                     true
                 } else {
                     false
