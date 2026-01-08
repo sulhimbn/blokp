@@ -6,7 +6,9 @@ import com.example.iurankomplek.data.dto.LegacyDataItemDto
  * Use case for validating financial data
  * Encapsulates business logic for data validation
  */
-class ValidateFinancialDataUseCase {
+class ValidateFinancialDataUseCase(
+    private val calculateFinancialTotalsUseCase: CalculateFinancialTotalsUseCase = CalculateFinancialTotalsUseCase()
+) {
     
     /**
      * Validates a single LegacyDataItemDto for financial calculation
@@ -73,8 +75,7 @@ class ValidateFinancialDataUseCase {
                 return false
             }
             
-            val calculateTotals = CalculateFinancialTotalsUseCase()
-            calculateTotals(items)
+            calculateFinancialTotalsUseCase(items)
             true
         } catch (e: Exception) {
             false

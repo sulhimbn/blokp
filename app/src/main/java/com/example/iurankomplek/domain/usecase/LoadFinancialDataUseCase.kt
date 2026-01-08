@@ -8,7 +8,8 @@ import com.example.iurankomplek.data.repository.PemanfaatanRepository
  * Encapsulates financial data loading logic and business rules
  */
 class LoadFinancialDataUseCase(
-    private val pemanfaatanRepository: PemanfaatanRepository
+    private val pemanfaatanRepository: PemanfaatanRepository,
+    private val validateFinancialDataUseCase: ValidateFinancialDataUseCase = ValidateFinancialDataUseCase()
 ) {
     
     /**
@@ -51,9 +52,8 @@ class LoadFinancialDataUseCase(
      */
     fun validateFinancialData(response: PemanfaatanResponse): Boolean {
         return try {
-            val validateUseCase = ValidateFinancialDataUseCase()
             response.data?.let { items ->
-                validateUseCase.validateAll(items)
+                validateFinancialDataUseCase.validateAll(items)
             } ?: true
         } catch (e: Exception) {
             false
