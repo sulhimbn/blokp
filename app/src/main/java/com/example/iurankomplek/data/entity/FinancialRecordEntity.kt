@@ -22,7 +22,10 @@ import java.util.Date
     indices = [
         Index(value = [DatabaseConstraints.FinancialRecords.Columns.USER_ID, DatabaseConstraints.FinancialRecords.Columns.UPDATED_AT]),
         Index(value = [DatabaseConstraints.FinancialRecords.Columns.UPDATED_AT]),
-        Index(value = [DatabaseConstraints.FinancialRecords.Columns.USER_ID, DatabaseConstraints.FinancialRecords.Columns.TOTAL_IURAN_REKAP])
+        Index(value = [DatabaseConstraints.FinancialRecords.Columns.USER_ID, DatabaseConstraints.FinancialRecords.Columns.TOTAL_IURAN_REKAP]),
+        Index(value = [DatabaseConstraints.FinancialRecords.Columns.USER_ID, DatabaseConstraints.FinancialRecords.Columns.UPDATED_AT], name = DatabaseConstraints.FinancialRecords.Indexes.IDX_ACTIVE_FINANCIAL_USER_UPDATED),
+        Index(value = [DatabaseConstraints.FinancialRecords.Columns.ID], name = DatabaseConstraints.FinancialRecords.Indexes.IDX_ACTIVE_FINANCIAL),
+        Index(value = [DatabaseConstraints.FinancialRecords.Columns.UPDATED_AT], name = DatabaseConstraints.FinancialRecords.Indexes.IDX_ACTIVE_FINANCIAL_UPDATED)
     ]
 )
 data class FinancialRecordEntity(

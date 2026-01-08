@@ -24,6 +24,8 @@ object UserConstraints {
     
     object Indexes {
         const val IDX_EMAIL = "idx_users_email"
+        const val IDX_ACTIVE_USERS = "idx_users_active"
+        const val IDX_ACTIVE_USERS_UPDATED = "idx_users_active_updated"
     }
     
     val TABLE_SQL = """

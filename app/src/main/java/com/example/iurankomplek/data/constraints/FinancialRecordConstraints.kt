@@ -26,6 +26,9 @@ object FinancialRecordConstraints {
         const val IDX_USER_ID = "idx_financial_user_id"
         const val IDX_UPDATED_AT = "idx_financial_updated_at"
         const val IDX_USER_REKAP = "idx_financial_user_rekap"
+        const val IDX_ACTIVE_FINANCIAL_USER_UPDATED = "idx_financial_active_user_updated"
+        const val IDX_ACTIVE_FINANCIAL = "idx_financial_active"
+        const val IDX_ACTIVE_FINANCIAL_UPDATED = "idx_financial_active_updated"
     }
     
     val TABLE_SQL = """

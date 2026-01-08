@@ -42,8 +42,26 @@ interface UserDao {
     @Query("UPDATE users SET is_deleted = 1, updated_at = strftime('%s', 'now') WHERE id = :userId")
     suspend fun softDeleteById(userId: Long)
 
+    @Query("UPDATE financial_records SET is_deleted = 1, updated_at = strftime('%s', 'now') WHERE user_id = :userId")
+    suspend fun cascadeSoftDeleteFinancialRecords(userId: Long)
+
     @Query("UPDATE users SET is_deleted = 0, updated_at = strftime('%s', 'now') WHERE id = :userId")
     suspend fun restoreById(userId: Long)
+
+    @Query("UPDATE financial_records SET is_deleted = 0, updated_at = strftime('%s', 'now') WHERE user_id = :userId")
+    suspend fun cascadeRestoreFinancialRecords(userId: Long)
+
+    @Transaction
+    suspend fun softDeleteByIdWithCascade(userId: Long) {
+        softDeleteById(userId)
+        cascadeSoftDeleteFinancialRecords(userId)
+    }
+
+    @Transaction
+    suspend fun restoreByIdWithCascade(userId: Long) {
+        restoreById(userId)
+        cascadeRestoreFinancialRecords(userId)
+    }
 
     @Query("SELECT * FROM users WHERE is_deleted = 1 ORDER BY updated_at DESC")
     fun getDeletedUsers(): Flow<List<UserEntity>>

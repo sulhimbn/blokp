@@ -11,7 +11,9 @@ import java.util.Date
     tableName = DatabaseConstraints.Users.TABLE_NAME,
     indices = [
         Index(value = [DatabaseConstraints.Users.Columns.EMAIL], unique = true),
-        Index(value = [DatabaseConstraints.Users.Columns.LAST_NAME, DatabaseConstraints.Users.Columns.FIRST_NAME])
+        Index(value = [DatabaseConstraints.Users.Columns.LAST_NAME, DatabaseConstraints.Users.Columns.FIRST_NAME]),
+        Index(value = [DatabaseConstraints.Users.Columns.ID], name = DatabaseConstraints.Users.Indexes.IDX_ACTIVE_USERS),
+        Index(value = [DatabaseConstraints.Users.Columns.ID, DatabaseConstraints.Users.Columns.UPDATED_AT], name = DatabaseConstraints.Users.Indexes.IDX_ACTIVE_USERS_UPDATED)
     ]
 )
 data class UserEntity(
