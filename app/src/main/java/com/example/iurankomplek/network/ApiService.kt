@@ -12,7 +12,6 @@ import com.example.iurankomplek.model.VendorResponse
 import com.example.iurankomplek.model.SingleVendorResponse
 import com.example.iurankomplek.model.WorkOrderResponse
 import com.example.iurankomplek.model.SingleWorkOrderResponse
-import retrofit2.Body
 import retrofit2.GET
 import retrofit2.POST
 import retrofit2.PUT
