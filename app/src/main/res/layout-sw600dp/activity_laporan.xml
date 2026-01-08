@@ -64,7 +64,7 @@
                     android:clipToPadding="false"
                     android:importantForAccessibility="yes"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layoutEnd_toEndOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:listitem="@layout/item_laporan" />
 

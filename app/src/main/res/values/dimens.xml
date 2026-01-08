@@ -19,6 +19,7 @@
     <dimen name="padding_md">16dp</dimen>
     <dimen name="padding_lg">24dp</dimen>
     <dimen name="padding_xl">32dp</dimen>
+    <dimen name="padding_xxl">48dp</dimen>
 
     <!-- Border Radius -->
     <dimen name="radius_sm">4dp</dimen>
