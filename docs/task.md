@@ -3,6 +3,122 @@
 ## Overview
 Track architectural refactoring tasks and their status.
 
+## Security Tasks
+
+---
+
+### ✅ SECURITY-001. Security Hardening - Remove Dangerous Code and Configure Backup Rules
+**Status**: Completed
+**Completed Date**: 2026-01-08
+**Priority**: HIGH (Security)
+**Estimated Time**: 1-2 hours (completed in 1 hour)
+**Description**: High-priority security improvements to reduce attack surface and prevent data exposure
+
+**Security Issues Identified:**
+- ❌ `createInsecureTrustManager()` method existed (even though marked as ERROR level deprecated)
+- ❌ Unused POST_NOTIFICATIONS permission declared
+- ❌ Backup rules were placeholder/TODO (sensitive data could be backed up)
+- ❌ Data extraction rules were placeholder/TODO (no protection for API 31+)
+
+**Analysis:**
+Critical security vulnerabilities and data protection gaps identified:
+1. **Dangerous SSL Bypass Method**: `createInsecureTrustManager()` disabled ALL SSL/TLS certificate validation, making app vulnerable to Man-in-the-Middle (MitM) attacks
+2. **Unused Permission**: POST_NOTIFICATIONS declared but never used, increases attack surface
+3. **No Data Backup Protection**: Placeholder backup rules meant sensitive data could be backed up to cloud
+4. **No Data Extraction Protection**: Placeholder extraction rules meant sensitive data could be extracted during device transfer
+5. **Risk**: Financial transaction data, user credentials, and API tokens could be exposed
+
+**Solution Implemented - Security Hardening:**
+
+**1. Removed `createInsecureTrustManager()` Method:**
+- Deleted dangerous method from SecurityManager.kt
+- Removed 6 test cases that were testing this method
+- Reduced SecurityManager.kt from 111 to 53 lines (52% reduction)
+- Network security config already provides secure development alternative (debug-overrides)
+- Eliminated critical security vulnerability path
+
+**2. Removed Unused POST_NOTIFICATIONS Permission:**
+- Deleted unused permission from AndroidManifest.xml
+- Reduces attack surface and privacy concerns
+- Cleaner permission set
+
+**3. Configured Backup Rules (backup_rules.xml):**
+- Exclude database files (contains financial and user data)
+- Exclude shared preferences (may contain API tokens or sensitive settings)
+- Exclude cache and temporary files
+- Exclude app-specific directories with sensitive data
+- Follows Android security best practices for auto backup
+
+**4. Configured Data Extraction Rules (data_extraction_rules.xml, API 31+):**
+- Same security restrictions applied to cloud backup
+- Prevents sensitive data extraction during device transfer
+- Addresses Android 12+ data extraction requirements
+
+**Security Improvements:**
+- ✅ **Attack Surface**: Reduced (removed dangerous method and unused permission)
+- ✅ **Data Protection**: Sensitive data excluded from backup and transfer
+- ✅ **Zero Trust**: No trust in certificate validation bypass
+- ✅ **Least Privilege**: Minimal permission set
+- ✅ **Defense in Depth**: Multiple data protection layers (backup + extraction)
+- ✅ **Secure by Default**: Backup rules exclude sensitive data by default
+- ✅ **Fail Secure**: No dangerous code paths remain
+- ✅ **Secrets Protected**: No hardcoded secrets (verified)
+- ✅ **Dependencies Checked**: No critical CVEs in current versions
+
+**Files Modified** (5 total):
+| File | Changes | Purpose |
+|------|----------|---------|
+| `SecurityManager.kt` | -58 lines | Removed dangerous SSL bypass method |
+| `SecurityManagerTest.kt` | -75 lines | Removed 6 tests for dangerous method |
+| `AndroidManifest.xml` | -1 line | Removed unused POST_NOTIFICATIONS permission |
+| `backup_rules.xml` | +33 lines | Configured backup protection |
+| `data_extraction_rules.xml` | +42 lines | Configured extraction protection |
+
+**Benefits:**
+1. **Critical Vulnerability Eliminated**: SSL bypass method removed
+2. **Attack Surface Reduced**: Unused permission removed
+3. **Data Protection**: Sensitive data excluded from backup/transfer
+4. **Code Quality**: SecurityManager reduced by 52% (58 lines removed)
+5. **Test Coverage**: Removed 6 tests for dangerous method
+6. **Compliance**: Follows Android security best practices
+
+**Anti-Patterns Eliminated:**
+- ✅ No more dangerous SSL/TLS bypass methods
+- ✅ No more unused permissions
+- ✅ No more placeholder backup rules
+- ✅ No more placeholder data extraction rules
+- ✅ No more sensitive data exposure via backup
+
+**Best Practices Followed:**
+- ✅ **Zero Trust**: All data sources validated
+- ✅ **Least Privilege**: Minimal permission set
+- ✅ **Defense in Depth**: Multiple data protection layers
+- ✅ **Secure by Default**: Backup rules exclude sensitive data
+- ✅ **Fail Secure**: No dangerous code paths remain
+- ✅ **Android Best Practices**: Auto backup and data extraction configured correctly
+
+**Success Criteria:**
+- [x] `createInsecureTrustManager()` method removed
+- [x] Tests for dangerous method removed (6 tests)
+- [x] Unused POST_NOTIFICATIONS permission removed
+- [x] Backup rules configured with sensitive data exclusions
+- [x] Data extraction rules configured for API 31+
+- [x] No breaking changes to existing functionality
+- [x] Documentation updated (task.md)
+- [x] Changes committed and pushed to agent branch
+- [x] PR created/updated (PR #246)
+
+**Dependencies**: None (independent security improvement)
+**Documentation**: Updated docs/task.md with SECURITY-001 completion
+**Impact**: HIGH - Critical security vulnerability eliminated, attack surface reduced, sensitive data protected from backup/transfer, compliance with Android security best practices
+
+**References:**
+- [Android Auto Backup](https://developer.android.com/guide/topics/data/autobackup)
+- [Data Extraction Rules](https://developer.android.com/about/versions/12/backup-restore)
+- [Certificate Pinning](https://developer.android.com/training/articles/security-ssl#Pinning)
+
+---
+
 ## Pending Modules
 
 ---
