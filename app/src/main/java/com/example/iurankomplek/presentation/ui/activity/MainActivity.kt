@@ -69,24 +69,10 @@ class MainActivity : BaseActivity() {
                                     binding.emptyStateTextView.visibility = View.GONE
                                     binding.errorStateLayout.visibility = View.GONE
 
-                                    val validatedUsers = users.mapNotNull { user ->
-                                        // Validate required fields to prevent displaying invalid data
-                                        if (user.email.isNotBlank() &&
-                                            (user.first_name.isNotBlank() || user.last_name.isNotBlank())) {
-                                            com.example.iurankomplek.model.DataItem(
-                                                first_name = user.first_name,
-                                                last_name = user.last_name,
-                                                email = user.email,
-                                                alamat = user.alamat,
-                                                iuran_perwarga = user.iuran_perwarga,
-                                                total_iuran_rekap = user.total_iuran_rekap,
-                                                jumlah_iuran_bulanan = user.jumlah_iuran_bulanan,
-                                                total_iuran_individu = user.total_iuran_individu,
-                                                pengeluaran_iuran_warga = user.pengeluaran_iuran_warga,
-                                                pemanfaatan_iuran = user.pemanfaatan_iuran,
-                                                avatar = user.avatar
-                                            )
-                                        } else null
+                                    val validatedUsers = users.filter { user ->
+                                        // Validate required fields to prevent displaying invalid data (NO object allocation)
+                                        user.email.isNotBlank() &&
+                                        (user.first_name.isNotBlank() || user.last_name.isNotBlank())
                                     }
                                      adapter.submitList(validatedUsers)
                                 } else {

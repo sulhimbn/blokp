@@ -6,10 +6,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 
 import com.example.iurankomplek.databinding.ItemPemanfaatanBinding
-import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.data.dto.LegacyDataItemDto
 import com.example.iurankomplek.utils.InputSanitizer
 
-class PemanfaatanAdapter : ListAdapter<DataItem, PemanfaatanAdapter.ListViewHolder>(PemanfaatanDiffCallback) {
+class PemanfaatanAdapter : ListAdapter<LegacyDataItemDto, PemanfaatanAdapter.ListViewHolder>(PemanfaatanDiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
         val binding = ItemPemanfaatanBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -26,13 +26,13 @@ class PemanfaatanAdapter : ListAdapter<DataItem, PemanfaatanAdapter.ListViewHold
     
     class ListViewHolder(val binding: ItemPemanfaatanBinding): RecyclerView.ViewHolder(binding.root)
 
-    object PemanfaatanDiffCallback : DiffUtil.ItemCallback<DataItem>() {
-        override fun areItemsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+    object PemanfaatanDiffCallback : DiffUtil.ItemCallback<LegacyDataItemDto>() {
+        override fun areItemsTheSame(oldItem: LegacyDataItemDto, newItem: LegacyDataItemDto): Boolean {
             // For pemanfaatan items, use pemanfaatan_iuran as it's likely to be unique for each expense
             return oldItem.pemanfaatan_iuran == newItem.pemanfaatan_iuran
         }
 
-        override fun areContentsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+        override fun areContentsTheSame(oldItem: LegacyDataItemDto, newItem: LegacyDataItemDto): Boolean {
             return oldItem == newItem
         }
     }

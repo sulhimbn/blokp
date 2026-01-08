@@ -8,11 +8,11 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.databinding.ItemListBinding
-import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.data.dto.LegacyDataItemDto
 import com.example.iurankomplek.utils.ImageLoader
 import com.example.iurankomplek.utils.InputSanitizer
 
-class UserAdapter : ListAdapter<DataItem, UserAdapter.ListViewHolder>(UserDiffCallback) {
+class UserAdapter : ListAdapter<LegacyDataItemDto, UserAdapter.ListViewHolder>(UserDiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
         val binding = ItemListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -69,14 +69,14 @@ class UserAdapter : ListAdapter<DataItem, UserAdapter.ListViewHolder>(UserDiffCa
             get() = binding.itemIuranIndividu
     }
 
-    object UserDiffCallback : DiffUtil.ItemCallback<DataItem>() {
-        override fun areItemsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+    object UserDiffCallback : DiffUtil.ItemCallback<LegacyDataItemDto>() {
+        override fun areItemsTheSame(oldItem: LegacyDataItemDto, newItem: LegacyDataItemDto): Boolean {
             // Since there's no explicit ID, use a combination of fields that would uniquely identify a user
             // Using email as it's typically unique, or a combination of name and address
             return oldItem.email == newItem.email
         }
 
-        override fun areContentsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+        override fun areContentsTheSame(oldItem: LegacyDataItemDto, newItem: LegacyDataItemDto): Boolean {
             return oldItem == newItem
         }
     }

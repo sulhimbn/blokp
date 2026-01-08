@@ -1,6 +1,6 @@
 package com.example.iurankomplek.domain.usecase
 
-import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.data.dto.LegacyDataItemDto
 
 /**
  * Use case for validating financial data
@@ -9,12 +9,12 @@ import com.example.iurankomplek.model.DataItem
 class ValidateFinancialDataUseCase {
     
     /**
-     * Validates a single DataItem for financial calculation
-     * 
-     * @param item DataItem to validate
+     * Validates a single LegacyDataItemDto for financial calculation
+     *
+     * @param item LegacyDataItemDto to validate
      * @return true if valid, false otherwise
      */
-    operator fun invoke(item: DataItem): Boolean {
+    operator fun invoke(item: LegacyDataItemDto): Boolean {
         return try {
             validateDataItem(item)
             true
@@ -24,22 +24,22 @@ class ValidateFinancialDataUseCase {
     }
     
     /**
-     * Validates a list of DataItems for financial calculation
-     * 
-     * @param items List of DataItems to validate
+     * Validates a list of LegacyDataItemDto for financial calculation
+     *
+     * @param items List of LegacyDataItemDto to validate
      * @return true if all items are valid, false otherwise
      */
-    fun validateAll(items: List<DataItem>): Boolean {
+    fun validateAll(items: List<LegacyDataItemDto>): Boolean {
         return items.all { invoke(it) }
     }
     
     /**
-     * Validates a single DataItem for financial calculation
-     * 
-     * @param item DataItem to validate
+     * Validates a single LegacyDataItemDto for financial calculation
+     *
+     * @param item LegacyDataItemDto to validate
      * @throws IllegalArgumentException if validation fails
      */
-    private fun validateDataItem(item: DataItem) {
+    private fun validateDataItem(item: LegacyDataItemDto) {
         require(item.iuran_perwarga >= 0) { 
             "iuran_perwarga must be >= 0, got ${item.iuran_perwarga}" 
         }
@@ -61,13 +61,13 @@ class ValidateFinancialDataUseCase {
     }
     
     /**
-     * Validates all financial calculations for a list of DataItems
+     * Validates all financial calculations for a list of LegacyDataItemDto
      * Performs test calculations to ensure no overflow/underflow
-     * 
-     * @param items List of DataItems to validate
+     *
+     * @param items List of LegacyDataItemDto to validate
      * @return true if all calculations succeed, false otherwise
      */
-    fun validateCalculations(items: List<DataItem>): Boolean {
+    fun validateCalculations(items: List<LegacyDataItemDto>): Boolean {
         return try {
             if (!validateAll(items)) {
                 return false

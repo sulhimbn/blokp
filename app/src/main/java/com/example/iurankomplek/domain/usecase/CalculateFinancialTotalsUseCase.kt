@@ -1,9 +1,9 @@
 package com.example.iurankomplek.domain.usecase
 
-import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.data.dto.LegacyDataItemDto
 
 /**
- * Use case for calculating financial totals from DataItem list
+ * Use case for calculating financial totals from LegacyDataItemDto list
  * Encapsulates business logic for financial calculations
  */
 class CalculateFinancialTotalsUseCase {
@@ -19,14 +19,14 @@ class CalculateFinancialTotalsUseCase {
     )
     
     /**
-     * Executes financial calculations for a list of DataItems
-     * 
-     * @param items List of DataItems to calculate totals for
+     * Executes financial calculations for a list of LegacyDataItemDto
+     *
+     * @param items List of LegacyDataItemDto to calculate totals for
      * @return FinancialTotals with calculated values
      * @throws IllegalArgumentException if validation fails
      * @throws ArithmeticException if calculation would cause overflow/underflow
      */
-    operator fun invoke(items: List<DataItem>): FinancialTotals {
+    operator fun invoke(items: List<LegacyDataItemDto>): FinancialTotals {
         if (items.isEmpty()) {
             return FinancialTotals(0, 0, 0, 0)
         }
@@ -37,9 +37,9 @@ class CalculateFinancialTotalsUseCase {
     }
     
     /**
-     * Validates a list of DataItems for financial calculation
+     * Validates a list of LegacyDataItemDto for financial calculation
      */
-    private fun validateDataItems(items: List<DataItem>) {
+    private fun validateDataItems(items: List<LegacyDataItemDto>) {
         for (item in items) {
             require(item.iuran_perwarga >= 0) { "iuran_perwarga must be >= 0" }
             require(item.pengeluaran_iuran_warga >= 0) { "pengeluaran_iuran_warga must be >= 0" }
@@ -54,10 +54,10 @@ class CalculateFinancialTotalsUseCase {
      * Calculates all financial totals in a single pass through the data
      * Optimized from 3 separate iterations to 1 iteration (~66% faster)
      *
-     * @param items List of DataItems to calculate totals for
+     * @param items List of LegacyDataItemDto to calculate totals for
      * @return FinancialTotals with calculated values
      */
-    private fun calculateAllTotalsInSinglePass(items: List<DataItem>): FinancialTotals {
+    private fun calculateAllTotalsInSinglePass(items: List<LegacyDataItemDto>): FinancialTotals {
         var totalIuranBulanan = 0
         var totalPengeluaran = 0
         var totalIuranIndividu = 0

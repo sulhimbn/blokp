@@ -125,10 +125,9 @@ class LaporanActivity : BaseActivity() {
                 showContent = true
             )
 
-            val dataItems = EntityMapper.toDataItemList(dataArray)
-            adapter.submitList(dataItems)
+            adapter.submitList(dataArray)
 
-            calculateAndSetSummary(dataItems)
+            calculateAndSetSummary(dataArray)
         } ?: run {
             setUIState(
                 loading = false,
@@ -161,7 +160,7 @@ class LaporanActivity : BaseActivity() {
         binding.rvSummary.visibility = if (showContent) View.VISIBLE else View.GONE
     }
     
-    private fun calculateAndSetSummary(dataArray: List<com.example.iurankomplek.model.DataItem>) {
+    private fun calculateAndSetSummary(dataArray: List<com.example.iurankomplek.data.dto.LegacyDataItemDto>) {
         try {
             val validateUseCase = com.example.iurankomplek.domain.usecase.ValidateFinancialDataUseCase()
             val calculateTotalsUseCase = com.example.iurankomplek.domain.usecase.CalculateFinancialTotalsUseCase()
