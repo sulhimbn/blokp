@@ -5,7 +5,40 @@ Track architectural refactoring tasks and their status.
 
 ## Pending Modules
 
-None - all architectural and UI/UX modules completed
+### [REFACTOR] Fragment Null-Safety (Communication Module)
+- Location: app/src/main/java/com/example/iurankomplek/presentation/ui/fragment/{MessagesFragment, AnnouncementsFragment, CommunityFragment}.kt (6 occurrences)
+- Issue: Fragments use `Toast.makeText(context, ...)` where `context` can be null in certain lifecycle states, leading to potential NullPointerException during Fragment lifecycle transitions.
+- Suggestion: Replace all `Toast.makeText(context, ...)` calls with `Toast.makeText(requireContext(), ...)` for null-safety and proper lifecycle awareness. This follows Android Fragment best practices and prevents runtime crashes.
+- Priority: High
+- Effort: Small (15 minutes)
+
+### [REFACTOR] Hardcoded Exception Messages in FinancialCalculator
+- Location: app/src/main/java/com/example/iurankomplek/utils/FinancialCalculator.kt (4 duplicate instances)
+- Issue: Exception messages are hardcoded and duplicated: "Invalid financial data detected" appears 4 times (lines 35, 45, 55, 65). Other exception messages (overflow/underflow) are also hardcoded. This violates DRY principle and makes error message updates difficult.
+- Suggestion: Extract hardcoded exception messages to Constants.kt (e.g., `Constants.ErrorMessages.FINANCIAL_DATA_INVALID`, `Constants.ErrorMessages.CALCULATION_OVERFLOW`, `Constants.ErrorMessages.CALCULATION_UNDERFLOW`). Replace all hardcoded strings with constants for centralized management and easier localization.
+- Priority: Medium
+- Effort: Small (30 minutes)
+
+### [REFACTOR] Hardcoded Error Messages in ErrorHandler
+- Location: app/src/main/java/com/example/iurankomplek/utils/ErrorHandler.kt (15+ hardcoded error messages)
+- Issue: User-facing error messages are hardcoded strings: "No internet connection", "Connection timeout", "Invalid request", "Unauthorized access", etc. These should be in strings.xml for localization support and centralized management.
+- Suggestion: Extract all hardcoded error messages to app/src/main/res/values/error_strings.xml (or strings.xml) with appropriate resource IDs (e.g., `error_no_internet`, `error_connection_timeout`, `error_invalid_request`). Update ErrorHandler to use `context.getString(R.string.*)` or pass string resources as parameters.
+- Priority: Medium
+- Effort: Medium (1-2 hours)
+
+### [REFACTOR] Large Class - WebhookQueue (292 lines)
+- Location: app/src/main/java/com/example/iurankomplek/payment/WebhookQueue.kt
+- Issue: WebhookQueue has 292 lines with multiple responsibilities: event enqueueing, processing, retry logic, cleanup, and monitoring. This violates Single Responsibility Principle and makes testing and maintenance difficult.
+- Suggestion: Consider splitting WebhookQueue into smaller, focused classes: WebhookEventProcessor (retry logic), WebhookEventCleaner (cleanup), WebhookEventMonitor (metrics/observability). Alternatively, extract private methods into extension functions or helper classes to reduce class complexity.
+- Priority: Low
+- Effort: Large (3-4 hours)
+
+### [REFACTOR] Long Method - LaporanActivity.observeFinancialState()
+- Location: app/src/main/java/com/example/iurankomplek/presentation/ui/activity/LaporanActivity.kt:75-133 (58 lines)
+- Issue: `observeFinancialState()` method is 58 lines long with nested when-expressions for UiState handling. Contains repeated visibility toggling logic (progressBar, emptyStateTextView, errorStateLayout, rvLaporan, rvSummary) across multiple states.
+- Suggestion: Extract UiState handling logic into separate private methods: `handleIdleState()`, `handleLoadingState()`, `handleSuccessState()`, `handleErrorState()`. Extract common visibility toggling logic into `setUIState(loading: Boolean, showEmpty: Boolean, showError: Boolean, showContent: Boolean)` utility method.
+- Priority: Medium
+- Effort: Medium (2-3 hours)
 
 **Latest Module Completed**: UI/UX Accessibility and Responsive Design Improvements (2026-01-08)
 
