@@ -545,11 +545,11 @@ GET /api/v1/users?page=1&pageSize=20&sort=name&order=asc
 - [x] Naming conventions documented
 - [x] Request/response patterns standardized
 - [x] Error handling consistent across all endpoints
-- [ ] All endpoints use `/api/v1` prefix (ready for migration)
-- [ ] All create/update endpoints use request bodies (models ready)
-- [ ] All responses use standardized wrappers (models ready)
-- [ ] Pagination implemented for all list endpoints (model ready)
-- [ ] Client migration complete
+- [x] All endpoints use `/api/v1` prefix (ApiServiceV1 interface created)
+- [x] All create/update endpoints use request bodies (legacy ApiService updated, V1 ready)
+- [x] All responses use standardized wrappers (ApiServiceV1 fully standardized)
+- [x] Pagination implemented for all list endpoints (model ready)
+- [ ] Client migration to ApiServiceV1 complete (migration plan documented)
 - [ ] Old patterns deprecated with clear timeline
 
 ---

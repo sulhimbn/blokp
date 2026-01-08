@@ -30,87 +30,87 @@ import retrofit2.Path
 import retrofit2.Query
 import retrofit2.Response
 
-interface ApiService {
+interface ApiServiceV1 {
 
-    @GET("users")
-    suspend fun getUsers(): Response<UserResponse>
+    @GET("api/v1/users")
+    suspend fun getUsers(): Response<ApiResponse<UserResponse>>
 
-    @GET("pemanfaatan")
-    suspend fun getPemanfaatan(): Response<PemanfaatanResponse>
+    @GET("api/v1/pemanfaatan")
+    suspend fun getPemanfaatan(): Response<ApiResponse<PemanfaatanResponse>>
 
-    @GET("announcements")
-    suspend fun getAnnouncements(): Response<List<Announcement>>
+    @GET("api/v1/announcements")
+    suspend fun getAnnouncements(): Response<ApiListResponse<Announcement>>
 
-    @GET("messages")
-    suspend fun getMessages(@Query("userId") userId: String): Response<List<Message>>
+    @GET("api/v1/messages")
+    suspend fun getMessages(@Query("userId") userId: String): Response<ApiListResponse<Message>>
 
-    @GET("messages/{receiverId}")
+    @GET("api/v1/messages/{receiverId}")
     suspend fun getMessagesWithUser(
         @Path("receiverId") receiverId: String,
         @Query("senderId") senderId: String
-    ): Response<List<Message>>
+    ): Response<ApiListResponse<Message>>
 
-    @POST("messages")
+    @POST("api/v1/messages")
     suspend fun sendMessage(
         @Body request: SendMessageRequest
-    ): Response<Message>
+    ): Response<ApiResponse<Message>>
 
-    @GET("community-posts")
-    suspend fun getCommunityPosts(): Response<List<CommunityPost>>
+    @GET("api/v1/community-posts")
+    suspend fun getCommunityPosts(): Response<ApiListResponse<CommunityPost>>
 
-    @POST("community-posts")
+    @POST("api/v1/community-posts")
     suspend fun createCommunityPost(
         @Body request: CreateCommunityPostRequest
-    ): Response<CommunityPost>
+    ): Response<ApiResponse<CommunityPost>>
 
-    @POST("payments/initiate")
+    @POST("api/v1/payments/initiate")
     suspend fun initiatePayment(
         @Body request: InitiatePaymentRequest
-    ): Response<PaymentResponse>
+    ): Response<ApiResponse<PaymentResponse>>
 
-    @GET("payments/{id}/status")
-    suspend fun getPaymentStatus(@Path("id") id: String): Response<PaymentStatusResponse>
+    @GET("api/v1/payments/{id}/status")
+    suspend fun getPaymentStatus(@Path("id") id: String): Response<ApiResponse<PaymentStatusResponse>>
 
-    @POST("payments/{id}/confirm")
-    suspend fun confirmPayment(@Path("id") id: String): Response<PaymentConfirmationResponse>
+    @POST("api/v1/payments/{id}/confirm")
+    suspend fun confirmPayment(@Path("id") id: String): Response<ApiResponse<PaymentConfirmationResponse>>
 
-    @GET("vendors")
-    suspend fun getVendors(): Response<VendorResponse>
+    @GET("api/v1/vendors")
+    suspend fun getVendors(): Response<ApiResponse<VendorResponse>>
 
-    @GET("vendors/{id}")
-    suspend fun getVendor(@Path("id") id: String): Response<SingleVendorResponse>
+    @GET("api/v1/vendors/{id}")
+    suspend fun getVendor(@Path("id") id: String): Response<ApiResponse<SingleVendorResponse>>
 
-    @POST("vendors")
+    @POST("api/v1/vendors")
     suspend fun createVendor(
         @Body request: CreateVendorRequest
-    ): Response<SingleVendorResponse>
+    ): Response<ApiResponse<SingleVendorResponse>>
 
-    @PUT("vendors/{id}")
+    @PUT("api/v1/vendors/{id}")
     suspend fun updateVendor(
         @Path("id") id: String,
         @Body request: UpdateVendorRequest
-    ): Response<SingleVendorResponse>
+    ): Response<ApiResponse<SingleVendorResponse>>
 
-    @GET("work-orders")
-    suspend fun getWorkOrders(): Response<WorkOrderResponse>
+    @GET("api/v1/work-orders")
+    suspend fun getWorkOrders(): Response<ApiResponse<WorkOrderResponse>>
 
-    @GET("work-orders/{id}")
-    suspend fun getWorkOrder(@Path("id") id: String): Response<SingleWorkOrderResponse>
+    @GET("api/v1/work-orders/{id}")
+    suspend fun getWorkOrder(@Path("id") id: String): Response<ApiResponse<SingleWorkOrderResponse>>
 
-    @POST("work-orders")
+    @POST("api/v1/work-orders")
     suspend fun createWorkOrder(
         @Body request: CreateWorkOrderRequest
-    ): Response<SingleWorkOrderResponse>
+    ): Response<ApiResponse<SingleWorkOrderResponse>>
 
-    @PUT("work-orders/{id}/assign")
+    @PUT("api/v1/work-orders/{id}/assign")
     suspend fun assignVendorToWorkOrder(
         @Path("id") id: String,
         @Body request: AssignVendorRequest
-    ): Response<SingleWorkOrderResponse>
+    ): Response<ApiResponse<SingleWorkOrderResponse>>
 
-    @PUT("work-orders/{id}/status")
+    @PUT("api/v1/work-orders/{id}/status")
     suspend fun updateWorkOrderStatus(
         @Path("id") id: String,
         @Body request: UpdateWorkOrderRequest
-    ): Response<SingleWorkOrderResponse>>
+    ): Response<ApiResponse<SingleWorkOrderResponse>>
 }
