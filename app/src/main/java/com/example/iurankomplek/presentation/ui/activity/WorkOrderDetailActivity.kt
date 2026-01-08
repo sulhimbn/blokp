@@ -10,8 +10,9 @@ import com.example.iurankomplek.databinding.ActivityWorkOrderDetailBinding
 import com.example.iurankomplek.data.repository.VendorRepositoryFactory
 import com.example.iurankomplek.model.WorkOrder
 import com.example.iurankomplek.utils.UiState
-import com.example.iurankomplek.presentation.viewmodel.VendorViewModel
 import com.example.iurankomplek.utils.InputSanitizer
+import com.example.iurankomplek.utils.Constants
+import com.example.iurankomplek.presentation.viewmodel.VendorViewModel
 import kotlinx.coroutines.launch
 
 class WorkOrderDetailActivity : BaseActivity() {
@@ -24,7 +25,7 @@ class WorkOrderDetailActivity : BaseActivity() {
         binding = ActivityWorkOrderDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val rawWorkOrderId = intent.getStringExtra("WORK_ORDER_ID")
+        val rawWorkOrderId = intent.getStringExtra(Constants.Intent.WORK_ORDER_ID)
         val workOrderId = if (!rawWorkOrderId.isNullOrBlank() && 
             InputSanitizer.isValidAlphanumericId(rawWorkOrderId)) {
             rawWorkOrderId.trim()
@@ -71,8 +72,8 @@ class WorkOrderDetailActivity : BaseActivity() {
         binding.workOrderStatus.text = workOrder.status
         binding.workOrderPriority.text = workOrder.priority
         binding.workOrderVendor.text = workOrder.vendorName ?: getString(R.string.work_order_not_assigned)
-        binding.workOrderEstimatedCost.text = "Rp ${workOrder.estimatedCost}"
-        binding.workOrderActualCost.text = "Rp ${workOrder.actualCost}"
+        binding.workOrderEstimatedCost.text = InputSanitizer.formatCurrency(workOrder.estimatedCost.toIntOrNull() ?: 0)
+        binding.workOrderActualCost.text = InputSanitizer.formatCurrency(workOrder.actualCost.toIntOrNull() ?: 0)
         binding.workOrderPropertyId.text = workOrder.propertyId
         binding.workOrderCreatedAt.text = workOrder.createdAt
     }

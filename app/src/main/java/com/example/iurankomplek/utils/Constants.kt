@@ -117,4 +117,9 @@ object Constants {
     object Image {
         const val LOAD_TIMEOUT_MS = 10000L
     }
+
+    // Intent Constants
+    object Intent {
+        const val WORK_ORDER_ID = "WORK_ORDER_ID"
+    }
 }
