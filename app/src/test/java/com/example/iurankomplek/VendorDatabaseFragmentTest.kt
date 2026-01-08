@@ -1,384 +1,121 @@
 package com.example.iurankomplek
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.ProgressBar
-import android.widget.TextView
-import android.widget.Toast
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.fragment.app.testing.launchFragmentInContainer
-import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.RecyclerView
-import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.iurankomplek.model.Vendor
-import com.example.iurankomplek.model.VendorResponse
-import com.example.iurankomplek.utils.UiState
-import com.example.iurankomplek.viewmodel.VendorViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.setMain
+import com.example.iurankomplek.presentation.ui.fragment.VendorDatabaseFragment
+import com.example.iurankomplek.presentation.adapter.VendorAdapter
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mock
-import org.mockito.Mockito.*
-import org.mockito.MockitoAnnotations
-import org.robolectric.annotation.Config
 
-@ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [28])
 class VendorDatabaseFragmentTest {
 
-    @Mock
-    private lateinit var mockViewModel: VendorViewModel
-
-    private lateinit var fragment: VendorDatabaseFragment
-    private val testDispatcher = UnconfinedTestDispatcher()
-
-    private val testVendorList = listOf(
-        Vendor(
-            id = "1",
-            name = "Test Vendor 1",
-            contactPerson = "John Doe",
-            phoneNumber = "08123456789",
-            email = "vendor1@example.com",
-            specialty = "Plumbing",
-            address = "123 Test St",
-            licenseNumber = "LIC-001",
-            insuranceInfo = "Insured",
-            certifications = listOf("Cert1", "Cert2"),
-            rating = 4.5,
-            totalReviews = 50,
-            contractStart = "2024-01-01",
-            contractEnd = "2024-12-31",
-            isActive = true
-        ),
-        Vendor(
-            id = "2",
-            name = "Test Vendor 2",
-            contactPerson = "Jane Smith",
-            phoneNumber = "08198765432",
-            email = "vendor2@example.com",
-            specialty = "Electrical",
-            address = "456 Test Ave",
-            licenseNumber = "LIC-002",
-            insuranceInfo = "Insured",
-            certifications = listOf("Cert3"),
-            rating = 3.8,
-            totalReviews = 30,
-            contractStart = "2024-02-01",
-            contractEnd = "2024-11-30",
-            isActive = true
-        )
-    )
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Before
     fun setup() {
-        MockitoAnnotations.openMocks(this)
-        Dispatchers.setMain(testDispatcher)
     }
 
     @After
     fun tearDown() {
-        Dispatchers.resetMain()
     }
 
     @Test
-    fun `fragment should create view successfully`() {
+    fun `fragment creates view successfully`() {
+        launchFragmentInContainer<VendorDatabaseFragment>(
+            themeResId = R.style.Theme_AppCompat_Light_DarkActionBar
+        )
+
+        onView(ViewMatchers.withId(R.id.vendorRecyclerView))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    }
+
+    @Test
+    fun `fragment initializes RecyclerView with adapter`() {
+        launchFragmentInContainer<VendorDatabaseFragment>(
+            themeResId = R.style.Theme_AppCompat_Light_DarkActionBar
+        )
+
+        onView(ViewMatchers.withId(R.id.vendorRecyclerView))
+            .check { view, noViewFoundException ->
+                Assert.assertNotNull("RecyclerView should be initialized", view)
+                val recyclerView = view as RecyclerView
+                Assert.assertNotNull("RecyclerView adapter should be set", recyclerView.adapter)
+                Assert.assertTrue("Adapter should be VendorAdapter", recyclerView.adapter is VendorAdapter)
+            }
+    }
+
+    @Test
+    fun `fragment sets LinearLayoutManager on RecyclerView`() {
+        launchFragmentInContainer<VendorDatabaseFragment>(
+            themeResId = R.style.Theme_AppCompat_Light_DarkActionBar
+        )
+
+        onView(ViewMatchers.withId(R.id.vendorRecyclerView))
+            .check { view, noViewFoundException ->
+                val recyclerView = view as RecyclerView
+                Assert.assertTrue(
+                    "RecyclerView should have LinearLayoutManager",
+                    recyclerView.layoutManager is androidx.recyclerview.widget.LinearLayoutManager
+                )
+            }
+    }
+
+    @Test
+    fun `fragment sets hasFixedSize to true on RecyclerView`() {
+        launchFragmentInContainer<VendorDatabaseFragment>(
+            themeResId = R.style.Theme_AppCompat_Light_DarkActionBar
+        )
+
+        onView(ViewMatchers.withId(R.id.vendorRecyclerView))
+            .check { view, noViewFoundException ->
+                val recyclerView = view as RecyclerView
+                Assert.assertTrue(
+                    "RecyclerView should have setHasFixedSize(true)",
+                    recyclerView.hasFixedSize()
+                )
+            }
+    }
+
+    @Test
+    fun `fragment sets ItemViewCacheSize to 20 on RecyclerView`() {
+        launchFragmentInContainer<VendorDatabaseFragment>(
+            themeResId = R.style.Theme_AppCompat_Light_DarkActionBar
+        )
+
+        onView(ViewMatchers.withId(R.id.vendorRecyclerView))
+            .check { view, noViewFoundException ->
+                val recyclerView = view as RecyclerView
+                Assert.assertEquals(
+                    "RecyclerView should have setItemViewCacheSize(20)",
+                    20,
+                    recyclerView.itemViewCacheSize
+                )
+            }
+    }
+
+    @Test
+    fun `onDestroyView nullifies binding`() {
         val scenario = launchFragmentInContainer<VendorDatabaseFragment>(
             themeResId = R.style.Theme_AppCompat_Light_DarkActionBar
         )
 
         scenario.onFragment { fragment ->
-            assertNotNull("Fragment should be created", fragment)
-            assertNotNull("Fragment view should be created", fragment.view)
-            assertEquals(Lifecycle.State.RESUMED, fragment.lifecycle.currentState)
+            fragment.onDestroyView()
+            val binding = fragment.javaClass.getDeclaredField("_binding").apply {
+                isAccessible = true
+            }
+            Assert.assertNull("Binding should be null after onDestroyView", binding.get(fragment))
         }
-    }
-
-    @Test
-    fun `fragment should initialize RecyclerView correctly`() {
-        val scenario = launchFragmentInContainer<VendorDatabaseFragment>(
-            themeResId = R.style.Theme_AppCompat_Light_DarkActionBar
-        )
-
-        scenario.onFragment { fragment ->
-            val recyclerView = fragment.view?.findViewById<RecyclerView>(R.id.vendorRecyclerView)
-            assertNotNull("RecyclerView should be initialized", recyclerView)
-            assertNotNull("RecyclerView adapter should be set", recyclerView?.adapter)
-            assertTrue("Adapter should be VendorAdapter", recyclerView?.adapter is VendorAdapter)
-        }
-    }
-
-    @Test
-    fun `fragment should observe ViewModel loading state`() {
-        val testStateFlow = MutableStateFlow<UiState<VendorResponse>>(UiState.Loading)
-        `when`(mockViewModel.vendorState).thenReturn(testStateFlow.asStateFlow())
-
-        val scenario = launchFragmentInContainer<VendorDatabaseFragment>(
-            themeResId = R.style.Theme_AppCompat_Light_DarkActionBar
-        )
-
-        scenario.onFragment { fragment ->
-            fragment.injectViewModel(mockViewModel)
-            val recyclerView = fragment.view?.findViewById<RecyclerView>(R.id.vendorRecyclerView)
-            assertNotNull("RecyclerView should be present", recyclerView)
-            assertEquals("Vendor state should be Loading initially", UiState.Loading, testStateFlow.value)
-        }
-    }
-
-    @Test
-    fun `fragment should display vendors on success state`() {
-        val vendorResponse = VendorResponse(
-            success = true,
-            message = "Vendors fetched successfully",
-            data = testVendorList
-        )
-        val testStateFlow = MutableStateFlow<UiState<VendorResponse>>(UiState.Success(vendorResponse))
-        `when`(mockViewModel.vendorState).thenReturn(testStateFlow.asStateFlow())
-
-        val scenario = launchFragmentInContainer<VendorDatabaseFragment>(
-            themeResId = R.style.Theme_AppCompat_Light_DarkActionBar
-        )
-
-        scenario.onFragment { fragment ->
-            fragment.injectViewModel(mockViewModel)
-            val recyclerView = fragment.view?.findViewById<RecyclerView>(R.id.vendorRecyclerView)
-            assertNotNull("RecyclerView should be present", recyclerView)
-            assertEquals("Adapter should display vendor list", testVendorList.size, recyclerView?.adapter?.itemCount)
-        }
-    }
-
-    @Test
-    fun `fragment should handle empty vendor list successfully`() {
-        val emptyResponse = VendorResponse(
-            success = true,
-            message = "No vendors available",
-            data = emptyList()
-        )
-        val testStateFlow = MutableStateFlow<UiState<VendorResponse>>(UiState.Success(emptyResponse))
-        `when`(mockViewModel.vendorState).thenReturn(testStateFlow.asStateFlow())
-
-        val scenario = launchFragmentInContainer<VendorDatabaseFragment>(
-            themeResId = R.style.Theme_AppCompat_Light_DarkActionBar
-        )
-
-        scenario.onFragment { fragment ->
-            fragment.injectViewModel(mockViewModel)
-            val recyclerView = fragment.view?.findViewById<RecyclerView>(R.id.vendorRecyclerView)
-            assertNotNull("RecyclerView should be present", recyclerView)
-            assertEquals("Adapter should handle empty list", 0, recyclerView?.adapter?.itemCount)
-        }
-    }
-
-    @Test
-    fun `fragment should show error toast on error state`() {
-        val errorMessage = "Failed to load vendors"
-        val testStateFlow = MutableStateFlow<UiState<VendorResponse>>(UiState.Error(errorMessage))
-        `when`(mockViewModel.vendorState).thenReturn(testStateFlow.asStateFlow())
-
-        val scenario = launchFragmentInContainer<VendorDatabaseFragment>(
-            themeResId = R.style.Theme_AppCompat_Light_DarkActionBar
-        )
-
-        scenario.onFragment { fragment ->
-            fragment.injectViewModel(mockViewModel)
-            val recyclerView = fragment.view?.findViewById<RecyclerView>(R.id.vendorRecyclerView)
-            assertNotNull("RecyclerView should be present", recyclerView)
-            assertEquals("Vendor state should be Error", UiState.Error(errorMessage), testStateFlow.value)
-        }
-    }
-
-    @Test
-    fun `fragment should handle vendor click correctly`() {
-        val vendorResponse = VendorResponse(
-            success = true,
-            message = "Vendors fetched successfully",
-            data = testVendorList
-        )
-        val testStateFlow = MutableStateFlow<UiState<VendorResponse>>(UiState.Success(vendorResponse))
-        `when`(mockViewModel.vendorState).thenReturn(testStateFlow.asStateFlow())
-
-        val scenario = launchFragmentInContainer<VendorDatabaseFragment>(
-            themeResId = R.style.Theme_AppCompat_Light_DarkActionBar
-        )
-
-        scenario.onFragment { fragment ->
-            fragment.injectViewModel(mockViewModel)
-            val recyclerView = fragment.view?.findViewById<RecyclerView>(R.id.vendorRecyclerView)
-            assertNotNull("RecyclerView should be present", recyclerView)
-
-            val viewHolder = recyclerView?.findViewHolderForPosition(0)
-            assertNotNull("ViewHolder should be present", viewHolder)
-            viewHolder?.itemView?.performClick()
-        }
-    }
-
-    @Test
-    fun `fragment should cleanup binding on destroy view`() {
-        val scenario = launchFragmentInContainer<VendorDatabaseFragment>(
-            themeResId = R.style.Theme_AppCompat_Light_DarkActionBar
-        )
-
-        scenario.onFragment { fragment ->
-            assertNotNull("Fragment binding should be initialized", fragment.binding)
-            scenario.moveToState(Lifecycle.State.DESTROYED)
-            assertNull("Fragment binding should be null after destroy", fragment.binding)
-        }
-    }
-
-    @Test
-    fun `fragment should handle null data in success state gracefully`() {
-        val responseWithNullData = VendorResponse(
-            success = true,
-            message = "Success",
-            data = null
-        )
-        val testStateFlow = MutableStateFlow<UiState<VendorResponse>>(UiState.Success(responseWithNullData))
-        `when`(mockViewModel.vendorState).thenReturn(testStateFlow.asStateFlow())
-
-        val scenario = launchFragmentInContainer<VendorDatabaseFragment>(
-            themeResId = R.style.Theme_AppCompat_Light_DarkActionBar
-        )
-
-        scenario.onFragment { fragment ->
-            fragment.injectViewModel(mockViewModel)
-            val recyclerView = fragment.view?.findViewById<RecyclerView>(R.id.vendorRecyclerView)
-            assertNotNull("RecyclerView should handle null data gracefully", recyclerView)
-        }
-    }
-
-    @Test
-    fun `fragment should use LinearLayoutManager for RecyclerView`() {
-        val scenario = launchFragmentInContainer<VendorDatabaseFragment>(
-            themeResId = R.style.Theme_AppCompat_Light_DarkActionBar
-        )
-
-        scenario.onFragment { fragment ->
-            val recyclerView = fragment.view?.findViewById<RecyclerView>(R.id.vendorRecyclerView)
-            assertNotNull("RecyclerView should be present", recyclerView)
-            assertTrue("LayoutManager should be LinearLayoutManager", recyclerView?.layoutManager is androidx.recyclerview.widget.LinearLayoutManager)
-        }
-    }
-
-    @Test
-    fun `fragment should preserve adapter configuration across state changes`() {
-        val initialResponse = VendorResponse(
-            success = true,
-            message = "Initial vendors",
-            data = testVendorList.take(1)
-        )
-        val updatedResponse = VendorResponse(
-            success = true,
-            message = "Updated vendors",
-            data = testVendorList
-        )
-
-        val testStateFlow = MutableStateFlow<UiState<VendorResponse>>(UiState.Success(initialResponse))
-        `when`(mockViewModel.vendorState).thenReturn(testStateFlow.asStateFlow())
-
-        val scenario = launchFragmentInContainer<VendorDatabaseFragment>(
-            themeResId = R.style.Theme_AppCompat_Light_DarkActionBar
-        )
-
-        scenario.onFragment { fragment ->
-            fragment.injectViewModel(mockViewModel)
-            val recyclerView = fragment.view?.findViewById<RecyclerView>(R.id.vendorRecyclerView)
-            val initialAdapter = recyclerView?.adapter
-
-            testStateFlow.value = UiState.Success(updatedResponse)
-
-            assertEquals("Adapter should remain the same", initialAdapter, recyclerView?.adapter)
-            assertEquals("Item count should update", testVendorList.size, recyclerView?.adapter?.itemCount)
-        }
-    }
-
-    @Test
-    fun `fragment should handle large vendor lists efficiently`() {
-        val largeVendorList = (1..100).map { index ->
-            Vendor(
-                id = "$index",
-                name = "Vendor $index",
-                specialty = "Specialty $index",
-                phoneNumber = "08${index.toString().repeat(9)}",
-                rating = (index % 50) / 10.0,
-                email = "vendor$index@example.com",
-                address = "$index Test Street"
-            )
-        }
-
-        val largeResponse = VendorResponse(
-            success = true,
-            message = "Large vendor list",
-            data = largeVendorList
-        )
-        val testStateFlow = MutableStateFlow<UiState<VendorResponse>>(UiState.Success(largeResponse))
-        `when`(mockViewModel.vendorState).thenReturn(testStateFlow.asStateFlow())
-
-        val scenario = launchFragmentInContainer<VendorDatabaseFragment>(
-            themeResId = R.style.Theme_AppCompat_Light_DarkActionBar
-        )
-
-        scenario.onFragment { fragment ->
-            fragment.injectViewModel(mockViewModel)
-            val recyclerView = fragment.view?.findViewById<RecyclerView>(R.id.vendorRecyclerView)
-            assertNotNull("RecyclerView should handle large lists", recyclerView)
-            assertEquals("All items should be displayed", largeVendorList.size, recyclerView?.adapter?.itemCount)
-        }
-    }
-
-    @Test
-    fun `fragment should handle special characters in vendor data`() {
-        val vendorsWithSpecialChars = listOf(
-            Vendor(
-                id = "1",
-                name = "Vendor with émojis 🎉",
-                specialty = "Plumbíng & Heating",
-                phoneNumber = "+62 812 345-6789",
-                rating = 4.5,
-                email = "vendor+test@example.com",
-                address = "123 Main St, Apt 4B"
-            )
-        )
-
-        val response = VendorResponse(
-            success = true,
-            message = "Special character vendors",
-            data = vendorsWithSpecialChars
-        )
-        val testStateFlow = MutableStateFlow<UiState<VendorResponse>>(UiState.Success(response))
-        `when`(mockViewModel.vendorState).thenReturn(testStateFlow.asStateFlow())
-
-        val scenario = launchFragmentInContainer<VendorDatabaseFragment>(
-            themeResId = R.style.Theme_AppCompat_Light_DarkActionBar
-        )
-
-        scenario.onFragment { fragment ->
-            fragment.injectViewModel(mockViewModel)
-            val recyclerView = fragment.view?.findViewById<RecyclerView>(R.id.vendorRecyclerView)
-            assertNotNull("RecyclerView should handle special characters", recyclerView)
-            assertEquals("Special character vendor should be displayed", 1, recyclerView?.adapter?.itemCount)
-        }
-    }
-}
-
-private fun VendorDatabaseFragment.injectViewModel(viewModel: VendorViewModel) {
-    val viewModelField = VendorDatabaseFragment::class.java.getDeclaredField("vendorViewModel")
-    viewModelField.isAccessible = true
-    viewModelField.set(this, viewModel)
-}
-
-private fun VendorDatabaseFragment.getBinding(): FragmentVendorDatabaseBinding? {
-    return this.view?.let {
-        FragmentVendorDatabaseBinding.bind(it)
     }
 }

@@ -1,85 +1,66 @@
 package com.example.iurankomplek.presentation.ui.fragment
 
-import com.example.iurankomplek.presentation.adapter.WorkOrderAdapter
-import com.example.iurankomplek.R
-import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.coroutines.launch
+import androidx.recyclerview.widget.RecyclerView
+import com.example.iurankomplek.R
+import com.example.iurankomplek.core.base.BaseFragment
 import com.example.iurankomplek.databinding.FragmentWorkOrderManagementBinding
-import com.example.iurankomplek.data.repository.VendorRepositoryFactory
-import com.example.iurankomplek.utils.UiState
+import com.example.iurankomplek.presentation.adapter.WorkOrderAdapter
 import com.example.iurankomplek.presentation.viewmodel.VendorViewModel
+import com.example.iurankomplek.utils.UiState
 
-class WorkOrderManagementFragment : Fragment() {
+class WorkOrderManagementFragment : BaseFragment<UiState<com.example.iurankomplek.model.WorkOrderResponse>>() {
 
     private var _binding: FragmentWorkOrderManagementBinding? = null
     private val binding get() = _binding!!
+
     private lateinit var workOrderAdapter: WorkOrderAdapter
     private lateinit var vendorViewModel: VendorViewModel
 
+    override val recyclerView: RecyclerView
+        get() = binding.workOrderRecyclerView
+
+    override val progressBar: View
+        get() = binding.root.findViewById(com.example.iurankomplek.R.id.progressBar)
+
+    override val emptyMessageStringRes: Int
+        get() = R.string.toast_work_order_info
+
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: android.view.LayoutInflater,
+        container: android.view.ViewGroup?,
+        savedInstanceState: android.os.Bundle?
     ): View {
         _binding = FragmentWorkOrderManagementBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        
-        // Initialize ViewModel
-        val repository = VendorRepositoryFactory.getInstance()
-        vendorViewModel = ViewModelProvider(
-            this, 
-            VendorViewModel.Factory(repository)
-        )[VendorViewModel::class.java]
-        
-        setupViews()
-        observeWorkOrders()
-        vendorViewModel.loadWorkOrders()
-    }
-    
-    private fun setupViews() {
+    override fun createAdapter(): RecyclerView.Adapter<*> {
         workOrderAdapter = WorkOrderAdapter { workOrder ->
-            Toast.makeText(requireContext(), getString(R.string.toast_work_order_info, workOrder.title), Toast.LENGTH_SHORT).show()
+            android.widget.Toast.makeText(
+                requireContext(),
+                getString(R.string.toast_work_order_info, workOrder.title),
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
         }
+        return workOrderAdapter
+    }
 
-        binding.workOrderRecyclerView.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = workOrderAdapter
+    override fun initializeViewModel(viewModelProvider: ViewModelProvider) {
+        val repository = com.example.iurankomplek.data.repository.VendorRepositoryFactory.getInstance()
+        vendorViewModel = viewModelProvider.get(VendorViewModel::class.java)
+    }
+
+    override fun observeViewModelState() {
+        observeUiState(vendorViewModel.workOrderState, showErrorToast = false) { data ->
+            workOrderAdapter.submitList(data.data)
         }
     }
-    
-    private fun observeWorkOrders() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
-                vendorViewModel.workOrderState.collect { state ->
-                    when (state) {
-                        is UiState.Idle -> {
-                        }
-                        is UiState.Loading -> {
-                            // Show loading indicator
-                        }
-                        is UiState.Success -> {
-                            workOrderAdapter.submitList(state.data.data)
-                        }
-                        is UiState.Error -> {
-                            Toast.makeText(requireContext(), getString(R.string.toast_error, state.error), Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
-            }
-        }
+
+    override fun loadData() {
+        vendorViewModel.loadWorkOrders()
     }
 
     override fun onDestroyView() {

@@ -1,82 +1,60 @@
 package com.example.iurankomplek.presentation.ui.fragment
 
-import com.example.iurankomplek.presentation.adapter.MessageAdapter
-import com.example.iurankomplek.R
-import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.iurankomplek.databinding.FragmentMessagesBinding
+import androidx.recyclerview.widget.RecyclerView
+import com.example.iurankomplek.R
+import com.example.iurankomplek.core.base.BaseFragment
 import com.example.iurankomplek.data.repository.MessageRepositoryFactory
-import com.example.iurankomplek.utils.UiState
+import com.example.iurankomplek.databinding.FragmentMessagesBinding
+import com.example.iurankomplek.presentation.adapter.MessageAdapter
 import com.example.iurankomplek.presentation.viewmodel.MessageViewModel
+import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.utils.Constants
-import kotlinx.coroutines.launch
 
-class MessagesFragment : Fragment() {
+class MessagesFragment : BaseFragment<UiState<List<com.example.iurankomplek.data.dto.LegacyDataItemDto>>>() {
 
     private var _binding: FragmentMessagesBinding? = null
     private val binding get() = _binding!!
+
     private lateinit var adapter: MessageAdapter
     private lateinit var viewModel: MessageViewModel
 
+    override val recyclerView: RecyclerView
+        get() = binding.rvMessages
+
+    override val progressBar: View
+        get() = binding.progressBar
+
+    override val emptyMessageStringRes: Int
+        get() = R.string.no_messages_available
+
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: android.view.LayoutInflater,
+        container: android.view.ViewGroup?,
+        savedInstanceState: android.os.Bundle?
     ): View {
         _binding = FragmentMessagesBinding.inflate(inflater, container, false)
-
-        adapter = MessageAdapter()
-        binding.rvMessages.layoutManager = LinearLayoutManager(context)
-        binding.rvMessages.setHasFixedSize(true)
-        binding.rvMessages.setItemViewCacheSize(20)
-        binding.rvMessages.adapter = adapter
-
-        initializeViewModel()
-        observeMessagesState()
-        viewModel.loadMessages(Constants.Api.DEFAULT_USER_ID)
-
         return binding.root
     }
 
-    private fun initializeViewModel() {
+    override fun createAdapter(): RecyclerView.Adapter<*> = MessageAdapter().also { adapter = it }
+
+    override fun initializeViewModel(viewModelProvider: ViewModelProvider) {
         val messageRepository = MessageRepositoryFactory.getInstance()
-        viewModel = ViewModelProvider(
-            this,
-            MessageViewModel.Factory(messageRepository)
-        )[MessageViewModel::class.java]
+        viewModel = viewModelProvider.get(MessageViewModel::class.java)
     }
 
-    private fun observeMessagesState() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.messagesState.collect { state ->
-                when (state) {
-                    is UiState.Idle -> {
-                    }
-                    is UiState.Loading -> {
-                        binding.progressBar.visibility = View.VISIBLE
-                    }
-                    is UiState.Success -> {
-                        binding.progressBar.visibility = View.GONE
-                        if (state.data.isEmpty()) {
-                            Toast.makeText(requireContext(), getString(R.string.no_messages_available), Toast.LENGTH_LONG).show()
-                        } else {
-                            adapter.submitList(state.data)
-                        }
-                    }
-                    is UiState.Error -> {
-                        binding.progressBar.visibility = View.GONE
-                        Toast.makeText(requireContext(), getString(R.string.network_error, state.error), Toast.LENGTH_LONG).show()
-                    }
-                }
-            }
+    override fun observeViewModelState() {
+        observeUiState(viewModel.messagesState) { data ->
+            adapter.submitList(data)
         }
+    }
+
+    override fun loadData() {
+        viewModel.loadMessages(Constants.Api.DEFAULT_USER_ID)
     }
 
     override fun onDestroyView() {

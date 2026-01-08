@@ -1,81 +1,58 @@
 package com.example.iurankomplek.presentation.ui.fragment
 
-import com.example.iurankomplek.presentation.adapter.AnnouncementAdapter
-import com.example.iurankomplek.R
-import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.iurankomplek.databinding.FragmentAnnouncementsBinding
+import androidx.recyclerview.widget.RecyclerView
+import com.example.iurankomplek.R
+import com.example.iurankomplek.core.base.BaseFragment
 import com.example.iurankomplek.data.repository.AnnouncementRepositoryFactory
-import com.example.iurankomplek.utils.UiState
+import com.example.iurankomplek.databinding.FragmentAnnouncementsBinding
+import com.example.iurankomplek.presentation.adapter.AnnouncementAdapter
 import com.example.iurankomplek.presentation.viewmodel.AnnouncementViewModel
-import kotlinx.coroutines.launch
+import com.example.iurankomplek.utils.UiState
 
-class AnnouncementsFragment : Fragment() {
+class AnnouncementsFragment : BaseFragment<UiState<List<com.example.iurankomplek.data.dto.AnnouncementDto>>>() {
 
     private var _binding: FragmentAnnouncementsBinding? = null
     private val binding get() = _binding!!
+
     private lateinit var adapter: AnnouncementAdapter
     private lateinit var viewModel: AnnouncementViewModel
 
+    override val recyclerView: RecyclerView
+        get() = binding.rvAnnouncements
+
+    override val progressBar: View
+        get() = binding.progressBar
+
+    override val emptyMessageStringRes: Int
+        get() = R.string.no_announcements_available
+
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: android.view.LayoutInflater,
+        container: android.view.ViewGroup?,
+        savedInstanceState: android.os.Bundle?
     ): View {
         _binding = FragmentAnnouncementsBinding.inflate(inflater, container, false)
-
-        adapter = AnnouncementAdapter()
-        binding.rvAnnouncements.layoutManager = LinearLayoutManager(context)
-        binding.rvAnnouncements.setHasFixedSize(true)
-        binding.rvAnnouncements.setItemViewCacheSize(20)
-        binding.rvAnnouncements.adapter = adapter
-
-        initializeViewModel()
-        observeAnnouncementsState()
-        viewModel.loadAnnouncements()
-
         return binding.root
     }
 
-    private fun initializeViewModel() {
+    override fun createAdapter(): RecyclerView.Adapter<*> = AnnouncementAdapter().also { adapter = it }
+
+    override fun initializeViewModel(viewModelProvider: ViewModelProvider) {
         val announcementRepository = AnnouncementRepositoryFactory.getInstance()
-        viewModel = ViewModelProvider(
-            this,
-            AnnouncementViewModel.Factory(announcementRepository)
-        )[AnnouncementViewModel::class.java]
+        viewModel = viewModelProvider.get(AnnouncementViewModel::class.java)
     }
 
-    private fun observeAnnouncementsState() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.announcementsState.collect { state ->
-                when (state) {
-                    is UiState.Idle -> {
-                    }
-                    is UiState.Loading -> {
-                        binding.progressBar.visibility = View.VISIBLE
-                    }
-                    is UiState.Success -> {
-                        binding.progressBar.visibility = View.GONE
-                        if (state.data.isEmpty()) {
-                            Toast.makeText(requireContext(), getString(R.string.no_announcements_available), Toast.LENGTH_LONG).show()
-                        } else {
-                            adapter.submitList(state.data)
-                        }
-                    }
-                    is UiState.Error -> {
-                        binding.progressBar.visibility = View.GONE
-                        Toast.makeText(requireContext(), getString(R.string.network_error, state.error), Toast.LENGTH_LONG).show()
-                    }
-                }
-            }
+    override fun observeViewModelState() {
+        observeUiState(viewModel.announcementsState) { data ->
+            adapter.submitList(data)
         }
+    }
+
+    override fun loadData() {
+        viewModel.loadAnnouncements()
     }
 
     override fun onDestroyView() {

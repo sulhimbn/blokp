@@ -1,87 +1,35 @@
 package com.example.iurankomplek.presentation.ui.fragment
 
-import com.example.iurankomplek.presentation.adapter.VendorAdapter
-import com.example.iurankomplek.R
-import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.Toast
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.coroutines.launch
+import androidx.recyclerview.widget.RecyclerView
+import com.example.iurankomplek.R
+import com.example.iurankomplek.core.base.BaseVendorFragment
 import com.example.iurankomplek.databinding.FragmentVendorDatabaseBinding
-import com.example.iurankomplek.data.repository.VendorRepositoryFactory
-import com.example.iurankomplek.utils.UiState
-import com.example.iurankomplek.presentation.viewmodel.VendorViewModel
 
-class VendorDatabaseFragment : Fragment() {
+class VendorDatabaseFragment : BaseVendorFragment() {
 
     private var _binding: FragmentVendorDatabaseBinding? = null
     private val binding get() = _binding!!
-    private lateinit var vendorAdapter: VendorAdapter
-    private lateinit var vendorViewModel: VendorViewModel
+
+    override val recyclerView: RecyclerView
+        get() = binding.vendorRecyclerView
+
+    override val progressBar: View
+        get() = binding.root.findViewById(com.example.iurankomplek.R.id.progressBar)
+
+    override val emptyMessageStringRes: Int
+        get() = R.string.toast_vendor_info
+
+    override val vendorClickMessageRes: Int
+        get() = R.string.toast_vendor_info
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: android.view.LayoutInflater,
+        container: android.view.ViewGroup?,
+        savedInstanceState: android.os.Bundle?
     ): View {
         _binding = FragmentVendorDatabaseBinding.inflate(inflater, container, false)
         return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        
-        // Initialize ViewModel
-        val repository = VendorRepositoryFactory.getInstance()
-        vendorViewModel = ViewModelProvider(
-            this, 
-            VendorViewModel.Factory(repository)
-        )[VendorViewModel::class.java]
-        
-        setupViews()
-        observeVendors()
-        vendorViewModel.loadVendors()
-    }
-    
-    private fun setupViews() {
-        vendorAdapter = VendorAdapter { vendor ->
-            Toast.makeText(requireContext(), getString(R.string.toast_vendor_info, vendor.name), Toast.LENGTH_SHORT).show()
-        }
-
-        binding.vendorRecyclerView.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            setHasFixedSize(true)
-            setItemViewCacheSize(20)
-            adapter = vendorAdapter
-        }
-    }
-    
-    private fun observeVendors() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
-                vendorViewModel.vendorState.collect { state ->
-                    when (state) {
-                        is UiState.Idle -> {
-                        }
-                        is UiState.Loading -> {
-                            // Show loading indicator
-                        }
-                        is UiState.Success -> {
-                            vendorAdapter.submitList(state.data.data)
-                        }
-                        is UiState.Error -> {
-                            Toast.makeText(requireContext(), getString(R.string.toast_error, state.error), Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
-            }
-        }
     }
 
     override fun onDestroyView() {
