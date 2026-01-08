@@ -114,9 +114,6 @@ dependencies {
     implementation libs.room.ktx
     kapt libs.room.compiler
     
-    // KAPT workaround for Retrofit annotations
-    kapt libs.retrofit
-    
     // Coroutines
     implementation libs.kotlinx.coroutines.android
     
