@@ -1,7 +1,7 @@
 package com.example.iurankomplek
 
 import com.example.iurankomplek.model.UserResponse
-import com.example.iurankomplek.network.ApiConfig
+import com.example.iurankomplek.data.dto.LegacyDataItemDto
 import com.example.iurankomplek.network.ApiService
 import com.google.gson.Gson
 import okhttp3.mockwebserver.MockResponse
@@ -14,7 +14,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.concurrent.thread
 
 class ApiIntegrationTest {
     
@@ -44,7 +43,7 @@ class ApiIntegrationTest {
     fun `getUsers should parse response correctly`() {
         // Given
         val mockUsers = listOf(
-            com.example.iurankomplek.model.DataItem(
+            LegacyDataItemDto(
                 first_name = "John",
                 last_name = "Doe",
                 email = "john.doe@example.com",
@@ -60,7 +59,6 @@ class ApiIntegrationTest {
         )
         
         val mockResponse = UserResponse(
-            status = "success",
             data = mockUsers
         )
         
@@ -96,7 +94,6 @@ class ApiIntegrationTest {
         assert(responseReceived?.isSuccessful == true) { "Response should be successful" }
         val responseBody = responseReceived?.body()
         assert(responseBody != null) { "Response body should not be null" }
-        assert(responseBody?.status == "success") { "Status should be success" }
         assert(responseBody?.data?.size == 1) { "Should have 1 user in response" }
         assert(responseBody?.data?.first()?.first_name == "John") { "First user should be John" }
     }
@@ -105,7 +102,6 @@ class ApiIntegrationTest {
     fun `getUsers should handle empty response`() {
         // Given
         val mockResponse = UserResponse(
-            status = "success",
             data = emptyList()
         )
         
@@ -178,17 +174,24 @@ class ApiIntegrationTest {
     @Test
     fun `getPemanfaatan should parse response correctly`() {
         // Given
-        val mockPemanfaatanResponse = com.example.iurankomplek.model.PemanfaatanResponse(
-            status = "success",
-            data = listOf(
-                com.example.iurankomplek.model.PemanfaatanItem(
-                    id = 1,
-                    name = "Maintenance Fund",
-                    amount = 1000000,
-                    date = "2023-01-01",
-                    description = "Monthly maintenance"
-                )
+        val mockPemanfaatanData = listOf(
+            LegacyDataItemDto(
+                first_name = "",
+                last_name = "",
+                email = "",
+                alamat = "",
+                iuran_perwarga = 100,
+                total_iuran_rekap = 500,
+                jumlah_iuran_bulanan = 200,
+                total_iuran_individu = 150,
+                pengeluaran_iuran_warga = 50,
+                pemanfaatan_iuran = "Maintenance Fund",
+                avatar = ""
             )
+        )
+        
+        val mockPemanfaatanResponse = com.example.iurankomplek.model.PemanfaatanResponse(
+            data = mockPemanfaatanData
         )
         
         val responseJson = Gson().toJson(mockPemanfaatanResponse)
@@ -223,9 +226,8 @@ class ApiIntegrationTest {
         assert(responseReceived?.isSuccessful == true) { "Response should be successful" }
         val responseBody = responseReceived?.body()
         assert(responseBody != null) { "Response body should not be null" }
-        assert(responseBody?.status == "success") { "Status should be success" }
         assert(responseBody?.data?.size == 1) { "Should have 1 pemanfaatan item in response" }
-        assert(responseBody?.data?.first()?.name == "Maintenance Fund") { "First item should be Maintenance Fund" }
+        assert(responseBody?.data?.first()?.pemanfaatan_iuran == "Maintenance Fund") { "First item should be Maintenance Fund" }
     }
     
     @Test

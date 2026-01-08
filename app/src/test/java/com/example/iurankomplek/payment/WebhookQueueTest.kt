@@ -201,31 +201,31 @@ class WebhookQueueTest {
             )
         )
 
-        coEvery { 
+        coEvery {
             webhookEventDao.getPendingEventsByStatus(
                 WebhookDeliveryStatus.FAILED,
-                any(),
+                any<Long>(),
                 50
-            ) 
+            )
         } returns events
-        coEvery { webhookEventDao.updateStatus(any(), WebhookDeliveryStatus.PENDING) } just Runs
+        coEvery { webhookEventDao.updateStatus(any<Long>(), WebhookDeliveryStatus.PENDING) } just Runs
 
         val count = webhookQueue.retryFailedEvents()
 
         assertEquals(2, count)
-        coVerify(exactly = 2) { webhookEventDao.updateStatus(any(), WebhookDeliveryStatus.PENDING) }
+        coVerify(exactly = 2) { webhookEventDao.updateStatus(any<Long>(), WebhookDeliveryStatus.PENDING) }
     }
 
     @Test
     fun `cleanupOldEvents should delete old events`() = runTest {
         val thirtyDaysAgo = System.currentTimeMillis() - (30L * 24L * 60L * 60L * 1000L)
         
-        coEvery { webhookEventDao.deleteEventsOlderThan(any()) } returns 5
+        coEvery { webhookEventDao.deleteEventsOlderThan(any<Long>()) } returns 5
 
         val count = webhookQueue.cleanupOldEvents()
 
         assertEquals(5, count)
-        coVerify { webhookEventDao.deleteEventsOlderThan(any()) }
+        coVerify { webhookEventDao.deleteEventsOlderThan(any<Long>()) }
     }
 
     @Test
@@ -269,7 +269,7 @@ class WebhookQueueTest {
         coEvery { transactionRepository.getTransactionById("tx123") } returns transaction
         coEvery { webhookEventDao.updateStatus(1L, WebhookDeliveryStatus.PROCESSING) } just Runs
         coEvery { webhookEventDao.markAsDelivered(1L) } just Runs
-        coEvery { webhookEventDao.markAsFailed(any()) } just Runs
+        coEvery { webhookEventDao.markAsFailed(any<Long>()) } just Runs
 
         advanceUntilIdle()
 
@@ -303,7 +303,7 @@ class WebhookQueueTest {
         coEvery { transactionRepository.getTransactionById("tx123") } returns transaction
         coEvery { webhookEventDao.updateStatus(1L, WebhookDeliveryStatus.PROCESSING) } just Runs
         coEvery { webhookEventDao.markAsDelivered(1L) } just Runs
-        coEvery { webhookEventDao.markAsFailed(any()) } just Runs
+        coEvery { webhookEventDao.markAsFailed(any<Long>()) } just Runs
 
         advanceUntilIdle()
 
@@ -337,7 +337,7 @@ class WebhookQueueTest {
         coEvery { transactionRepository.getTransactionById("tx123") } returns transaction
         coEvery { webhookEventDao.updateStatus(1L, WebhookDeliveryStatus.PROCESSING) } just Runs
         coEvery { webhookEventDao.markAsDelivered(1L) } just Runs
-        coEvery { webhookEventDao.markAsFailed(any()) } just Runs
+        coEvery { webhookEventDao.markAsFailed(any<Long>()) } just Runs
 
         advanceUntilIdle()
 
@@ -363,7 +363,7 @@ class WebhookQueueTest {
         coEvery { webhookEventDao.getEventById(1L) } returns event
         coEvery { webhookEventDao.updateStatus(1L, WebhookDeliveryStatus.PROCESSING) } just Runs
         coEvery { webhookEventDao.markAsDelivered(1L) } just Runs
-        coEvery { webhookEventDao.markAsFailed(any()) } just Runs
+        coEvery { webhookEventDao.markAsFailed(any<Long>()) } just Runs
 
         advanceUntilIdle()
 
