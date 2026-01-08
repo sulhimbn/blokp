@@ -28,44 +28,52 @@ private val _users = mutableListOf<DataItem>()
 
 #### File Structure
 ```kotlin
-package com.example.iurankomplek
+package com.example.iurankomplek.presentation.ui.activity
 
 // Imports (standard library first, then third-party, then project)
 import android.os.Bundle
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.core.base.BaseActivity
+import com.example.iurankomplek.databinding.ActivityMainBinding
+import com.example.iurankomplek.presentation.adapter.UserAdapter
 import retrofit2.Call
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
     // 1. Companion object
     companion object {
         private const val TAG = "MainActivity"
     }
-    
+
     // 2. Private properties
+    private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: UserAdapter
-    private lateinit var rv_users: RecyclerView
-    
+
     // 3. Lifecycle methods
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         setupViews()
         getUser()
     }
-    
+
     // 4. Private setup methods
     private fun setupViews() {
-        rv_users = findViewById(R.id.rv_users)
+        binding.rvUsers.layoutManager = LinearLayoutManager(this)
         adapter = UserAdapter(mutableListOf())
-        rv_users.layoutManager = LinearLayoutManager(this)
-        rv_users.adapter = adapter
+        binding.rvUsers.adapter = adapter
     }
-    
+
     // 5. Private business logic methods
     private fun getUser() {
         // Implementation
+    }
+
+    // 6. Cleanup
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.unbind()
     }
 }
 ```
@@ -105,10 +113,10 @@ private fun handleSuccessResponse(response: Response<UserResponse>) {
 #### Naming Conventions
 ```kotlin
 // Classes - PascalCase
-class MenuActivity : AppCompatActivity
+class MenuActivity : BaseActivity
 
 // Methods & Variables - camelCase
-private lateinit var tombolSatu: LinearLayout
+private lateinit var binding: ActivityMenuBinding
 private fun setupClickListeners()
 
 // Constants - UPPER_SNAKE_CASE
@@ -119,42 +127,33 @@ private companion object {
 
 #### Code Style
 ```kotlin
-class MenuActivity : AppCompatActivity() {
+class MenuActivity : BaseActivity() {
     private lateinit var binding: ActivityMenuBinding
-    private lateinit var tombolSatu: LinearLayout
-    private lateinit var tombolDua: LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMenuBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        
-        setupFullscreenMode()
+
         setupClickListeners()
     }
-    
-    private fun setupFullscreenMode() {
-        val decorView = window.decorView
-        decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
-    }
-    
+
     private fun setupClickListeners() {
-        tombolSatu = binding.cdMenu1
-        tombolSatu.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+        binding.cdMenu1.setOnClickListener {
+            startActivity(Intent(this, MainActivity::class.java))
         }
-        
-        tombolDua = binding.cdMenu2
-        tombolDua.setOnClickListener {
-            val intent = Intent(this, LaporanActivity::class.java)
-            startActivity(intent)
+
+        binding.cdMenu2.setOnClickListener {
+            startActivity(Intent(this, LaporanActivity::class.java))
         }
-    }
-    
-    override fun onDestroy() {
-        super.onDestroy()
-        binding.unbind()
+
+        binding.cdMenu3.setOnClickListener {
+            startActivity(Intent(this, CommunicationActivity::class.java))
+        }
+
+        binding.cdMenu4.setOnClickListener {
+            startActivity(Intent(this, PaymentActivity::class.java))
+        }
     }
 }
 ```
@@ -240,17 +239,17 @@ class MainActivity : BaseActivity() {
     private val viewModel: UserViewModel by viewModels {
         UserViewModelFactory()
     }
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        
+
         setupRecyclerView()
         observeViewModel()
         viewModel.loadUsers()
     }
-    
+
     private fun observeViewModel() {
         lifecycleScope.launch {
             viewModel.uiState.collect { state ->
@@ -262,7 +261,23 @@ class MainActivity : BaseActivity() {
             }
         }
     }
-    
+
+    private fun showLoading() {
+        binding.progressBar.visibility = View.VISIBLE
+        binding.rvUsers.visibility = View.GONE
+    }
+
+    private fun showUsers(users: List<DataItem>) {
+        binding.progressBar.visibility = View.GONE
+        binding.rvUsers.visibility = View.VISIBLE
+        adapter.submitList(users)
+    }
+
+    private fun showError(message: String) {
+        binding.progressBar.visibility = View.GONE
+        Toast.makeText(this, "Error: $message", Toast.LENGTH_SHORT).show()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         binding.unbind()

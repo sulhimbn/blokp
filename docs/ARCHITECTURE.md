@@ -80,9 +80,11 @@ LaporanAdapter     // Reports (currently unused)
 ### Activities Layer
 ```
 MenuActivity (Kotlin)
-├── Navigation hub
-├── Fullscreen mode
-└── Intent routing
+├── Navigation hub (4 menu options)
+├── Menu 1: MainActivity (User list)
+├── Menu 2: LaporanActivity (Financial reports)
+├── Menu 3: CommunicationActivity (Community messaging)
+└── Menu 4: PaymentActivity (Payment processing)
 
 MainActivity (Kotlin)
 ├── User list display
@@ -94,6 +96,16 @@ LaporanActivity (Kotlin)
 ├── PemanfaatanAdapter
 ├── Calculation logic
 └── Data aggregation
+
+CommunicationActivity (Kotlin)
+├── Community announcements
+├── Messaging system
+└── Communication adapters
+
+PaymentActivity (Kotlin)
+├── Payment processing
+├── Payment form
+└── Receipt generation
 ```
 
 ### Network Layer
@@ -216,7 +228,9 @@ private const val BASE_URL = if (USE_MOCK_API) {
 activity_menu.xml
 ├── LinearLayout (vertical)
 ├── cdMenu1 (CardView) → MainActivity
-└── cdMenu2 (CardView) → LaporanActivity
+├── cdMenu2 (CardView) → LaporanActivity
+├── cdMenu3 (CardView) → CommunicationActivity
+└── cdMenu4 (CardView) → PaymentActivity
 
 activity_main.xml
 ├── RecyclerView
