@@ -103,34 +103,10 @@ class MainActivity : BaseActivity() {
                  )
              }
          })
-     }
- }
-        
-        val columnCount = when {
-            isTablet && isLandscape -> 3
-            isTablet -> 2
-            isLandscape -> 2
-            else -> 1
-        }
-        
-        binding.rvUsers.layoutManager = when (columnCount) {
-            1 -> LinearLayoutManager(this)
-            else -> GridLayoutManager(this, columnCount)
-        }
-        
-        binding.rvUsers.setHasFixedSize(true)
-        binding.rvUsers.setItemViewCacheSize(20)
-        binding.rvUsers.focusable = true
-        binding.rvUsers.focusableInTouchMode = true
-        binding.rvUsers.adapter = adapter
-        setupRecyclerViewKeyboardNavigation()
-        
-        setupSwipeRefresh()
-         observeUserState()
-         viewModel.loadUsers()
-     }
-     
-      private fun setupSwipeRefresh() {
+      }
+  }
+
+  private fun setupSwipeRefresh() {
           binding.swipeRefreshLayout.setOnRefreshListener {
               viewModel.loadUsers()
           }
