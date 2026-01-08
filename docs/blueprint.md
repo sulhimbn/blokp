@@ -325,7 +325,9 @@ app/
  │       └── [Other adapters...]
 ├── core/
 │   └── base/
-│       └── BaseActivity.kt ✅ (retry logic, error handling)
+│       ├── BaseActivity.kt ✅ (retry logic, error handling)
+│       ├── BaseFragment.kt ✅ (RecyclerView setup, UiState observation - NEW 2026-01-08)
+│       └── BaseVendorFragment.kt ✅ (Vendor fragment specialization - NEW 2026-01-08)
  └── utils/
     ├── NetworkUtils.kt ✅ (connectivity checks)
     ├── InputSanitizer.kt ✅ (input sanitization)
@@ -386,7 +388,17 @@ app/
 - Eliminates code duplication
 - Standardizes user experience
 
-### 4. Separation of Concerns ✅
+### 4. BaseFragment ✅ (Module 82 - 2026-01-08)
+- **Unified RecyclerView Setup**: LinearLayoutManager, setHasFixedSize(true), setItemViewCacheSize(20)
+- **Centralized UiState Observation**: Loading/Success/Error handling with Toast messages
+- **Standardized ViewModel Initialization**: ViewModelProvider pattern with Factory support
+- **Template Method Pattern**: Abstract methods for customization (recyclerView, progressBar, adapter, etc.)
+- **Code Reduction**: 197 lines eliminated (37% reduction across 6 fragments)
+- **Improved Maintainability**: Single point of change for common fragment patterns
+- **Specialized BaseVendorFragment**: Handles nested VendorResponse data structure
+- **Refactored Fragments**: MessagesFragment, AnnouncementsFragment, CommunityFragment, VendorDatabaseFragment, VendorCommunicationFragment, WorkOrderManagementFragment
+
+### 5. Separation of Concerns ✅
 - **Activities**: UI interactions, navigation only
 - **ViewModels**: Business logic, state management
 - **Repositories**: Data fetching, caching, transformation
