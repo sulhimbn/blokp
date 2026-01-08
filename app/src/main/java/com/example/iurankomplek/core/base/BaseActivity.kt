@@ -20,6 +20,19 @@ import retrofit2.Response
 
 abstract class BaseActivity : AppCompatActivity() {
     private val errorHandler = ErrorHandler(this)
+    private val accessibilityManager by lazy {
+        getSystemService(android.view.accessibility.AccessibilityManager::class.java)
+    }
+
+    protected fun announceForAccessibility(text: String) {
+        if (accessibilityManager.isEnabled) {
+            window.decorView.announceForAccessibility(text)
+        }
+    }
+
+    protected fun isTouchExplorationEnabled(): Boolean {
+        return accessibilityManager.isTouchExplorationEnabled
+    }
 
     protected fun <T> executeWithRetry(
         maxRetries: Int = Constants.Network.MAX_RETRIES,

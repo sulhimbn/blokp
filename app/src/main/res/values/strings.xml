@@ -9,9 +9,17 @@
     <string name="communication_menu_content_description">Navigate to communication</string>
     <string name="payment_menu_content_description">Navigate to payments</string>
     <string name="loading_content_description">Loading data</string>
-    <string name="swipe_refresh_desc">Pull down to refresh the list</string>
+    <string name="swipe_refresh_desc">Pull down to refresh list</string>
     <string name="swipe_refreshing">Refreshing data</string>
     <string name="swipe_refresh_complete">Data refreshed</string>
+    <string name="item_selected">Item selected: %s</string>
+    <string name="item_focused">Item focused: %s</string>
+    <string name="screen_loaded">%s loaded</string>
+    <string name="screen_loading">Loading %s</string>
+    <string name="content_updated">Content updated</string>
+    <string name="network_connected">Network connected</string>
+    <string name="network_disconnected">Network disconnected</string>
+    <string name="error_occurred">Error occurred</string>
     
     <!-- User Data Messages -->
     <string name="no_users_available">No users available</string>
