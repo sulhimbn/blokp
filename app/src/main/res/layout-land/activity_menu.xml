@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_secondary"
+    android:paddingStart="@dimen/margin_lg"
+    android:paddingEnd="@dimen/margin_lg"
+    tools:context=".MenuActivity">
+
+    <!-- App Title (Top, centered) -->
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_lg"
+        android:fontFamily="@font/font"
+        android:text="IURAN KOMPLEK KONOHA"
+        android:textAlignment="center"
+        android:textColor="@color/accent_teal_dark"
+        android:textSize="@dimen/heading_h3"
+        android:textStyle="bold"
+        android:importantForAccessibility="yes"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Menu Items Container (Horizontal row for landscape) -->
+    <LinearLayout
+        android:id="@+id/menuContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        android:layout_marginTop="@dimen/spacing_xl"
+        android:layout_marginBottom="@dimen/spacing_lg"
+        android:gravity="center"
+        android:baselineAligned="false"
+        app:layout_constraintTop_toBottomOf="@id/textView1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Warga Menu Item -->
+        <LinearLayout
+            android:id="@+id/cdMenu1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginEnd="@dimen/spacing_md"
+            android:background="@drawable/bg_card_view_focused"
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_lg"
+            android:gravity="center"
+            android:importantForAccessibility="yes"
+            android:contentDescription="@string/profile_menu_content_description"
+            android:focusable="true"
+            android:clickable="true">
+
+            <ImageView
+                android:id="@+id/imageView1"
+                android:layout_width="@dimen/icon_xxl"
+                android:layout_height="@dimen/icon_xxl"
+                android:layout_marginBottom="@dimen/spacing_sm"
+                android:contentDescription="@string/profile_menu_content_description"
+                app:srcCompat="@drawable/profile" />
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font"
+                android:text="Warga"
+                android:textColor="@color/accent_teal_dark"
+                android:textSize="@dimen/text_size_normal"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Laporan Menu Item -->
+        <LinearLayout
+            android:id="@+id/cdMenu2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/spacing_sm"
+            android:layout_marginEnd="@dimen/spacing_sm"
+            android:background="@drawable/bg_card_view_focused"
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_lg"
+            android:gravity="center"
+            android:importantForAccessibility="yes"
+            android:contentDescription="@string/report_menu_content_description"
+            android:focusable="true"
+            android:clickable="true">
+
+            <ImageView
+                android:id="@+id/imageView2"
+                android:layout_width="@dimen/icon_xxl"
+                android:layout_height="@dimen/icon_xxl"
+                android:layout_marginBottom="@dimen/spacing_sm"
+                android:contentDescription="@string/report_menu_content_description"
+                app:srcCompat="@drawable/kas" />
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font"
+                android:text="Laporan"
+                android:textColor="@color/accent_teal_dark"
+                android:textSize="@dimen/text_size_normal"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Komunikasi Menu Item -->
+        <LinearLayout
+            android:id="@+id/cdMenu3"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/spacing_sm"
+            android:layout_marginEnd="@dimen/spacing_sm"
+            android:background="@drawable/bg_card_view_focused"
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_lg"
+            android:gravity="center"
+            android:importantForAccessibility="yes"
+            android:contentDescription="@string/communication_menu_content_description"
+            android:focusable="true"
+            android:clickable="true">
+
+            <ImageView
+                android:id="@+id/imageView3"
+                android:layout_width="@dimen/icon_xxl"
+                android:layout_height="@dimen/icon_xxl"
+                android:layout_marginBottom="@dimen/spacing_sm"
+                android:contentDescription="@string/communication_menu_content_description"
+                app:srcCompat="@drawable/profile" />
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font"
+                android:text="Komunikasi"
+                android:textColor="@color/accent_teal_dark"
+                android:textSize="@dimen/text_size_normal"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Pembayaran Menu Item -->
+        <LinearLayout
+            android:id="@+id/cdMenu4"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:background="@drawable/bg_card_view_focused"
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_lg"
+            android:gravity="center"
+            android:importantForAccessibility="yes"
+            android:contentDescription="@string/payment_menu_content_description"
+            android:focusable="true"
+            android:clickable="true">
+
+            <ImageView
+                android:id="@+id/imageView4"
+                android:layout_width="@dimen/icon_xxl"
+                android:layout_height="@dimen/icon_xxl"
+                android:layout_marginBottom="@dimen/spacing_sm"
+                android:contentDescription="@string/payment_menu_content_description"
+                app:srcCompat="@drawable/kas" />
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font"
+                android:text="Pembayaran"
+                android:textColor="@color/accent_teal_dark"
+                android:textSize="@dimen/text_size_normal"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

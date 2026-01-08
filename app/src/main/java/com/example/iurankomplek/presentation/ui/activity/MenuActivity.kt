@@ -3,8 +3,6 @@ package com.example.iurankomplek.presentation.ui.activity
 import com.example.iurankomplek.core.base.BaseActivity
 import android.content.Intent
 import android.os.Bundle
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import com.example.iurankomplek.databinding.ActivityMenuBinding
 
 class MenuActivity : BaseActivity() {
@@ -15,15 +13,7 @@ class MenuActivity : BaseActivity() {
         binding = ActivityMenuBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupFullscreenMode()
         setupClickListeners()
-    }
-
-    private fun setupFullscreenMode() {
-        WindowInsetsControllerCompat(window, window.decorView).let { controller ->
-            controller.hide(WindowInsetsCompat.Type.statusBars())
-            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        }
     }
 
     private fun setupClickListeners() {
