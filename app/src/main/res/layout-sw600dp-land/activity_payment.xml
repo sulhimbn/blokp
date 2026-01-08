@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingStart="@dimen/padding_xxl"
+    android:paddingEnd="@dimen/padding_xxl"
+    android:paddingTop="@dimen/padding_xxl"
+    android:paddingBottom="@dimen/padding_xxl"
+    tools:context=".PaymentActivity">
+
+    <!-- Left Panel: Title -->
+    <TextView
+        android:id="@+id/tv_payment_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/payment_title"
+        android:textSize="@dimen/heading_h3"
+        android:textStyle="bold"
+        android:gravity="start"
+        android:textColor="@color/text_primary"
+        android:contentDescription="@string/payment_title_desc"
+        android:layout_marginBottom="@dimen/margin_lg"
+        android:importantForAccessibility="yes"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/til_amount"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/progress_bar"
+        app:layout_constraintWidth_percent="0.5" />
+
+    <!-- Centered Content Panel -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/tv_payment_title"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/progress_bar"
+        app:layout_constraintWidth_percent="0.5">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_amount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/margin_lg"
+            android:hint="@string/payment_amount_hint"
+            android:minHeight="@dimen/button_height_max"
+            app:boxCornerRadiusBottomEnd="@dimen/radius_lg"
+            app:boxCornerRadiusBottomStart="@dimen/radius_lg"
+            app:boxCornerRadiusTopEnd="@dimen/radius_lg"
+            app:boxCornerRadiusTopStart="@dimen/radius_lg"
+            app:helperText="@string/payment_amount_helper"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_amount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:minHeight="@dimen/button_height_max"
+                android:textSize="@dimen/text_size_large"
+                android:importantForAccessibility="yes"
+                android:contentDescription="@string/payment_amount_input_desc"
+                android:labelFor="@id/til_amount" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/tv_payment_method_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/payment_method_label"
+            android:textSize="@dimen/text_size_large"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold"
+            android:layout_marginBottom="@dimen/spacing_md"
+            android:labelFor="@id/spinner_payment_method"
+            app:layout_constraintTop_toBottomOf="@id/til_amount"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <Spinner
+            android:id="@+id/spinner_payment_method"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/button_height_max"
+            android:layout_marginBottom="@dimen/margin_xl"
+            android:entries="@array/payment_methods"
+            android:importantForAccessibility="yes"
+            android:contentDescription="@string/payment_method_spinner_desc"
+            app:layout_constraintTop_toBottomOf="@id/tv_payment_method_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <Button
+            android:id="@+id/btn_pay"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/payment_pay_now"
+            android:textSize="@dimen/text_size_large"
+            android:minHeight="@dimen/button_height_max"
+            android:layout_marginBottom="@dimen/margin_lg"
+            android:backgroundTint="@color/primary"
+            android:contentDescription="@string/payment_pay_now_desc"
+            android:importantForAccessibility="yes"
+            app:layout_constraintTop_toBottomOf="@id/spinner_payment_method"
+            app:layout_constraintBottom_toTopOf="@id/btn_view_history"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <Button
+            android:id="@+id/btn_view_history"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/payment_view_history"
+            android:textSize="@dimen/text_size_large"
+            android:minHeight="@dimen/button_height_max"
+            android:backgroundTint="@color/secondary"
+            android:contentDescription="@string/payment_view_history_desc"
+            android:importantForAccessibility="yes"
+            app:layout_constraintTop_toBottomOf="@id/btn_pay"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Right Panel: Processing Status -->
+    <LinearLayout
+        android:id="@+id/progress_bar"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="@dimen/padding_xl"
+        android:background="@drawable/bg_card_view_focused"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tv_payment_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_percent="0.5">
+
+        <ProgressBar
+            android:id="@+id/progress_bar_view"
+            android:layout_width="@dimen/icon_xxl"
+            android:layout_height="@dimen/icon_xxl"
+            android:layout_marginBottom="@dimen/spacing_lg"
+            android:importantForAccessibility="yes"
+            android:contentDescription="@string/payment_processing" />
+
+        <TextView
+            android:id="@+id/tv_status_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/payment_processing"
+            android:textSize="@dimen/text_size_normal"
+            android:textAlignment="center"
+            android:textColor="@color/text_primary"
+            android:importantForAccessibility="yes" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

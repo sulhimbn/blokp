@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_secondary"
+    tools:context=".LaporanActivity">
+
+     <!-- Header Title -->
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/laporan_activity_title"
+        android:fontFamily="@font/font"
+        android:textSize="@dimen/heading_h3"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:paddingStart="@dimen/padding_xl"
+        android:paddingTop="@dimen/padding_xl"
+        android:paddingEnd="@dimen/padding_xl"
+        android:paddingBottom="@dimen/padding_xl"
+        android:background="@color/accent_green"
+        android:textColor="@color/text_on_primary"
+        android:importantForAccessibility="yes"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- SwipeRefreshLayout for pull-to-refresh -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:importantForAccessibility="yes"
+        android:contentDescription="@string/swipe_refresh_desc"
+        android:accessibilityLiveRegion="polite"
+        app:layout_constraintTop_toBottomOf="@id/textView1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- Left Panel: Summary (30% width) -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.3"
+                    android:paddingStart="@dimen/padding_xl"
+                    android:paddingTop="@dimen/padding_md"
+                    android:paddingEnd="@dimen/padding_lg">
+
+                    <!-- Summary RecyclerView (vertical list) -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_summary"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:clipToPadding="false"
+                        android:importantForAccessibility="yes"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        tools:listitem="@layout/item_laporan" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <!-- Right Panel: Pemanfaatan Details (70% width) -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.7"
+                    android:paddingStart="@dimen/padding_lg"
+                    android:paddingTop="@dimen/padding_md"
+                    android:paddingEnd="@dimen/padding_xl"
+                    android:paddingBottom="@dimen/padding_xl">
+
+                    <!-- TextView for Pemanfaatan title -->
+                    <TextView
+                        android:id="@+id/pemanfaatanTextView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/pemanfaatan_title"
+                        android:fontFamily="@font/font"
+                        android:textSize="@dimen/text_size_large"
+                        android:paddingBottom="@dimen/spacing_md"
+                        android:textStyle="bold"
+                        android:gravity="start"
+                        android:importantForAccessibility="yes"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <!-- State Management Include -->
+                    <include
+                        layout="@layout/include_state_management"
+                        app:layout_constraintTop_toBottomOf="@id/pemanfaatanTextView" />
+
+                    <!-- RecyclerView for pemanfaatan details (four columns in landscape) -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_laporan"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:background="@color/accent_peach"
+                        android:fontFamily="@font/font"
+                        android:padding="@dimen/spacing_xs"
+                        android:clipToPadding="false"
+                        android:importantForAccessibility="yes"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/pemanfaatanTextView"
+                        tools:listitem="@layout/item_pemanfaatan" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
