@@ -102,7 +102,7 @@ class MainActivity : BaseActivity() {
                      onRetry = { viewModel.loadUsers() }
                  )
              }
-         })
+          })
       }
   }
 
