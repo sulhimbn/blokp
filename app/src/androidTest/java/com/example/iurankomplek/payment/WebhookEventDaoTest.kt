@@ -5,7 +5,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -41,7 +41,7 @@ class WebhookEventDaoTest {
     }
 
     @Test
-    fun insert_shouldInsertWebhookEvent() = runTest {
+    fun insert_shouldInsertWebhookEvent() = runBlocking {
         val event = WebhookEvent(
             idempotencyKey = "whk_1",
             eventType = "payment.success",
@@ -56,7 +56,7 @@ class WebhookEventDaoTest {
     }
 
     @Test
-    fun insertIgnoreConflict_shouldNotDuplicateIdempotencyKey() = runTest {
+    fun insertIgnoreConflict_shouldNotDuplicateIdempotencyKey() = runBlocking {
         val event1 = WebhookEvent(
             idempotencyKey = "whk_1",
             eventType = "payment.success",
@@ -81,7 +81,7 @@ class WebhookEventDaoTest {
     }
 
     @Test
-    fun getEventById_shouldReturnCorrectEvent() = runTest {
+    fun getEventById_shouldReturnCorrectEvent() = runBlocking {
         val event = WebhookEvent(
             idempotencyKey = "whk_1",
             eventType = "payment.success",
@@ -99,7 +99,7 @@ class WebhookEventDaoTest {
     }
 
     @Test
-    fun getEventByIdempotencyKey_shouldReturnCorrectEvent() = runTest {
+    fun getEventByIdempotencyKey_shouldReturnCorrectEvent() = runBlocking {
         val event = WebhookEvent(
             idempotencyKey = "whk_1",
             eventType = "payment.success",
@@ -116,14 +116,14 @@ class WebhookEventDaoTest {
     }
 
     @Test
-    fun getEventByIdempotencyKey_shouldReturnNullForNonExistentKey() = runTest {
+    fun getEventByIdempotencyKey_shouldReturnNullForNonExistentKey() = runBlocking {
         val retrieved = webhookEventDao.getEventByIdempotencyKey("whk_nonexistent")
         
         assertNull(retrieved, "Should return null for non-existent key")
     }
 
     @Test
-    fun getPendingEventsByStatus_shouldReturnPendingEvents() = runTest {
+    fun getPendingEventsByStatus_shouldReturnPendingEvents() = runBlocking {
         val event1 = WebhookEvent(
             idempotencyKey = "whk_1",
             eventType = "payment.success",
@@ -155,7 +155,7 @@ class WebhookEventDaoTest {
     }
 
     @Test
-    fun updateStatus_shouldUpdateEventStatus() = runTest {
+    fun updateStatus_shouldUpdateEventStatus() = runBlocking {
         val event = WebhookEvent(
             idempotencyKey = "whk_1",
             eventType = "payment.success",
@@ -172,7 +172,7 @@ class WebhookEventDaoTest {
     }
 
     @Test
-    fun updateRetryInfo_shouldUpdateRetryCountAndNextRetry() = runTest {
+    fun updateRetryInfo_shouldUpdateRetryCountAndNextRetry() = runBlocking {
         val event = WebhookEvent(
             idempotencyKey = "whk_1",
             eventType = "payment.success",
@@ -199,7 +199,7 @@ class WebhookEventDaoTest {
     }
 
     @Test
-    fun markAsDelivered_shouldUpdateDeliveryTimestamp() = runTest {
+    fun markAsDelivered_shouldUpdateDeliveryTimestamp() = runBlocking {
         val event = WebhookEvent(
             idempotencyKey = "whk_1",
             eventType = "payment.success",
@@ -217,7 +217,7 @@ class WebhookEventDaoTest {
     }
 
     @Test
-    fun markAsFailed_shouldUpdateStatusToFailed() = runTest {
+    fun markAsFailed_shouldUpdateStatusToFailed() = runBlocking {
         val event = WebhookEvent(
             idempotencyKey = "whk_1",
             eventType = "payment.success",
@@ -234,7 +234,7 @@ class WebhookEventDaoTest {
     }
 
     @Test
-    fun deleteEventsOlderThan_shouldDeleteOldEvents() = runTest {
+    fun deleteEventsOlderThan_shouldDeleteOldEvents() = runBlocking {
         val oldEvent = WebhookEvent(
             idempotencyKey = "whk_old",
             eventType = "payment.success",
@@ -265,7 +265,7 @@ class WebhookEventDaoTest {
     }
 
     @Test
-    fun countByStatus_shouldReturnCorrectCount() = runTest {
+    fun countByStatus_shouldReturnCorrectCount() = runBlocking {
         val event1 = WebhookEvent(
             idempotencyKey = "whk_1",
             eventType = "payment.success",
@@ -299,7 +299,7 @@ class WebhookEventDaoTest {
     }
 
     @Test
-    fun getEventsByTransactionId_shouldReturnEventsForTransaction() = runTest {
+    fun getEventsByTransactionId_shouldReturnEventsForTransaction() = runBlocking {
         val event1 = WebhookEvent(
             idempotencyKey = "whk_1",
             eventType = "payment.success",
@@ -333,7 +333,7 @@ class WebhookEventDaoTest {
     }
 
     @Test
-    fun getEventsByType_shouldReturnEventsByType() = runTest {
+    fun getEventsByType_shouldReturnEventsByType() = runBlocking {
         val event1 = WebhookEvent(
             idempotencyKey = "whk_1",
             eventType = "payment.success",
@@ -364,7 +364,7 @@ class WebhookEventDaoTest {
     }
 
     @Test
-    fun insertOrUpdate_shouldUpdateExistingEvent() = runTest {
+    fun insertOrUpdate_shouldUpdateExistingEvent() = runBlocking {
         val event1 = WebhookEvent(
             idempotencyKey = "whk_1",
             eventType = "payment.success",

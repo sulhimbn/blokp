@@ -82,6 +82,9 @@ dependencies {
     androidTestImplementation libs.androidx.test.runner
     androidTestImplementation libs.androidx.test.rules
     androidTestImplementation libs.mockwebserver
+    androidTestImplementation libs.room.testing
+    androidTestImplementation libs.kotlinx.coroutines.test
+    androidTestImplementation libs.arch.core.testing
     
     implementation libs.androidx.recyclerview
     implementation libs.swiperefreshlayout

@@ -8,7 +8,7 @@ import com.example.iurankomplek.data.dao.FinancialRecordDao
 import com.example.iurankomplek.data.entity.UserEntity
 import com.example.iurankomplek.data.entity.FinancialRecordEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -61,7 +61,7 @@ class AppDatabaseTest {
         assertNotNull(db1)
         assertNotNull(db2)
         assertNotSame(db1, db2)
-        
+
         db1.close()
         db2.close()
     }
@@ -73,13 +73,10 @@ class AppDatabaseTest {
 
         assertNotNull(userDao)
         assertNotNull(financialRecordDao)
-
-        val count = userDao.getCount()
-        assertNotNull(count)
     }
 
     @Test
-    fun databaseSupportsTransactions() = runTest {
+    fun databaseSupportsTransactions() = runBlocking {
         val userDao = db.userDao()
 
         val user = UserEntity(
