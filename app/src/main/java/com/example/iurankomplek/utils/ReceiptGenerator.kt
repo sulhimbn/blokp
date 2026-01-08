@@ -2,8 +2,9 @@ package com.example.iurankomplek.utils
 
 import com.example.iurankomplek.data.dto.Receipt
 import com.example.iurankomplek.data.entity.Transaction
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.UUID
 
 class ReceiptGenerator {
@@ -25,7 +26,8 @@ class ReceiptGenerator {
     }
 
     private fun generateReceiptNumber(): String {
-        val date = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)
+        val dateFormat = SimpleDateFormat("yyyyMMdd", Locale.US)
+        val date = dateFormat.format(Date())
         val random = kotlin.random.Random.nextInt(9999 - 1000 + 1) + 1000
         return "RCPT-$date-$random"
     }
