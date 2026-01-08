@@ -35,7 +35,7 @@ class PemanfaatanRepositoryImpl(
                         apiCall = { apiService.getPemanfaatan() },
                         maxRetries = maxRetries
                     )
-                }.getOrThrow()
+                }
             },
             isCacheFresh = { response ->
                 if (response.data.isNotEmpty()) {

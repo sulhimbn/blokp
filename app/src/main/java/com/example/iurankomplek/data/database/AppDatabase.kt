@@ -42,7 +42,7 @@ abstract class AppDatabase : RoomDatabase() {
                     "iuran_komplek_database"
                 )
                     .addCallback(DatabaseCallback(scope))
-                    .addMigrations(Migration1(), Migration1Down, Migration2, Migration2Down, Migration3, Migration3Down, Migration4, Migration4Down, Migration5, Migration5Down, Migration6, Migration6Down)
+                    .addMigrations(Migration1(), Migration1Down, Migration2, Migration2Down, Migration3, Migration3Down, Migration4, Migration4Down, Migration5, Migration5Down(), Migration6, Migration6Down)
                     .build()
                 INSTANCE = instance
                 instance

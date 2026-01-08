@@ -18,7 +18,7 @@ object TransactionConstraints {
     }
 
     object Constraints {
-        const val MAX_AMOUNT = java.math.BigDecimal("999999999.99")
+        val MAX_AMOUNT = java.math.BigDecimal("999999999.99")
         const val MAX_CURRENCY_LENGTH = 3
         const val MAX_DESCRIPTION_LENGTH = 500
         const val MAX_METADATA_LENGTH = 2000

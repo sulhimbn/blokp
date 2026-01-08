@@ -3,6 +3,7 @@ package com.example.iurankomplek.data.repository
 import com.example.iurankomplek.model.CommunityPost
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.network.model.NetworkError
+import com.example.iurankomplek.network.model.CreateCommunityPostRequest
 import com.example.iurankomplek.network.resilience.CircuitBreaker
 import com.example.iurankomplek.network.resilience.CircuitBreakerResult
 import kotlinx.coroutines.delay
@@ -29,8 +30,14 @@ class CommunityPostRepositoryImpl(
         content: String,
         category: String
     ): Result<CommunityPost> {
+        val request = CreateCommunityPostRequest(
+            authorId = authorId,
+            title = title,
+            content = content,
+            category = category
+        )
         return executeWithCircuitBreaker {
-            apiService.createCommunityPost(authorId, title, content, category)
+            apiService.createCommunityPost(request)
         }
     }
 

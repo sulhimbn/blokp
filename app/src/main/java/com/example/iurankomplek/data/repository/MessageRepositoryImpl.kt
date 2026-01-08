@@ -3,6 +3,7 @@ package com.example.iurankomplek.data.repository
 import com.example.iurankomplek.model.Message
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.network.model.NetworkError
+import com.example.iurankomplek.network.model.SendMessageRequest
 import com.example.iurankomplek.network.resilience.CircuitBreaker
 import com.example.iurankomplek.network.resilience.CircuitBreakerResult
 import kotlinx.coroutines.delay
@@ -34,7 +35,12 @@ class MessageRepositoryImpl(
     }
 
     override suspend fun sendMessage(senderId: String, receiverId: String, content: String): Result<Message> {
-        return executeWithCircuitBreaker { apiService.sendMessage(senderId, receiverId, content) }
+        val request = SendMessageRequest(
+            senderId = senderId,
+            receiverId = receiverId,
+            content = content
+        )
+        return executeWithCircuitBreaker { apiService.sendMessage(request) }
     }
 
     override suspend fun getCachedMessages(userId: String): Result<List<Message>> {

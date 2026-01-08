@@ -1,8 +1,6 @@
 package com.example.iurankomplek.data.constraints
 
-object DatabaseConstraints {
-    val Users = UserConstraints
-    val FinancialRecords = FinancialRecordConstraints
-    val Transactions = TransactionConstraints
-    val ValidationRules = ValidationRules
-}
+typealias Users = UserConstraints
+typealias FinancialRecords = FinancialRecordConstraints
+typealias Transactions = TransactionConstraints
+typealias ValidationRulesType = ValidationRules
