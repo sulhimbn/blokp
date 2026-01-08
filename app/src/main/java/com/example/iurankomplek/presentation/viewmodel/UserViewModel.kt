@@ -3,7 +3,7 @@ package com.example.iurankomplek.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.iurankomplek.data.repository.UserRepository
+import com.example.iurankomplek.domain.usecase.LoadUsersUseCase
 import com.example.iurankomplek.data.api.models.UserResponse
 import com.example.iurankomplek.utils.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class UserViewModel(
-    private val userRepository: UserRepository
+    private val loadUsersUseCase: LoadUsersUseCase
 ) : ViewModel() {
     
     private val _usersState = MutableStateFlow<UiState<UserResponse>>(UiState.Loading)
@@ -22,7 +22,7 @@ class UserViewModel(
         
         viewModelScope.launch {
             _usersState.value = UiState.Loading
-            userRepository.getUsers()
+            loadUsersUseCase()
                 .onSuccess { response ->
                     _usersState.value = UiState.Success(response)
                 }
@@ -32,11 +32,11 @@ class UserViewModel(
         }
     }
     
-    class Factory(private val userRepository: UserRepository) : ViewModelProvider.Factory {
+    class Factory(private val loadUsersUseCase: LoadUsersUseCase) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(UserViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return UserViewModel(userRepository) as T
+                return UserViewModel(loadUsersUseCase) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

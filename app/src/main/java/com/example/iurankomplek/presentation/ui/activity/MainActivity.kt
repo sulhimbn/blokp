@@ -26,9 +26,10 @@ class MainActivity : BaseActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         
-        // Initialize ViewModel with repository
+        // Initialize ViewModel with use case
         val userRepository = UserRepositoryFactory.getInstance()
-        viewModel = ViewModelProvider(this, UserViewModel.Factory(userRepository))[UserViewModel::class.java]
+        val loadUsersUseCase = com.example.iurankomplek.domain.usecase.LoadUsersUseCase(userRepository)
+        viewModel = ViewModelProvider(this, UserViewModel.Factory(loadUsersUseCase))[UserViewModel::class.java]
         
         adapter = UserAdapter()
         binding.rvUsers.layoutManager = LinearLayoutManager(this)

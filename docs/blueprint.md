@@ -86,7 +86,7 @@ The domain layer represents business entities and use cases, independent of any 
 
 ### Implementation Status ✅
 - **domain/model/**: Pure domain models (business entities) ✅ IMPLEMENTED
-- **domain/usecase/**: Use cases for business logic (PLANNED)
+- **domain/usecase/**: Use cases for business logic ✅ IMPLEMENTED (Module 62 - 2026-01-08)
 
 ### Current Domain Models ✅
 1. **User.kt** - Domain model for user business entity
@@ -100,6 +100,35 @@ The domain layer represents business entities and use cases, independent of any 
    - Contains validation and business logic
    - Used for business operations, independent of data persistence
    - Mapped to/from FinancialRecordEntity via DomainMapper
+
+### Current Use Cases ✅ (Module 62 - 2026-01-08)
+1. **CalculateFinancialTotalsUseCase.kt** - Calculates financial totals from DataItem list
+   - Extracted from FinancialCalculator utility
+   - Encapsulates business logic for financial calculations
+   - Calculates: totalIuranBulanan, totalPengeluaran, totalIuranIndividu, rekapIuran
+   - Validates data before calculation
+   - Prevents arithmetic overflow/underflow
+   - Returns immutable FinancialTotals result object
+
+2. **ValidateFinancialDataUseCase.kt** - Validates financial data
+   - Extracted from FinancialCalculator utility
+   - Validates single DataItem or list of DataItems
+   - Validates all financial calculations (test calculations)
+   - Returns boolean validation results
+   - Throws IllegalArgumentException with detailed error messages
+
+3. **LoadUsersUseCase.kt** - Loads users from repository
+   - Encapsulates user loading business logic
+   - Wrapper around UserRepository with business rules
+   - Supports forceRefresh parameter for cache bypass
+   - Returns Result<UserResponse> for error handling
+
+4. **LoadFinancialDataUseCase.kt** - Loads financial data from repository
+   - Encapsulates financial data loading business logic
+   - Wrapper around PemanfaatanRepository with business rules
+   - Supports forceRefresh parameter for cache bypass
+   - Includes validateFinancialData() method for data validation
+   - Returns Result<PemanfaatanResponse> for error handling
 
 ### Domain Mapper ✅
 - **DomainMapper.kt** - Converts between domain models and data entities
@@ -248,11 +277,15 @@ app/
  │   │   │       ├── PaginationMetadata.kt ✅ NEW (2026-01-08)
  │   │   │       ├── ApiErrorResponse.kt ✅ NEW (2026-01-08)
  │   │   │       └── ApiErrorDetail.kt ✅ NEW (2026-01-08)
- ├── domain/
- │   ├── model/ ✅ NEW (2026-01-08)
- │   │   ├── User.kt ✅ (Domain model - business entity)
- │   │   └── FinancialRecord.kt ✅ (Domain model - business entity)
- │   └── usecase/ 📝 (Planned - future use case implementations)
+  ├── domain/
+  │   ├── model/ ✅ NEW (2026-01-08)
+  │   │   ├── User.kt ✅ (Domain model - business entity)
+  │   │   └── FinancialRecord.kt ✅ (Domain model - business entity)
+  │   └── usecase/ ✅ NEW (2026-01-08 - Module 62)
+  │       ├── CalculateFinancialTotalsUseCase.kt ✅ (Financial calculations)
+  │       ├── ValidateFinancialDataUseCase.kt ✅ (Data validation)
+  │       ├── LoadUsersUseCase.kt ✅ (User loading logic)
+  │       └── LoadFinancialDataUseCase.kt ✅ (Financial data loading logic)
  ├── presentation/
  │   ├── ui/
  │   │   ├── MainActivity.kt ✅ (extends BaseActivity)
@@ -294,10 +327,12 @@ app/
 
 ### Current Implementation
 1. **Presentation** → Depends on **ViewModels**
-2. **ViewModels** → Depends on **Repositories**
-3. **Repositories** → Depend on **Network Layer**
-4. **Network Layer** → Has NO dependencies on upper layers ✅
-5. **Utilities** → Shared across all layers ✅
+2. **ViewModels** → Depends on **Use Cases** (NEW - Module 62)
+3. **Use Cases** → Depend on **Repositories** (NEW - Module 62)
+4. **Repositories** → Depend on **Network Layer**
+5. **Network Layer** → Has NO dependencies on upper layers ✅
+6. **Domain Models** → Pure business entities (no dependencies)
+7. **Utilities** → Shared across all layers ✅
 
 ### Anti-Patterns Avoided ✅
 - ✅ No circular dependencies
@@ -347,6 +382,7 @@ app/
 - ✅ Repository Pattern - Data abstraction
 - ✅ ViewModel Pattern - UI logic separation
 - ✅ Factory Pattern - ViewModel instantiation
+- ✅ Use Case Pattern - Business logic encapsulation (NEW - Module 62)
 - ✅ Observer Pattern - StateFlow/LiveData
 - ✅ Adapter Pattern - RecyclerView adapters
 - ✅ Singleton Pattern - Configuration objects
@@ -363,7 +399,8 @@ app/
 ### Single Responsibility Principle ✅
 - Each class has one clear responsibility
 - Activities: UI handling
-- ViewModels: Business logic
+- ViewModels: State management and presentation logic
+- Use Cases: Business logic (NEW - Module 62)
 - Repositories: Data management
 - Utilities: Specific functions
 

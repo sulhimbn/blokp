@@ -43,9 +43,10 @@ class LaporanActivity : BaseActivity() {
         // Initialize transaction repository for payment integration
         initializeTransactionRepository()
 
-        // Initialize ViewModel with repository
+        // Initialize ViewModel with use case
         val pemanfaatanRepository = PemanfaatanRepositoryFactory.getInstance()
-        viewModel = ViewModelProvider(this, FinancialViewModel.Factory(pemanfaatanRepository))[FinancialViewModel::class.java]
+        val loadFinancialDataUseCase = com.example.iurankomplek.domain.usecase.LoadFinancialDataUseCase(pemanfaatanRepository)
+        viewModel = ViewModelProvider(this, FinancialViewModel.Factory(loadFinancialDataUseCase))[FinancialViewModel::class.java]
 
         adapter = PemanfaatanAdapter()
         summaryAdapter = LaporanSummaryAdapter()
@@ -133,24 +134,22 @@ class LaporanActivity : BaseActivity() {
     
     private fun calculateAndSetSummary(dataArray: List<com.example.iurankomplek.model.DataItem>) {
         try {
-            val calculator = com.example.iurankomplek.utils.FinancialCalculator
+            val validateUseCase = com.example.iurankomplek.domain.usecase.ValidateFinancialDataUseCase()
+            val calculateTotalsUseCase = com.example.iurankomplek.domain.usecase.CalculateFinancialTotalsUseCase()
 
-            if (!calculator.validateFinancialCalculations(dataArray)) {
+            if (!validateUseCase.validateCalculations(dataArray)) {
                 Toast.makeText(this, getString(R.string.invalid_financial_data_detected), Toast.LENGTH_LONG).show()
                 return
             }
 
-            val totalIuranBulanan = calculator.calculateTotalIuranBulanan(dataArray)
-            val totalPengeluaran = calculator.calculateTotalPengeluaran(dataArray)
-            val totalIuranIndividu = calculator.calculateTotalIuranIndividu(dataArray)
-            val rekapIuran = calculator.calculateRekapIuran(dataArray)
+            val totals = calculateTotalsUseCase(dataArray)
 
-            summaryAdapter.setItems(createSummaryItems(totalIuranBulanan, totalPengeluaran, rekapIuran))
+            summaryAdapter.setItems(createSummaryItems(totals.totalIuranBulanan, totals.totalPengeluaran, totals.rekapIuran))
 
             integratePaymentTransactions(
-                totalIuranBulanan,
-                totalPengeluaran,
-                rekapIuran
+                totals.totalIuranBulanan,
+                totals.totalPengeluaran,
+                totals.rekapIuran
             )
         } catch (e: ArithmeticException) {
             Toast.makeText(this, getString(R.string.financial_calculation_overflow_error), Toast.LENGTH_LONG).show()

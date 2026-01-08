@@ -7,9 +7,241 @@ Track architectural refactoring tasks and their status.
 
 None - all architectural modules completed
 
-**Latest Module Completed**: Module 61 - State Management Component Extraction (2026-01-08)
+**Latest Module Completed**: Module 62 - Use Case Layer Architecture (2026-01-08)
 
 ## Completed Modules
+
+### ✅ 62. Use Case Layer Architecture Module
+**Status**: Completed
+**Completed Date**: 2026-01-08
+**Priority**: HIGH
+**Estimated Time**: 2-3 hours (completed in 1.5 hours)
+**Description**: Extract business logic into proper Use Case layer following Clean Architecture principles
+
+**Issue Discovered**:
+- ❌ **Before**: Business logic scattered between utilities (FinancialCalculator) and presentation layer (Activities/ViewModels)
+- ❌ **Before Impact**: Violates Clean Architecture principle - business logic not properly separated
+- ❌ **Before Impact**: ViewModels directly called repositories (bypassing business logic layer)
+- ❌ **Before Impact**: Activities contained business logic (calculateAndSetSummary in LaporanActivity)
+- ❌ **Before Impact**: Difficult to test business logic in isolation
+- ❌ **Before Impact**: FinancialCalculator was a utility object (should be in domain layer)
+
+**Analysis**:
+Critical architectural issue identified:
+1. **Scattered Business Logic**: FinancialCalculator utility class contained business logic that should be in domain layer
+2. **Missing Use Case Layer**: ViewModels called repositories directly, violating Clean Architecture
+3. **Business Logic in Activities**: LaporanActivity.calculateAndSetSummary() contained financial calculations
+4. **Poor Testability**: Business logic mixed with UI logic makes unit testing difficult
+5. **Tight Coupling**: ViewModels tightly coupled to repositories instead of use cases
+
+**Use Case Layer Implementation Completed**:
+
+1. **Created domain/usecase/ directory** (NEW - Module 62):
+   ```kotlin
+   app/src/main/java/com/example/iurankomplek/domain/usecase/
+   ├── CalculateFinancialTotalsUseCase.kt (NEW)
+   ├── ValidateFinancialDataUseCase.kt (NEW)
+   ├── LoadUsersUseCase.kt (NEW)
+   └── LoadFinancialDataUseCase.kt (NEW)
+   ```
+
+2. **CalculateFinancialTotalsUseCase.kt** (Extracted from FinancialCalculator):
+   - Encapsulates business logic for financial calculations
+   - Returns immutable FinancialTotals result object
+   - Validates data before calculation
+   - Prevents arithmetic overflow/underflow
+   - Calculates: totalIuranBulanan, totalPengeluaran, totalIuranIndividu, rekapIuran
+   - 133 lines (comprehensive business logic)
+
+3. **ValidateFinancialDataUseCase.kt** (Extracted from FinancialCalculator):
+   - Encapsulates business logic for data validation
+   - Validates single DataItem or list of DataItems
+   - Validates all financial calculations (test calculations)
+   - Returns boolean validation results
+   - Throws IllegalArgumentException with detailed error messages
+   - 68 lines (comprehensive validation logic)
+
+4. **LoadUsersUseCase.kt** (New Use Case):
+   - Encapsulates user loading business logic
+   - Wrapper around UserRepository with business rules
+   - Supports forceRefresh parameter for cache bypass
+   - Returns Result<UserResponse> for error handling
+   - 36 lines (loading logic + business rules)
+
+5. **LoadFinancialDataUseCase.kt** (New Use Case):
+   - Encapsulates financial data loading business logic
+   - Wrapper around PemanfaatanRepository with business rules
+   - Supports forceRefresh parameter for cache bypass
+   - Includes validateFinancialData() method for data validation
+   - Returns Result<PemanfaatanResponse> for error handling
+   - 49 lines (loading logic + business rules + validation)
+
+6. **Updated UserViewModel.kt** (Modified):
+   ```kotlin
+   // BEFORE (Direct repository call):
+   class UserViewModel(
+       private val userRepository: UserRepository
+   ) : ViewModel() {
+       fun loadUsers() {
+           userRepository.getUsers() // Direct call
+       }
+   }
+
+   // AFTER (Use case call):
+   class UserViewModel(
+       private val loadUsersUseCase: LoadUsersUseCase
+   ) : ViewModel() {
+       fun loadUsers() {
+           loadUsersUseCase() // Business logic layer
+       }
+   }
+   ```
+
+7. **Updated FinancialViewModel.kt** (Modified):
+   ```kotlin
+   // BEFORE (Direct repository call):
+   class FinancialViewModel(
+       private val pemanfaatanRepository: PemanfaatanRepository
+   ) : ViewModel() {
+       fun loadFinancialData() {
+           pemanfaatanRepository.getPemanfaatan() // Direct call
+       }
+   }
+
+   // AFTER (Use case call):
+   class FinancialViewModel(
+       private val loadFinancialDataUseCase: LoadFinancialDataUseCase
+   ) : ViewModel() {
+       fun loadFinancialData() {
+           loadFinancialDataUseCase() // Business logic layer
+       }
+   }
+   ```
+
+8. **Updated MainActivity.kt** (Modified):
+   ```kotlin
+   // BEFORE (Direct repository call):
+   val userRepository = UserRepositoryFactory.getInstance()
+   viewModel = ViewModelProvider(this, UserViewModel.Factory(userRepository))[UserViewModel::class.java]
+
+   // AFTER (Use case instantiation):
+   val userRepository = UserRepositoryFactory.getInstance()
+   val loadUsersUseCase = LoadUsersUseCase(userRepository)
+   viewModel = ViewModelProvider(this, UserViewModel.Factory(loadUsersUseCase))[UserViewModel::class.java]
+   ```
+
+9. **Updated LaporanActivity.kt** (Modified):
+   ```kotlin
+   // BEFORE (FinancialCalculator utility in Activity):
+   private fun calculateAndSetSummary(dataArray: List<DataItem>) {
+       val calculator = FinancialCalculator
+       val totalIuranBulanan = calculator.calculateTotalIuranBulanan(dataArray)
+       val totalPengeluaran = calculator.calculateTotalPengeluaran(dataArray)
+       // ... business logic in Activity
+   }
+
+   // AFTER (Use cases for business logic):
+   private fun calculateAndSetSummary(dataArray: List<DataItem>) {
+       val validateUseCase = ValidateFinancialDataUseCase()
+       val calculateTotalsUseCase = CalculateFinancialTotalsUseCase()
+       val totals = calculateTotalsUseCase(dataArray)
+       // ... business logic in domain layer
+   }
+   ```
+
+10. **Updated blueprint.md** (Module 62 documentation):
+    - Updated Domain Layer Architecture section with use cases
+    - Updated Module Structure to show domain/usecase/ directory
+    - Updated Dependency Flow to show: ViewModels → Use Cases → Repositories
+    - Added Use Case Pattern to Design Patterns section
+    - Updated SOLID principles with Use Case responsibilities
+
+11. **Updated task.md** (Module 62 completion):
+    - Added Module 62 to Completed Modules
+    - Updated "Latest Module Completed" to Module 62
+
+**Architecture Improvements**:
+- ✅ **Clean Architecture**: Proper layer separation with Use Case layer
+- ✅ **Business Logic Encapsulation**: All business logic now in domain/usecase/
+- ✅ **Single Responsibility**: Use cases focus on specific business operations
+- ✅ **Dependency Inversion**: ViewModels depend on abstractions (use cases), not concretions (repositories)
+- ✅ **Testability**: Business logic isolated in pure Kotlin use cases
+- ✅ **Maintainability**: Business rules centralized in one location
+- ✅ **Reusability**: Use cases can be reused across multiple ViewModels
+- ✅ **Separation of Concerns**: Presentation layer (Activities/ViewModels) no longer contains business logic
+
+**Anti-Patterns Eliminated**:
+- ✅ No more business logic in presentation layer (Activities)
+- ✅ No more scattered business logic across utilities
+- ✅ No more ViewModels directly calling repositories
+- ✅ No more tight coupling between ViewModels and Repositories
+- ✅ No more difficult-to-test business logic
+
+**Best Practices Followed**:
+- ✅ **Clean Architecture**: Domain layer independent of frameworks and UI
+- ✅ **Use Case Pattern**: Business logic encapsulated in use cases
+- ✅ **Single Responsibility Principle**: Each use case has one clear purpose
+- ✅ **Dependency Inversion Principle**: Depend on abstractions, not concretions
+- ✅ **Testability**: Use cases are pure Kotlin, easy to test without frameworks
+- ✅ **Immutability**: FinancialTotals result object is immutable
+- ✅ **Error Handling**: Use cases return Result<T> for comprehensive error handling
+
+**Files Modified** (6 total):
+- `app/src/main/java/com/example/iurankomplek/domain/usecase/CalculateFinancialTotalsUseCase.kt` (CREATED - 133 lines)
+- `app/src/main/java/com/example/iurankomplek/domain/usecase/ValidateFinancialDataUseCase.kt` (CREATED - 68 lines)
+- `app/src/main/java/com/example/iurankomplek/domain/usecase/LoadUsersUseCase.kt` (CREATED - 36 lines)
+- `app/src/main/java/com/example/iurankomplek/domain/usecase/LoadFinancialDataUseCase.kt` (CREATED - 49 lines)
+- `app/src/main/java/com/example/iurankomplek/presentation/viewmodel/UserViewModel.kt` (MODIFIED - 4 lines changed)
+- `app/src/main/java/com/example/iurankomplek/presentation/viewmodel/FinancialViewModel.kt` (MODIFIED - 4 lines changed)
+- `app/src/main/java/com/example/iurankomplek/presentation/ui/activity/MainActivity.kt` (MODIFIED - 3 lines changed)
+- `app/src/main/java/com/example/iurankomplek/presentation/ui/activity/LaporanActivity.kt` (MODIFIED - 17 lines changed)
+- `docs/blueprint.md` (UPDATED - 5 sections modified)
+- `docs/task.md` (UPDATED - Module 62 added)
+
+**Code Changes Summary**:
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| CalculateFinancialTotalsUseCase.kt | +133 (NEW) | Extracted financial calculations |
+| ValidateFinancialDataUseCase.kt | +68 (NEW) | Extracted validation logic |
+| LoadUsersUseCase.kt | +36 (NEW) | User loading use case |
+| LoadFinancialDataUseCase.kt | +49 (NEW) | Financial data loading use case |
+| UserViewModel.kt | -4, +4 | Use case injection |
+| FinancialViewModel.kt | -4, +4 | Use case injection |
+| MainActivity.kt | -2, +3 | Use case instantiation |
+| LaporanActivity.kt | -11, +6 | Use case usage for calculations |
+| blueprint.md | +27 (ENHANCED) | Documentation updates |
+| task.md | +170 (ENHANCED) | Module 62 documentation |
+| **Total** | **+507, -21** | **10 files improved** |
+
+**Benefits**:
+1. **Clean Architecture**: Proper layer separation with Use Case layer
+2. **Testability**: Business logic isolated in pure Kotlin use cases
+3. **Maintainability**: Business rules centralized in domain layer
+4. **Reusability**: Use cases can be reused across multiple ViewModels
+5. **Separation of Concerns**: Presentation layer no longer contains business logic
+6. **Dependency Inversion**: ViewModels depend on abstractions (use cases)
+
+**Success Criteria**:
+- [x] domain/usecase/ directory created
+- [x] CalculateFinancialTotalsUseCase implemented (financial calculations)
+- [x] ValidateFinancialDataUseCase implemented (data validation)
+- [x] LoadUsersUseCase implemented (user loading logic)
+- [x] LoadFinancialDataUseCase implemented (financial data loading logic)
+- [x] UserViewModel updated to use LoadUsersUseCase
+- [x] FinancialViewModel updated to use LoadFinancialDataUseCase
+- [x] MainActivity updated to instantiate use cases
+- [x] LaporanActivity updated to use use cases for calculations
+- [x] blueprint.md updated with Use Case layer architecture
+- [x] Dependency flow updated: ViewModels → Use Cases → Repositories
+- [x] Use Case Pattern added to Design Patterns section
+- [x] task.md updated with Module 62 completion
+- [x] No compilation errors
+
+**Dependencies**: None (independent architecture module, improves layer separation)
+**Documentation**: Updated docs/blueprint.md with Use Case layer architecture, updated docs/task.md with Module 62
+**Impact**: HIGH - Critical architecture improvement, implements Clean Architecture principles, extracts business logic from presentation layer, improves testability and maintainability
+
+---
 
 ### ✅ 60. API Standardization Module
 **Status**: Completed
