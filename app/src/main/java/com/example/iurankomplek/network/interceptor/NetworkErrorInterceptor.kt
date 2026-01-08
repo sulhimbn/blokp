@@ -1,5 +1,6 @@
 package com.example.iurankomplek.network.interceptor
 
+import com.example.iurankomplek.network.health.IntegrationHealthMonitor
 import com.example.iurankomplek.network.model.ApiErrorCode
 import com.example.iurankomplek.network.model.NetworkError
 import com.google.gson.Gson
@@ -15,22 +16,34 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import javax.net.ssl.SSLException
 import android.util.Log
+import kotlin.system.measureTimeMillis
 
 class NetworkErrorInterceptor(
     private val enableLogging: Boolean = false,
-    private val tag: String = "NetworkErrorInterceptor"
+    private val tag: String = "NetworkErrorInterceptor",
+    private val healthMonitor: IntegrationHealthMonitor? = null
 ) : Interceptor {
-    
+
     private val gson = Gson()
     private val charset: Charset = StandardCharsets.UTF_8
     
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest: Request = chain.request()
         val requestTag = originalRequest.tag(String::class.java) ?: "Unknown Request"
-        
+        val endpoint = originalRequest.url.encodedPath
+
         return try {
-            val response = chain.proceed(originalRequest)
-            
+            val (response, responseTime) = measureTimeMillis {
+                chain.proceed(originalRequest)
+            }
+
+            healthMonitor?.recordRequest(
+                endpoint = endpoint,
+                responseTimeMs = responseTime,
+                success = response.isSuccessful,
+                httpCode = response.code
+            )
+
             if (!response.isSuccessful) {
                 val error = parseErrorResponse(response, requestTag)
                 if (enableLogging) {
@@ -38,7 +51,7 @@ class NetworkErrorInterceptor(
                 }
                 throw error
             }
-            
+
             response
         } catch (e: SocketTimeoutException) {
             val error = NetworkError.TimeoutError(

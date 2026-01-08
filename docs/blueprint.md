@@ -709,38 +709,72 @@ Performance bottleneck identified in financial calculation algorithm:
 
 ### Integration Hardening Patterns ✅
 - ✅ **Circuit Breaker Pattern**: Prevents cascading failures by stopping calls to failing services
-   - Three states: Closed, Open, Half-Open
-   - Configurable failure threshold (default:3 failures)
-   - Configurable success threshold (default:2 successes)
-   - Configurable timeout (default: 60 seconds)
-   - Half-open state with max calls limit for graceful recovery
+    - Three states: Closed, Open, Half-Open
+    - Configurable failure threshold (default:3 failures)
+    - Configurable success threshold (default:2 successes)
+    - Configurable timeout (default: 60 seconds)
+    - Half-open state with max calls limit for graceful recovery
 - ✅ **Standardized Error Models**: Consistent error handling across all API calls
-   - NetworkError sealed class with typed error types
-   - ApiErrorCode enum for all error scenarios
-   - NetworkState wrapper for reactive UI states
-   - User-friendly error messages for each error type
+    - NetworkError sealed class with typed error types
+    - ApiErrorCode enum for all error scenarios
+    - NetworkState wrapper for reactive UI states
+    - User-friendly error messages for each error type
 - ✅ **Network Interceptors**: Modular request/response processing
-    - NetworkErrorInterceptor: Parses HTTP errors and converts to NetworkError
-    - RequestIdInterceptor: Adds unique request IDs for tracing
-    - RetryableRequestInterceptor: Marks safe-to-retry requests
+     - NetworkErrorInterceptor: Parses HTTP errors and converts to NetworkError
+     - RequestIdInterceptor: Adds unique request IDs for tracing
+     - RetryableRequestInterceptor: Marks safe-to-retry requests
 - ✅ **Rate Limiter Integration**: All API clients use shared RateLimiterInterceptor instance
-    - Single instance used across production and debug clients
-    - Monitoring and reset functions work correctly (critical bug fixed 2026-01-07)
-    - Prevents duplicate interceptor instances breaking observability
+     - Single instance used across production and debug clients
+     - Monitoring and reset functions work correctly (critical bug fixed 2026-01-07)
+     - Prevents duplicate interceptor instances breaking observability
 - ✅ **Repository-Level CircuitBreaker Integration**: All repositories use shared CircuitBreaker
-   - UserRepositoryImpl: CircuitBreaker-protected with retry logic
-   - PemanfaatanRepositoryImpl: CircuitBreaker-protected with retry logic
-   - VendorRepositoryImpl: CircuitBreaker-protected with retry logic
-   - Eliminates duplicate retry logic across repositories
-   - Centralized failure tracking and recovery
+    - UserRepositoryImpl: CircuitBreaker-protected with retry logic
+    - PemanfaatanRepositoryImpl: CircuitBreaker-protected with retry logic
+    - VendorRepositoryImpl: CircuitBreaker-protected with retry logic
+    - Eliminates duplicate retry logic across repositories
+    - Centralized failure tracking and recovery
 - ✅ **API Standardization** NEW (2026-01-08)
-   - **Legacy ApiService**: Updated to use request bodies instead of query parameters (non-breaking)
-   - **ApiServiceV1**: New fully standardized interface with `/api/v1` prefix
-   - **Standardized Request DTOs**: All create/update operations use request body objects
-   - **Standardized Response Wrappers**: ApiResponse<T> and ApiListResponse<T> for consistency
-   - **API Versioning Strategy**: Path-based versioning with backward compatibility
-   - **Migration Guide**: Comprehensive migration plan in docs/API_MIGRATION_GUIDE.md
-   - Documentation: docs/API_STANDARDIZATION.md (updated 2026-01-08)
+    - **Legacy ApiService**: Updated to use request bodies instead of query parameters (non-breaking)
+    - **ApiServiceV1**: New fully standardized interface with `/api/v1` prefix
+    - **Standardized Request DTOs**: All create/update operations use request body objects
+    - **Standardized Response Wrappers**: ApiResponse<T> and ApiListResponse<T> for consistency
+    - **API Versioning Strategy**: Path-based versioning with backward compatibility
+    - **Migration Guide**: Comprehensive migration plan in docs/API_MIGRATION_GUIDE.md
+    - Documentation: docs/API_STANDARDIZATION.md (updated 2026-01-08)
+- ✅ **Integration Health Monitoring** NEW (2026-01-08)
+    - **Real-Time Observability**: IntegrationHealthMonitor tracks system health in real-time
+    - **Health Status Types**: IntegrationHealthStatus sealed class with typed states
+      - Healthy: All systems operational
+      - Degraded: Reduced performance but operational
+      - Unhealthy: One or more components failed
+      - CircuitOpen: Circuit breaker tripped
+      - RateLimited: Rate limit threshold exceeded
+    - **Comprehensive Metrics**: IntegrationHealthMetrics tracks all integration aspects
+      - CircuitBreakerMetrics: State, failures, successes, timestamps
+      - RateLimiterMetrics: Request counts, violations, per-endpoint stats
+      - RequestMetrics: Response times, success rates, P95/P99 percentiles
+      - ErrorMetrics: Error distribution by type, HTTP codes
+    - **Health Scoring**: Calculates health score (0-100%) for quick assessment
+      - Circuit breaker state penalty (OPEN: -50%, HALF_OPEN: -25%)
+      - Rate limit violation penalty (-10% per violation, max -30%)
+      - Failure rate penalty (up to -40%)
+    - **Automatic Recording**: NetworkErrorInterceptor integration for automatic metrics collection
+      - Records request/response times
+      - Tracks success/failure rates
+      - Monitors HTTP error codes
+    - **Diagnostics**: Detailed health reports with recommendations
+      - Component health breakdown
+      - Circuit breaker and rate limiter statistics
+      - Actionable recommendations based on health state
+    - **Testing**: 31 test cases for health monitoring system
+      - IntegrationHealthMonitorTest: 13 tests
+      - IntegrationHealthStatusTest: 6 tests
+      - IntegrationHealthTrackerTest: 12 tests
+    - **Documentation**: Comprehensive guide in docs/INTEGRATION_HEALTH_MONITORING.md
+      - Usage examples
+      - Health scoring algorithm
+      - Alerting recommendations
+      - Troubleshooting guide
 
 ### Resilience Patterns Implemented ✅
 - ✅ **Exponential Backoff with Jitter**: Prevents thundering herd problem
