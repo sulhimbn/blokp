@@ -8,6 +8,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.Date
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 
 class IntegrationHealthMonitor(
     private val circuitBreaker: com.example.iurankomplek.network.resilience.CircuitBreaker =
@@ -197,9 +199,10 @@ class IntegrationHealthMonitor(
                 }
                 httpCode == 429 -> {
                     tracker.recordRateLimitError()
+                    val stats = ApiConfig.getRateLimiterStats()
                     componentHealth["rate_limiter"] = IntegrationHealthStatus.RateLimited(
                         endpoint = endpoint,
-                        requestCount = rateLimiterStats.values.sumOf { it.getRequestCount() },
+                        requestCount = stats.values.sumOf { it.getRequestCount() },
                         limitExceededAt = Date()
                     )
                 }
