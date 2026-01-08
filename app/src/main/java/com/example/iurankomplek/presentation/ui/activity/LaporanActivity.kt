@@ -92,9 +92,11 @@ class LaporanActivity : BaseActivity() {
 
                                // Calculate and set summary items with payment integration
                                calculateAndSetSummary(dataItems)
-                           } ?: Toast.makeText(this@LaporanActivity, getString(R.string.invalid_response_format), Toast.LENGTH_LONG).show()
-                     }
-                     is UiState.Error -> {
+                            } ?: run {
+                                Toast.makeText(this@LaporanActivity, getString(R.string.invalid_response_format), Toast.LENGTH_LONG).show()
+                            }
+                  }
+                      is UiState.Error -> {
                          binding.progressBar.visibility = View.GONE
                          binding.swipeRefreshLayout.isRefreshing = false
                          Toast.makeText(this@LaporanActivity, state.error, Toast.LENGTH_LONG).show()
