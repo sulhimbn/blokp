@@ -1,6 +1,6 @@
 package com.example.iurankomplek.domain.usecase
 
-import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.data.dto.LegacyDataItemDto
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -27,7 +27,7 @@ class CalculateFinancialSummaryUseCaseTest {
 
     @Test
     fun `invoke returns correct summary for single valid item`() {
-        val item = DataItem(
+        val item = LegacyDataItemDto(
             first_name = "John", last_name = "Doe", email = "john@example.com", alamat = "123 Main St",
             iuran_perwarga = 100000, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
             total_iuran_individu = 50000, pengeluaran_iuran_warga = 20000,
@@ -46,7 +46,7 @@ class CalculateFinancialSummaryUseCaseTest {
     @Test
     fun `invoke returns correct summary for multiple items`() {
         val items = listOf(
-            DataItem(
+            LegacyDataItemDto(
                 first_name = "John", last_name = "Doe", email = "john@example.com", alamat = "123 Main St",
                 iuran_perwarga = 100000, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
                 total_iuran_individu = 50000, pengeluaran_iuran_warga = 20000,
@@ -72,7 +72,7 @@ class CalculateFinancialSummaryUseCaseTest {
     @Test
     fun `invoke returns invalid summary when one item has negative iuran_perwarga`() {
         val items = listOf(
-            DataItem(
+            LegacyDataItemDto(
                 first_name = "Valid", last_name = "User", email = "valid@example.com", alamat = "x",
                 iuran_perwarga = 100000, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
                 total_iuran_individu = 50000, pengeluaran_iuran_warga = 20000,
@@ -100,7 +100,7 @@ class CalculateFinancialSummaryUseCaseTest {
     fun `invoke returns invalid summary when calculations would overflow`() {
         val maxInt = Int.MAX_VALUE
         val items = listOf(
-            DataItem(
+            LegacyDataItemDto(
                 first_name = "Overflow", last_name = "User", email = "overflow@example.com", alamat = "x",
                 iuran_perwarga = maxInt - 100000, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
                 total_iuran_individu = 0, pengeluaran_iuran_warga = 0,

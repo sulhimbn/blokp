@@ -2,7 +2,7 @@ package com.example.iurankomplek.domain.usecase
 
 import com.example.iurankomplek.data.api.models.PemanfaatanResponse
 import com.example.iurankomplek.data.repository.PemanfaatanRepository
-import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.data.dto.LegacyLegacyDataItemDtoDto
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Before
@@ -252,13 +252,13 @@ class LoadFinancialDataUseCaseTest {
     @Test
     fun `validateFinancialData returns true when all data items are valid`() = runTest {
         val validItems = listOf(
-            DataItem(
+            LegacyDataItemDto(
                 first_name = "John", last_name = "Doe", email = "john@example.com", alamat = "123 Main St",
                 iuran_perwarga = 100000, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
                 total_iuran_individu = 50000, pengeluaran_iuran_warga = 20000,
                 pemanfaatan_iuran = "Maintenance", avatar = "https://example.com/avatar1.jpg"
             ),
-            DataItem(
+            LegacyDataItemDto(
                 first_name = "Jane", last_name = "Smith", email = "jane@example.com", alamat = "456 Oak Ave",
                 iuran_perwarga = 150000, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
                 total_iuran_individu = 75000, pengeluaran_iuran_warga = 30000,
@@ -279,13 +279,13 @@ class LoadFinancialDataUseCaseTest {
     @Test
     fun `validateFinancialData returns false when one data item is invalid`() = runTest {
         val invalidItems = listOf(
-            DataItem(
+            LegacyDataItemDto(
                 first_name = "Valid", last_name = "User", email = "valid@example.com", alamat = "x",
                 iuran_perwarga = 100000, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
                 total_iuran_individu = 50000, pengeluaran_iuran_warga = 20000,
                 pemanfaatan_iuran = "x", avatar = "x"
             ),
-            DataItem(
+            LegacyDataItemDto(
                 first_name = "Invalid", last_name = "User", email = "invalid@example.com", alamat = "y",
                 iuran_perwarga = -1, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
                 total_iuran_individu = 50000, pengeluaran_iuran_warga = 20000,
@@ -307,13 +307,13 @@ class LoadFinancialDataUseCaseTest {
     fun `validateFinancialData returns false when calculations would overflow`() = runTest {
         val maxInt = Int.MAX_VALUE
         val overflowItems = listOf(
-            DataItem(
+            LegacyDataItemDto(
                 first_name = "Overflow", last_name = "User", email = "overflow@example.com", alamat = "x",
                 iuran_perwarga = maxInt - 100000, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
                 total_iuran_individu = 0, pengeluaran_iuran_warga = 0,
                 pemanfaatan_iuran = "x", avatar = "x"
             ),
-            DataItem(
+            LegacyDataItemDto(
                 first_name = "Overflow2", last_name = "User", email = "overflow2@example.com", alamat = "y",
                 iuran_perwarga = 200000, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
                 total_iuran_individu = 0, pengeluaran_iuran_warga = 0,
@@ -333,7 +333,7 @@ class LoadFinancialDataUseCaseTest {
 
     @Test
     fun `validateFinancialData returns true for boundary values`() = runTest {
-        val boundaryItem = DataItem(
+        val boundaryItem = LegacyDataItemDto(
             first_name = "Boundary", last_name = "Test", email = "boundary@example.com", alamat = "Boundary St",
             iuran_perwarga = Int.MAX_VALUE / 2, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
             total_iuran_individu = Int.MAX_VALUE / 3, pengeluaran_iuran_warga = Int.MAX_VALUE / 2,
@@ -352,7 +352,7 @@ class LoadFinancialDataUseCaseTest {
 
     @Test
     fun `validateFinancialData returns true for zero values`() = runTest {
-        val zeroItem = DataItem(
+        val zeroItem = LegacyDataItemDto(
             first_name = "Zero", last_name = "User", email = "zero@example.com", alamat = "Zero St",
             iuran_perwarga = 0, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
             total_iuran_individu = 0, pengeluaran_iuran_warga = 0,
@@ -377,7 +377,7 @@ class LoadFinancialDataUseCaseTest {
             status = "success",
             message = "Data retrieved",
             data = listOf(
-                DataItem(
+                LegacyDataItemDto(
                     first_name = "Valid", last_name = "User", email = "valid@example.com", alamat = "x",
                     iuran_perwarga = 100000, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
                     total_iuran_individu = 50000, pengeluaran_iuran_warga = 20000,

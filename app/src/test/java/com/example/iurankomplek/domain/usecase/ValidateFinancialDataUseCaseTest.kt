@@ -1,6 +1,6 @@
 package com.example.iurankomplek.domain.usecase
 
-import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.data.dto.LegacyLegacyDataItemDtoDto
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -15,8 +15,8 @@ class ValidateFinancialDataUseCaseTest {
     }
 
     @Test
-    fun `invoke returns true for valid DataItem`() {
-        val item = DataItem(
+    fun `invoke returns true for valid LegacyDataItemDto`() {
+        val item = LegacyDataItemDto(
             first_name = "John",
             last_name = "Doe",
             email = "john@example.com",
@@ -36,7 +36,7 @@ class ValidateFinancialDataUseCaseTest {
 
     @Test
     fun `invoke returns false when iuran_perwarga is negative`() {
-        val item = DataItem(
+        val item = LegacyDataItemDto(
             first_name = "Invalid",
             last_name = "User",
             email = "invalid@example.com",
@@ -56,7 +56,7 @@ class ValidateFinancialDataUseCaseTest {
 
     @Test
     fun `invoke returns false when pengeluaran_iuran_warga is negative`() {
-        val item = DataItem(
+        val item = LegacyDataItemDto(
             first_name = "Invalid",
             last_name = "User",
             email = "invalid@example.com",
@@ -76,7 +76,7 @@ class ValidateFinancialDataUseCaseTest {
 
     @Test
     fun `invoke returns false when total_iuran_individu is negative`() {
-        val item = DataItem(
+        val item = LegacyDataItemDto(
             first_name = "Invalid",
             last_name = "User",
             email = "invalid@example.com",
@@ -97,7 +97,7 @@ class ValidateFinancialDataUseCaseTest {
     @Test
     fun `invoke returns false when iuran_perwarga exceeds MAX_VALUE half`() {
         val maxInt = Int.MAX_VALUE / 2 + 1
-        val item = DataItem(
+        val item = LegacyDataItemDto(
             first_name = "Overflow",
             last_name = "User",
             email = "overflow@example.com",
@@ -118,7 +118,7 @@ class ValidateFinancialDataUseCaseTest {
     @Test
     fun `invoke returns false when pengeluaran_iuran_warga exceeds MAX_VALUE half`() {
         val maxInt = Int.MAX_VALUE / 2 + 1
-        val item = DataItem(
+        val item = LegacyDataItemDto(
             first_name = "Overflow",
             last_name = "User",
             email = "overflow@example.com",
@@ -139,7 +139,7 @@ class ValidateFinancialDataUseCaseTest {
     @Test
     fun `invoke returns false when total_iuran_individu exceeds MAX_VALUE third`() {
         val maxInt = Int.MAX_VALUE / 3 + 1
-        val item = DataItem(
+        val item = LegacyDataItemDto(
             first_name = "Overflow",
             last_name = "User",
             email = "overflow@example.com",
@@ -159,7 +159,7 @@ class ValidateFinancialDataUseCaseTest {
 
     @Test
     fun `invoke accepts zero values`() {
-        val item = DataItem(
+        val item = LegacyDataItemDto(
             first_name = "Zero",
             last_name = "User",
             email = "zero@example.com",
@@ -180,13 +180,13 @@ class ValidateFinancialDataUseCaseTest {
     @Test
     fun `validateAll returns true when all items are valid`() {
         val items = listOf(
-            DataItem(
+            LegacyDataItemDto(
                 first_name = "John", last_name = "Doe", email = "john@example.com", alamat = "123 Main St",
                 iuran_perwarga = 100000, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
                 total_iuran_individu = 50000, pengeluaran_iuran_warga = 20000,
                 pemanfaatan_iuran = "Maintenance", avatar = "https://example.com/avatar1.jpg"
             ),
-            DataItem(
+            LegacyDataItemDto(
                 first_name = "Jane", last_name = "Smith", email = "jane@example.com", alamat = "456 Oak Ave",
                 iuran_perwarga = 150000, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
                 total_iuran_individu = 75000, pengeluaran_iuran_warga = 30000,
@@ -201,13 +201,13 @@ class ValidateFinancialDataUseCaseTest {
     @Test
     fun `validateAll returns false when one item is invalid`() {
         val items = listOf(
-            DataItem(
+            LegacyDataItemDto(
                 first_name = "Valid", last_name = "User", email = "valid@example.com", alamat = "x",
                 iuran_perwarga = 100000, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
                 total_iuran_individu = 50000, pengeluaran_iuran_warga = 20000,
                 pemanfaatan_iuran = "x", avatar = "x"
             ),
-            DataItem(
+            LegacyDataItemDto(
                 first_name = "Invalid", last_name = "User", email = "invalid@example.com", alamat = "y",
                 iuran_perwarga = -1, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
                 total_iuran_individu = 50000, pengeluaran_iuran_warga = 20000,
@@ -227,7 +227,7 @@ class ValidateFinancialDataUseCaseTest {
 
     @Test
     fun `validateAll returns true for single valid item`() {
-        val item = DataItem(
+        val item = LegacyDataItemDto(
             first_name = "Single", last_name = "User", email = "single@example.com", alamat = "Single St",
             iuran_perwarga = 100000, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
             total_iuran_individu = 50000, pengeluaran_iuran_warga = 20000,
@@ -240,7 +240,7 @@ class ValidateFinancialDataUseCaseTest {
 
     @Test
     fun `validateAll returns false for single invalid item`() {
-        val item = DataItem(
+        val item = LegacyDataItemDto(
             first_name = "Invalid", last_name = "User", email = "invalid@example.com", alamat = "Invalid St",
             iuran_perwarga = -1, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
             total_iuran_individu = 50000, pengeluaran_iuran_warga = 20000,
@@ -254,13 +254,13 @@ class ValidateFinancialDataUseCaseTest {
     @Test
     fun `validateAll checks all items even if first is invalid`() {
         val items = listOf(
-            DataItem(
+            LegacyDataItemDto(
                 first_name = "Invalid1", last_name = "User", email = "invalid1@example.com", alamat = "x",
                 iuran_perwarga = -1, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
                 total_iuran_individu = 50000, pengeluaran_iuran_warga = 20000,
                 pemanfaatan_iuran = "x", avatar = "x"
             ),
-            DataItem(
+            LegacyDataItemDto(
                 first_name = "Invalid2", last_name = "User", email = "invalid2@example.com", alamat = "y",
                 iuran_perwarga = -2, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
                 total_iuran_individu = 50000, pengeluaran_iuran_warga = 20000,
@@ -275,7 +275,7 @@ class ValidateFinancialDataUseCaseTest {
     @Test
     fun `validateCalculations returns true when all items are valid and calculations succeed`() {
         val items = listOf(
-            DataItem(
+            LegacyDataItemDto(
                 first_name = "Valid", last_name = "User", email = "valid@example.com", alamat = "x",
                 iuran_perwarga = 100000, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
                 total_iuran_individu = 50000, pengeluaran_iuran_warga = 20000,
@@ -290,13 +290,13 @@ class ValidateFinancialDataUseCaseTest {
     @Test
     fun `validateCalculations returns false when one item is invalid`() {
         val items = listOf(
-            DataItem(
+            LegacyDataItemDto(
                 first_name = "Valid", last_name = "User", email = "valid@example.com", alamat = "x",
                 iuran_perwarga = 100000, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
                 total_iuran_individu = 50000, pengeluaran_iuran_warga = 20000,
                 pemanfaatan_iuran = "x", avatar = "x"
             ),
-            DataItem(
+            LegacyDataItemDto(
                 first_name = "Invalid", last_name = "User", email = "invalid@example.com", alamat = "y",
                 iuran_perwarga = -1, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
                 total_iuran_individu = 50000, pengeluaran_iuran_warga = 20000,
@@ -312,13 +312,13 @@ class ValidateFinancialDataUseCaseTest {
     fun `validateCalculations returns false when calculations would overflow`() {
         val maxInt = Int.MAX_VALUE
         val items = listOf(
-            DataItem(
+            LegacyDataItemDto(
                 first_name = "Overflow", last_name = "User", email = "overflow@example.com", alamat = "x",
                 iuran_perwarga = maxInt - 100000, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
                 total_iuran_individu = 0, pengeluaran_iuran_warga = 0,
                 pemanfaatan_iuran = "x", avatar = "x"
             ),
-            DataItem(
+            LegacyDataItemDto(
                 first_name = "Overflow2", last_name = "User", email = "overflow2@example.com", alamat = "y",
                 iuran_perwarga = 200000, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
                 total_iuran_individu = 0, pengeluaran_iuran_warga = 0,
@@ -338,7 +338,7 @@ class ValidateFinancialDataUseCaseTest {
 
     @Test
     fun `validateCalculations returns true for boundary values`() {
-        val item = DataItem(
+        val item = LegacyDataItemDto(
             first_name = "Boundary", last_name = "Test", email = "boundary@example.com", alamat = "Boundary St",
             iuran_perwarga = Int.MAX_VALUE / 2, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
             total_iuran_individu = Int.MAX_VALUE / 3, pengeluaran_iuran_warga = Int.MAX_VALUE / 2,
@@ -351,7 +351,7 @@ class ValidateFinancialDataUseCaseTest {
 
     @Test
     fun `invoke handles all zero boundary values`() {
-        val item = DataItem(
+        val item = LegacyDataItemDto(
             first_name = "Zero", last_name = "Boundary", email = "zero@example.com", alamat = "Zero St",
             iuran_perwarga = 0, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
             total_iuran_individu = 0, pengeluaran_iuran_warga = 0,
@@ -364,7 +364,7 @@ class ValidateFinancialDataUseCaseTest {
 
     @Test
     fun `invoke validates iuran_perwarga upper boundary`() {
-        val item = DataItem(
+        val item = LegacyDataItemDto(
             first_name = "Boundary", last_name = "Test", email = "boundary@example.com", alamat = "Boundary St",
             iuran_perwarga = Int.MAX_VALUE / 2, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
             total_iuran_individu = 0, pengeluaran_iuran_warga = 0,
@@ -377,7 +377,7 @@ class ValidateFinancialDataUseCaseTest {
 
     @Test
     fun `invoke rejects iuran_perwarga above upper boundary`() {
-        val item = DataItem(
+        val item = LegacyDataItemDto(
             first_name = "Boundary", last_name = "Test", email = "boundary@example.com", alamat = "Boundary St",
             iuran_perwarga = Int.MAX_VALUE / 2 + 1, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
             total_iuran_individu = 0, pengeluaran_iuran_warga = 0,
@@ -390,7 +390,7 @@ class ValidateFinancialDataUseCaseTest {
 
     @Test
     fun `invoke validates total_iuran_individu upper boundary`() {
-        val item = DataItem(
+        val item = LegacyDataItemDto(
             first_name = "Boundary", last_name = "Test", email = "boundary@example.com", alamat = "Boundary St",
             iuran_perwarga = 0, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
             total_iuran_individu = Int.MAX_VALUE / 3, pengeluaran_iuran_warga = 0,
@@ -403,7 +403,7 @@ class ValidateFinancialDataUseCaseTest {
 
     @Test
     fun `invoke rejects total_iuran_individu above upper boundary`() {
-        val item = DataItem(
+        val item = LegacyDataItemDto(
             first_name = "Boundary", last_name = "Test", email = "boundary@example.com", alamat = "Boundary St",
             iuran_perwarga = 0, total_iuran_rekap = 0, jumlah_iuran_bulanan = 1,
             total_iuran_individu = Int.MAX_VALUE / 3 + 1, pengeluaran_iuran_warga = 0,
