@@ -99,4 +99,9 @@ object Constants {
         const val DEFAULT_SUCCESS_THRESHOLD = 2
         const val DEFAULT_HALF_OPEN_MAX_CALLS = 3
     }
+
+    // Image Constants
+    object Image {
+        const val LOAD_TIMEOUT_MS = 10000L
+    }
 }

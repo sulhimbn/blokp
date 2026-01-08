@@ -32,7 +32,7 @@ object ImageLoader {
                     .diskCacheStrategy(DiskCacheStrategy.ALL)  // Cache both original and resized images
                     .skipMemoryCache(false)  // Enable memory caching
                     .dontAnimate() // Prevent flickering during loading
-                    .timeout(10000) // 10 second timeout for image loading
+                    .timeout(Constants.Image.LOAD_TIMEOUT_MS.toInt()) // 10 second timeout for image loading
             )
             .transform(CircleCrop())
             .into(imageView)

@@ -79,26 +79,69 @@ class PemanfaatanRepositoryImpl(
         val userFinancialPairs = EntityMapper.fromLegacyDtoList(response.data)
         val userDao = CacheManager.getUserDao()
         val financialRecordDao = CacheManager.getFinancialRecordDao()
-        
+
+        if (userFinancialPairs.isEmpty()) {
+            return
+        }
+
+        val now = java.util.Date()
+
+        val emails = userFinancialPairs.map { it.first.email }
+        val existingUsers = userDao.getUsersByEmails(emails)
+        val userMap = existingUsers.associateBy { it.email }
+
+        val usersToInsert = mutableListOf<UserEntity>()
+        val usersToUpdate = mutableListOf<UserEntity>()
+        val userIdToFinancialMap = mutableMapOf<Long, FinancialRecordEntity>()
+
         userFinancialPairs.forEach { (user, financial) ->
-            val existingUser = userDao.getUserByEmail(user.email)
-            val userId = if (existingUser != null) {
-                userDao.update(user.copy(id = existingUser.id, updatedAt = java.util.Date()))
-                existingUser.id
+            val existingUser = userMap[user.email]
+            if (existingUser != null) {
+                val userId = existingUser.id
+                usersToUpdate.add(user.copy(id = userId, updatedAt = now))
+                userIdToFinancialMap[userId] = financial
             } else {
-                userDao.insert(user)
+                usersToInsert.add(user)
             }
-            
-            val existingFinancial = financialRecordDao.getLatestFinancialRecordByUserId(userId)
+        }
+
+        if (usersToInsert.isNotEmpty()) {
+            val insertedIds = userDao.insertAll(usersToInsert)
+            usersToInsert.forEachIndexed { index, user ->
+                userIdToFinancialMap[insertedIds[index]] = userFinancialPairs[index].second
+            }
+        }
+
+        if (usersToUpdate.isNotEmpty()) {
+            userDao.updateAll(usersToUpdate)
+        }
+
+        val userIds = userIdToFinancialMap.keys.toList()
+        val existingFinancials = financialRecordDao.getFinancialRecordsByUserIds(userIds)
+        val financialMap = existingFinancials.associateBy { it.userId }
+
+        val financialsToInsert = mutableListOf<FinancialRecordEntity>()
+        val financialsToUpdate = mutableListOf<FinancialRecordEntity>()
+
+        userIdToFinancialMap.forEach { (userId, financial) ->
+            val existingFinancial = financialMap[userId]
             if (existingFinancial != null) {
-                financialRecordDao.update(financial.copy(
+                financialsToUpdate.add(financial.copy(
                     id = existingFinancial.id,
                     userId = userId,
-                    updatedAt = java.util.Date()
+                    updatedAt = now
                 ))
             } else {
-                financialRecordDao.insert(financial.copy(userId = userId))
+                financialsToInsert.add(financial.copy(userId = userId, updatedAt = now))
             }
+        }
+
+        if (financialsToInsert.isNotEmpty()) {
+            financialRecordDao.insertAll(financialsToInsert)
+        }
+
+        if (financialsToUpdate.isNotEmpty()) {
+            financialRecordDao.updateAll(financialsToUpdate)
         }
     }
     
