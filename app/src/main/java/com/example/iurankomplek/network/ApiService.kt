@@ -112,5 +112,5 @@ interface ApiService {
     suspend fun updateWorkOrderStatus(
         @Path("id") id: String,
         @Body request: UpdateWorkOrderRequest
-    ): Response<SingleWorkOrderResponse>>
+    ): Response<SingleWorkOrderResponse>
 }
