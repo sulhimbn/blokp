@@ -5,7 +5,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.example.iurankomplek.data.constraints.DatabaseConstraints
+import com.example.iurankomplek.data.constraints.TransactionConstraints
+import com.example.iurankomplek.data.constraints.UserConstraints
 import com.example.iurankomplek.payment.PaymentMethod
 import com.example.iurankomplek.payment.PaymentStatus
 import java.math.BigDecimal
@@ -73,12 +74,12 @@ data class Transaction(
         require(id.isNotBlank()) { "Transaction ID cannot be blank" }
         require(userId > 0) { "User ID must be positive" }
         require(amount > BigDecimal.ZERO) { "Amount must be positive" }
-        require(amount <= DatabaseConstraints.Transactions.Constraints.MAX_AMOUNT) { "Amount exceeds max value" }
+        require(amount <= TransactionConstraints.Constraints.MAX_AMOUNT) { "Amount exceeds max value" }
         require(currency.isNotBlank()) { "Currency cannot be blank" }
-        require(currency.length <= DatabaseConstraints.Transactions.Constraints.MAX_CURRENCY_LENGTH) { "Currency too long" }
+        require(currency.length <= TransactionConstraints.Constraints.MAX_CURRENCY_LENGTH) { "Currency too long" }
         require(description.isNotBlank()) { "Description cannot be blank" }
-        require(description.length <= DatabaseConstraints.Transactions.Constraints.MAX_DESCRIPTION_LENGTH) { "Description too long" }
-        require(metadata.length <= DatabaseConstraints.Transactions.Constraints.MAX_METADATA_LENGTH) { "Metadata too long" }
+        require(description.length <= TransactionConstraints.Constraints.MAX_DESCRIPTION_LENGTH) { "Description too long" }
+        require(metadata.length <= TransactionConstraints.Constraints.MAX_METADATA_LENGTH) { "Metadata too long" }
     }
 
     companion object {

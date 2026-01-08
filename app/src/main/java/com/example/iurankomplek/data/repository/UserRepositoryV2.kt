@@ -6,6 +6,7 @@ import com.example.iurankomplek.data.entity.UserEntity
 import com.example.iurankomplek.data.entity.FinancialRecordEntity
 import com.example.iurankomplek.data.entity.UserWithFinancialRecords
 import com.example.iurankomplek.data.mapper.EntityMapper
+import com.example.iurankomplek.data.repository.BaseRepositoryV2
 import com.example.iurankomplek.data.repository.cache.CacheStrategy
 import com.example.iurankomplek.data.repository.cache.DatabaseCacheStrategy
 import com.example.iurankomplek.data.api.models.UserResponse

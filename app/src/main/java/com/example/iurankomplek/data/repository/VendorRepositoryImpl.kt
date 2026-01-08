@@ -4,11 +4,13 @@ import com.example.iurankomplek.model.VendorResponse
 import com.example.iurankomplek.model.SingleVendorResponse
 import com.example.iurankomplek.model.WorkOrderResponse
 import com.example.iurankomplek.model.SingleWorkOrderResponse
+import com.example.iurankomplek.network.model.CreateVendorRequest
+import com.example.iurankomplek.network.model.UpdateVendorRequest
 
 class VendorRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiService
-) : VendorRepository(), BaseRepository() {
-    
+) : VendorRepository(), BaseRepositoryLegacy() {
+
     override suspend fun getVendors(): Result<VendorResponse> = executeWithCircuitBreaker {
         apiService.getVendors()
     }
@@ -16,7 +18,7 @@ class VendorRepositoryImpl(
     override suspend fun getVendor(id: String): Result<SingleVendorResponse> = executeWithCircuitBreaker {
         apiService.getVendor(id)
     }
-    
+
     override suspend fun createVendor(
         name: String,
         contactPerson: String,
@@ -30,8 +32,8 @@ class VendorRepositoryImpl(
         contractEnd: String
     ): Result<SingleVendorResponse> = executeWithCircuitBreaker {
         apiService.createVendor(
-            name, contactPerson, phoneNumber, email, specialty, address,
-            licenseNumber, insuranceInfo, contractStart, contractEnd
+            CreateVendorRequest(name, contactPerson, phoneNumber, email, specialty, address,
+                licenseNumber, insuranceInfo, contractStart, contractEnd)
         )
     }
     
@@ -50,8 +52,8 @@ class VendorRepositoryImpl(
         isActive: Boolean
     ): Result<SingleVendorResponse> = executeWithCircuitBreaker {
         apiService.updateVendor(
-            id, name, contactPerson, phoneNumber, email, specialty, address,
-            licenseNumber, insuranceInfo, contractStart, contractEnd, isActive
+            id, UpdateVendorRequest(name, contactPerson, phoneNumber, email, specialty, address,
+                licenseNumber, insuranceInfo, contractStart, contractEnd, isActive)
         )
     }
     

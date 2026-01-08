@@ -2,7 +2,7 @@ package com.example.iurankomplek.data.database
 
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.example.iurankomplek.data.constraints.DatabaseConstraints
+import com.example.iurankomplek.data.constraints.TransactionConstraints
 
 class Migration2_1 : Migration(2, 1) {
 
@@ -27,16 +27,16 @@ class Migration2_1 : Migration(2, 1) {
             execSQL("INSERT INTO transactions (" +
                     "id, userId, amount, currency, status, payment_method, description, created_at, updated_at, metadata_json" +
                     ") SELECT " +
-                    DatabaseConstraints.Transactions.Columns.ID + ", " +
-                    "CAST(" + DatabaseConstraints.Transactions.Columns.USER_ID + " AS TEXT), " +
-                    DatabaseConstraints.Transactions.Columns.AMOUNT + ", " +
-                    DatabaseConstraints.Transactions.Columns.CURRENCY + ", " +
-                    DatabaseConstraints.Transactions.Columns.STATUS + ", " +
-                    DatabaseConstraints.Transactions.Columns.PAYMENT_METHOD + ", " +
-                    DatabaseConstraints.Transactions.Columns.DESCRIPTION + ", " +
-                    DatabaseConstraints.Transactions.Columns.CREATED_AT + ", " +
-                    DatabaseConstraints.Transactions.Columns.UPDATED_AT + ", " +
-                    DatabaseConstraints.Transactions.Columns.METADATA +
+                    TransactionConstraints.Columns.ID + ", " +
+                    "CAST(" + TransactionConstraints.Columns.USER_ID + " AS TEXT), " +
+                    TransactionConstraints.Columns.AMOUNT + ", " +
+                    TransactionConstraints.Columns.CURRENCY + ", " +
+                    TransactionConstraints.Columns.STATUS + ", " +
+                    TransactionConstraints.Columns.PAYMENT_METHOD + ", " +
+                    TransactionConstraints.Columns.DESCRIPTION + ", " +
+                    TransactionConstraints.Columns.CREATED_AT + ", " +
+                    TransactionConstraints.Columns.UPDATED_AT + ", " +
+                    TransactionConstraints.Columns.METADATA +
                     " FROM transactions_new")
 
             execSQL("DROP TABLE transactions_new")

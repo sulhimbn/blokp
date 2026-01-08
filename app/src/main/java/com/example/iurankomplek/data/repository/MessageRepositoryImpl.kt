@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 class MessageRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiService
-) : MessageRepository(), BaseRepository() {
+) : MessageRepository(), BaseRepositoryLegacy() {
     private val cache = ConcurrentHashMap<String, List<Message>>()
 
     override suspend fun getMessages(userId: String): Result<List<Message>> {

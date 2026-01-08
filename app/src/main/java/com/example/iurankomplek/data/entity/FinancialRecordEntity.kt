@@ -5,7 +5,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.example.iurankomplek.data.constraints.DatabaseConstraints
+import com.example.iurankomplek.data.constraints.FinancialRecordConstraints
+import com.example.iurankomplek.data.constraints.UserConstraints
 import java.util.Date
 
 @Entity(
@@ -70,12 +71,11 @@ data class FinancialRecordEntity(
         require(totalIuranIndividu >= 0) { "Total iuran individu cannot be negative" }
         require(pengeluaranIuranWarga >= 0) { "Pengeluaran iuran warga cannot be negative" }
         require(totalIuranRekap >= 0) { "Total iuran rekap cannot be negative" }
-        require(iuranPerwarga <= DatabaseConstraints.FinancialRecords.Constraints.MAX_NUMERIC_VALUE) { "Iuran perwarga exceeds max value" }
-        require(jumlahIuranBulanan <= DatabaseConstraints.FinancialRecords.Constraints.MAX_NUMERIC_VALUE) { "Jumlah iuran bulanan exceeds max value" }
-        require(totalIuranIndividu <= DatabaseConstraints.FinancialRecords.Constraints.MAX_NUMERIC_VALUE) { "Total iuran individu exceeds max value" }
-        require(pengeluaranIuranWarga <= DatabaseConstraints.FinancialRecords.Constraints.MAX_NUMERIC_VALUE) { "Pengeluaran iuran warga exceeds max value" }
-        require(totalIuranRekap <= DatabaseConstraints.FinancialRecords.Constraints.MAX_NUMERIC_VALUE) { "Total iuran rekap exceeds max value" }
-        require(pemanfaatanIuran.isNotBlank()) { "Pemanfaatan iuran cannot be blank" }
-        require(pemanfaatanIuran.length <= DatabaseConstraints.FinancialRecords.Constraints.MAX_PEMANFAATAN_LENGTH) { "Pemanfaatan iuran too long" }
+        require(iuranPerwarga <= FinancialRecordConstraints.Constraints.MAX_NUMERIC_VALUE) { "Iuran perwarga exceeds max value" }
+        require(jumlahIuranBulanan <= FinancialRecordConstraints.Constraints.MAX_NUMERIC_VALUE) { "Jumlah iuran bulanan exceeds max value" }
+        require(totalIuranIndividu <= FinancialRecordConstraints.Constraints.MAX_NUMERIC_VALUE) { "Total iuran individu exceeds max value" }
+        require(pengeluaranIuranWarga <= FinancialRecordConstraints.Constraints.MAX_NUMERIC_VALUE) { "Pengeluaran iuran warga exceeds max value" }
+        require(totalIuranRekap <= FinancialRecordConstraints.Constraints.MAX_NUMERIC_VALUE) { "Total iuran rekap exceeds max value" }
+        require(pemanfaatanIuran.length <= FinancialRecordConstraints.Constraints.MAX_PEMANFAATAN_LENGTH) { "Pemanfaatan iuran too long" }
     }
 }

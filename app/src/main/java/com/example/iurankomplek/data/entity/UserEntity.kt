@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.example.iurankomplek.data.constraints.DatabaseConstraints
+import com.example.iurankomplek.data.constraints.UserConstraints
 import java.util.Date
 
 @Entity(
@@ -53,11 +53,11 @@ data class UserEntity(
         require(lastName.isNotBlank()) { "Last name cannot be blank" }
         require(alamat.isNotBlank()) { "Alamat cannot be blank" }
         require(email.contains("@")) { "Email must contain @ symbol" }
-        require(email.length <= DatabaseConstraints.Users.Constraints.MAX_EMAIL_LENGTH) { "Email too long" }
-        require(firstName.length <= DatabaseConstraints.Users.Constraints.MAX_NAME_LENGTH) { "First name too long" }
-        require(lastName.length <= DatabaseConstraints.Users.Constraints.MAX_NAME_LENGTH) { "Last name too long" }
-        require(alamat.length <= DatabaseConstraints.Users.Constraints.MAX_ALAMAT_LENGTH) { "Alamat too long" }
-        require(avatar.length <= DatabaseConstraints.Users.Constraints.MAX_AVATAR_LENGTH) { "Avatar URL too long" }
+        require(email.length <= UserConstraints.Constraints.MAX_EMAIL_LENGTH) { "Email too long" }
+        require(firstName.length <= UserConstraints.Constraints.MAX_NAME_LENGTH) { "First name too long" }
+        require(lastName.length <= UserConstraints.Constraints.MAX_NAME_LENGTH) { "Last name too long" }
+        require(alamat.length <= UserConstraints.Constraints.MAX_ALAMAT_LENGTH) { "Alamat too long" }
+        require(avatar.length <= UserConstraints.Constraints.MAX_AVATAR_LENGTH) { "Avatar URL too long" }
     }
 
     val fullName: String

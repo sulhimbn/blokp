@@ -27,8 +27,8 @@ abstract class BaseVendorFragment : BaseFragment<com.example.iurankomplek.utils.
     }
 
     override fun observeViewModelState() {
-        observeUiState(vendorViewModel.vendorState) { data ->
-            vendorAdapter.submitList(data.data)
+        observeUiState(vendorViewModel.vendorState) { vendors ->
+            vendorAdapter.submitList(vendors)
         }
     }
 

@@ -5,7 +5,7 @@ import com.example.iurankomplek.network.model.NetworkError
 import com.example.iurankomplek.network.resilience.CircuitBreaker
 import com.example.iurankomplek.network.resilience.CircuitBreakerResult
 
-abstract class BaseRepository {
+abstract class BaseRepositoryLegacy {
     
     protected val circuitBreaker: CircuitBreaker = ApiConfig.circuitBreaker
     

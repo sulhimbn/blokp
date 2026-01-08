@@ -1,9 +1,10 @@
 package com.example.iurankomplek.data.repository
 
+import com.example.iurankomplek.data.repository.BaseRepositoryV2
 import com.example.iurankomplek.data.repository.cache.CacheStrategy
 import com.example.iurankomplek.data.repository.cache.InMemoryCacheStrategy
 import com.example.iurankomplek.model.Message
-import com.example.iurankomplek.network.model.SendMessageRequest
+import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 
 /**

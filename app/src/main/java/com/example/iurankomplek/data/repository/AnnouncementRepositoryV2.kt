@@ -1,5 +1,6 @@
 package com.example.iurankomplek.data.repository
 
+import com.example.iurankomplek.data.repository.BaseRepositoryV2
 import com.example.iurankomplek.data.repository.cache.CacheStrategy
 import com.example.iurankomplek.data.repository.cache.InMemoryCacheStrategy
 import com.example.iurankomplek.model.Announcement

@@ -27,12 +27,17 @@ class UserRepositoryImpl(
                 if (dataItemList.isEmpty()) null else userResponse
             },
             getFromNetwork = {
-                circuitBreaker.execute {
+                val circuitBreakerResult = circuitBreaker.execute {
                     com.example.iurankomplek.utils.RetryHelper.executeWithRetry(
                         apiCall = { apiService.getUsers() },
                         maxRetries = maxRetries
                     )
-                }.getOrThrow()
+                }
+                when (circuitBreakerResult) {
+                    is CircuitBreakerResult.Success -> circuitBreakerResult.value
+                    is CircuitBreakerResult.Failure -> throw circuitBreakerResult.exception
+                    is CircuitBreakerResult.CircuitOpen -> throw CircuitBreakerState.Open
+                }
             },
             isCacheFresh = { response ->
                 if (response.data.isNotEmpty()) {
@@ -66,8 +71,7 @@ class UserRepositoryImpl(
     
     override suspend fun clearCache(): Result<Unit> {
         return try {
-            val database = com.example.iurankomplek.data.cache.CacheManager.getDatabase()
-            database.withTransaction {
+            com.example.iurankomplek.data.cache.CacheManager.getDatabase().runInTransaction {
                 CacheManager.getUserDao().deleteAll()
                 CacheManager.getFinancialRecordDao().deleteAll()
             }

@@ -76,7 +76,7 @@ abstract class BaseRepository<T> {
      * @param apiCall Retrofit API call
      * @return Result<T> with data or error
      */
-    protected suspend fun <T : Any> executeWithCircuitBreaker(
+    protected suspend fun <T> executeWithCircuitBreaker(
         apiCall: suspend () -> retrofit2.Response<T>
     ): Result<T> {
         val circuitBreakerResult = circuitBreaker.execute {
