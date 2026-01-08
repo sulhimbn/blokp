@@ -2168,7 +2168,7 @@ API inconsistencies found in ApiService.kt:
 
 **Migration Path**:
 - **Current**: Production uses legacy ApiService (request bodies updated)
-- **Phase 2**: Update repositories to use ApiServiceV1 (gradual rollout)
+- **Phase 2**: Update repositories to use ApiServiceV1 (gradual rollout) ✅ PARTIALLY COMPLETED (UserRepositoryV2 migrated, 2026-01-08)
 - **Phase 3-6**: Full migration with deprecation timeline (documented)
 
 **Success Criteria**:

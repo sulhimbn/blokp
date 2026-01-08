@@ -12,26 +12,23 @@ import com.example.iurankomplek.data.api.models.UserResponse
 import kotlinx.coroutines.flow.first
 
 /**
- * Refactored UserRepository using unified repository pattern.
+ * Refactored UserRepository using unified repository pattern and ApiServiceV1.
  * Extends BaseRepositoryV2 for consistent error handling and caching.
+ * Uses ApiServiceV1 with API versioning and ApiResponse<T> unwrapping.
  *
- * BEFORE (86 lines):
- * - No base class
- * - Manual circuit breaker and retry logic (DUPLICATED)
- * - Manual cache freshness checking
- * - Complex cacheFirstStrategy usage
- * - Code duplication with PemanfaatanRepositoryImpl, VendorRepositoryImpl
+ * BEFORE (Module 88):
+ * - Used legacy ApiService (no API versioning)
+ * - No ApiResponse<T> unwrapping
+ * - No request ID tracking
  *
- * AFTER (this implementation):
- * - Extends BaseRepositoryV2 (enhanced)
- * - Uses DatabaseCacheStrategy
- * - No circuit breaker duplication
- * - Unified error handling
- * - 50% code reduction (86 → ~43 lines)
- * - Clearer code structure
+ * AFTER (Phase 2 - API Migration):
+ * - Uses ApiServiceV1 (api/v1 endpoints)
+ * - ApiResponse<T> unwrapping with error handling
+ * - Request ID tracking (X-Request-ID header)
+ * - Consistent with API standardization (Module 60)
  */
 class UserRepositoryV2(
-    private val apiService: com.example.iurankomplek.network.ApiService
+    private val apiServiceV1: com.example.iurankomplek.network.ApiServiceV1
 ) : UserRepository, BaseRepositoryV2<UserResponse>() {
 
     override val cacheStrategy: CacheStrategy<UserResponse> =
@@ -48,7 +45,21 @@ class UserRepositoryV2(
         return fetchWithCache(
             cacheKey = "users",
             forceRefresh = forceRefresh,
-            fromNetwork = { apiService.getUsers() }
+            fromNetwork = {
+                val response = apiServiceV1.getUsers()
+                if (!response.isSuccessful || response.body() == null) {
+                    throw Exception("API request failed: ${response.code()}")
+                }
+                val apiResponse = response.body()!!
+                if (apiResponse.error != null) {
+                    throw ApiException(
+                        message = apiResponse.error.message ?: "Unknown API error",
+                        code = apiResponse.error.code,
+                        requestId = apiResponse.request_id
+                    )
+                }
+                apiResponse.data ?: UserResponse(emptyList())
+            }
         )
     }
 
@@ -83,3 +94,9 @@ class UserRepositoryV2(
         CacheHelper.saveEntityWithFinancialRecords(userFinancialPairs)
     }
 }
+
+class ApiException(
+    val message: String,
+    val code: String? = null,
+    val requestId: String? = null
+) : Exception(message)

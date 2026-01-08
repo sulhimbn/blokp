@@ -34,6 +34,9 @@ import java.util.concurrent.TimeUnit
     @Volatile
     private var apiServiceInstance: ApiService? = null
     
+    @Volatile
+    private var apiServiceV1Instance: ApiServiceV1? = null
+    
     // Circuit breaker for service resilience
     val circuitBreaker: CircuitBreaker = CircuitBreaker(
         failureThreshold = Constants.Network.MAX_RETRIES,
@@ -52,6 +55,12 @@ import java.util.concurrent.TimeUnit
     fun getApiService(): ApiService {
         return apiServiceInstance ?: synchronized(this) {
             apiServiceInstance ?: createApiService().also { apiServiceInstance = it }
+        }
+    }
+    
+    fun getApiServiceV1(): ApiServiceV1 {
+        return apiServiceV1Instance ?: synchronized(this) {
+            apiServiceV1Instance ?: createApiServiceV1().also { apiServiceV1Instance = it }
         }
     }
     
@@ -94,6 +103,47 @@ import java.util.concurrent.TimeUnit
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         return retrofit.create(ApiService::class.java)
+    }
+    
+    private fun createApiServiceV1(): ApiServiceV1 {
+        val okHttpClient = if (!USE_MOCK_API) {
+            // Use secure client for production
+            SecurityConfig.getSecureOkHttpClient()
+                .newBuilder()
+                .connectionPool(connectionPool)
+                .addInterceptor(RequestIdInterceptor())
+                .addInterceptor(rateLimiter)
+                .addInterceptor(RetryableRequestInterceptor())
+                .addInterceptor(NetworkErrorInterceptor(enableLogging = BuildConfig.DEBUG))
+                .build()
+        } else {
+            // For debug/mock, use basic client but log warning
+            val clientBuilder = OkHttpClient.Builder()
+                .connectTimeout(Constants.Network.CONNECT_TIMEOUT, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(Constants.Network.READ_TIMEOUT, java.util.concurrent.TimeUnit.SECONDS)
+                .connectionPool(connectionPool)
+                .addInterceptor(RequestIdInterceptor())
+                .addInterceptor(rateLimiter)
+                .addInterceptor(RetryableRequestInterceptor())
+                .addInterceptor(NetworkErrorInterceptor(enableLogging = true))
+            
+            // Add logging interceptor only for debug builds
+            if (BuildConfig.DEBUG) {
+                val loggingInterceptor = okhttp3.logging.HttpLoggingInterceptor().apply {
+                    level = okhttp3.logging.HttpLoggingInterceptor.Level.BODY
+                }
+                clientBuilder.addInterceptor(loggingInterceptor)
+            }
+            
+            clientBuilder.build()
+        }
+        
+        val retrofit = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+        return retrofit.create(ApiServiceV1::class.java)
     }
     
     suspend fun resetCircuitBreaker() {

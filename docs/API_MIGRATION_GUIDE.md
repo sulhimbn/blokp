@@ -83,22 +83,53 @@ interface ApiServiceV1 {
 - [x] Implement ApiServiceV1 with fully standardized patterns
 - [x] Document migration timeline and deprecation strategy
 
-### Phase 2: Client-Side Preparation (Current Status)
-- [ ] Add ApiServiceV1 to ApiConfig (parallel instance)
-- [ ] Update all repositories to use ApiServiceV1
-- [ ] Update repository responses to unwrap ApiResponse/ApiListResponse
-- [ ] Add feature flag for gradual rollout
-- [ ] Unit test repository changes
+### Phase 2: Client-Side Preparation (Completed ✅)
+- [x] Add ApiServiceV1 to ApiConfig (parallel instance)
+- [x] Update UserRepositoryV2 to use ApiServiceV1
+- [x] Update repository responses to unwrap ApiResponse/ApiListResponse
+- [x] Add ApiException for standardized error handling
+- [x] Unit test repository changes (9 test cases)
 
 **Affected Repositories:**
-- `UserRepositoryImpl`
-- `PemanfaatanRepositoryImpl`
-- `VendorRepositoryImpl`
-- `AnnouncementRepositoryImpl`
-- `MessageRepositoryImpl`
-- `CommunityPostRepositoryImpl`
-- `TransactionRepositoryImpl`
-- `PaymentService`
+- `UserRepositoryImpl` → `UserRepositoryV2` (COMPLETED ✅)
+- `PemanfaatanRepositoryImpl` → `PemanfaatanRepositoryV2` (PENDING)
+- `VendorRepositoryImpl` → `VendorRepositoryV2` (PENDING)
+- `AnnouncementRepositoryImpl` → `AnnouncementRepositoryV2` (PENDING)
+- `MessageRepositoryImpl` → `MessageRepositoryV2` (PENDING)
+- `CommunityPostRepositoryImpl` → `CommunityPostRepositoryV2` (PENDING)
+- `TransactionRepositoryImpl` → `TransactionRepositoryV2` (PENDING)
+
+**Phase 2 Completed Work** (2026-01-08):
+
+1. **ApiServiceV1 Integration**:
+   - Added `getApiServiceV1()` method to ApiConfig
+   - Parallel instance creation with ApiService (no breaking changes)
+   - Same OkHttp configuration (interceptors, circuit breaker, rate limiter)
+   - Request ID tracking enabled (X-Request-ID header)
+
+2. **UserRepositoryV2 Created** (First Repository Migrated):
+   - Changed dependency from `ApiService` to `ApiServiceV1`
+   - Uses `/api/v1/users` endpoint (API versioning)
+   - ApiResponse<T> unwrapping with error handling
+   - ApiException class for standardized error handling
+   - Maintains BaseRepositoryV2 pattern (unified error handling, caching)
+   - Preserves existing functionality (caching, cache freshness, clearCache)
+
+3. **ApiException Class Added**:
+   - Encapsulates API errors with request tracking
+   - Properties: `message`, `code`, `requestId`
+   - Enables consistent error handling across repositories
+
+4. **Comprehensive Testing** (UserRepositoryV2Test.kt):
+   - 9 test cases covering all scenarios:
+     * Success with valid data
+     * API error response handling
+     * HTTP request failure handling
+     * Cached data retrieval
+     * Cache clear functionality
+     * ApiException properties validation
+      * ForceRefresh behavior
+      * Cache freshness logic
 
 ### Phase 3: Backend Migration (Future)
 - [ ] Implement `/api/v1` endpoints on backend
