@@ -3,7 +3,7 @@ package com.example.iurankomplek.utils
 import java.net.URL
 import java.util.regex.Pattern
 
-object DataValidator {
+object InputSanitizer {
     
     // SECURITY: Improved email validation following RFC 5322 recommendations
     // Prevents email injection attacks and limits input to reasonable patterns
@@ -105,7 +105,7 @@ object DataValidator {
             val num = input.trim().toInt()
             num > 0
         } catch (e: NumberFormatException) {
-            android.util.Log.d("DataValidator", "Invalid positive integer format: $input")
+            android.util.Log.d("InputSanitizer", "Invalid positive integer format: $input")
             false
         }
     }
@@ -119,7 +119,7 @@ object DataValidator {
             val num = input.trim().toDouble()
             num > 0 && num <= Constants.Payment.MAX_PAYMENT_AMOUNT
         } catch (e: NumberFormatException) {
-            android.util.Log.d("DataValidator", "Invalid positive double format: $input")
+            android.util.Log.d("InputSanitizer", "Invalid positive double format: $input")
             false
         }
     }
@@ -154,7 +154,7 @@ object DataValidator {
                 true
             }
         } catch (e: Exception) {
-            android.util.Log.d("DataValidator", "Invalid URL format: $input")
+            android.util.Log.d("InputSanitizer", "Invalid URL format: $input")
             false
         }
     }

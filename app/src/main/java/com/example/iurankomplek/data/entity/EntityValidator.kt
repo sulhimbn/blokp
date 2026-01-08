@@ -1,10 +1,10 @@
-package com.example.iurankomplek.data.validation
+package com.example.iurankomplek.data.entity
 
 import com.example.iurankomplek.data.entity.FinancialRecordEntity
 import com.example.iurankomplek.data.entity.UserEntity
 import com.example.iurankomplek.data.entity.UserWithFinancialRecords
 
-object DataValidator {
+object EntityValidator {
     
     /**
      * Validates a UserEntity
@@ -73,7 +73,7 @@ object DataValidator {
     }
     
     /**
-     * Validates that financial records belong to the specified user
+     * Validates that financial records belong to specified user
      * @return Pair of (isValid, errorMessage)
      */
     fun validateFinancialRecordOwnership(

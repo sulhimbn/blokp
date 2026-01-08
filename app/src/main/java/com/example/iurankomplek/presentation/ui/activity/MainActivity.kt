@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityMainBinding
 import com.example.iurankomplek.data.repository.UserRepositoryFactory
 import com.example.iurankomplek.utils.UiState
-import com.example.iurankomplek.utils.DataValidator
+import com.example.iurankomplek.utils.InputSanitizer
 import com.example.iurankomplek.presentation.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 

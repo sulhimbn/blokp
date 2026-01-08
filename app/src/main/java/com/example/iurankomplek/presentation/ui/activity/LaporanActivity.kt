@@ -15,7 +15,7 @@ import com.example.iurankomplek.databinding.ActivityLaporanBinding
 import com.example.iurankomplek.data.repository.PemanfaatanRepositoryFactory
 import com.example.iurankomplek.data.mapper.EntityMapper
 import com.example.iurankomplek.model.ValidatedDataItem
-import com.example.iurankomplek.utils.DataValidator
+import com.example.iurankomplek.utils.InputSanitizer
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.data.database.TransactionDatabase
 import com.example.iurankomplek.data.repository.TransactionRepository
@@ -139,9 +139,9 @@ class LaporanActivity : BaseActivity() {
         totalPengeluaran: Int,
         rekapIuran: Int
     ): List<LaporanSummaryItem> = listOf(
-        LaporanSummaryItem(getString(R.string.jumlah_iuran_bulanan), DataValidator.formatCurrency(totalIuranBulanan)),
-        LaporanSummaryItem(getString(R.string.total_pengeluaran), DataValidator.formatCurrency(totalPengeluaran)),
-        LaporanSummaryItem(getString(R.string.rekap_total_iuran), DataValidator.formatCurrency(rekapIuran))
+        LaporanSummaryItem(getString(R.string.jumlah_iuran_bulanan), InputSanitizer.formatCurrency(totalIuranBulanan)),
+        LaporanSummaryItem(getString(R.string.total_pengeluaran), InputSanitizer.formatCurrency(totalPengeluaran)),
+        LaporanSummaryItem(getString(R.string.rekap_total_iuran), InputSanitizer.formatCurrency(rekapIuran))
     )
     
     private fun integratePaymentTransactions(
@@ -189,14 +189,14 @@ class LaporanActivity : BaseActivity() {
         val baseSummaryItems = createSummaryItems(totalIuranBulanan, totalPengeluaran, rekapIuran)
         val updatedSummaryItems = baseSummaryItems + LaporanSummaryItem(
             getString(R.string.total_payments_processed),
-            DataValidator.formatCurrency(paymentTotal)
+            InputSanitizer.formatCurrency(paymentTotal)
         )
 
         summaryAdapter.setItems(updatedSummaryItems)
 
         Toast.makeText(
             this,
-            getString(R.string.integrated_payment_transactions, transactionCount, DataValidator.formatCurrency(paymentTotal)),
+            getString(R.string.integrated_payment_transactions, transactionCount, InputSanitizer.formatCurrency(paymentTotal)),
             Toast.LENGTH_LONG
         ).show()
     }

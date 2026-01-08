@@ -1,15 +1,12 @@
-package com.example.iurankomplek.data.validation
+package com.example.iurankomplek.data.entity
 
-import com.example.iurankomplek.data.entity.FinancialRecordEntity
-import com.example.iurankomplek.data.entity.UserEntity
-import com.example.iurankomplek.data.entity.UserWithFinancialRecords
 import org.junit.Test
 import java.util.Date
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class DataValidatorTest {
+class EntityValidatorTest {
     
     @Test
     fun `validateUser should accept valid user`() {
@@ -22,7 +19,7 @@ class DataValidatorTest {
             avatar = "https://example.com/avatar.jpg"
         )
         
-        val (isValid, error) = DataValidator.validateUser(user)
+        val (isValid, error) = EntityValidator.validateUser(user)
         
         assertTrue(isValid)
         assertEquals(null, error)
@@ -39,7 +36,7 @@ class DataValidatorTest {
             avatar = "https://example.com/avatar.jpg"
         )
         
-        val (isValid, error) = DataValidator.validateUser(user)
+        val (isValid, error) = EntityValidator.validateUser(user)
         
         assertFalse(isValid)
         assertEquals("Email cannot be blank", error)
@@ -56,7 +53,7 @@ class DataValidatorTest {
             avatar = "https://example.com/avatar.jpg"
         )
         
-        val (isValid, error) = DataValidator.validateUser(user)
+        val (isValid, error) = EntityValidator.validateUser(user)
         
         assertFalse(isValid)
         assertEquals("Email format is invalid", error)
@@ -73,7 +70,7 @@ class DataValidatorTest {
             avatar = "https://example.com/avatar.jpg"
         )
         
-        val (isValid, error) = DataValidator.validateUser(user)
+        val (isValid, error) = EntityValidator.validateUser(user)
         
         assertFalse(isValid)
         assertEquals("First name cannot be blank", error)
@@ -90,7 +87,7 @@ class DataValidatorTest {
             avatar = "https://example.com/avatar.jpg"
         )
         
-        val (isValid, error) = DataValidator.validateUser(user)
+        val (isValid, error) = EntityValidator.validateUser(user)
         
         assertFalse(isValid)
         assertEquals("Last name cannot be blank", error)
@@ -107,7 +104,7 @@ class DataValidatorTest {
             avatar = "https://example.com/avatar.jpg"
         )
         
-        val (isValid, error) = DataValidator.validateUser(user)
+        val (isValid, error) = EntityValidator.validateUser(user)
         
         assertFalse(isValid)
         assertEquals("Alamat cannot be blank", error)
@@ -124,7 +121,7 @@ class DataValidatorTest {
             avatar = "invalid-url"
         )
         
-        val (isValid, error) = DataValidator.validateUser(user)
+        val (isValid, error) = EntityValidator.validateUser(user)
         
         assertFalse(isValid)
         assertEquals("Avatar URL is invalid", error)
@@ -142,7 +139,7 @@ class DataValidatorTest {
             avatar = "https://example.com/avatar.jpg"
         )
         
-        val (isValid, error) = DataValidator.validateUser(user)
+        val (isValid, error) = EntityValidator.validateUser(user)
         
         assertFalse(isValid)
         assertEquals("First name exceeds maximum length (100)", error)
@@ -161,7 +158,7 @@ class DataValidatorTest {
             pemanfaatanIuran = "Maintenance"
         )
         
-        val (isValid, error) = DataValidator.validateFinancialRecord(record)
+        val (isValid, error) = EntityValidator.validateFinancialRecord(record)
         
         assertTrue(isValid)
         assertEquals(null, error)
@@ -180,7 +177,7 @@ class DataValidatorTest {
             pemanfaatanIuran = "Maintenance"
         )
         
-        val (isValid, error) = DataValidator.validateFinancialRecord(record)
+        val (isValid, error) = EntityValidator.validateFinancialRecord(record)
         
         assertFalse(isValid)
         assertEquals("Iuran perwarga cannot be negative", error)
@@ -199,7 +196,7 @@ class DataValidatorTest {
             pemanfaatanIuran = "Maintenance"
         )
         
-        val (isValid, error) = DataValidator.validateFinancialRecord(record)
+        val (isValid, error) = EntityValidator.validateFinancialRecord(record)
         
         assertFalse(isValid)
         assertEquals("User ID must be positive", error)
@@ -218,7 +215,7 @@ class DataValidatorTest {
             pemanfaatanIuran = ""
         )
         
-        val (isValid, error) = DataValidator.validateFinancialRecord(record)
+        val (isValid, error) = EntityValidator.validateFinancialRecord(record)
         
         assertFalse(isValid)
         assertEquals("Pemanfaatan iuran cannot be blank", error)
@@ -237,7 +234,7 @@ class DataValidatorTest {
             pemanfaatanIuran = "Initial record"
         )
         
-        val (isValid, error) = DataValidator.validateFinancialRecord(record)
+        val (isValid, error) = EntityValidator.validateFinancialRecord(record)
         
         assertTrue(isValid)
         assertEquals(null, error)
@@ -267,7 +264,7 @@ class DataValidatorTest {
         
         val userWithFinancials = UserWithFinancialRecords(user, listOf(record))
         
-        val (isValid, error) = DataValidator.validateUserWithFinancials(userWithFinancials)
+        val (isValid, error) = EntityValidator.validateUserWithFinancials(userWithFinancials)
         
         assertTrue(isValid)
         assertEquals(null, error)
@@ -286,7 +283,7 @@ class DataValidatorTest {
         
         val userWithFinancials = UserWithFinancialRecords(user, emptyList())
         
-        val (isValid, error) = DataValidator.validateUserWithFinancials(userWithFinancials)
+        val (isValid, error) = EntityValidator.validateUserWithFinancials(userWithFinancials)
         
         assertFalse(isValid)
         assertEquals("User must have at least one financial record", error)
@@ -314,7 +311,7 @@ class DataValidatorTest {
             pemanfaatanIuran = "Maintenance"
         )
         
-        val (isValid, error) = DataValidator.validateFinancialRecordOwnership(user, listOf(record))
+        val (isValid, error) = EntityValidator.validateFinancialRecordOwnership(user, listOf(record))
         
         assertTrue(isValid)
         assertEquals(null, error)
@@ -342,7 +339,7 @@ class DataValidatorTest {
             pemanfaatanIuran = "Maintenance"
         )
         
-        val (isValid, error) = DataValidator.validateFinancialRecordOwnership(user, listOf(record))
+        val (isValid, error) = EntityValidator.validateFinancialRecordOwnership(user, listOf(record))
         
         assertFalse(isValid)
         assertEquals("Financial record ID 1 does not belong to user ID 1", error)
@@ -369,7 +366,7 @@ class DataValidatorTest {
             )
         )
         
-        val (isValid, errors) = DataValidator.validateUserList(users)
+        val (isValid, errors) = EntityValidator.validateUserList(users)
         
         assertTrue(isValid)
         assertTrue(errors.isEmpty())
@@ -396,7 +393,7 @@ class DataValidatorTest {
             )
         )
         
-        val (isValid, errors) = DataValidator.validateUserList(users)
+        val (isValid, errors) = EntityValidator.validateUserList(users)
         
         assertFalse(isValid)
         assertEquals(1, errors.size)

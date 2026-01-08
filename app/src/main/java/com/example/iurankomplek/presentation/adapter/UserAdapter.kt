@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.databinding.ItemListBinding
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.utils.ImageLoader
-import com.example.iurankomplek.utils.DataValidator
+import com.example.iurankomplek.utils.InputSanitizer
 
 class UserAdapter : ListAdapter<DataItem, UserAdapter.ListViewHolder>(UserDiffCallback) {
 
@@ -31,8 +31,8 @@ class UserAdapter : ListAdapter<DataItem, UserAdapter.ListViewHolder>(UserDiffCa
 
         // Safely construct and display user name
         val userName = mutableListOf<String>().apply {
-            if (user.first_name.isNotBlank()) add(DataValidator.sanitizeName(user.first_name))
-            if (user.last_name.isNotBlank()) add(DataValidator.sanitizeName(user.last_name))
+            if (user.first_name.isNotBlank()) add(InputSanitizer.sanitizeName(user.first_name))
+            if (user.last_name.isNotBlank()) add(InputSanitizer.sanitizeName(user.last_name))
         }.joinToString(" ")
         holder.binding.itemName.text = userName.ifEmpty { "Unknown User" }
 
@@ -44,11 +44,11 @@ class UserAdapter : ListAdapter<DataItem, UserAdapter.ListViewHolder>(UserDiffCa
 
         // Safely display iuran perwarga with validation
         val iuranPerwargaValue = if (user.iuran_perwarga >= 0) user.iuran_perwarga else 0
-        holder.binding.itemIuranPerwarga.text = "Iuran Perwarga ${DataValidator.formatCurrency(iuranPerwargaValue)}"
+        holder.binding.itemIuranPerwarga.text = "Iuran Perwarga ${InputSanitizer.formatCurrency(iuranPerwargaValue)}"
 
         // Safely display total iuran individu with validation
         val totalIuranIndividuValue = if (user.total_iuran_individu >= 0) user.total_iuran_individu else 0
-        holder.binding.itemIuranIndividu.text = "Total Iuran Individu ${DataValidator.formatCurrency(totalIuranIndividuValue)}"
+        holder.binding.itemIuranIndividu.text = "Total Iuran Individu ${InputSanitizer.formatCurrency(totalIuranIndividuValue)}"
     }
 
     class ListViewHolder(val binding: ItemListBinding): RecyclerView.ViewHolder(binding.root){

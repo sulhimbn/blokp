@@ -69,9 +69,9 @@ This blueprint documents the current architecture of the IuranKomplek applicatio
 │  └──────────────────────────────────┘  │
 │  ┌──────────────────────────────────┐  │
 │  │    Utilities Layer               │  │
-│  │  - NetworkUtils                │  │
-│  │  - DataValidator               │  │
-│  │  - ErrorHandler               │  │
+ │  │  - NetworkUtils                │  │
+ │  │  - InputSanitizer            │  │
+ │  │  - ErrorHandler               │  │
 │  │  - FinancialCalculator         │  │
 │  │  - Constants                  │  │
 │  │  - SecurityManager             │  │
@@ -209,8 +209,11 @@ app/
 │   │   └── EntityMapper.kt ✅ (DTO ↔ Entity conversion)
 │   ├── constraints/ ✅ NEW
 │   │   └── DatabaseConstraints.kt ✅ (schema definitions & SQL)
-│   ├── validation/ ✅ NEW
-│   │   └── DataValidator.kt ✅ (entity-level validation)
+ │   ├── entity/
+ │   │   ├── UserEntity.kt ✅
+ │   │   ├── FinancialRecordEntity.kt ✅
+ │   │   ├── UserWithFinancialRecords.kt ✅
+ │   │   └── EntityValidator.kt ✅ (entity-level validation)
 │   └── api/
 │       ├── ApiService.kt ✅
 │       ├── ApiConfig.kt ✅
@@ -265,7 +268,7 @@ app/
 │       └── BaseActivity.kt ✅ (retry logic, error handling)
 └── utils/
     ├── NetworkUtils.kt ✅ (connectivity checks)
-    ├── DataValidator.kt ✅ (input validation)
+    ├── InputSanitizer.kt ✅ (input sanitization)
     ├── ErrorHandler.kt ✅ (error handling, request ID tracing - ENHANCED 2026-01-08)
     ├── FinancialCalculator.kt ✅ (business logic)
     ├── Constants.kt ✅ (centralized constants, API versioning - UPDATED 2026-01-08)

@@ -1,6 +1,6 @@
 package com.example.iurankomplek.model
 
-import com.example.iurankomplek.utils.DataValidator
+import com.example.iurankomplek.utils.InputSanitizer
 
 /**
  * DataItem with validation and sanitization
@@ -38,16 +38,16 @@ data class ValidatedDataItem(
             require(dataItem.pengeluaran_iuran_warga <= Int.MAX_VALUE / 2) { "pengeluaran_iuran_warga value too large" }
             
             return ValidatedDataItem(
-                first_name = DataValidator.sanitizeName(dataItem.first_name),
-                last_name = DataValidator.sanitizeName(dataItem.last_name),
-                email = DataValidator.sanitizeEmail(dataItem.email),
-                alamat = DataValidator.sanitizeAddress(dataItem.alamat),
+                first_name = InputSanitizer.sanitizeName(dataItem.first_name),
+                last_name = InputSanitizer.sanitizeName(dataItem.last_name),
+                email = InputSanitizer.sanitizeEmail(dataItem.email),
+                alamat = InputSanitizer.sanitizeAddress(dataItem.alamat),
                 iuran_perwarga = dataItem.iuran_perwarga,
                 total_iuran_rekap = dataItem.total_iuran_rekap,
                 jumlah_iuran_bulanan = dataItem.jumlah_iuran_bulanan,
                 total_iuran_individu = dataItem.total_iuran_individu,
                 pengeluaran_iuran_warga = dataItem.pengeluaran_iuran_warga,
-                pemanfaatan_iuran = DataValidator.sanitizePemanfaatan(dataItem.pemanfaatan_iuran),
+                pemanfaatan_iuran = InputSanitizer.sanitizePemanfaatan(dataItem.pemanfaatan_iuran),
                 avatar = dataItem.avatar
             )
         }
@@ -81,16 +81,16 @@ data class ValidatedDataItem(
             require(pengeluaran_iuran_warga <= Int.MAX_VALUE / 2) { "pengeluaran_iuran_warga value too large" }
             
             return ValidatedDataItem(
-                first_name = DataValidator.sanitizeName(first_name),
-                last_name = DataValidator.sanitizeName(last_name),
-                email = DataValidator.sanitizeEmail(email),
-                alamat = DataValidator.sanitizeAddress(alamat),
+                first_name = InputSanitizer.sanitizeName(first_name),
+                last_name = InputSanitizer.sanitizeName(last_name),
+                email = InputSanitizer.sanitizeEmail(email),
+                alamat = InputSanitizer.sanitizeAddress(alamat),
                 iuran_perwarga = iuran_perwarga,
                 total_iuran_rekap = total_iuran_rekap,
                 jumlah_iuran_bulanan = jumlah_iuran_bulanan,
                 total_iuran_individu = total_iuran_individu,
                 pengeluaran_iuran_warga = pengeluaran_iuran_warga,
-                pemanfaatan_iuran = DataValidator.sanitizePemanfaatan(pemanfaatan_iuran),
+                pemanfaatan_iuran = InputSanitizer.sanitizePemanfaatan(pemanfaatan_iuran),
                 avatar = avatar
             )
         }
