@@ -3,6 +3,43 @@
 ## Overview
 Track architectural refactoring tasks and their status.
 
+## Pending Modules
+
+### [REFACTOR] 48. Domain Layer Implementation Module
+- Location: app/src/main/java/com/example/iurankomplek/
+- Issue: Blueprint.md documents domain/ layer structure but it doesn't exist. Currently using model/ directory at root level, which creates architectural inconsistency and confusion about which models to use (DataItem vs UserEntity/FinancialRecordEntity)
+- Suggestion: Create domain/ layer with proper domain models. Document blueprint states "domain/model - [Domain models - now using entities from data/entity]" but implementation doesn't match. Need to decide whether to: (a) implement full domain layer with use cases, or (b) clarify that data/entity should serve as domain models
+- Priority: High
+- Effort: Medium
+
+### [REFACTOR] 49. LaporanActivity Complexity Reduction Module
+- Location: app/src/main/java/com/example/iurankomplek/presentation/ui/activity/LaporanActivity.kt
+- Issue: Activity has complex logic with long methods and code duplication. integratePaymentTransactions() method is 62 lines (too long). Code duplication in creating summaryItems (lines 133-137, 172-176, 188-192) creates maintainability issues
+- Suggestion: Extract long method into smaller focused methods. Create helper method createSummaryItems() to eliminate duplication. Move payment integration logic to ViewModel or use case if implementing domain layer
+- Priority: High
+- Effort: Medium
+
+### [REFACTOR] 50. DataValidator Organization Module
+- Location: app/src/main/java/com/example/iurankomplek/utils/DataValidator.kt and data/validation/DataValidator.kt
+- Issue: Two DataValidator classes exist with different purposes but confusing naming. utils/DataValidator (170 lines) handles input sanitization (sanitizeName, sanitizeEmail, sanitizeAddress) for UI inputs. data/validation/DataValidator (140 lines) validates database entities (validateUser, validateFinancialRecord)
+- Suggestion: Rename classes to clarify purpose: utils/InputSanitizer and data/entity/EntityValidator. Or consolidate into single validator with clear separation of concerns. Update all imports accordingly
+- Priority: Medium
+- Effort: Small
+
+### [REFACTOR] 51. Repository Large Method Extraction Module
+- Location: app/src/main/java/com/example/iurankomplek/data/repository/
+- Issue: UserRepositoryImpl and PemanfaatanRepositoryImpl have 70-line methods (likely executeWithRetry with circuit breaker logic). Large methods violate Single Responsibility Principle and are harder to test and maintain
+- Suggestion: Extract retry/circuit breaker logic into separate utility methods or use RetryHelper (already exists). Each repository method should be concise (ideally <30 lines). Consider using higher-order functions to reduce duplication
+- Priority: Medium
+- Effort: Medium
+
+### [REFACTOR] 52. DatabaseConstraints Organization Module
+- Location: app/src/main/java/com/example/iurankomplek/data/constraints/DatabaseConstraints.kt
+- Issue: DatabaseConstraints.kt has 164 lines of constraint definitions spanning multiple tables (Users, FinancialRecords, Transactions, Webhooks). Large file with mixed concerns makes maintenance difficult
+- Suggestion: Split into separate constraint objects per table: UserConstraints.kt, FinancialRecordConstraints.kt, TransactionConstraints.kt, WebhookConstraints.kt. DatabaseConstraints can then aggregate them or each DAO can import specific constraints
+- Priority: Low
+- Effort: Small
+
 ## Completed Modules
 
 ### ✅ 47. API Integration Hardening Module (Versioning, Response Models, Enhanced Error Logging)
