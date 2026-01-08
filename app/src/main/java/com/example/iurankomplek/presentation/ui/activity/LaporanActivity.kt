@@ -169,12 +169,12 @@ withContext(Dispatchers.Main) {
                  // Instead of adding payments to total iuran, show payments as collected amounts against outstanding balances
                  
                  // Update summary with integrated data
-                 val updatedSummaryItems = listOf(
-                     LaporanSummaryItem(getString(R.string.jumlah_iuran_bulanan), DataValidator.formatCurrency(currentTotalIuranBulanan)),
-                     LaporanSummaryItem(getString(R.string.total_pengeluaran), DataValidator.formatCurrency(currentTotalPengeluaran)),
-                     LaporanSummaryItem(getString(R.string.rekap_total_iuran), DataValidator.formatCurrency(currentRekapIuran)),
-                     LaporanSummaryItem(getString(R.string.total_payments_processed), DataValidator.formatCurrency(paymentTotal))
-                 )
+                  val updatedSummaryItems = listOf(
+                      LaporanSummaryItem(getString(R.string.jumlah_iuran_bulanan), DataValidator.formatCurrency(currentTotalIuranBulanan)),
+                      LaporanSummaryItem(getString(R.string.total_pengeluaran), DataValidator.formatCurrency(currentTotalPengeluaran)),
+                      LaporanSummaryItem(getString(R.string.rekap_total_iuran), DataValidator.formatCurrency(_currentRekapIuran)),
+                      LaporanSummaryItem(getString(R.string.total_payments_processed), DataValidator.formatCurrency(paymentTotal))
+                  )
                  
                   summaryAdapter.setItems(updatedSummaryItems)
                   
@@ -185,11 +185,11 @@ withContext(Dispatchers.Main) {
                   ).show()
              } else {
                  // If no completed transactions, show original summary without payment data
-                 val originalSummaryItems = listOf(
-                     LaporanSummaryItem(getString(R.string.jumlah_iuran_bulanan), DataValidator.formatCurrency(currentTotalIuranBulanan)),
-                     LaporanSummaryItem(getString(R.string.total_pengeluaran), DataValidator.formatCurrency(currentTotalPengeluaran)),
-                     LaporanSummaryItem(getString(R.string.rekap_total_iuran), DataValidator.formatCurrency(currentRekapIuran))
-                 )
+                  val originalSummaryItems = listOf(
+                      LaporanSummaryItem(getString(R.string.jumlah_iuran_bulanan), DataValidator.formatCurrency(currentTotalIuranBulanan)),
+                      LaporanSummaryItem(getString(R.string.total_pengeluaran), DataValidator.formatCurrency(currentTotalPengeluaran)),
+                      LaporanSummaryItem(getString(R.string.rekap_total_iuran), DataValidator.formatCurrency(_currentRekapIuran))
+                  )
                  
                  summaryAdapter.setItems(originalSummaryItems)
              }
