@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">BlokP</string>
     
-    <!-- Accessibility Content Descriptions -->
+     <!-- Accessibility Content Descriptions -->
     <string name="avatar_content_description">User avatar image</string>
     <string name="menu_item_content_description">Menu item: %s</string>
     <string name="profile_menu_content_description">Navigate to user profiles</string>
@@ -9,6 +9,9 @@
     <string name="communication_menu_content_description">Navigate to communication</string>
     <string name="payment_menu_content_description">Navigate to payments</string>
     <string name="loading_content_description">Loading data</string>
+    <string name="swipe_refresh_desc">Pull down to refresh the list</string>
+    <string name="swipe_refreshing">Refreshing data</string>
+    <string name="swipe_refresh_complete">Data refreshed</string>
     
     <!-- User Data Messages -->
     <string name="no_users_available">No users available</string>

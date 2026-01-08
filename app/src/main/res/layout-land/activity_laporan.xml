@@ -53,7 +53,7 @@
                 <!-- State Management Include -->
                 <include layout="@layout/include_state_management" />
 
-                <!-- RecyclerView for summary items -->
+                <!-- Summary RecyclerView in landscape (horizontal layout) -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_summary"
                     android:layout_width="0dp"
@@ -63,7 +63,8 @@
                     android:importantForAccessibility="yes"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:listitem="@layout/item_laporan" />
 
                 <!-- TextView for Pemanfaatan title -->
                 <TextView
@@ -84,7 +85,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/rv_summary" />
 
-                <!-- RecyclerView for pemanfaatan details -->
+                <!-- RecyclerView for pemanfaatan details (two columns in landscape) -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_laporan"
                     android:layout_width="0dp"

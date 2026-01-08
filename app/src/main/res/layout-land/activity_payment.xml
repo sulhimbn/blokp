@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/padding_xl"
+    android:padding="@dimen/padding_lg"
     tools:context=".PaymentActivity">
 
     <TextView
@@ -12,7 +12,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/payment_title"
-        android:textSize="@dimen/text_size_large"
+        android:textSize="@dimen/text_size_xlarge"
         android:textStyle="bold"
         android:gravity="center"
         android:textColor="@color/text_primary"
@@ -22,90 +22,80 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Left Column: Form Inputs -->
-    <LinearLayout
-        android:id="@+id/formColumn"
+    <!-- Left side: Amount input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_amount"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:orientation="vertical"
-        android:layout_marginEnd="@dimen/spacing_xl"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/spacing_md"
+        android:hint="@string/payment_amount_hint"
+        app:boxCornerRadiusBottomEnd="@dimen/radius_md"
+        app:boxCornerRadiusBottomStart="@dimen/radius_md"
+        app:boxCornerRadiusTopEnd="@dimen/radius_md"
+        app:boxCornerRadiusTopStart="@dimen/radius_md"
+        app:helperText="@string/payment_amount_helper"
         app:layout_constraintTop_toBottomOf="@id/tv_payment_title"
-        app:layout_constraintBottom_toTopOf="@id/btn_pay"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/statusColumn"
-        app:layout_constraintHorizontal_weight="1">
+        app:layout_constraintEnd_toStartOf="@id/guideline_payment_vertical">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_amount"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_amount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_md"
-            android:hint="@string/payment_amount_hint"
-            app:boxCornerRadiusBottomEnd="@dimen/radius_md"
-            app:boxCornerRadiusBottomStart="@dimen/radius_md"
-            app:boxCornerRadiusTopEnd="@dimen/radius_md"
-            app:boxCornerRadiusTopStart="@dimen/radius_md"
-            app:helperText="@string/payment_amount_helper">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_amount"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:minHeight="@dimen/button_height_min"
-                android:importantForAccessibility="yes"
-                android:contentDescription="@string/payment_amount_input_desc"
-                android:labelFor="@id/til_amount" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <TextView
-            android:id="@+id/tv_payment_method_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/payment_method_label"
-            android:textSize="@dimen/text_size_normal"
-            android:textColor="@color/text_primary"
-            android:textStyle="bold"
-            android:layout_marginBottom="@dimen/spacing_sm"
-            android:labelFor="@id/spinner_payment_method" />
-
-        <Spinner
-            android:id="@+id/spinner_payment_method"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
             android:minHeight="@dimen/button_height_min"
-            android:entries="@array/payment_methods"
             android:importantForAccessibility="yes"
-            android:contentDescription="@string/payment_method_spinner_desc" />
+            android:contentDescription="@string/payment_amount_input_desc"
+            android:labelFor="@id/til_amount" />
 
-    </LinearLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Right Column: Status & Actions -->
-    <LinearLayout
-        android:id="@+id/statusColumn"
+    <!-- Right side: Payment method spinner -->
+    <TextView
+        android:id="@+id/tv_payment_method_label"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/payment_method_label"
+        android:textSize="@dimen/text_size_normal"
+        android:textColor="@color/text_primary"
+        android:textStyle="bold"
+        android:layout_marginBottom="@dimen/spacing_sm"
+        android:labelFor="@id/spinner_payment_method"
+        app:layout_constraintTop_toBottomOf="@id/tv_payment_title"
+        app:layout_constraintStart_toStartOf="@id/guideline_payment_vertical"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Spinner
+        android:id="@+id/spinner_payment_method"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/button_height_min"
+        android:entries="@array/payment_methods"
+        android:importantForAccessibility="yes"
+        android:contentDescription="@string/payment_method_spinner_desc"
+        app:layout_constraintTop_toBottomOf="@id/tv_payment_method_label"
+        app:layout_constraintStart_toStartOf="@id/guideline_payment_vertical"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Vertical guideline for 50/50 split -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_payment_vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="center_horizontal"
-        app:layout_constraintTop_toTopOf="@id/formColumn"
-        app:layout_constraintBottom_toTopOf="@id/btn_pay"
-        app:layout_constraintStart_toEndOf="@id/formColumn"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_weight="1">
+        app:layout_constraintGuide_percent="0.5" />
 
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_xl"
-            android:visibility="gone"
-            android:importantForAccessibility="yes"
-            android:contentDescription="@string/payment_processing" />
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:importantForAccessibility="yes"
+        android:contentDescription="@string/payment_processing"
+        app:layout_constraintTop_toBottomOf="@id/til_amount"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    </LinearLayout>
-
-    <!-- Bottom Button Row -->
     <Button
         android:id="@+id/btn_pay"
         android:layout_width="0dp"
@@ -113,15 +103,14 @@
         android:text="@string/payment_pay_now"
         android:textSize="@dimen/text_size_normal"
         android:minHeight="@dimen/button_height_min"
-        android:layout_marginEnd="@dimen/spacing_md"
-        android:layout_marginBottom="@dimen/margin_lg"
+        android:layout_marginEnd="@dimen/spacing_sm"
         android:backgroundTint="@color/primary"
         android:contentDescription="@string/payment_pay_now_desc"
         android:importantForAccessibility="yes"
+        app:layout_constraintTop_toBottomOf="@id/progress_bar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/btn_view_history"
-        app:layout_constraintHorizontal_weight="1" />
+        app:layout_constraintEnd_toStartOf="@id/guideline_button_vertical" />
 
     <Button
         android:id="@+id/btn_view_history"
@@ -130,14 +119,21 @@
         android:text="@string/payment_view_history"
         android:textSize="@dimen/text_size_normal"
         android:minHeight="@dimen/button_height_min"
-        android:layout_marginStart="@dimen/spacing_md"
-        android:layout_marginBottom="@dimen/margin_lg"
+        android:layout_marginStart="@dimen/spacing_sm"
         android:backgroundTint="@color/secondary"
         android:contentDescription="@string/payment_view_history_desc"
         android:importantForAccessibility="yes"
+        app:layout_constraintTop_toBottomOf="@id/progress_bar"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/btn_pay"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_weight="1" />
+        app:layout_constraintStart_toStartOf="@id/guideline_button_vertical"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Vertical guideline for buttons -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_button_vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
