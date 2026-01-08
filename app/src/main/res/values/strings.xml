@@ -87,11 +87,32 @@
      <string name="failed_to_load_community_posts">Failed to load community posts</string>
      <string name="error_with_message">Error: %s</string>
      
-     <!-- Laporan Screen -->
-     <string name="pemanfaatan_title">2. Pemanfaatan : </string>
+     <!-- Activity Titles -->
+     <string name="main_activity_title">DAFTAR IURAN WARGA KONOHA</string>
+     <string name="menu_activity_title">IURAN KOMPLEK KONOHA</string>
+     <string name="laporan_activity_title">LAPORAN KAS RT</string>
 
-     
-     <!-- Transaction History -->
+     <!-- Menu Items -->
+     <string name="menu_warga">Warga</string>
+     <string name="menu_laporan">Laporan</string>
+     <string name="menu_komunikasi">Komunikasi</string>
+     <string name="menu_pembayaran">Pembayaran</string>
+     <string name="menu_item_text">Menu Item</string>
+
+     <!-- Item Labels -->
+     <string name="item_name">Name</string>
+     <string name="item_email">Email</string>
+     <string name="item_address">Address</string>
+     <string name="item_iuran_perwarga">Iuran Perwarga</string>
+     <string name="item_total_iuran_individu">Total Iuran Individu</string>
+
+     <!-- Laporan Screen -->
+      <string name="pemanfaatan_title">2. Pemanfaatan : </string>
+      <string name="pemanfaatan_item_cleaning_cost">- Biaya Kebersihan Lingkungan : </string>
+      <string name="pemanfaatan_item_value">200.000,00</string>
+
+
+      <!-- Transaction History -->
     <string name="transaction_item_desc">Transaction history item card</string>
     <string name="transaction_amount">Amount:</string>
     <string name="transaction_amount_value">Transaction amount</string>

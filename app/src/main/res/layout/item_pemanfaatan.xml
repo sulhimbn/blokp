@@ -16,7 +16,7 @@
         android:gravity="start|center_vertical"
         android:paddingStart="@dimen/spacing_md"
         android:paddingEnd="@dimen/spacing_md"
-        android:text="- Biaya Kebersihan Lingkungan : "
+        android:text="@string/pemanfaatan_item_cleaning_cost"
         android:fontFamily="@font/font"
         android:textColor="@color/white"
         android:textSize="@dimen/text_size_large"

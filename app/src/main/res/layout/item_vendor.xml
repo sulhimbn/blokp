@@ -4,7 +4,9 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="@dimen/padding_md"
-    android:background="@drawable/bg_item_list"
+    android:background="@drawable/bg_item_list_focused"
+    android:focusable="true"
+    android:clickable="true"
     android:importantForAccessibility="yes">
 
     <TextView

@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <!-- Header Title -->
+     <!-- Header Title -->
     <TextView
         android:id="@+id/textView1"
         android:layout_width="0dp"
@@ -19,7 +19,7 @@
         android:paddingTop="@dimen/padding_md"
         android:paddingEnd="@dimen/padding_md"
         android:paddingBottom="@dimen/padding_md"
-        android:text="DAFTAR IURAN WARGA KONOHA"
+        android:text="@string/main_activity_title"
         android:textColor="@color/text_on_primary"
         android:textSize="@dimen/heading_h4"
         android:textStyle="bold"
@@ -43,80 +43,8 @@
             android:layout_height="match_parent"
             android:background="@color/background_secondary">
 
-            <!-- Progress Bar for loading indicator -->
-            <ProgressBar
-                android:id="@+id/progressBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:importantForAccessibility="yes"
-                android:contentDescription="@string/loading_content_description"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-            <!-- Empty State -->
-            <TextView
-                android:id="@+id/emptyStateTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/no_users_available"
-                android:textSize="@dimen/text_size_medium"
-                android:textColor="@color/text_secondary"
-                android:visibility="gone"
-                android:importantForAccessibility="yes"
-                android:gravity="center"
-                android:drawableTop="@android:drawable/ic_dialog_info"
-                android:drawablePadding="@dimen/spacing_md"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-            <!-- Error State -->
-            <LinearLayout
-                android:id="@+id/errorStateLayout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:visibility="gone"
-                android:importantForAccessibility="yes"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
-
-                <TextView
-                    android:id="@+id/errorStateTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/error_loading_data"
-                    android:textSize="@dimen/text_size_medium"
-                    android:textColor="@color/error"
-                    android:gravity="center"
-                    android:layout_marginBottom="@dimen/spacing_sm"
-                    android:importantForAccessibility="yes"
-                    android:drawableTop="@android:drawable/ic_dialog_alert"
-                    android:drawablePadding="@dimen/spacing_md" />
-
-                <TextView
-                    android:id="@+id/retryTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/retry_loading_data"
-                    android:textSize="@dimen/text_size_small"
-                    android:textColor="@color/primary"
-                    android:textStyle="bold"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="@dimen/spacing_md"
-                    android:importantForAccessibility="yes"
-                    android:contentDescription="@string/retry_loading_data" />
-
-            </LinearLayout>
+            <!-- State Management Include -->
+            <include layout="@layout/include_state_management" />
 
             <!-- RecyclerView untuk menampilkan daftar -->
             <androidx.recyclerview.widget.RecyclerView
