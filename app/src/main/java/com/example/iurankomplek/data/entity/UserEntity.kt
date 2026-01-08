@@ -34,6 +34,9 @@ data class UserEntity(
     @ColumnInfo(name = DatabaseConstraints.Users.Columns.AVATAR)
     val avatar: String,
 
+    @ColumnInfo(name = DatabaseConstraints.Users.Columns.IS_DELETED)
+    val isDeleted: Boolean = false,
+
     @ColumnInfo(name = DatabaseConstraints.Users.Columns.CREATED_AT)
     val createdAt: Date = Date(),
 

@@ -51,6 +51,9 @@ data class FinancialRecordEntity(
     @ColumnInfo(name = DatabaseConstraints.FinancialRecords.Columns.PEMANFAATAN_IURAN)
     val pemanfaatanIuran: String,
 
+    @ColumnInfo(name = DatabaseConstraints.FinancialRecords.Columns.IS_DELETED)
+    val isDeleted: Boolean = false,
+
     @ColumnInfo(name = DatabaseConstraints.FinancialRecords.Columns.CREATED_AT)
     val createdAt: Date = Date(),
 

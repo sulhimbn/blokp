@@ -53,6 +53,9 @@ data class Transaction(
     @ColumnInfo(name = DatabaseConstraints.Transactions.Columns.DESCRIPTION)
     val description: String,
 
+    @ColumnInfo(name = DatabaseConstraints.Transactions.Columns.IS_DELETED)
+    val isDeleted: Boolean = false,
+
     @ColumnInfo(name = DatabaseConstraints.Transactions.Columns.CREATED_AT)
     val createdAt: Date = Date(),
 

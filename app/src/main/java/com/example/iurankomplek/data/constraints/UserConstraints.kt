@@ -10,6 +10,7 @@ object UserConstraints {
         const val LAST_NAME = "last_name"
         const val ALAMAT = "alamat"
         const val AVATAR = "avatar"
+        const val IS_DELETED = "is_deleted"
         const val CREATED_AT = "created_at"
         const val UPDATED_AT = "updated_at"
     }
@@ -33,6 +34,7 @@ object UserConstraints {
             ${Columns.LAST_NAME} TEXT NOT NULL CHECK(length(${Columns.LAST_NAME}) <= ${Constraints.MAX_NAME_LENGTH}),
             ${Columns.ALAMAT} TEXT NOT NULL CHECK(length(${Columns.ALAMAT}) <= ${Constraints.MAX_ALAMAT_LENGTH}),
             ${Columns.AVATAR} TEXT NOT NULL CHECK(length(${Columns.AVATAR}) <= ${Constraints.MAX_AVATAR_LENGTH}),
+            ${Columns.IS_DELETED} INTEGER NOT NULL DEFAULT 0 CHECK(${Columns.IS_DELETED} IN (0, 1)),
             ${Columns.CREATED_AT} INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
             ${Columns.UPDATED_AT} INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
         )

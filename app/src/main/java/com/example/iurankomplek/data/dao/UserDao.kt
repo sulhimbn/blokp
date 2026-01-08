@@ -13,21 +13,21 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UserDao {
-    @Query("SELECT * FROM users ORDER BY last_name ASC, first_name ASC")
+    @Query("SELECT * FROM users WHERE is_deleted = 0 ORDER BY last_name ASC, first_name ASC")
     fun getAllUsers(): Flow<List<UserEntity>>
 
-    @Query("SELECT * FROM users WHERE id = :userId LIMIT 1")
+    @Query("SELECT * FROM users WHERE id = :userId AND is_deleted = 0 LIMIT 1")
     suspend fun getUserById(userId: Long): UserEntity?
 
-    @Query("SELECT * FROM users WHERE email = :email LIMIT 1")
+    @Query("SELECT * FROM users WHERE email = :email AND is_deleted = 0 LIMIT 1")
     suspend fun getUserByEmail(email: String): UserEntity?
 
     @Transaction
-    @Query("SELECT * FROM users WHERE id = :userId")
+    @Query("SELECT * FROM users WHERE id = :userId AND is_deleted = 0")
     suspend fun getUserWithFinancialRecords(userId: Long): UserWithFinancialRecords?
 
     @Transaction
-    @Query("SELECT * FROM users")
+    @Query("SELECT * FROM users WHERE is_deleted = 0")
     fun getAllUsersWithFinancialRecords(): Flow<List<UserWithFinancialRecords>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -39,6 +39,15 @@ interface UserDao {
     @Update
     suspend fun update(user: UserEntity)
 
+    @Query("UPDATE users SET is_deleted = 1, updated_at = strftime('%s', 'now') WHERE id = :userId")
+    suspend fun softDeleteById(userId: Long)
+
+    @Query("UPDATE users SET is_deleted = 0, updated_at = strftime('%s', 'now') WHERE id = :userId")
+    suspend fun restoreById(userId: Long)
+
+    @Query("SELECT * FROM users WHERE is_deleted = 1 ORDER BY updated_at DESC")
+    fun getDeletedUsers(): Flow<List<UserEntity>>
+
     @Delete
     suspend fun delete(user: UserEntity)
 
@@ -48,13 +57,13 @@ interface UserDao {
     @Query("DELETE FROM users")
     suspend fun deleteAll()
 
-    @Query("SELECT COUNT(*) FROM users")
+    @Query("SELECT COUNT(*) FROM users WHERE is_deleted = 0")
     suspend fun getCount(): Int
 
-    @Query("SELECT EXISTS(SELECT 1 FROM users WHERE email = :email)")
+    @Query("SELECT EXISTS(SELECT 1 FROM users WHERE email = :email AND is_deleted = 0)")
     suspend fun emailExists(email: String): Boolean
 
-    @Query("SELECT * FROM users WHERE email IN (:emails)")
+    @Query("SELECT * FROM users WHERE email IN (:emails) AND is_deleted = 0")
     suspend fun getUsersByEmails(emails: List<String>): List<UserEntity>
 
     @Update(onConflict = OnConflictStrategy.REPLACE)

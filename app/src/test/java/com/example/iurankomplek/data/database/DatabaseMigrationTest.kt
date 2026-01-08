@@ -660,4 +660,237 @@ class DatabaseMigrationTest {
         assertFalse("financial_records table should be dropped", tables.contains("financial_records"))
         assertFalse("webhook_events table should be dropped", tables.contains("webhook_events"))
     }
+
+    @Test
+    fun `migration5 should add is_deleted columns to all tables`() {
+        var db = helper.createDatabase(TEST_DB, 1)
+        db.execSQL("INSERT INTO users (email, first_name, last_name, alamat, avatar) VALUES ('test@example.com', 'John', 'Doe', '123 Main St', 'https://example.com/avatar.jpg')")
+        db.execSQL("INSERT INTO financial_records (user_id, iuran_perwarga, jumlah_iuran_bulanan, total_iuran_individu, pengeluaran_iuran_warga, total_iuran_rekap, pemanfaatan_iuran) VALUES (1, 100, 200, 300, 400, 500, 'Maintenance')")
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 2, true, Migration1(), Migration1Down, Migration2)
+        db.execSQL("INSERT INTO webhook_events (idempotency_key, event_type, payload, status) VALUES ('whk_1234567890_abc', 'payment.completed', '{\"test\":\"data\"}', 'PENDING')")
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 3, true, Migration1(), Migration1Down, Migration2, Migration3)
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 4, true, Migration1(), Migration1Down, Migration2, Migration3, Migration4)
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 5, true, Migration1(), Migration1Down, Migration2, Migration3, Migration4, Migration5)
+
+        val userCursor = db.query("SELECT is_deleted FROM users WHERE id = 1")
+        userCursor.moveToFirst()
+        val userIsDeleted = userCursor.getInt(0)
+        userCursor.close()
+
+        val financialCursor = db.query("SELECT is_deleted FROM financial_records WHERE id = 1")
+        financialCursor.moveToFirst()
+        val financialIsDeleted = financialCursor.getInt(0)
+        financialCursor.close()
+
+        assertEquals("User is_deleted should default to 0", 0, userIsDeleted)
+        assertEquals("Financial record is_deleted should default to 0", 0, financialIsDeleted)
+    }
+
+    @Test
+    fun `migration5 should create is_deleted indexes`() {
+        var db = helper.createDatabase(TEST_DB, 1)
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 5, true, Migration1(), Migration1Down, Migration2, Migration3, Migration4, Migration5)
+
+        val usersIndexesCursor = db.query("SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='users'")
+        val userIndexNames = mutableListOf<String>()
+        while (usersIndexesCursor.moveToNext()) {
+            userIndexNames.add(usersIndexesCursor.getString(0))
+        }
+        usersIndexesCursor.close()
+
+        val financialIndexesCursor = db.query("SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='financial_records'")
+        val financialIndexNames = mutableListOf<String>()
+        while (financialIndexesCursor.moveToNext()) {
+            financialIndexNames.add(financialIndexesCursor.getString(0))
+        }
+        financialIndexesCursor.close()
+
+        val transactionsIndexesCursor = db.query("SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='transactions'")
+        val transactionIndexNames = mutableListOf<String>()
+        while (transactionsIndexesCursor.moveToNext()) {
+            transactionIndexNames.add(transactionsIndexesCursor.getString(0))
+        }
+        transactionsIndexesCursor.close()
+
+        assertTrue("Should have idx_users_not_deleted index", userIndexNames.contains("idx_users_not_deleted"))
+        assertTrue("Should have idx_financial_not_deleted index", financialIndexNames.contains("idx_financial_not_deleted"))
+        assertTrue("Should have idx_transactions_not_deleted index", transactionIndexNames.contains("idx_transactions_not_deleted"))
+    }
+
+    @Test
+    fun `migration5 should preserve existing data`() {
+        var db = helper.createDatabase(TEST_DB, 1)
+        db.execSQL("INSERT INTO users (email, first_name, last_name, alamat, avatar) VALUES ('test@example.com', 'John', 'Doe', '123 Main St', 'https://example.com/avatar.jpg')")
+        db.execSQL("INSERT INTO financial_records (user_id, iuran_perwarga, jumlah_iuran_bulanan, total_iuran_individu, pengeluaran_iuran_warga, total_iuran_rekap, pemanfaatan_iuran) VALUES (1, 100, 200, 300, 400, 500, 'Maintenance')")
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 2, true, Migration1(), Migration1Down, Migration2)
+        db.execSQL("INSERT INTO webhook_events (idempotency_key, event_type, payload, status) VALUES ('whk_1234567890_abc', 'payment.completed', '{\"test\":\"data\"}', 'PENDING')")
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 3, true, Migration1(), Migration1Down, Migration2, Migration3)
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 4, true, Migration1(), Migration1Down, Migration2, Migration3, Migration4)
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 5, true, Migration1(), Migration1Down, Migration2, Migration3, Migration4, Migration5)
+
+        val userCursor = db.query("SELECT COUNT(*) FROM users")
+        userCursor.moveToFirst()
+        val userCount = userCursor.getInt(0)
+        userCursor.close()
+
+        val financialCursor = db.query("SELECT COUNT(*) FROM financial_records")
+        financialCursor.moveToFirst()
+        val financialCount = financialCursor.getInt(0)
+        financialCursor.close()
+
+        val webhookCursor = db.query("SELECT COUNT(*) FROM webhook_events")
+        webhookCursor.moveToFirst()
+        val webhookCount = webhookCursor.getInt(0)
+        webhookCursor.close()
+
+        assertEquals("User data should be preserved", 1, userCount)
+        assertEquals("Financial record data should be preserved", 1, financialCount)
+        assertEquals("Webhook event data should be preserved", 1, webhookCount)
+    }
+
+    @Test
+    fun `migration5Down should drop is_deleted columns and indexes`() {
+        var db = helper.createDatabase(TEST_DB, 1)
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 5, true, Migration1(), Migration1Down, Migration2, Migration3, Migration4, Migration5)
+
+        Migration5Down.migrate(db)
+
+        try {
+            db.query("SELECT is_deleted FROM users LIMIT 1")
+            fail("is_deleted column should not exist in users table")
+        } catch (e: Exception) {
+            assertTrue("Should fail with no such column error", e.message?.contains("no such column") == true)
+        }
+
+        try {
+            db.query("SELECT is_deleted FROM financial_records LIMIT 1")
+            fail("is_deleted column should not exist in financial_records table")
+        } catch (e: Exception) {
+            assertTrue("Should fail with no such column error", e.message?.contains("no such column") == true)
+        }
+
+        try {
+            db.query("SELECT is_deleted FROM transactions LIMIT 1")
+            fail("is_deleted column should not exist in transactions table")
+        } catch (e: Exception) {
+            assertTrue("Should fail with no such column error", e.message?.contains("no such column") == true)
+        }
+
+        val usersIndexesCursor = db.query("SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='users'")
+        val userIndexNames = mutableListOf<String>()
+        while (usersIndexesCursor.moveToNext()) {
+            userIndexNames.add(usersIndexesCursor.getString(0))
+        }
+        usersIndexesCursor.close()
+
+        val financialIndexesCursor = db.query("SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='financial_records'")
+        val financialIndexNames = mutableListOf<String>()
+        while (financialIndexesCursor.moveToNext()) {
+            financialIndexNames.add(financialIndexesCursor.getString(0))
+        }
+        financialIndexesCursor.close()
+
+        val transactionsIndexesCursor = db.query("SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='transactions'")
+        val transactionIndexNames = mutableListOf<String>()
+        while (transactionsIndexesCursor.moveToNext()) {
+            transactionIndexNames.add(transactionsIndexesCursor.getString(0))
+        }
+        transactionsIndexesCursor.close()
+
+        assertFalse("idx_users_not_deleted should be dropped", userIndexNames.contains("idx_users_not_deleted"))
+        assertFalse("idx_financial_not_deleted should be dropped", financialIndexNames.contains("idx_financial_not_deleted"))
+        assertFalse("idx_transactions_not_deleted should be dropped", transactionIndexNames.contains("idx_transactions_not_deleted"))
+    }
+
+    @Test
+    fun `migration5Down should preserve existing data`() {
+        var db = helper.createDatabase(TEST_DB, 1)
+        db.execSQL("INSERT INTO users (email, first_name, last_name, alamat, avatar) VALUES ('test@example.com', 'John', 'Doe', '123 Main St', 'https://example.com/avatar.jpg')")
+        db.execSQL("INSERT INTO financial_records (user_id, iuran_perwarga, jumlah_iuran_bulanan, total_iuran_individu, pengeluaran_iuran_warga, total_iuran_rekap, pemanfaatan_iuran) VALUES (1, 100, 200, 300, 400, 500, 'Maintenance')")
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 2, true, Migration1(), Migration1Down, Migration2)
+        db.execSQL("INSERT INTO webhook_events (idempotency_key, event_type, payload, status) VALUES ('whk_1234567890_abc', 'payment.completed', '{\"test\":\"data\"}', 'PENDING')")
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 3, true, Migration1(), Migration1Down, Migration2, Migration3)
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 4, true, Migration1(), Migration1Down, Migration2, Migration3, Migration4)
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 5, true, Migration1(), Migration1Down, Migration2, Migration3, Migration4, Migration5)
+
+        Migration5Down.migrate(db)
+
+        val userCursor = db.query("SELECT COUNT(*) FROM users")
+        userCursor.moveToFirst()
+        val userCount = userCursor.getInt(0)
+        userCursor.close()
+
+        val financialCursor = db.query("SELECT COUNT(*) FROM financial_records")
+        financialCursor.moveToFirst()
+        val financialCount = financialCursor.getInt(0)
+        financialCursor.close()
+
+        val webhookCursor = db.query("SELECT COUNT(*) FROM webhook_events")
+        webhookCursor.moveToFirst()
+        val webhookCount = webhookCursor.getInt(0)
+        webhookCursor.close()
+
+        assertEquals("User data should be preserved", 1, userCount)
+        assertEquals("Financial record data should be preserved", 1, financialCount)
+        assertEquals("Webhook event data should be preserved", 1, webhookCount)
+    }
+
+    @Test
+    fun `migration1_2_3_4_5_migrations_in_sequence_should_work`() {
+        var db = helper.createDatabase(TEST_DB, 1)
+        db.execSQL("INSERT INTO users (email, first_name, last_name, alamat, avatar) VALUES ('test@example.com', 'John', 'Doe', '123 Main St', 'https://example.com/avatar.jpg')")
+        db.execSQL("INSERT INTO financial_records (user_id, iuran_perwarga, jumlah_iuran_bulanan, total_iuran_individu, pengeluaran_iuran_warga, total_iuran_rekap, pemanfaatan_iuran) VALUES (1, 100, 200, 300, 400, 500, 'Maintenance')")
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 5, true, Migration1(), Migration1Down, Migration2, Migration3, Migration4, Migration5)
+
+        db.execSQL("INSERT INTO webhook_events (idempotency_key, event_type, payload, status) VALUES ('whk_1234567890_abc', 'payment.completed', '{\"test\":\"data\"}', 'PENDING')")
+
+        val userCursor = db.query("SELECT COUNT(*) FROM users WHERE is_deleted = 0")
+        userCursor.moveToFirst()
+        val userCount = userCursor.getInt(0)
+        userCursor.close()
+
+        val financialCursor = db.query("SELECT COUNT(*) FROM financial_records WHERE is_deleted = 0")
+        financialCursor.moveToFirst()
+        val financialCount = financialCursor.getInt(0)
+        financialCursor.close()
+
+        val webhookCursor = db.query("SELECT COUNT(*) FROM webhook_events")
+        webhookCursor.moveToFirst()
+        val webhookCount = webhookCursor.getInt(0)
+        webhookCursor.close()
+
+        assertEquals("Active users should exist", 1, userCount)
+        assertEquals("Active financial records should exist", 1, financialCount)
+        assertEquals("Webhook events should exist", 1, webhookCount)
+    }
 }

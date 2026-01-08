@@ -8,8 +8,10 @@ import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.iurankomplek.data.DataTypeConverters
 import com.example.iurankomplek.data.dao.FinancialRecordDao
+import com.example.iurankomplek.data.dao.TransactionDao
 import com.example.iurankomplek.data.dao.UserDao
 import com.example.iurankomplek.data.entity.FinancialRecordEntity
+import com.example.iurankomplek.data.entity.Transaction
 import com.example.iurankomplek.data.entity.UserEntity
 import com.example.iurankomplek.payment.WebhookEvent
 import com.example.iurankomplek.payment.WebhookEventDao
@@ -17,14 +19,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [UserEntity::class, FinancialRecordEntity::class, WebhookEvent::class],
-    version = 4,
+    entities = [UserEntity::class, FinancialRecordEntity::class, Transaction::class, WebhookEvent::class],
+    version = 5,
     exportSchema = true
 )
 @TypeConverters(DataTypeConverters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun financialRecordDao(): FinancialRecordDao
+    abstract fun transactionDao(): TransactionDao
     abstract fun webhookEventDao(): WebhookEventDao
 
     companion object {
@@ -39,7 +42,7 @@ abstract class AppDatabase : RoomDatabase() {
                     "iuran_komplek_database"
                 )
                     .addCallback(DatabaseCallback(scope))
-                    .addMigrations(Migration1(), Migration1Down, Migration2, Migration2Down, Migration3, Migration3Down, Migration4, Migration4Down)
+                    .addMigrations(Migration1(), Migration1Down, Migration2, Migration2Down, Migration3, Migration3Down, Migration4, Migration4Down, Migration5, Migration5Down())
                     .build()
                 INSTANCE = instance
                 instance

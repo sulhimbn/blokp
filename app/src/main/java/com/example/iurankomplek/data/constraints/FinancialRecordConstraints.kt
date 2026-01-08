@@ -12,6 +12,7 @@ object FinancialRecordConstraints {
         const val PENGELUARAN_IURAN_WARGA = "pengeluaran_iuran_warga"
         const val TOTAL_IURAN_REKAP = "total_iuran_rekap"
         const val PEMANFAATAN_IURAN = "pemanfaatan_iuran"
+        const val IS_DELETED = "is_deleted"
         const val CREATED_AT = "created_at"
         const val UPDATED_AT = "updated_at"
     }
@@ -37,6 +38,7 @@ object FinancialRecordConstraints {
             ${Columns.PENGELUARAN_IURAN_WARGA} INTEGER NOT NULL DEFAULT 0 CHECK(${Columns.PENGELUARAN_IURAN_WARGA} >= 0),
             ${Columns.TOTAL_IURAN_REKAP} INTEGER NOT NULL DEFAULT 0 CHECK(${Columns.TOTAL_IURAN_REKAP} >= 0),
             ${Columns.PEMANFAATAN_IURAN} TEXT NOT NULL CHECK(length(${Columns.PEMANFAATAN_IURAN}) > 0),
+            ${Columns.IS_DELETED} INTEGER NOT NULL DEFAULT 0 CHECK(${Columns.IS_DELETED} IN (0, 1)),
             ${Columns.CREATED_AT} INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
             ${Columns.UPDATED_AT} INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
             FOREIGN KEY(${Columns.USER_ID}) REFERENCES ${UserConstraints.TABLE_NAME}(${UserConstraints.Columns.ID}) 

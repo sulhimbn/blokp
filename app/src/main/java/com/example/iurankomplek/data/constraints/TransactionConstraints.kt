@@ -11,6 +11,7 @@ object TransactionConstraints {
         const val STATUS = "status"
         const val PAYMENT_METHOD = "payment_method"
         const val DESCRIPTION = "description"
+        const val IS_DELETED = "is_deleted"
         const val CREATED_AT = "created_at"
         const val UPDATED_AT = "updated_at"
         const val METADATA = "metadata"
@@ -40,6 +41,7 @@ object TransactionConstraints {
             ${Columns.STATUS} TEXT NOT NULL CHECK(${Columns.STATUS} IN ('PENDING', 'PROCESSING', 'COMPLETED', 'FAILED', 'REFUNDED', 'CANCELLED')),
             ${Columns.PAYMENT_METHOD} TEXT NOT NULL CHECK(${Columns.PAYMENT_METHOD} IN ('CREDIT_CARD', 'BANK_TRANSFER', 'E_WALLET', 'VIRTUAL_ACCOUNT')),
             ${Columns.DESCRIPTION} TEXT NOT NULL CHECK(length(${Columns.DESCRIPTION}) > 0 AND length(${Columns.DESCRIPTION}) <= ${Constraints.MAX_DESCRIPTION_LENGTH}),
+            ${Columns.IS_DELETED} INTEGER NOT NULL DEFAULT 0 CHECK(${Columns.IS_DELETED} IN (0, 1)),
             ${Columns.CREATED_AT} INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
             ${Columns.UPDATED_AT} INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
             ${Columns.METADATA} TEXT NOT NULL DEFAULT '' CHECK(length(${Columns.METADATA}) <= ${Constraints.MAX_METADATA_LENGTH}),
