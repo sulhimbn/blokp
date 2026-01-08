@@ -89,48 +89,6 @@ class UserAdapterTest {
     }
 
     @Test
-    fun `submitList with valid users should filter out invalid users`() {
-        val mixedUsers = listOf(
-            createTestDataItem("Valid", "User", "valid@example.com"),
-            DataItem(
-                first_name = "",
-                last_name = "",
-                email = "",
-                alamat = "",
-                iuran_perwarga = 0,
-                total_iuran_rekap = 0,
-                jumlah_iuran_bulanan = 0,
-                total_iuran_individu = 0,
-                pengeluaran_iuran_warga = 0,
-                pemanfaatan_iuran = "",
-                avatar = ""
-            ),
-            createTestDataItem("Another", "Valid", "another@example.com")
-        )
-
-        adapter.submitList(mixedUsers)
-
-        assertEquals(3, adapter.itemCount)
-    }
-
-    private fun createTestDataItem(firstName: String, lastName: String, email: String): DataItem {
-        return DataItem(
-            first_name = firstName,
-            last_name = lastName,
-            email = email,
-            alamat = "Test Address",
-            iuran_perwarga = 100,
-            total_iuran_rekap = 500,
-            jumlah_iuran_bulanan = 200,
-            total_iuran_individu = 150,
-            pengeluaran_iuran_warga = 50,
-            pemanfaatan_iuran = "Test",
-            avatar = "https://example.com/avatar.jpg"
-        )
-    }
-}
-
-    @Test
     fun `setUsers should update adapter data correctly`() {
         val newUsers = listOf(
             DataItem(

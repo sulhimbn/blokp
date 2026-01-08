@@ -48,20 +48,36 @@ class VendorDatabaseFragmentTest {
         Vendor(
             id = "1",
             name = "Test Vendor 1",
-            specialty = "Plumbing",
+            contactPerson = "John Doe",
             phoneNumber = "08123456789",
-            rating = 4.5,
             email = "vendor1@example.com",
-            address = "123 Test St"
+            specialty = "Plumbing",
+            address = "123 Test St",
+            licenseNumber = "LIC-001",
+            insuranceInfo = "Insured",
+            certifications = listOf("Cert1", "Cert2"),
+            rating = 4.5,
+            totalReviews = 50,
+            contractStart = "2024-01-01",
+            contractEnd = "2024-12-31",
+            isActive = true
         ),
         Vendor(
             id = "2",
             name = "Test Vendor 2",
-            specialty = "Electrical",
+            contactPerson = "Jane Smith",
             phoneNumber = "08198765432",
-            rating = 3.8,
             email = "vendor2@example.com",
-            address = "456 Test Ave"
+            specialty = "Electrical",
+            address = "456 Test Ave",
+            licenseNumber = "LIC-002",
+            insuranceInfo = "Insured",
+            certifications = listOf("Cert3"),
+            rating = 3.8,
+            totalReviews = 30,
+            contractStart = "2024-02-01",
+            contractEnd = "2024-11-30",
+            isActive = true
         )
     )
 
