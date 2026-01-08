@@ -53,7 +53,7 @@ android {
     
     kapt {
         correctErrorTypes = true
-        useBuildCache = true
+        includeCompileClasspath = false
     }
 
     testOptions {
