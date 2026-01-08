@@ -32,6 +32,8 @@ class MainActivity : BaseActivity() {
         
         adapter = UserAdapter()
         binding.rvUsers.layoutManager = LinearLayoutManager(this)
+        binding.rvUsers.setHasFixedSize(true)
+        binding.rvUsers.setItemViewCacheSize(20)
         binding.rvUsers.adapter = adapter
         
         setupSwipeRefresh()

@@ -51,9 +51,13 @@ class LaporanActivity : BaseActivity() {
         summaryAdapter = LaporanSummaryAdapter()
 
         binding.rvLaporan.layoutManager = LinearLayoutManager(this)
+        binding.rvLaporan.setHasFixedSize(true)
+        binding.rvLaporan.setItemViewCacheSize(20)
         binding.rvLaporan.adapter = adapter
 
         binding.rvSummary.layoutManager = LinearLayoutManager(this)
+        binding.rvSummary.setHasFixedSize(true)
+        binding.rvSummary.setItemViewCacheSize(10)
         binding.rvSummary.adapter = summaryAdapter
 
          setupSwipeRefresh()

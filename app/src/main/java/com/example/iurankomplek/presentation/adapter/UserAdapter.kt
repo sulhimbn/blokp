@@ -29,12 +29,15 @@ class UserAdapter : ListAdapter<DataItem, UserAdapter.ListViewHolder>(UserDiffCa
             url = user.avatar
         )
 
-        // Safely construct and display user name
-        val userName = mutableListOf<String>().apply {
-            if (user.first_name.isNotBlank()) add(InputSanitizer.sanitizeName(user.first_name))
-            if (user.last_name.isNotBlank()) add(InputSanitizer.sanitizeName(user.last_name))
-        }.joinToString(" ")
-        holder.binding.itemName.text = userName.ifEmpty { "Unknown User" }
+        // Safely construct and display user name (optimized: no list allocation)
+        val firstName = InputSanitizer.sanitizeName(user.first_name).takeIf { it.isNotBlank() }
+        val lastName = InputSanitizer.sanitizeName(user.last_name).takeIf { it.isNotBlank() }
+        holder.binding.itemName.text = when {
+            firstName != null && lastName != null -> "$firstName $lastName"
+            firstName != null -> firstName
+            lastName != null -> lastName
+            else -> "Unknown User"
+        }
 
         // Safely display email
         holder.binding.itemEmail.text = user.email.takeIf { it.isNotBlank() } ?: "No email"
