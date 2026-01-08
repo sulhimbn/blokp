@@ -1,0 +1,7 @@
+# Android SDK Location
+sdk.dir=
+
+# API Spreadsheet ID
+# Add your Google Sheets API spreadsheet ID here
+# This is used to construct API endpoints for data fetching
+API_SPREADSHEET_ID=YOUR_SHEET_ID_HERE

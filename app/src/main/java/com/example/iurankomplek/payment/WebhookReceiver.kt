@@ -8,8 +8,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import okhttp3.*
-import java.io.IOException
 
 @Serializable
 data class WebhookPayload(
@@ -22,7 +20,6 @@ class WebhookReceiver(
     private val transactionRepository: TransactionRepository,
     private val webhookQueue: WebhookQueue? = null
 ) {
-    private val client = OkHttpClient()
     private val json = Json { ignoreUnknownKeys = true }
 
     companion object {

@@ -18,8 +18,9 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        
-        buildConfigField "String", "API_SPREADSHEET_ID", "\"QjX6hB1ST2IDKaxB\""
+
+        def apiSpreadsheetId = project.hasProperty('API_SPREADSHEET_ID') ? project.property('API_SPREADSHEET_ID') : System.getenv('API_SPREADSHEET_ID')
+        buildConfigField "String", "API_SPREADSHEET_ID", "\"${apiSpreadsheetId ?: 'QjX6hB1ST2IDKaxB'}\""
     }
     
     buildTypes {
