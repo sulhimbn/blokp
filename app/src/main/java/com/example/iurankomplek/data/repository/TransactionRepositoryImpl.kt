@@ -20,14 +20,14 @@ class TransactionRepositoryImpl(
     override suspend fun initiatePaymentViaApi(
         amount: String,
         description: String,
-        customerId: String,
+        customerId: Long,
         paymentMethod: String
     ): Result<com.example.iurankomplek.model.PaymentResponse> {
         return try {
             val paymentRequest = PaymentRequest(
                 amount = java.math.BigDecimal(amount),
                 description = description,
-                customerId = customerId,
+                customerId = customerId.toString(),
                 paymentMethod = when (paymentMethod) {
                     "CREDIT_CARD" -> PaymentMethod.CREDIT_CARD
                     "BANK_TRANSFER" -> PaymentMethod.BANK_TRANSFER
@@ -81,7 +81,7 @@ class TransactionRepositoryImpl(
         return transactionDao.getAllTransactions()
     }
 
-    override fun getTransactionsByUserId(userId: String): Flow<List<Transaction>> {
+    override fun getTransactionsByUserId(userId: Long): Flow<List<Transaction>> {
         return transactionDao.getTransactionsByUserId(userId)
     }
 

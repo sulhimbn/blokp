@@ -13,8 +13,8 @@ import com.example.iurankomplek.payment.PaymentStatus
 
 @Database(
     entities = [Transaction::class],
-    version = 1,
-    exportSchema = false
+    version = 2,
+    exportSchema = true
 )
 @TypeConverters(DataTypeConverters::class)
 abstract class TransactionDatabase : RoomDatabase() {
@@ -30,7 +30,9 @@ abstract class TransactionDatabase : RoomDatabase() {
                     context.applicationContext,
                     TransactionDatabase::class.java,
                     "transaction_database"
-                ).build()
+                )
+                    .addMigrations(Migration1_2(), Migration2_1())
+                    .build()
                 INSTANCE = instance
                 instance
             }
