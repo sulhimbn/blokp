@@ -15,7 +15,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.security.SecureRandom
 import kotlin.math.min
-import kotlin.random.Random
 
 class WebhookQueue(
     private val webhookEventDao: WebhookEventDao,
@@ -31,10 +30,11 @@ class WebhookQueue(
 
     companion object {
         private val TAG = "${Constants.Tags.WEBHOOK_RECEIVER}.Queue"
+        private val SECURE_RANDOM = SecureRandom()
 
         fun generateIdempotencyKey(): String {
             val timestamp = System.currentTimeMillis()
-            val random = SecureRandom().nextInt()
+            val random = SECURE_RANDOM.nextInt()
             return "${Constants.Webhook.IDEMPOTENCY_KEY_PREFIX}${timestamp}_${kotlin.math.abs(random)}"
         }
     }
