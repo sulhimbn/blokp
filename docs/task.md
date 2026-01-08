@@ -1671,7 +1671,7 @@ Comprehensive analysis of IuranKomplek's API integration patterns:
 
 ---
 
-### 🔄 32. Database Batch Operations Optimization (Performance Optimization)
+### ✅ 32. Database Batch Operations Optimization (Performance Optimization)
 **Status**: Completed
 **Completed Date**: 2026-01-08
 **Priority**: 🔴 HIGH
@@ -3156,3 +3156,52 @@ Documentation/
 **Dependencies**: None (independent test coverage improvement for database migrations)
 **Documentation**: Updated docs/task.md with TEST-002 completion
 **Impact**: HIGH - Critical test coverage improvement for database migrations, 23 new tests covering previously untested migrations (4, 6, 7, 8, 9), ensures migration correctness, validates data preservation, verifies index strategy consistency, provides executable documentation for complex data architecture changes
+
+---
+
+## Pending Refactoring Tasks (MODE A)
+
+### [REFACTOR] ApiConfig Code Duplication - Extract Common HttpClient Builder
+- Location: `app/src/main/java/com/example/iurankomplek/network/ApiConfig.kt`
+- Issue: Methods `createApiService()` and `createApiServiceV1()` contain 60+ lines of duplicate code for OkHttpClient builder configuration, interceptor chain setup, and logging interceptor condition
+- Suggestion: Extract common HttpClient builder logic into a private method `createHttpClient(isProduction: Boolean)` that returns OkHttpClient. Both createApiService methods would call this with appropriate parameters. Will reduce ~45 lines of duplicate code.
+- Priority: Medium
+- Effort: Small (30 minutes)
+
+### [REFACTOR] LaporanActivity State Management - Consolidate UI State Logic
+- Location: `app/src/main/java/com/example/iurankomplek/presentation/ui/activity/LaporanActivity.kt`
+- Issue: Activity has repetitive `setUIState()` calls with same 4 parameters (loading, showEmpty, showError, showContent) across multiple methods. State management could be centralized. Methods like `handleLoadingState()` and `handleSuccessState()` contain duplicate state setting patterns.
+- Suggestion: Create a `UIStateManager` helper class or extend BaseActivity with state management methods that encapsulate the common state transitions. Extract common patterns into reusable methods (e.g., `showLoading()`, `showError(message)`, `showSuccess()`).
+- Priority: Medium
+- Effort: Medium (2-3 hours)
+
+### [REFACTOR] Activity State Observation - Extract Common Observer Pattern
+- Location: `app/src/main/java/com/example/iurankomplek/presentation/ui/activity/MainActivity.kt`, `LaporanActivity.kt`, other activities
+- Issue: Multiple activities follow same pattern: create StateManager, observe ViewModel state with when() expression, handle each UiState case in separate methods. This creates code duplication across activities.
+- Suggestion: Create a generic `StateObserver<T>` helper class in BaseActivity that accepts ViewModel's StateFlow and handlers for each state (onLoading, onSuccess, onError, onEmpty). Activities would use `observeState(viewModel.state, onSuccess = { ... })` instead of implementing full observer pattern.
+- Priority: Low
+- Effort: Medium (3-4 hours)
+
+### [REFACTOR] RateLimiter Decomposition - Split Concerns
+- Location: `app/src/main/java/com/example/iurankomplek/utils/RateLimiter.kt` (264 lines)
+- Issue: RateLimiter class handles multiple responsibilities: token bucket algorithm, endpoint tracking, statistics calculation, rate limiting logic. Class is becoming large and complex, violating Single Responsibility Principle.
+- Suggestion: Decompose into smaller focused classes:
+  - `TokenBucket`: Manages token count and refill logic
+  - `EndpointTracker`: Tracks request counts per endpoint
+  - `RateLimiter`: Orchestrates using TokenBucket and EndpointTracker
+  - `RateLimitStats`: Data class for statistics
+  This would improve testability, reduce class complexity, and make code easier to understand.
+- Priority: Low
+- Effort: Medium (3-4 hours)
+
+### [REFACTOR] IntegrationHealthMonitor Responsibility Segregation
+- Location: `app/src/main/java/com/example/iurankomplek/network/health/IntegrationHealthMonitor.kt` (290 lines)
+- Issue: HealthMonitor class manages health checks, metrics calculation, status tracking, and monitoring logic. Multiple responsibilities mixed in single class, making it harder to maintain and test.
+- Suggestion: Extract separate classes:
+  - `HealthChecker`: Performs individual health checks
+  - `MetricsCollector`: Aggregates and calculates metrics
+  - `HealthStatusTracker`: Maintains current health status
+  - `IntegrationHealthMonitor`: Orchestrates the components
+  This follows Single Responsibility Principle and improves testability.
+- Priority: Low
+- Effort: Medium (3-4 hours)
