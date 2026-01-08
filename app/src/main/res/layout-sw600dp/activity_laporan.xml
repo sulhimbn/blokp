@@ -93,7 +93,6 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:background="@color/accent_peach"
-                    android:fontFamily="@font/font"
                     android:paddingStart="@dimen/padding_xl"
                     android:paddingTop="@dimen/spacing_sm"
                     android:paddingEnd="@dimen/padding_xl"

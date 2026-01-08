@@ -111,7 +111,6 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:background="@color/accent_peach"
-                        android:fontFamily="@font/font"
                         android:padding="@dimen/spacing_xs"
                         android:clipToPadding="false"
                         android:importantForAccessibility="yes"
