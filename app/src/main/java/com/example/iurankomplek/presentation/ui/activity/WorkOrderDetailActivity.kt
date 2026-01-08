@@ -11,6 +11,7 @@ import com.example.iurankomplek.data.repository.VendorRepositoryFactory
 import com.example.iurankomplek.model.WorkOrder
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.presentation.viewmodel.VendorViewModel
+import com.example.iurankomplek.utils.InputSanitizer
 import kotlinx.coroutines.launch
 
 class WorkOrderDetailActivity : BaseActivity() {
@@ -23,7 +24,13 @@ class WorkOrderDetailActivity : BaseActivity() {
         binding = ActivityWorkOrderDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val workOrderId = intent.getStringExtra("WORK_ORDER_ID")
+        val rawWorkOrderId = intent.getStringExtra("WORK_ORDER_ID")
+        val workOrderId = if (!rawWorkOrderId.isNullOrBlank() && 
+            InputSanitizer.isValidAlphanumericId(rawWorkOrderId)) {
+            rawWorkOrderId.trim()
+        } else {
+            null
+        }
 
         if (workOrderId != null) {
             val repository = VendorRepositoryFactory.getInstance()

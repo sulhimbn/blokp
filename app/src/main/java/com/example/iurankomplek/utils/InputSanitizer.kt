@@ -160,6 +160,19 @@ object InputSanitizer {
     }
     
     /**
+     * Validates that input is a safe alphanumeric ID
+     * Used for validating IDs from Intent extras, database lookups, etc.
+     * Only allows alphanumeric characters, hyphens, and underscores
+     */
+    fun isValidAlphanumericId(input: String): Boolean {
+        if (input.isBlank()) return false
+        if (input.length > 100) return false
+        
+        val idPattern = Regex("^[a-zA-Z0-9_-]+$")
+        return idPattern.matches(input)
+    }
+    
+    /**
      * Removes potentially dangerous characters to prevent injection attacks
      * Protects against XSS and other injection vectors
      */
