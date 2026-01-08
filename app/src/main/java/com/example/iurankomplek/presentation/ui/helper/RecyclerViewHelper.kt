@@ -114,7 +114,6 @@ object RecyclerViewHelper {
             else -> false
         }
     }
-    }
 
     /**
      * Handle navigation for LinearLayoutManager (single column)
