@@ -25,6 +25,7 @@ class TransactionHistoryAdapter(
 
     companion object {
         private val DiffCallback = GenericDiffUtil.byId<Transaction> { it.id }
+        private val CURRENCY_FORMATTER = NumberFormat.getCurrencyInstance(Locale("in", "ID"))
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionViewHolder {
@@ -47,7 +48,7 @@ class TransactionHistoryAdapter(
 
         fun bind(transaction: Transaction) {
             val context = itemView.context
-            val formattedAmount = NumberFormat.getCurrencyInstance(Locale("in", "ID")).format(transaction.amount.toDouble())
+            val formattedAmount = CURRENCY_FORMATTER.format(transaction.amount.toDouble())
             tvAmount.text = formattedAmount
             tvDescription.text = transaction.description
             tvDate.text = transaction.createdAt.toString()

@@ -5,18 +5,14 @@ import com.example.iurankomplek.presentation.adapter.UserAdapter
 import com.example.iurankomplek.R
 import android.os.Bundle
 import android.view.View
-import android.view.accessibility.AccessibilityManager
-import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityMainBinding
 import com.example.iurankomplek.data.repository.UserRepositoryFactory
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.utils.InputSanitizer
 import com.example.iurankomplek.presentation.viewmodel.UserViewModel
 import android.content.res.Configuration
-import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.coroutines.launch
 import com.example.iurankomplek.presentation.ui.helper.RecyclerViewHelper
 import com.example.iurankomplek.presentation.ui.helper.SwipeRefreshHelper
@@ -104,88 +100,5 @@ class MainActivity : BaseActivity() {
              }
           })
       }
-  }
-
-  private fun setupSwipeRefresh() {
-          binding.swipeRefreshLayout.setOnRefreshListener {
-              viewModel.loadUsers()
-          }
-      }
-
-      private fun announceForAccessibility(text: String) {
-          binding.swipeRefreshLayout.announceForAccessibility(text)
-      }
-
-       private fun setupRecyclerViewKeyboardNavigation() {
-           binding.rvUsers.setOnKeyListener { _, keyCode, event ->
-               if (event.action == android.view.KeyEvent.ACTION_DOWN) {
-                   val layoutManager = binding.rvUsers.layoutManager
-                   val spanCount = (layoutManager as? GridLayoutManager)?.spanCount ?: 1
-                   
-                   when (keyCode) {
-                       android.view.KeyEvent.KEYCODE_DPAD_DOWN,
-                       android.view.KeyEvent.KEYCODE_DPAD_UP,
-                       android.view.KeyEvent.KEYCODE_DPAD_LEFT,
-                       android.view.KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                           
-                           when (layoutManager) {
-                               is LinearLayoutManager -> {
-                                   val firstVisible = layoutManager.findFirstVisibleItemPosition()
-                                   val lastVisible = layoutManager.findLastVisibleItemPosition()
-                                   
-                                   when (keyCode) {
-                                       android.view.KeyEvent.KEYCODE_DPAD_DOWN -> {
-                                           if (lastVisible < adapter.itemCount - 1) {
-                                               binding.rvUsers.smoothScrollToPosition(lastVisible + 1)
-                                           }
-                                       }
-                                       android.view.KeyEvent.KEYCODE_DPAD_UP -> {
-                                           if (firstVisible > 0) {
-                                               binding.rvUsers.smoothScrollToPosition(firstVisible - 1)
-                                           }
-                                       }
-                                       android.view.KeyEvent.KEYCODE_DPAD_LEFT,
-                                       android.view.KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                                           // Horizontal navigation not applicable in single column
-                                       }
-                                   }
-                               }
-                               is GridLayoutManager -> {
-                                   val firstVisible = layoutManager.findFirstVisibleItemPosition()
-                                   val lastVisible = layoutManager.findLastVisibleItemPosition()
-                                   
-                                   when (keyCode) {
-                                       android.view.KeyEvent.KEYCODE_DPAD_DOWN -> {
-                                           val targetPosition = lastVisible + spanCount
-                                           if (targetPosition < adapter.itemCount) {
-                                               binding.rvUsers.smoothScrollToPosition(targetPosition)
-                                           }
-                                       }
-                                       android.view.KeyEvent.KEYCODE_DPAD_UP -> {
-                                           val targetPosition = firstVisible - spanCount
-                                           if (targetPosition >= 0) {
-                                               binding.rvUsers.smoothScrollToPosition(targetPosition)
-                                           }
-                                       }
-                                       android.view.KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                                           if (lastVisible < adapter.itemCount - 1) {
-                                               binding.rvUsers.smoothScrollToPosition(lastVisible + 1)
-                                           }
-                                       }
-                                       android.view.KeyEvent.KEYCODE_DPAD_LEFT -> {
-                                           if (firstVisible > 0) {
-                                               binding.rvUsers.smoothScrollToPosition(firstVisible - 1)
-                                           }
-                                       }
-                                   }
-                               }
-                           }
-                       }
-                   }
-               }
-               false
-           }
-       }
-     
-
+   }
 }
