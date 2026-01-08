@@ -29,7 +29,7 @@
         android:fontFamily="@font/font"
         android:text="Menu Item"
         android:textAlignment="center"
-        android:textColor="@color/teal_200"
+        android:textColor="@color/accent_teal_dark"
         android:textSize="@dimen/text_size_normal"
         android:textStyle="bold"
         android:importantForAccessibility="yes" />

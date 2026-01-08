@@ -139,7 +139,7 @@
                     android:id="@+id/pemanfaatanTextView"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="2. Pemanfaatan : "
+                    android:text="@string/pemanfaatan_title"
                     android:fontFamily="@font/font"
                     android:textSize="@dimen/text_size_normal"
                     android:paddingBottom="@dimen/spacing_sm"

@@ -87,6 +87,10 @@
      <string name="failed_to_load_community_posts">Failed to load community posts</string>
      <string name="error_with_message">Error: %s</string>
      
+     <!-- Laporan Screen -->
+     <string name="pemanfaatan_title">2. Pemanfaatan : </string>
+
+     
      <!-- Transaction History -->
     <string name="transaction_item_desc">Transaction history item card</string>
     <string name="transaction_amount">Amount:</string>
