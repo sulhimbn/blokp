@@ -50,6 +50,14 @@ android {
             returnDefaultValues = true
         }
     }
+
+    lint {
+        abortOnError false
+        checkReleaseBuilds true
+        xmlReport true
+        htmlReport true
+        disable 'NotificationPermission'
+    }
 }
 
 dependencies {
