@@ -2,6 +2,8 @@ package com.example.iurankomplek.data.repository
 
 import com.example.iurankomplek.data.cache.CacheManager
 import com.example.iurankomplek.data.cache.cacheFirstStrategy
+import com.example.iurankomplek.data.entity.UserEntity
+import com.example.iurankomplek.data.entity.FinancialRecordEntity
 import com.example.iurankomplek.data.entity.UserWithFinancialRecords
 import com.example.iurankomplek.data.mapper.EntityMapper
 import com.example.iurankomplek.model.UserResponse
