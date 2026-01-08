@@ -79,6 +79,8 @@ class LaporanActivity : BaseActivity() {
                     }
                      is UiState.Loading -> {
                          binding.progressBar.visibility = View.VISIBLE
+                         binding.emptyStateTextView.visibility = View.GONE
+                         binding.errorStateLayout.visibility = View.GONE
                          binding.swipeRefreshLayout.isRefreshing = true
                      }
                        is UiState.Success -> {
@@ -86,10 +88,18 @@ class LaporanActivity : BaseActivity() {
                            binding.swipeRefreshLayout.isRefreshing = false
                            state.data.data?.let { dataArray ->
                               if (dataArray.isEmpty()) {
-                                  Toast.makeText(this@LaporanActivity, getString(R.string.no_financial_data_available), Toast.LENGTH_LONG).show()
+                                  binding.progressBar.visibility = View.GONE
+                                  binding.emptyStateTextView.visibility = View.VISIBLE
+                                  binding.errorStateLayout.visibility = View.GONE
                                   return@let
                               }
-                              
+
+                              binding.rvLaporan.visibility = View.VISIBLE
+                              binding.rvSummary.visibility = View.VISIBLE
+                              binding.progressBar.visibility = View.GONE
+                              binding.emptyStateTextView.visibility = View.GONE
+                              binding.errorStateLayout.visibility = View.GONE
+
                             // Convert LegacyDataItemDto to DataItem and set on adapter
                                val dataItems = EntityMapper.toDataItemList(dataArray)
                                adapter.submitList(dataItems)
@@ -97,13 +107,24 @@ class LaporanActivity : BaseActivity() {
                                // Calculate and set summary items with payment integration
                                calculateAndSetSummary(dataItems)
                             } ?: run {
-                                Toast.makeText(this@LaporanActivity, getString(R.string.invalid_response_format), Toast.LENGTH_LONG).show()
+                                binding.progressBar.visibility = View.GONE
+                                binding.rvLaporan.visibility = View.GONE
+                                binding.rvSummary.visibility = View.GONE
+                                binding.emptyStateTextView.visibility = View.GONE
+                                binding.errorStateLayout.visibility = View.VISIBLE
+                                binding.errorStateTextView.text = getString(R.string.invalid_response_format)
+                                binding.retryTextView.setOnClickListener { viewModel.loadFinancialData() }
                             }
                   }
                       is UiState.Error -> {
                          binding.progressBar.visibility = View.GONE
+                         binding.rvLaporan.visibility = View.GONE
+                         binding.rvSummary.visibility = View.GONE
+                         binding.emptyStateTextView.visibility = View.GONE
+                         binding.errorStateLayout.visibility = View.VISIBLE
+                         binding.errorStateTextView.text = state.error
                          binding.swipeRefreshLayout.isRefreshing = false
-                         Toast.makeText(this@LaporanActivity, state.error, Toast.LENGTH_LONG).show()
+                         binding.retryTextView.setOnClickListener { viewModel.loadFinancialData() }
                      }
                 }
             }
