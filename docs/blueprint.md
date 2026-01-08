@@ -211,9 +211,13 @@ app/
 │   │   └── DtoResponse.kt ✅ (wrapper objects)
 │   ├── mapper/ ✅ NEW
 │   │   └── EntityMapper.kt ✅ (DTO ↔ Entity conversion)
-│   ├── constraints/ ✅ NEW
-│   │   └── DatabaseConstraints.kt ✅ (schema definitions & SQL)
- │   ├── entity/
+│   ├── constraints/ ✅ NEW (REFACTORED 2026-01-08)
+│   │   ├── DatabaseConstraints.kt ✅ (aggregator for backward compatibility)
+│   │   ├── UserConstraints.kt ✅ (Users table constraints - 49 lines)
+│   │   ├── FinancialRecordConstraints.kt ✅ (FinancialRecords table constraints - 58 lines)
+│   │   ├── TransactionConstraints.kt ✅ (Transactions table constraints - 69 lines)
+│   │   └── ValidationRules.kt ✅ (validation rules - 14 lines)
+│   ├── entity/
  │   │   ├── UserEntity.kt ✅
  │   │   ├── FinancialRecordEntity.kt ✅
  │   │   ├── UserWithFinancialRecords.kt ✅
