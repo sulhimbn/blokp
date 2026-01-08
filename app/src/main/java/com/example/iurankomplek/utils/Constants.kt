@@ -25,17 +25,20 @@ object Constants {
     
     // API Constants
     object Api {
-        const val PRODUCTION_BASE_URL = "https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/"
-        const val MOCK_BASE_URL = "https://api-mock:5000/data/QjX6hB1ST2IDKaxB/"
+        const val PRODUCTION_BASE_URL = "https://api.apispreadsheets.com/data/"
+        const val MOCK_BASE_URL = "https://api-mock:5000/data/"
         const val DOCKER_ENV_KEY = "DOCKER_ENV"
     }
     
     // Security Constants
     object Security {
-        const val CERTIFICATE_PINNER = "sha256/PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0="
-        // IMPORTANT: Add backup certificate pin before production deployment
-        // Format: ;sha256/BACKUP_CERTIFICATE_PIN_HASH
-        // Action: Generate backup pin and add here for certificate rotation support
+        const val CERTIFICATE_PINNER = "sha256/PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=" +
+                ";sha256/G9LNNAql897egYsabashkzUCTEJkWBzgoEtk8X/678c=" +
+                ";sha256/++MBgDH5WGvL9Bcn5Be30cRcL0f5O+NyoXuWtQdX1aI="
+        // Certificate pins extracted on 2026-01-08
+        // Primary: PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=
+        // Backup #1: G9LNNAql897egYsabashkzUCTEJkWBzgoEtk8X/678c=
+        // Backup #2: ++MBgDH5WGvL9Bcn5Be30cRcL0f5O+NyoXuWtQdX1aI=
         // Reference: https://developer.android.com/training/articles/security-ssl#Pinning
     }
     

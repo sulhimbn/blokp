@@ -14,13 +14,13 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
-object ApiConfig {
+ object ApiConfig {
     // Use mock API in debug mode or when running in Docker
     private val USE_MOCK_API = BuildConfig.DEBUG || System.getenv(Constants.Api.DOCKER_ENV_KEY) != null
     private val BASE_URL = if (USE_MOCK_API) {
-        Constants.Api.MOCK_BASE_URL
+        Constants.Api.MOCK_BASE_URL + BuildConfig.API_SPREADSHEET_ID + "/"
     } else {
-        Constants.Api.PRODUCTION_BASE_URL
+        Constants.Api.PRODUCTION_BASE_URL + BuildConfig.API_SPREADSHEET_ID + "/"
     }
     
     // Connection pool for efficient HTTP connection reuse
