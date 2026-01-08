@@ -64,8 +64,7 @@ class ErrorHandlerTest {
 
     @Test
     fun `handleError should return correct message for 500 HttpException`() {
-        val errorResponse = ResponseBody.create(null, "Internal Server Error")
-        val exception = HttpException(response = okhttp3.Response.Builder()
+        val exception = HttpException(okhttp3.Response.Builder()
             .code(500)
             .request(okhttp3.Request.Builder().url("https://test.com").build())
             .message("Internal Server Error")
@@ -76,8 +75,7 @@ class ErrorHandlerTest {
 
     @Test
     fun `handleError should return generic message for unknown HTTP error code`() {
-        val errorResponse = ResponseBody.create(null, "I'm a teapot")
-        val exception = HttpException(response = okhttp3.Response.Builder()
+        val exception = HttpException(okhttp3.Response.Builder()
             .code(418)
             .request(okhttp3.Request.Builder().url("https://test.com").build())
             .message("I'm a teapot")

@@ -33,6 +33,7 @@ class SecurityManagerTest {
         }
     }
 
+    @Suppress("INSECURE_TRUST_MANAGER")
     @Test
     fun `createInsecureTrustManager returns non-null trust manager`() {
         // Act
@@ -42,6 +43,7 @@ class SecurityManagerTest {
         assertNotNull(trustManager)
     }
 
+    @Suppress("INSECURE_TRUST_MANAGER")
     @Test
     fun `createInsecureTrustManager implements X509TrustManager interface`() {
         // Act
@@ -51,6 +53,7 @@ class SecurityManagerTest {
         assertTrue(trustManager is javax.net.ssl.X509TrustManager)
     }
 
+    @Suppress("INSECURE_TRUST_MANAGER")
     @Test
     fun `createInsecureTrustManager checkClientTrusted does not throw exception`() {
         // Arrange
@@ -64,6 +67,7 @@ class SecurityManagerTest {
         }
     }
 
+    @Suppress("INSECURE_TRUST_MANAGER")
     @Test
     fun `createInsecureTrustManager checkServerTrusted does not throw exception`() {
         // Arrange
@@ -77,6 +81,7 @@ class SecurityManagerTest {
         }
     }
 
+    @Suppress("INSECURE_TRUST_MANAGER")
     @Test
     fun `createInsecureTrustManager getAcceptedIssuers returns empty array`() {
         // Arrange
@@ -130,9 +135,10 @@ class SecurityManagerTest {
         assertSame(instance1, instance2)
     }
 
+    @Suppress("INSECURE_TRUST_MANAGER")
     @Test
     fun `createInsecureTrustManager is documented for development only`() {
-        // Note: This is a documentation test to ensure the insecure trust manager
+        // Note: This is a documentation test to ensure that insecure trust manager
         // is clearly marked for development use only
 
         // Act
