@@ -15,7 +15,7 @@ class ReceiptGenerator {
         return Receipt(
             id = UUID.randomUUID().toString(),
             transactionId = transaction.id,
-            userId = transaction.userId,
+            userId = transaction.userId.toString(),
             amount = transaction.amount,
             description = transaction.description,
             paymentMethod = transaction.paymentMethod.name,

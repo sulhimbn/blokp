@@ -2,7 +2,7 @@ package com.example.iurankomplek.utils
 
 import android.content.Context
 import com.example.iurankomplek.R
-import com.example.iurankomplek.network.NetworkError
+import com.example.iurankomplek.network.model.NetworkError
 import com.example.iurankomplek.network.resilience.CircuitBreakerException
 import retrofit2.HttpException
 import java.net.UnknownHostException
