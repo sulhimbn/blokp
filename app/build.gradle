@@ -20,7 +20,10 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         def apiSpreadsheetId = project.hasProperty('API_SPREADSHEET_ID') ? project.property('API_SPREADSHEET_ID') : System.getenv('API_SPREADSHEET_ID')
-        buildConfigField "String", "API_SPREADSHEET_ID", "\"${apiSpreadsheetId ?: 'QjX6hB1ST2IDKaxB'}\""
+        if (apiSpreadsheetId == null) {
+            logger.warn("API_SPREADSHEET_ID not configured. Set it in local.properties or as environment variable.")
+        }
+        buildConfigField "String", "API_SPREADSHEET_ID", "\"${apiSpreadsheetId ?: ''}\""
     }
     
     buildTypes {
