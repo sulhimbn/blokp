@@ -61,7 +61,8 @@ jobs:
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles(
               '**/*.gradle*',
-              '**/gradle-wrapper.properties'
+              '**/gradle-wrapper.properties',
+              'gradle/libs.versions.toml'
             ) }}
           restore-keys: |
             ${{ runner.os }}-gradle-
