@@ -10,7 +10,7 @@ import com.example.iurankomplek.databinding.ActivityWorkOrderDetailBinding
 import com.example.iurankomplek.data.repository.VendorRepositoryFactory
 import com.example.iurankomplek.model.WorkOrder
 import com.example.iurankomplek.utils.UiState
-import com.example.iurankomplek.viewmodel.VendorViewModel
+import com.example.iurankomplek.presentation.viewmodel.VendorViewModel
 import kotlinx.coroutines.launch
 
 class WorkOrderDetailActivity : BaseActivity() {
