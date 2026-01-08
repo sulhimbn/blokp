@@ -46,6 +46,14 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+        freeCompilerArgs += [
+            '-opt-in=kotlin.RequiresOptIn'
+        ]
+    }
+    
+    kapt {
+        correctErrorTypes = true
+        useBuildCache = true
     }
 
     testOptions {
@@ -106,6 +114,9 @@ dependencies {
     implementation libs.room.runtime
     implementation libs.room.ktx
     kapt libs.room.compiler
+    
+    // KAPT workaround for Retrofit annotations
+    kapt libs.retrofit
     
     // Coroutines
     implementation libs.kotlinx.coroutines.android
