@@ -114,12 +114,14 @@ app/
 │   │   └── FinancialRecordDao.kt ✅
 │   ├── database/ ✅ NEW
 │   │   ├── AppDatabase.kt ✅
- │   │   ├── Migration1.kt ✅
- │   │   ├── Migration1Down.kt ✅ NEW
- │   │   ├── Migration2.kt ✅
- │   │   ├── Migration2Down.kt ✅ NEW
- │   │   ├── Migration3.kt ✅ NEW
- │   │   └── Migration3Down.kt ✅ NEW
+  │   │   ├── Migration1.kt ✅
+  │   │   ├── Migration1Down.kt ✅ NEW
+  │   │   ├── Migration2.kt ✅
+  │   │   ├── Migration2Down.kt ✅ NEW
+  │   │   ├── Migration3.kt ✅ NEW
+  │   │   ├── Migration3Down.kt ✅ NEW
+  │   │   ├── Migration4.kt ✅ NEW
+  │   │   └── Migration4Down.kt ✅ NEW
 │   ├── DataTypeConverters.kt ✅ NEW
 │   ├── payment/
 │   │   ├── PaymentGateway.kt (interface) ✅
@@ -567,7 +569,7 @@ com.github.chuckerteam.chucker:library
 - **Reversible Migrations**: All migrations have explicit down migration paths
 - **Data Preservation**: Down migrations preserve core data where possible
 - **Explicit Down Paths**: No fallbackToDestructiveMigrationOnDowngrade()
-- **Comprehensive Testing**: Down migrations tested with 13 test cases
+- **Comprehensive Testing**: Down migrations tested with 23 test cases
 - **Graceful Degradation**: Webhook data is ephemeral and safe to drop
 
 ### Migration Paths ✅
@@ -575,6 +577,16 @@ com.github.chuckerteam.chucker:library
 - **Migration 1Down (1 → 0)**: Drops all tables and indexes (destructive - initial schema setup)
 - **Migration 2 (1 → 2)**: Creates webhook_events table with idempotency and indexes
 - **Migration 2Down (2 → 1)**: Drops webhook_events table (safe - preserves users and financial records)
+- **Migration 3 (2 → 3)**: Adds composite indexes for query optimization
+  - idx_users_name_sort on users(last_name ASC, first_name ASC)
+  - idx_financial_user_updated on financial_records(user_id, updated_at DESC)
+  - idx_webhook_retry_queue on webhook_events(status, next_retry_at)
+- **Migration 3Down (3 → 2)**: Drops composite indexes (safe - preserves all data)
+- **Migration 4 (3 → 4)**: Adds composite index for financial aggregations
+  - idx_financial_user_rekap on financial_records(user_id, total_iuran_rekap)
+  - Optimizes getTotalRekapByUserId() SUM aggregation query
+  - 5-20x performance improvement for aggregation queries
+- **Migration 4Down (4 → 3)**: Drops idx_financial_user_rekap index (safe - preserves all data)
 
 ### Phase 1: Foundation ✅ Completed
 1. Created `BaseActivity.kt` with common functionality

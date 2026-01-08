@@ -67,6 +67,7 @@ object DatabaseConstraints {
         object Indexes {
             const val IDX_USER_ID = "idx_financial_user_id"
             const val IDX_UPDATED_AT = "idx_financial_updated_at"
+            const val IDX_USER_REKAP = "idx_financial_user_rekap"
         }
         
         val TABLE_SQL = """
@@ -89,6 +90,7 @@ object DatabaseConstraints {
         
         val INDEX_USER_ID_SQL = "CREATE INDEX ${Indexes.IDX_USER_ID} ON ${TABLE_NAME}(${Columns.USER_ID})"
         val INDEX_UPDATED_AT_SQL = "CREATE INDEX ${Indexes.IDX_UPDATED_AT} ON ${TABLE_NAME}(${Columns.UPDATED_AT} DESC)"
+        val INDEX_USER_REKAP_SQL = "CREATE INDEX ${Indexes.IDX_USER_REKAP} ON ${TABLE_NAME}(${Columns.USER_ID}, ${Columns.TOTAL_IURAN_REKAP})"
     }
     
     object ValidationRules {
