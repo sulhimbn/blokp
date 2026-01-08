@@ -12,7 +12,8 @@ import com.example.iurankomplek.utils.Constants
         Index(value = ["idempotency_key"], unique = true),
         Index(value = ["status"]),
         Index(value = ["event_type"]),
-        Index(value = ["status", "next_retry_at"])
+        Index(value = ["status", "next_retry_at"]),
+        Index(value = ["transaction_id"])
     ]
 )
 data class WebhookEvent(
