@@ -5,7 +5,40 @@ Track architectural refactoring tasks and their status.
 
 ## Pending Modules
 
-No pending modules at this time.
+### [REFACTOR] 81. Adapter DiffUtil Generic Helper - Eliminate Code Duplication
+- **Location**: `app/src/main/java/com/example/iurankomplek/presentation/adapter/`
+- **Issue**: 7 adapters (UserAdapter, MessageAdapter, PemanfaatanAdapter, LaporanSummaryAdapter, CommunityPostAdapter, AnnouncementAdapter, VendorAdapter) each implement their own DiffUtil.ItemCallback, resulting in significant code duplication. Each adapter has 8-12 lines of identical DiffUtil pattern.
+- **Suggestion**: Create a generic DiffUtil helper class that can work with any data type that has an ID field or supports equality comparison. This would reduce boilerplate code by ~50-60 lines across all adapters.
+- **Priority**: HIGH
+- **Effort**: Small (2-3 hours)
+
+### [REFACTOR] 82. BaseFragment - Eliminate Fragment Boilerplate
+- **Location**: `app/src/main/java/com/example/iurankomplek/presentation/ui/fragment/`
+- **Issue**: Fragments (MessagesFragment, AnnouncementsFragment, CommunityFragment, VendorDatabaseFragment, VendorCommunicationFragment) have repetitive patterns: RecyclerView setup with setHasFixedSize/setItemViewCacheSize, ViewModel initialization via Factory pattern, and UiState observation with identical Loading/Success/Error handling (30-40 lines per fragment).
+- **Suggestion**: Create BaseFragment abstract class that provides common functionality: `setupRecyclerView()`, `initializeViewModel()`, and `observeUiState()`. This would reduce boilerplate by ~150-200 lines across all fragments.
+- **Priority**: MEDIUM
+- **Effort**: Medium (3-4 hours)
+
+### [REFACTOR] 83. BaseActivity RecyclerView Configuration Extract - Reduce Activity Duplication
+- **Location**: `app/src/main/java/com/example/iurankomplek/presentation/ui/activity/MainActivity.kt`, `LaporanActivity.kt`
+- **Issue**: MainActivity and LaporanActivity both have identical RecyclerView configuration logic: landscape/portrait layout switching (GridLayoutManager vs LinearLayoutManager), setHasFixedSize(true), setItemViewCacheSize(20), focusable flags, and keyboard navigation setup (20-30 lines per activity).
+- **Suggestion**: Extract common RecyclerView setup logic into BaseActivity extension method or helper class: `configureRecyclerView(recyclerView, itemCount = 20, enableKeyboardNav = true)`. This would reduce duplication by ~40-50 lines.
+- **Priority**: MEDIUM
+- **Effort**: Small (1-2 hours)
+
+### [REFACTOR] 84. BaseRepository with CircuitBreaker Integration - Consolidate Retry Logic
+- **Location**: `app/src/main/java/com/example/iurankomplek/data/repository/`
+- **Issue**: 7 repository implementations (UserRepositoryImpl, PemanfaatanRepositoryImpl, VendorRepositoryImpl, AnnouncementRepositoryImpl, MessageRepositoryImpl, CommunityPostRepositoryImpl, TransactionRepositoryImpl) each implement duplicate CircuitBreaker integration with 59 total usages. Each repository has identical retry logic, error handling, and state management (~30-40 lines per repository).
+- **Suggestion**: Create BaseRepository abstract class that provides built-in CircuitBreaker integration with methods like `executeWithCircuitBreaker()` and `handleRetry()`. This would reduce duplication by ~200-250 lines and ensure consistent error handling across all repositories.
+- **Priority**: HIGH
+- **Effort**: Medium (4-5 hours)
+
+### [REFACTOR] 85. ViewModel Loading State Prevention Helper - Reduce ViewModel Duplication
+- **Location**: `app/src/main/java/com/example/iurankomplek/presentation/viewmodel/VendorViewModel.kt` and other ViewModels
+- **Issue**: ViewModels (especially VendorViewModel with loadVendors/loadWorkOrders) have duplicate patterns like `if (_vendorState.value is UiState.Loading) return` to prevent duplicate API calls. This pattern is repeated across multiple ViewModels (~5-10 lines per ViewModel).
+- **Suggestion**: Create extension function `fun <T> MutableStateFlow<UiState<T>>.safeLoad()` or ViewModel base method that automatically prevents duplicate loading states. This would reduce boilerplate by ~30-50 lines across all ViewModels.
+- **Priority**: LOW
+- **Effort**: Small (1-2 hours)
 
 ## Completed Modules (2026-01-08)
 
