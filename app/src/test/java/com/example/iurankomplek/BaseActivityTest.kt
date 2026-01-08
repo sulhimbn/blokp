@@ -518,6 +518,277 @@ class BaseActivityTest {
         assertTrue(successCalled)
         assertEquals(3, retryCount)
     }
+
+    @Test
+    fun `executeWithRetry should handle zero maxRetries scenario`() = runTest {
+        activity = TestBaseActivity()
+        val latch = CountDownLatch(1)
+        var errorCalled = false
+        var callCount = 0
+
+        activity.executeWithRetry(
+            maxRetries = 0,
+            operation = {
+                callCount++
+                throw SocketTimeoutException()
+            },
+            onSuccess = { fail("onSuccess should not be called") },
+            onError = { 
+                errorCalled = true
+                latch.countDown()
+            }
+        )
+
+        advanceUntilIdle()
+        assertTrue(latch.await(2, TimeUnit.SECONDS))
+        assertTrue(errorCalled)
+        assertEquals(1, callCount)
+    }
+
+    @Test
+    fun `executeWithRetry should handle very high maxRetries scenario`() = runTest {
+        activity = TestBaseActivity()
+        val latch = CountDownLatch(1)
+        var errorCalled = false
+        var callCount = 0
+
+        activity.executeWithRetry(
+            maxRetries = 100,
+            initialDelayMs = 10,
+            maxDelayMs = 50,
+            operation = {
+                callCount++
+                if (callCount < 2) {
+                    throw SocketTimeoutException()
+                } else {
+                    Response.success("Success")
+                }
+            },
+            onSuccess = { 
+                latch.countDown()
+            },
+            onError = { 
+                errorCalled = true
+                latch.countDown()
+            }
+        )
+
+        advanceUntilIdle()
+        assertTrue(latch.await(10, TimeUnit.SECONDS))
+        assertFalse(errorCalled)
+        assertEquals(2, callCount)
+    }
+
+    @Test
+    fun `executeWithRetry should handle immediate success scenario`() = runTest {
+        activity = TestBaseActivity()
+        val latch = CountDownLatch(1)
+        var successCalled = false
+        var callCount = 0
+
+        activity.executeWithRetry(
+            maxRetries = 5,
+            operation = {
+                callCount++
+                Response.success("Immediate Success")
+            },
+            onSuccess = { 
+                successCalled = true
+                latch.countDown()
+            },
+            onError = { fail("onError should not be called") }
+        )
+
+        advanceUntilIdle()
+        assertTrue(latch.await(2, TimeUnit.SECONDS))
+        assertTrue(successCalled)
+        assertEquals(1, callCount)
+    }
+
+    @Test
+    fun `executeWithRetry should handle alternating success and failure`() = runTest {
+        activity = TestBaseActivity()
+        val latch = CountDownLatch(1)
+        var successCalled = false
+        var callCount = 0
+
+        activity.executeWithRetry(
+            maxRetries = 5,
+            operation = {
+                callCount++
+                when (callCount) {
+                    1, 3, 5 -> throw SocketTimeoutException()
+                    2, 4 -> Response.error(503, okhttp3.ResponseBody.create(null, "Service Unavailable"))
+                    else -> Response.success("Success")
+                }
+            },
+            onSuccess = { 
+                successCalled = true
+                latch.countDown()
+            },
+            onError = { fail("onError should not be called") }
+        )
+
+        advanceUntilIdle()
+        assertTrue(latch.await(10, TimeUnit.SECONDS))
+        assertTrue(successCalled)
+        assertEquals(6, callCount)
+    }
+
+    @Test
+    fun `executeWithRetry should handle very short initial delay`() = runTest {
+        activity = TestBaseActivity()
+        val latch = CountDownLatch(1)
+        var successCalled = false
+        var callCount = 0
+
+        activity.executeWithRetry(
+            maxRetries = 2,
+            initialDelayMs = 1,
+            operation = {
+                callCount++
+                if (callCount < 2) {
+                    throw SocketTimeoutException()
+                } else {
+                    Response.success("Success")
+                }
+            },
+            onSuccess = { 
+                successCalled = true
+                latch.countDown()
+            },
+            onError = { fail("onError should not be called") }
+        )
+
+        advanceUntilIdle()
+        assertTrue(latch.await(5, TimeUnit.SECONDS))
+        assertTrue(successCalled)
+        assertEquals(2, callCount)
+    }
+
+    @Test
+    fun `executeWithRetry should handle very long max delay`() = runTest {
+        activity = TestBaseActivity()
+        val latch = CountDownLatch(1)
+        var successCalled = false
+        var callCount = 0
+
+        activity.executeWithRetry(
+            maxRetries = 2,
+            initialDelayMs = 1000,
+            maxDelayMs = 100000,
+            operation = {
+                callCount++
+                if (callCount < 2) {
+                    throw SocketTimeoutException()
+                } else {
+                    Response.success("Success")
+                }
+            },
+            onSuccess = { 
+                successCalled = true
+                latch.countDown()
+            },
+            onError = { fail("onError should not be called") }
+        )
+
+        advanceUntilIdle()
+        assertTrue(latch.await(5, TimeUnit.SECONDS))
+        assertTrue(successCalled)
+        assertEquals(2, callCount)
+    }
+
+    @Test
+    fun `executeWithRetry should handle retry count tracking accuracy`() = runTest {
+        activity = TestBaseActivity()
+        val latch = CountDownLatch(1)
+        var successCalled = false
+        var callCount = 0
+
+        activity.executeWithRetry(
+            maxRetries = 5,
+            operation = {
+                callCount++
+                if (callCount < 5) {
+                    throw SocketTimeoutException()
+                } else {
+                    Response.success("Success")
+                }
+            },
+            onSuccess = { 
+                successCalled = true
+                latch.countDown()
+            },
+            onError = { fail("onError should not be called") }
+        )
+
+        advanceUntilIdle()
+        assertTrue(latch.await(10, TimeUnit.SECONDS))
+        assertTrue(successCalled)
+        assertEquals(5, callCount)
+    }
+
+    @Test
+    fun `executeWithRetry should handle jitter randomness without breaking functionality`() = runTest {
+        activity = TestBaseActivity()
+        val latch = CountDownLatch(1)
+        var successCalled = false
+        var callCount = 0
+
+        activity.executeWithRetry(
+            maxRetries = 10,
+            initialDelayMs = 50,
+            maxDelayMs = 200,
+            operation = {
+                callCount++
+                if (callCount < 3) {
+                    throw SocketTimeoutException()
+                } else {
+                    Response.success("Success")
+                }
+            },
+            onSuccess = { 
+                successCalled = true
+                latch.countDown()
+            },
+            onError = { fail("onError should not be called") }
+        )
+
+        advanceUntilIdle()
+        assertTrue(latch.await(5, TimeUnit.SECONDS))
+        assertTrue(successCalled)
+        assertEquals(3, callCount)
+    }
+
+    @Test
+    fun `executeWithRetry should handle edge case of 429 rate limit`() = runTest {
+        activity = TestBaseActivity()
+        val latch = CountDownLatch(1)
+        var successCalled = false
+        var callCount = 0
+
+        activity.executeWithRetry(
+            maxRetries = 3,
+            operation = {
+                callCount++
+                if (callCount < 2) {
+                    Response.error(429, okhttp3.ResponseBody.create(null, "Rate Limit Exceeded"))
+                } else {
+                    Response.success("Success")
+                }
+            },
+            onSuccess = { 
+                successCalled = true
+                latch.countDown()
+            },
+            onError = { fail("onError should not be called") }
+        )
+
+        advanceUntilIdle()
+        assertTrue(latch.await(5, TimeUnit.SECONDS))
+        assertTrue(successCalled)
+        assertEquals(2, callCount)
+    }
 }
 
 class TestBaseActivity : BaseActivity()
