@@ -62,14 +62,14 @@ class AnnouncementsFragment : Fragment() {
                     is UiState.Success -> {
                         binding.progressBar.visibility = View.GONE
                         if (state.data.isEmpty()) {
-                            Toast.makeText(context, getString(R.string.no_announcements_available), Toast.LENGTH_LONG).show()
+                            Toast.makeText(requireContext(), getString(R.string.no_announcements_available), Toast.LENGTH_LONG).show()
                         } else {
                             adapter.submitList(state.data)
                         }
                     }
                     is UiState.Error -> {
                         binding.progressBar.visibility = View.GONE
-                        Toast.makeText(context, getString(R.string.network_error, state.error), Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), getString(R.string.network_error, state.error), Toast.LENGTH_LONG).show()
                     }
                 }
             }
