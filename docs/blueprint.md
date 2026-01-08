@@ -124,11 +124,27 @@ The domain layer represents business entities and use cases, independent of any 
    - Returns Result<UserResponse> for error handling
 
 4. **LoadFinancialDataUseCase.kt** - Loads financial data from repository
-   - Encapsulates financial data loading business logic
-   - Wrapper around PemanfaatanRepository with business rules
-   - Supports forceRefresh parameter for cache bypass
-   - Includes validateFinancialData() method for data validation
-   - Returns Result<PemanfaatanResponse> for error handling
+    - Encapsulates financial data loading business logic
+    - Wrapper around PemanfaatanRepository with business rules
+    - Supports forceRefresh parameter for cache bypass
+    - Includes validateFinancialData() method for data validation
+    - Returns Result<PemanfaatanResponse> for error handling
+    - **UPDATED (Module ARCH-001)**: Accepts ValidateFinancialDataUseCase via constructor (Dependency Inversion)
+ 
+5. **CalculateFinancialSummaryUseCase.kt** - Calculates financial summary with totals (NEW - Module ARCH-002)
+    - Encapsulates financial summary calculation business logic
+    - Uses ValidateFinancialDataUseCase and CalculateFinancialTotalsUseCase
+    - Calculates: totalIuranBulanan, totalPengeluaran, rekapIuran
+    - Validates data before calculation
+    - Returns immutable FinancialSummary result with validation status
+    - **Benefit**: Extracted 65 lines of business logic from LaporanActivity
+ 
+6. **PaymentSummaryIntegrationUseCase.kt** - Integrates payment transactions into financial summary (NEW - Module ARCH-002)
+    - Encapsulates payment integration business logic
+    - Fetches completed transactions from TransactionRepository
+    - Calculates payment total
+    - Returns PaymentIntegrationResult with payment data
+    - **Benefit**: Removed payment integration logic from Activity (better separation of concerns)
 
 ### Domain Mapper ✅
 - **DomainMapper.kt** - Converts between domain models and data entities
@@ -388,28 +404,31 @@ app/
 - ✅ Repository Pattern - Data abstraction
 - ✅ ViewModel Pattern - UI logic separation
 - ✅ Factory Pattern - ViewModel instantiation
-- ✅ Use Case Pattern - Business logic encapsulation (NEW - Module 62)
+- ✅ Use Case Pattern - Business logic encapsulation (Module 62)
 - ✅ Observer Pattern - StateFlow/LiveData
 - ✅ Adapter Pattern - RecyclerView adapters
 - ✅ Singleton Pattern - Configuration objects
 - ✅ Builder Pattern - Network configuration
 - ✅ Strategy Pattern - Different payment gateways
-- ✅ Generic DiffUtil Pattern - Eliminated 62 lines of code duplication (NEW - Module 81)
+- ✅ Generic DiffUtil Pattern - Eliminated 62 lines of code duplication (Module 81)
+- ✅ Dependency Injection Pattern - Pragmatic DI container (Module ARCH-003)
+- ✅ Service Locator Pattern - DependencyContainer provides dependencies (Module ARCH-003)
 
 ### Architectural Patterns ✅
 - ✅ MVVM - Model-View-ViewModel
 - ✅ Clean Architecture - Layer separation
-- ⏳ Dependency Injection - Future with Hilt
+- ✅ Dependency Injection - Pragmatic DI container implemented (Module ARCH-003)
 
 ## SOLID Principles Compliance ✅
 
 ### Single Responsibility Principle ✅
 - Each class has one clear responsibility
-- Activities: UI handling
+- Activities: UI handling only
 - ViewModels: State management and presentation logic
-- Use Cases: Business logic (NEW - Module 62)
+- Use Cases: Business logic (Module 62)
 - Repositories: Data management
 - Utilities: Specific functions
+- **NEW (Module ARCH-003)**: DependencyContainer manages dependency creation
 
 ### Open/Closed Principle ✅
 - Open for extension (new adapters, repositories)
@@ -652,6 +671,50 @@ Performance bottleneck identified in financial calculation algorithm:
 - ✅ **Code Simplicity**: Fewer methods, clearer algorithm flow
 - ✅ **Maintainability**: Easier to understand single calculation method
 - ✅ **Testability**: All existing tests pass unchanged
+
+### Dependency Injection Implementation ✅ (Module ARCH-003)
+
+**Architecture Pattern:**
+- **Service Locator / DI Container Pattern**: Pragmatic dependency injection without external frameworks
+
+**Implementation:**
+- **DependencyContainer.kt**: Centralized dependency management
+  - provideUserRepository(): Singleton UserRepository instance
+  - providePemanfaatanRepository(): Singleton PemanfaatanRepository instance
+  - provideTransactionRepository(): Singleton TransactionRepository instance
+  - provideLoadUsersUseCase(): LoadUsersUseCase with dependencies
+  - provideLoadFinancialDataUseCase(): LoadFinancialDataUseCase with dependencies
+  - provideCalculateFinancialSummaryUseCase(): CalculateFinancialSummaryUseCase with dependencies
+  - providePaymentSummaryIntegrationUseCase(): PaymentSummaryIntegrationUseCase with dependencies
+  - Initialize in CacheInitializer Application class
+  - Reset method for testing
+
+**Benefits:**
+- ✅ **Single Source of Truth**: All dependencies managed centrally
+- ✅ **Eliminates Tight Coupling**: Activities don't directly create dependencies
+- ✅ **Dependency Inversion**: Depend on abstractions (UseCases), not concretions
+- ✅ **Testability**: Can mock DependencyContainer for unit tests
+- ✅ **Pragmatic**: Simple implementation without Hilt/Dagger complexity
+- ✅ **Maintainability**: Easy to add/modify dependencies
+- ✅ **Type Safety**: Compile-time safety for dependency access
+
+**Architecture Improvements:**
+- ✅ **Activities**: Only UI logic, no dependency creation
+- ✅ **ViewModels**: Receive UseCases from DI container
+- ✅ **UseCases**: Receive dependencies via constructor
+- ✅ **No Circular Dependencies**: Clear dependency flow
+
+**Anti-Patterns Eliminated:**
+- ✅ No more direct Factory instantiation in Activities
+- ✅ No more UseCase instantiation in Activities
+- ✅ No more tight coupling between UI and data/business layers
+
+**Best Practices Followed:**
+- ✅ **Dependency Inversion Principle**: Depend on abstractions
+- ✅ **Single Responsibility Principle**: DI container manages dependencies
+- ✅ **Interface Segregation**: UseCases provide focused interfaces
+- ✅ **Testability**: Can mock DI container easily
+- ✅ **Simplicity**: Pragmatic solution without over-engineering
 
 **Anti-Patterns Eliminated:**
 - ✅ No more multiple passes through same data (unecessary iterations)

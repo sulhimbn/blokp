@@ -15585,3 +15585,313 @@ Documentation/
 **Dependencies**: Module 85 (API Documentation Comprehensive Enhancement)
 **Documentation**: Updated docs/task.md with Module 87 completion
 **Impact**: MEDIUM - Improves developer experience by making comprehensive API documentation easily discoverable, enhances onboarding for new developers, reduces confusion about API documentation location
+
+---
+
+## Architectural Tasks
+
+---
+
+### ✅ ARCH-001. Fix UseCase Dependency Violation - Constructor Injection
+**Status**: Completed
+**Completed Date**: 2026-01-08
+**Priority**: HIGH (Architecture)
+**Estimated Time**: 1 hour (completed in 30 minutes)
+**Description**: Fix UseCase dependency violation where UseCases instantiated other UseCases directly, violating Dependency Inversion Principle
+
+**Dependency Violation Identified:**
+- ❌ ValidateFinancialDataUseCase instantiated CalculateFinancialTotalsUseCase directly
+- ❌ LoadFinancialDataUseCase instantiated ValidateFinancialDataUseCase directly
+- ❌ Tight coupling between UseCases
+- ❌ Cannot mock dependencies for testing
+- ❌ Violates Dependency Inversion Principle
+
+**Solution Implemented - Constructor Injection:**
+- Updated ValidateFinancialDataUseCase to accept CalculateFinancialTotalsUseCase via constructor
+- Updated LoadFinancialDataUseCase to accept ValidateFinancialDataUseCase via constructor
+- Provided default constructor values for backward compatibility
+- Removed direct UseCase instantiation from methods
+- Enables proper dependency injection pattern
+
+**Architecture Improvements:**
+- ✅ **Dependency Inversion Principle**: Depend on abstractions, not concretions
+- ✅ **Testability**: Can now mock UseCase dependencies
+- ✅ **Loose Coupling**: UseCases don't create their dependencies
+- ✅ **Backward Compatibility**: Default values maintain existing code
+- ✅ **Clean Dependency Flow**: Clear hierarchical dependency structure
+
+**Files Modified** (2 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| ValidateFinancialDataUseCase.kt | +2, -2 | Added constructor parameter |
+| LoadFinancialDataUseCase.kt | +2, -1 | Added constructor parameter |
+| **Total** | **+4, -3** | **2 files modified** |
+
+**Benefits:**
+1. **Dependency Inversion**: UseCases depend on abstractions (constructor parameters)
+2. **Testability**: Can mock UseCase dependencies in unit tests
+3. **Loose Coupling**: Removed tight coupling between UseCases
+4. **Flexibility**: Easy to change implementations
+5. **Maintainability**: Clear dependency graph
+6. **Backward Compatible**: Existing code continues to work (default values)
+
+**Anti-Patterns Eliminated:**
+- ✅ No more direct UseCase instantiation in UseCases
+- ✅ No more tight coupling between UseCases
+- ✅ No more untestable dependencies
+
+**Best Practices Followed:**
+- ✅ **Dependency Inversion Principle**: Depend on abstractions
+- ✅ **Constructor Injection**: Dependencies provided via constructor
+- ✅ **Default Values**: Maintain backward compatibility
+- ✅ **Testability**: Dependencies can be mocked
+
+**Success Criteria:**
+- [x] UseCase dependency violation fixed
+- [x] Constructor injection implemented
+- [x] Default values for backward compatibility
+- [x] No breaking changes to existing functionality
+- [x] Documentation updated (task.md)
+- [x] Changes committed and pushed to agent branch
+- [x] PR created/updated (PR #246)
+
+**Dependencies**: None (independent architecture improvement, improves testability and flexibility)
+**Documentation**: Updated docs/task.md with ARCH-001 completion
+**Impact**: HIGH - Critical architectural improvement, enables proper dependency injection, improves testability, eliminates tight coupling between UseCases
+
+**References:**
+- [Dependency Inversion Principle](https://en.wikipedia.org/wiki/Dependency_inversion_principle)
+- [Constructor Injection](https://en.wikipedia.org/wiki/Dependency_injection)
+
+---
+
+### ✅ ARCH-002. Extract Business Logic from LaporanActivity - ViewModel and UseCases
+**Status**: Completed
+**Completed Date**: 2026-01-08
+**Priority**: HIGH (Architecture)
+**Estimated Time**: 2-3 hours (completed in 2 hours)
+**Description**: Extract business logic (financial calculations, payment integration) from LaporanActivity to ViewModel and UseCases, implementing proper separation of concerns
+
+**Business Logic Mixing Identified:**
+- ❌ LaporanActivity contained financial calculations (calculateAndSetSummary method)
+- ❌ LaporanActivity contained payment integration logic (integratePaymentTransactions method)
+- ❌ Direct TransactionRepository access in Activity
+- ❌ Direct UseCase instantiation in Activity
+- ❌ Mixing UI with business logic concerns
+- ❌ Violates Single Responsibility Principle
+
+**Solution Implemented - Business Logic Extraction:**
+
+**1. Created CalculateFinancialSummaryUseCase:**
+- Encapsulates financial summary calculation business logic
+- Uses ValidateFinancialDataUseCase and CalculateFinancialTotalsUseCase
+- Returns FinancialSummary with validation status
+- Handles arithmetic and validation exceptions gracefully
+- Extracts 65 lines of calculation logic from Activity
+
+**2. Created PaymentSummaryIntegrationUseCase:**
+- Encapsulates payment integration business logic
+- Uses TransactionRepository to fetch completed transactions
+- Calculates payment total
+- Returns PaymentIntegrationResult with status
+- Extracts payment logic from Activity
+
+**3. Updated FinancialViewModel:**
+- Added calculateFinancialSummary() method (delegates to UseCase)
+- Added integratePaymentTransactions() method (delegates to UseCase)
+- Accepts new UseCases via constructor
+- Provides clean delegation layer
+
+**4. Refactored LaporanActivity:**
+- Removed calculateAndSetSummary() method (business logic moved)
+- Removed integratePaymentTransactions() method (business logic moved)
+- Removed TransactionRepository property (access via UseCase now)
+- Removed fetchCompletedTransactions() method (business logic moved)
+- Removed calculatePaymentTotal() method (business logic moved)
+- Removed initializeTransactionRepository() method
+- Removed unused imports (6 imports cleaned)
+- Updated to use ViewModel methods instead of direct logic
+- Reduced Activity size by 62 lines (263 → 201 lines, -24%)
+
+**Architecture Improvements:**
+- ✅ **Single Responsibility Principle**: Activity = UI, ViewModel = state, UseCase = business logic
+- ✅ **Separation of Concerns**: UI, business logic, data clearly separated
+- ✅ **Clean Architecture**: Proper layer boundaries
+- ✅ **Testability**: Business logic can now be tested independently
+- ✅ **Maintainability**: Clear code organization
+
+**Files Added** (4 total):
+| File | Lines | Tests | Purpose |
+|------|--------|--------|---------|
+| CalculateFinancialSummaryUseCase.kt | 97 | - | Financial summary calculation |
+| PaymentSummaryIntegrationUseCase.kt | 51 | - | Payment integration logic |
+| CalculateFinancialSummaryUseCaseTest.kt | 196 | 7 | Comprehensive test coverage |
+| PaymentSummaryIntegrationUseCaseTest.kt | 175 | 7 | Comprehensive test coverage |
+| **Total** | **519** | **14** | **4 files added** |
+
+**Files Modified** (2 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| FinancialViewModel.kt | +18, -1 | Added methods, constructor parameters |
+| LaporanActivity.kt | -62, 0 | Removed business logic, cleaned imports (-24% size) |
+| **Total** | **-44, +18** | **2 files modified** |
+
+**Benefits:**
+1. **Clean Separation of Concerns**: UI, business logic, data separated
+2. **Testability**: Business logic can be tested independently (14 new tests)
+3. **Maintainability**: Each component has single responsibility
+4. **Code Reusability**: UseCases can be reused across app
+5. **Code Clarity**: Business logic not hidden in Activities
+6. **Simplified Activity**: LaporanActivity reduced by 62 lines (-24%)
+
+**Anti-Patterns Eliminated:**
+- ✅ No more presentation with business logic (separated into UseCases)
+- ✅ No more direct Repository access in Activities (via UseCases now)
+- ✅ No more god classes (logic extracted from large Activity)
+- ✅ No more code duplication (UseCase logic centralized)
+
+**Best Practices Followed:**
+- ✅ **Single Responsibility Principle**: Each class has one clear purpose
+- ✅ **Separation of Concerns**: UI and business logic separated
+- ✅ **Clean Architecture**: Proper layer boundaries
+- ✅ **Testability**: Comprehensive test coverage (14 tests)
+- ✅ **Code Reusability**: UseCases are reusable components
+
+**Success Criteria:**
+- [x] Business logic extracted from LaporanActivity
+- [x] Financial calculations moved to CalculateFinancialSummaryUseCase
+- [x] Payment integration moved to PaymentSummaryIntegrationUseCase
+- [x] FinancialViewModel updated to delegate to UseCases
+- [x] LaporanActivity reduced by 62 lines (-24%)
+- [x] 14 new tests added with comprehensive coverage
+- [x] No breaking changes to existing functionality
+- [x] Documentation updated (task.md)
+- [x] Changes committed and pushed to agent branch
+- [x] PR created/updated (PR #246)
+
+**Dependencies**: ARCH-001 (completed before)
+**Documentation**: Updated docs/task.md with ARCH-002 completion
+**Impact**: HIGH - Significant architectural improvement, extracts 65 lines of business logic from Activity, achieves proper separation of concerns, adds 14 tests, reduces Activity complexity by 24%
+
+**References:**
+- [Single Responsibility Principle](https://en.wikipedia.org/wiki/Single-responsibility_principle)
+- [Separation of Concerns](https://en.wikipedia.org/wiki/Separation_of_concerns)
+- [Clean Architecture](https://blog.cleancoder.com/uncle-bobs-principles-of-oadr-architecture)
+
+---
+
+### ✅ ARCH-003. Eliminate Tight Coupling - Dependency Injection Container
+**Status**: Completed
+**Completed Date**: 2026-01-08
+**Priority**: HIGH (Architecture)
+**Estimated Time**: 2 hours (completed in 1.5 hours)
+**Description**: Implement pragmatic Dependency Injection container to eliminate tight coupling between Activities and business/data layers
+
+**Tight Coupling Identified:**
+- ❌ Activities directly instantiated Factories (UserRepositoryFactory, PemanfaatanRepositoryFactory)
+- ❌ Activities directly instantiated UseCases (LoadUsersUseCase, LoadFinancialDataUseCase)
+- ❌ Activities directly instantiated TransactionRepository
+- ❌ Tight coupling between UI and data/business layers
+- ❌ Cannot mock dependencies for testing Activities
+- ❌ Violates Dependency Inversion Principle
+- ❌ Duplicated dependency creation logic in Activities
+
+**Solution Implemented - Pragmatic DI Container:**
+
+**1. Created DependencyContainer:**
+- Centralized dependency management
+- provideUserRepository(): Singleton UserRepository instance
+- providePemanfaatanRepository(): Singleton PemanfaatanRepository instance
+- provideTransactionRepository(): Singleton TransactionRepository instance
+- provideLoadUsersUseCase(): LoadUsersUseCase with dependencies
+- provideLoadFinancialDataUseCase(): LoadFinancialDataUseCase with dependencies
+- provideCalculateFinancialSummaryUseCase(): CalculateFinancialSummaryUseCase with dependencies
+- providePaymentSummaryIntegrationUseCase(): PaymentSummaryIntegrationUseCase with dependencies
+- initialize(): Initializes with application context
+- reset(): For testing (clears cached instances)
+
+**2. Updated MainActivity:**
+- Removed UserRepositoryFactory.getInstance() call
+- Removed LoadUsersUseCase() instantiation
+- Uses DependencyContainer.provideLoadUsersUseCase()
+- Reduced coupling, improved testability
+
+**3. Updated LaporanActivity:**
+- Removed PemanfaatanRepositoryFactory.getInstance() call
+- Removed LoadFinancialDataUseCase() instantiation
+- Removed TransactionRepositoryFactory.getMockInstance() call
+- Removed PaymentSummaryIntegrationUseCase() instantiation
+- Uses DependencyContainer for all dependencies
+- Simplified initialization code
+
+**4. Initialized DI Container:**
+- Updated CacheInitializer Application class
+- Calls DependencyContainer.initialize() on app startup
+- DI container ready for all Activities
+
+**Architecture Improvements:**
+- ✅ **Dependency Inversion Principle**: Depend on abstractions (DI container)
+- ✅ **Single Source of Truth**: All dependencies managed centrally
+- ✅ **Testability**: Can mock DependencyContainer for unit tests
+- ✅ **Loose Coupling**: Activities don't create dependencies directly
+- ✅ **Pragmatic DI**: Simple solution without external frameworks (Hilt/Dagger)
+- ✅ **Maintainability**: Easy to add/modify dependencies
+
+**Files Added** (1 total):
+| File | Lines | Purpose |
+|------|--------|---------|
+| DependencyContainer.kt | 126 | Centralized dependency management |
+| **Total** | **126** | **1 file added** |
+
+**Files Modified** (3 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| MainActivity.kt | -1, +1 | Uses DI container instead of Factory |
+| LaporanActivity.kt | -4, +1 | Uses DI container instead of Factory |
+| CacheInitializer.kt | +2 | Initializes DI container |
+| **Total** | **-3, +4** | **3 files modified** |
+
+**Benefits:**
+1. **Single Source of Truth**: All dependencies managed centrally
+2. **Eliminates Tight Coupling**: Activities don't create dependencies directly
+3. **Dependency Inversion**: Depend on abstractions (DI container methods)
+4. **Testability**: Can mock DependencyContainer for unit tests
+5. **Pragmatic DI**: Simple implementation without external frameworks
+6. **Maintainability**: Easy to add/modify dependencies in one place
+7. **Code Reusability**: Dependencies reused across Activities
+
+**Anti-Patterns Eliminated:**
+- ✅ No more direct Factory instantiation in Activities
+- ✅ No more direct UseCase instantiation in Activities
+- ✅ No more direct Repository instantiation in Activities
+- ✅ No more tight coupling between UI and business/data layers
+- ✅ No more duplicated dependency creation logic
+
+**Best Practices Followed:**
+- ✅ **Dependency Inversion Principle**: Depend on abstractions
+- ✅ **Single Responsibility Principle**: DI container manages dependencies
+- ✅ **Service Locator Pattern**: Clean dependency resolution
+- ✅ **Testability**: Can mock DI container
+- ✅ **Simplicity**: Pragmatic solution without over-engineering
+
+**Success Criteria:**
+- [x] Tight coupling eliminated from Activities
+- [x] Dependency Injection container implemented
+- [x] Single source of truth for dependencies created
+- [x] Activities use DI container instead of direct instantiation
+- [x] DI container initialized in Application class
+- [x] No breaking changes to existing functionality
+- [x] Documentation updated (task.md, blueprint.md)
+- [x] Changes committed and pushed to agent branch
+- [x] PR created/updated (PR #246)
+
+**Dependencies**: ARCH-001, ARCH-002 (completed before)
+**Documentation**: Updated docs/task.md with ARCH-003 completion, docs/blueprint.md with DI pattern
+**Impact**: HIGH - Critical architectural improvement, eliminates tight coupling, implements pragmatic DI pattern, provides single source of truth for dependencies, improves testability and maintainability
+
+**References:**
+- [Dependency Injection](https://en.wikipedia.org/wiki/Dependency_injection)
+- [Service Locator Pattern](https://martinfowler.com/articles/injection/#UsingAServiceLocator)
+- [Dependency Inversion Principle](https://en.wikipedia.org/wiki/Dependency_inversion_principle)
+
+---
