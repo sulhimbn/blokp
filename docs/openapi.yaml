@@ -29,9 +29,23 @@ info:
 
 servers:
   - url: https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/
-    description: Production server
+    description: Production server (Legacy API - Deprecated)
+    variables:
+      version:
+        default: ''
+        enum:
+          - ''
+          - 'api/v1/'
+  - url: https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/api/v1/
+    description: Production server (API v1 - Recommended)
   - url: http://api-mock:5000/data/QjX6hB1ST2IDKaxB/
     description: Development server (Docker)
+    variables:
+      version:
+        default: ''
+        enum:
+          - ''
+          - 'api/v1/'
 
 tags:
   - name: Users
@@ -482,6 +496,79 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '422':
           $ref: '#/components/responses/ValidationError'
+
+  # API v1 Endpoints (Versioned with standardized response wrappers)
+  api/v1/users:
+    get:
+      tags:
+        - Users
+      summary: Get all users (API v1)
+      description: Retrieves list of all users/residents with standardized response wrapper and optional pagination
+      operationId: getUsersV1
+      parameters:
+        - name: page
+          in: query
+          description: Page number (1-indexed)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          description: Items per page (max 100)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Successful response with standardized wrapper
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - $ref: '#/components/schemas/ApiListResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  api/v1/pemanfaatan:
+    get:
+      tags:
+        - Financial
+      summary: Get financial records (API v1)
+      description: Retrieves financial data with standardized response wrapper and optional pagination
+      operationId: getPemanfaatanV1
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Successful response with standardized wrapper
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - $ref: '#/components/schemas/ApiListResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
 components:
   schemas:
@@ -1177,6 +1264,87 @@ components:
         requestId:
           type: string
           description: Request ID for tracing
+
+    ApiResponse:
+      type: object
+      description: Standardized API v1 response wrapper for single resource
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          description: Response data payload
+        request_id:
+          type: string
+          format: uuid
+          description: Request ID for tracing
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp (Unix epoch)
+
+    ApiListResponse:
+      type: object
+      description: Standardized API v1 response wrapper for collections with pagination
+      required:
+        - data
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+          description: List of items
+        pagination:
+          $ref: '#/components/schemas/PaginationMetadata'
+        request_id:
+          type: string
+          format: uuid
+          description: Request ID for tracing
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp (Unix epoch)
+
+    PaginationMetadata:
+      type: object
+      description: Pagination metadata for list responses
+      required:
+        - page
+        - page_size
+        - total_items
+        - total_pages
+        - has_next
+        - has_previous
+      properties:
+        page:
+          type: integer
+          minimum: 1
+          example: 1
+          description: Current page number (1-indexed)
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+          example: 20
+          description: Number of items per page
+        total_items:
+          type: integer
+          minimum: 0
+          example: 100
+          description: Total number of items across all pages
+        total_pages:
+          type: integer
+          minimum: 1
+          example: 5
+          description: Total number of pages
+        has_next:
+          type: boolean
+          example: true
+          description: Whether next page exists
+        has_previous:
+          type: boolean
+          example: false
+          description: Whether previous page exists
 
   parameters:
     UserId:
