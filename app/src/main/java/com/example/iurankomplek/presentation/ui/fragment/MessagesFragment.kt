@@ -34,6 +34,8 @@ class MessagesFragment : Fragment() {
 
         adapter = MessageAdapter()
         binding.rvMessages.layoutManager = LinearLayoutManager(context)
+        binding.rvMessages.setHasFixedSize(true)
+        binding.rvMessages.setItemViewCacheSize(20)
         binding.rvMessages.adapter = adapter
 
         initializeViewModel()

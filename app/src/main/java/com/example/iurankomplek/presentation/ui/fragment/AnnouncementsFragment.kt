@@ -33,6 +33,8 @@ class AnnouncementsFragment : Fragment() {
 
         adapter = AnnouncementAdapter()
         binding.rvAnnouncements.layoutManager = LinearLayoutManager(context)
+        binding.rvAnnouncements.setHasFixedSize(true)
+        binding.rvAnnouncements.setItemViewCacheSize(20)
         binding.rvAnnouncements.adapter = adapter
 
         initializeViewModel()

@@ -56,6 +56,8 @@ class VendorDatabaseFragment : Fragment() {
 
         binding.vendorRecyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
+            setHasFixedSize(true)
+            setItemViewCacheSize(20)
             adapter = vendorAdapter
         }
     }

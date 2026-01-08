@@ -33,6 +33,8 @@ class CommunityFragment : Fragment() {
 
         adapter = CommunityPostAdapter()
         binding.rvCommunity.layoutManager = LinearLayoutManager(context)
+        binding.rvCommunity.setHasFixedSize(true)
+        binding.rvCommunity.setItemViewCacheSize(20)
         binding.rvCommunity.adapter = adapter
 
         initializeViewModel()
