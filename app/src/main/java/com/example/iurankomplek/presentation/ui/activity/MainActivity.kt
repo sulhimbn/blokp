@@ -93,12 +93,11 @@ class MainActivity : BaseActivity() {
                      stateManager.showEmpty()
                  }
              } ?: run {
-                 stateManager.showError(
-                     errorMessage = getString(R.string.invalid_response_format),
-                     onRetry = { viewModel.loadUsers() }
-                 )
-             }
-          })
-      }
-   }
-}
+                  stateManager.showError(
+                      errorMessage = getString(R.string.invalid_response_format),
+                      onRetry = { viewModel.loadUsers() }
+                  )
+              }
+           })
+       }
+    }
