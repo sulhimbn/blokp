@@ -14,7 +14,6 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.security.SecureRandom
-import kotlin.math.min
 
 class WebhookQueue(
     private val webhookEventDao: WebhookEventDao,
@@ -23,7 +22,11 @@ class WebhookQueue(
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val eventChannel = Channel<Long>(capacity = Channel.UNLIMITED)
     private val json = Json { ignoreUnknownKeys = true }
-    private val secureRandom = SecureRandom()
+
+    private val retryCalculator = WebhookRetryCalculator()
+    private val payloadProcessor = WebhookPayloadProcessor(transactionRepository)
+    private val eventCleaner = WebhookEventCleaner(webhookEventDao, eventChannel)
+    private val eventMonitor = WebhookEventMonitor(webhookEventDao)
 
     private var isProcessing = false
     private var processingJob: Job? = null
@@ -143,7 +146,7 @@ class WebhookQueue(
         try {
             webhookEventDao.updateStatus(eventId, WebhookDeliveryStatus.PROCESSING)
             
-            val success = processWebhookPayload(event)
+            val success = payloadProcessor.processWebhookPayload(event)
 
             if (success) {
                 webhookEventDao.markAsDelivered(eventId)
@@ -158,7 +161,7 @@ class WebhookQueue(
                 webhookEventDao.markAsFailed(eventId)
                 Log.e(TAG, "Webhook event $eventId failed after ${event.retryCount} retries")
             } else {
-                val nextRetryDelay = calculateRetryDelay(event.retryCount)
+                val nextRetryDelay = retryCalculator.calculateRetryDelay(event.retryCount)
                 val nextRetryAt = System.currentTimeMillis() + nextRetryDelay
                 
                 webhookEventDao.updateRetryInfo(
@@ -174,114 +177,24 @@ class WebhookQueue(
         }
     }
 
-    private suspend fun processWebhookPayload(event: WebhookEvent): Boolean {
-        return try {
-            val webhookPayload = json.decodeFromString<WebhookPayload>(event.payload)
-            
-            when (webhookPayload.eventType) {
-                "payment.success" -> {
-                    updateTransactionStatus(webhookPayload.transactionId, PaymentStatus.COMPLETED)
-                }
-                "payment.failed" -> {
-                    updateTransactionStatus(webhookPayload.transactionId, PaymentStatus.FAILED)
-                }
-                "payment.refunded" -> {
-                    updateTransactionStatus(webhookPayload.transactionId, PaymentStatus.REFUNDED)
-                }
-                else -> {
-                    Log.d(TAG, "Unknown webhook event type: ${webhookPayload.eventType}")
-                    return true
-                }
-            }
-            
-            true
-        } catch (e: kotlinx.serialization.SerializationException) {
-            Log.e(TAG, "Invalid JSON payload for event $event: ${e.message}")
-            false
-        } catch (e: Exception) {
-            Log.e(TAG, "Error processing webhook payload for event $event: ${e.message}", e)
-            false
-        }
-    }
-
-    private suspend fun updateTransactionStatus(transactionId: String?, status: PaymentStatus): Boolean {
-        if (transactionId.isNullOrBlank()) {
-            Log.w(TAG, "Transaction ID is null or blank")
-            return false
-        }
-
-        return try {
-            val sanitizedId = transactionId.trim().takeIf { it.isNotBlank() }
-            if (sanitizedId == null) {
-                Log.e(TAG, "Invalid transaction ID")
-                return false
-            }
-
-            val transaction = transactionRepository.getTransactionById(sanitizedId)
-            if (transaction != null) {
-                val updatedTransaction = transaction.copy(status = status)
-                transactionRepository.updateTransaction(updatedTransaction)
-                true
-            } else {
-                Log.e(TAG, "Transaction not found: $sanitizedId")
-                false
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error updating transaction status: ${e.message}", e)
-            false
-        }
-    }
-
-    internal fun calculateRetryDelay(retryCount: Int): Long {
-        val exponentialDelay = (Constants.Webhook.INITIAL_RETRY_DELAY_MS *
-            Math.pow(Constants.Webhook.RETRY_BACKOFF_MULTIPLIER, retryCount.toDouble())).toLong()
-
-        val cappedDelay = min(exponentialDelay, Constants.Webhook.MAX_RETRY_DELAY_MS)
-
-        val jitterMin = -Constants.Webhook.RETRY_JITTER_MS
-        val jitterMax = Constants.Webhook.RETRY_JITTER_MS
-        val jitter = secureRandom.nextLong() % (jitterMax - jitterMin + 1) + jitterMin
-
-        return (cappedDelay + jitter).coerceAtLeast(0)
-    }
-
     suspend fun retryFailedEvents(limit: Int = Constants.Webhook.DEFAULT_RETRY_LIMIT): Int {
-        val cutoffTime = System.currentTimeMillis()
-        val failedEvents = webhookEventDao.getPendingEventsByStatus(
-            status = WebhookDeliveryStatus.FAILED,
-            currentTime = cutoffTime,
-            limit = limit
-        )
-        
-        var retriedCount = 0
-        for (event in failedEvents) {
-            webhookEventDao.updateStatus(
-                event.id,
-                WebhookDeliveryStatus.PENDING
-            )
-            eventChannel.send(event.id)
-            retriedCount++
-        }
-        
-        Log.d(TAG, "Retrying $retriedCount failed events")
-        return retriedCount
+        return eventCleaner.retryFailedEvents(limit)
     }
 
     suspend fun cleanupOldEvents(): Int {
-        val cutoffTime = System.currentTimeMillis() - 
-            (Constants.Webhook.MAX_EVENT_RETENTION_DAYS * 24L * 60L * 60L * 1000L)
-        
-        val deletedCount = webhookEventDao.deleteEventsOlderThan(cutoffTime)
-        Log.d(TAG, "Cleaned up $deletedCount old webhook events")
-        return deletedCount
+        return eventCleaner.cleanupOldEvents()
     }
 
     suspend fun getPendingEventCount(): Int {
-        return webhookEventDao.countByStatus(WebhookDeliveryStatus.PENDING)
+        return eventMonitor.getPendingEventCount()
     }
 
     suspend fun getFailedEventCount(): Int {
-        return webhookEventDao.countByStatus(WebhookDeliveryStatus.FAILED)
+        return eventMonitor.getFailedEventCount()
+    }
+
+    internal fun calculateRetryDelay(retryCount: Int): Long {
+        return retryCalculator.calculateRetryDelay(retryCount)
     }
 
     fun destroy() {
