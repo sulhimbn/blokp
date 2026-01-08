@@ -29,16 +29,16 @@ interface ApiService {
     suspend fun getPemanfaatan(): Response<PemanfaatanResponse>
     
     @GET("announcements")
-    suspend fun getAnnouncements(): Response<List<Announcement>
+    suspend fun getAnnouncements(): Response<List<Announcement>>
     
     @GET("messages")
     suspend fun getMessages(@Query("userId") userId: String): Response<List<Message>>
     
     @GET("messages/{receiverId}")
     suspend fun getMessagesWithUser(
-        @Path("receiverId") receiverId: String, 
+        @Path("receiverId") receiverId: String,
         @Query("senderId") senderId: String
-    ): Response<List<Message>
+    ): Response<List<Message>>
     
     @POST("messages")
     suspend fun sendMessage(
@@ -48,7 +48,7 @@ interface ApiService {
     ): Response<Message>
     
     @GET("community-posts")
-    suspend fun getCommunityPosts(): Response<List<CommunityPost>
+    suspend fun getCommunityPosts(): Response<List<CommunityPost>>
     
     @POST("community-posts")
     suspend fun createCommunityPost(
