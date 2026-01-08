@@ -4,7 +4,6 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.databinding.ItemListBinding
@@ -69,15 +68,7 @@ class UserAdapter : ListAdapter<LegacyDataItemDto, UserAdapter.ListViewHolder>(U
             get() = binding.itemIuranIndividu
     }
 
-    object UserDiffCallback : DiffUtil.ItemCallback<LegacyDataItemDto>() {
-        override fun areItemsTheSame(oldItem: LegacyDataItemDto, newItem: LegacyDataItemDto): Boolean {
-            // Since there's no explicit ID, use a combination of fields that would uniquely identify a user
-            // Using email as it's typically unique, or a combination of name and address
-            return oldItem.email == newItem.email
-        }
-
-        override fun areContentsTheSame(oldItem: LegacyDataItemDto, newItem: LegacyDataItemDto): Boolean {
-            return oldItem == newItem
-        }
+    companion object {
+        private val UserDiffCallback = GenericDiffUtil.byId<LegacyDataItemDto> { it.email }
     }
 }

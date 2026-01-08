@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.R
@@ -13,15 +12,7 @@ import com.example.iurankomplek.model.Message
 class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageViewHolder>(DiffCallback) {
 
     companion object {
-        private val DiffCallback = object : DiffUtil.ItemCallback<Message>() {
-            override fun areItemsTheSame(oldItem: Message, newItem: Message): Boolean {
-                return oldItem.id == newItem.id
-            }
-
-            override fun areContentsTheSame(oldItem: Message, newItem: Message): Boolean {
-                return oldItem == newItem
-            }
-        }
+        private val DiffCallback = GenericDiffUtil.byId<Message> { it.id }
     }
 
     class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

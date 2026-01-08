@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.R
@@ -12,7 +11,11 @@ import com.example.iurankomplek.model.Vendor
 
 class VendorAdapter(
     private val onVendorClick: (Vendor) -> Unit
-) : ListAdapter<Vendor, VendorAdapter.VendorViewHolder>(VendorDiffCallback()) {
+) : ListAdapter<Vendor, VendorAdapter.VendorViewHolder>(DiffCallback) {
+
+    companion object {
+        private val DiffCallback = GenericDiffUtil.byId<Vendor> { it.id }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VendorViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -39,16 +42,6 @@ class VendorAdapter(
             itemView.setOnClickListener {
                 onVendorClick(vendor)
             }
-        }
-    }
-
-    class VendorDiffCallback : DiffUtil.ItemCallback<Vendor>() {
-        override fun areItemsTheSame(oldItem: Vendor, newItem: Vendor): Boolean {
-            return oldItem.id == newItem.id
-        }
-
-        override fun areContentsTheSame(oldItem: Vendor, newItem: Vendor): Boolean {
-            return oldItem == newItem
         }
     }
 }

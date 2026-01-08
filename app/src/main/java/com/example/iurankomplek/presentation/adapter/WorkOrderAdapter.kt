@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.R
@@ -12,7 +11,11 @@ import com.example.iurankomplek.model.WorkOrder
 
 class WorkOrderAdapter(
     private val onWorkOrderClick: (WorkOrder) -> Unit
-) : ListAdapter<WorkOrder, WorkOrderAdapter.WorkOrderViewHolder>(WorkOrderDiffCallback()) {
+) : ListAdapter<WorkOrder, WorkOrderAdapter.WorkOrderViewHolder>(DiffCallback) {
+
+    companion object {
+        private val DiffCallback = GenericDiffUtil.byId<WorkOrder> { it.id }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WorkOrderViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -39,16 +42,6 @@ class WorkOrderAdapter(
             itemView.setOnClickListener {
                 onWorkOrderClick(workOrder)
             }
-        }
-    }
-
-    class WorkOrderDiffCallback : DiffUtil.ItemCallback<WorkOrder>() {
-        override fun areItemsTheSame(oldItem: WorkOrder, newItem: WorkOrder): Boolean {
-            return oldItem.id == newItem.id
-        }
-
-        override fun areContentsTheSame(oldItem: WorkOrder, newItem: WorkOrder): Boolean {
-            return oldItem == newItem
         }
     }
 }

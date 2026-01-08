@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.R
@@ -22,7 +21,11 @@ import java.util.Locale
 class TransactionHistoryAdapter(
     private val coroutineScope: CoroutineScope,
     private val transactionRepository: TransactionRepository
-) : ListAdapter<Transaction, TransactionHistoryAdapter.TransactionViewHolder>(TransactionDiffCallback()) {
+) : ListAdapter<Transaction, TransactionHistoryAdapter.TransactionViewHolder>(DiffCallback) {
+
+    companion object {
+        private val DiffCallback = GenericDiffUtil.byId<Transaction> { it.id }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -78,16 +81,6 @@ class TransactionHistoryAdapter(
             if (context is android.app.Activity) {
                 context.runOnUiThread(action)
             }
-        }
-    }
-
-    class TransactionDiffCallback : DiffUtil.ItemCallback<Transaction>() {
-        override fun areItemsTheSame(oldItem: Transaction, newItem: Transaction): Boolean {
-            return oldItem.id == newItem.id
-        }
-
-        override fun areContentsTheSame(oldItem: Transaction, newItem: Transaction): Boolean {
-            return oldItem == newItem
         }
     }
 }

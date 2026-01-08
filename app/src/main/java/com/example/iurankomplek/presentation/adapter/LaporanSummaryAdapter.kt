@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.R
@@ -17,15 +16,7 @@ data class LaporanSummaryItem(
 class LaporanSummaryAdapter : ListAdapter<LaporanSummaryItem, LaporanSummaryAdapter.ListViewHolder>(DiffCallback) {
 
     companion object {
-        private val DiffCallback = object : DiffUtil.ItemCallback<LaporanSummaryItem>() {
-            override fun areItemsTheSame(oldItem: LaporanSummaryItem, newItem: LaporanSummaryItem): Boolean {
-                return oldItem.title == newItem.title
-            }
-
-            override fun areContentsTheSame(oldItem: LaporanSummaryItem, newItem: LaporanSummaryItem): Boolean {
-                return oldItem == newItem
-            }
-        }
+        private val DiffCallback = GenericDiffUtil.byId<LaporanSummaryItem> { it.title }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {

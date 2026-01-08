@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.R
@@ -13,15 +12,7 @@ import com.example.iurankomplek.model.CommunityPost
 class CommunityPostAdapter : ListAdapter<CommunityPost, CommunityPostAdapter.CommunityPostViewHolder>(DiffCallback) {
 
     companion object {
-        private val DiffCallback = object : DiffUtil.ItemCallback<CommunityPost>() {
-            override fun areItemsTheSame(oldItem: CommunityPost, newItem: CommunityPost): Boolean {
-                return oldItem.id == newItem.id
-            }
-
-            override fun areContentsTheSame(oldItem: CommunityPost, newItem: CommunityPost): Boolean {
-                return oldItem == newItem
-            }
-        }
+        private val DiffCallback = GenericDiffUtil.byId<CommunityPost> { it.id }
     }
 
     class CommunityPostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
