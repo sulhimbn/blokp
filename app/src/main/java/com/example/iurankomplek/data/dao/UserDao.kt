@@ -47,4 +47,10 @@ interface UserDao {
 
     @Query("SELECT EXISTS(SELECT 1 FROM users WHERE email = :email)")
     suspend fun emailExists(email: String): Boolean
+
+    @Query("SELECT * FROM users WHERE email IN (:emails)")
+    suspend fun getUsersByEmails(emails: List<String>): List<UserEntity>
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateAll(users: List<UserEntity>)
 }

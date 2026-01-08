@@ -53,4 +53,10 @@ interface FinancialRecordDao {
 
     @Query("SELECT * FROM financial_records WHERE updated_at >= :since ORDER BY updated_at DESC")
     fun getFinancialRecordsUpdatedSince(since: Long): Flow<List<FinancialRecordEntity>>
+
+    @Query("SELECT * FROM financial_records WHERE user_id IN (:userIds) ORDER BY user_id, updated_at DESC")
+    suspend fun getFinancialRecordsByUserIds(userIds: List<Long>): List<FinancialRecordEntity>
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateAll(records: List<FinancialRecordEntity>)
 }
