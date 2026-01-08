@@ -68,4 +68,7 @@ interface UserDao {
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateAll(users: List<UserEntity>)
+
+    @Query("SELECT MAX(updated_at) FROM users WHERE is_deleted = 0")
+    suspend fun getLatestUpdatedAt(): java.util.Date?
 }

@@ -39,14 +39,9 @@ class PemanfaatanRepositoryImpl(
             },
             isCacheFresh = { response ->
                 if (response.data.isNotEmpty()) {
-                    val usersWithFinancials = CacheManager.getUserDao()
-                        .getAllUsersWithFinancialRecords()
-                        .first()
-                    if (usersWithFinancials.isNotEmpty()) {
-                        val latestUpdate = usersWithFinancials
-                            .maxOfOrNull { it.user.updatedAt.time }
-                            ?: return@cacheFirstStrategy false
-                        CacheManager.isCacheFresh(latestUpdate)
+                    val latestUpdate = CacheManager.getUserDao().getLatestUpdatedAt()
+                    if (latestUpdate != null) {
+                        CacheManager.isCacheFresh(latestUpdate.time)
                     } else {
                         false
                     }
