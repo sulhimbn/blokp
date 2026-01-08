@@ -29,7 +29,7 @@ class WebhookReceiver(
         private val TAG = Constants.Tags.WEBHOOK_RECEIVER
     }
 
-    suspend fun setupWebhookListener(webhookUrl: String) {
+    suspend fun setupWebhookListener(_webhookUrl: String) {
         Log.d(TAG, "Webhook listener setup completed")
     }
 

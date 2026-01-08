@@ -45,10 +45,7 @@ class PaymentViewModel(
             )
             
             val result = transactionRepository.processPayment(request)
-            result.onSuccess { transaction ->
-                // Generate receipt
-                val receipt = receiptGenerator.generateReceipt(transaction)
-                // In a real app, we would save or display the receipt
+            result.onSuccess { _ ->
                 _uiState.value = _uiState.value.copy(
                     isProcessing = false,
                     errorMessage = null

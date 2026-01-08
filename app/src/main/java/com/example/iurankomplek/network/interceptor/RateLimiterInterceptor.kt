@@ -63,8 +63,13 @@ class RateLimiterInterceptor(
 
     private fun cleanupOldTimestamps(currentTime: Long) {
         val oneMinuteAgo = currentTime - 60000
-        while (requestTimestamps.isNotEmpty() && requestTimestamps.peek() < oneMinuteAgo) {
-            requestTimestamps.poll()
+        while (requestTimestamps.isNotEmpty()) {
+            val oldestTimestamp = requestTimestamps.peek()
+            if (oldestTimestamp != null && oldestTimestamp < oneMinuteAgo) {
+                requestTimestamps.poll()
+            } else {
+                break
+            }
         }
     }
 

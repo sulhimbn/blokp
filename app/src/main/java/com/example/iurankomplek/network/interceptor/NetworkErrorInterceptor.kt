@@ -84,7 +84,7 @@ class NetworkErrorInterceptor(
         }
     }
     
-    private fun parseErrorResponse(response: Response, requestTag: String): NetworkError {
+    private fun parseErrorResponse(response: Response, _requestTag: String?): NetworkError {
         val httpCode = response.code
         val errorCode = ApiErrorCode.fromHttpCode(httpCode)
         
@@ -95,7 +95,7 @@ class NetworkErrorInterceptor(
             val apiError = gson.fromJson(bodyString, com.example.iurankomplek.network.model.ApiError::class.java)
             NetworkError.HttpError(
                 code = errorCode,
-                userMessage = apiError.message ?: errorCode.defaultMessage,
+                userMessage = apiError.message,
                 httpCode = httpCode,
                 details = apiError.details
             )

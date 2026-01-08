@@ -53,13 +53,13 @@ class TransactionRepositoryImpl(
             transactionDao.insert(transaction)
 
             val paymentResult = paymentGateway.processPayment(request)
-            paymentResult.onSuccess { response ->
+            paymentResult.onSuccess { _ ->
                 val updatedTransaction = transaction.copy(
                     status = PaymentStatus.COMPLETED,
                     updatedAt = Date()
                 )
                 transactionDao.update(updatedTransaction)
-            }.onFailure { error ->
+            }.onFailure { _ ->
                 val failedTransaction = transaction.copy(
                     status = PaymentStatus.FAILED,
                     updatedAt = Date()
@@ -97,7 +97,7 @@ class TransactionRepositoryImpl(
         return try {
             val refundResult = paymentGateway.refundPayment(transactionId)
 
-            refundResult.onSuccess { response ->
+            refundResult.onSuccess { _ ->
                 val originalTransaction = getTransactionById(transactionId)
                 if (originalTransaction != null) {
                     val refundedTransaction = originalTransaction.copy(

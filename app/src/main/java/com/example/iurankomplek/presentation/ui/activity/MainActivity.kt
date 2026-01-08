@@ -58,7 +58,7 @@ class MainActivity : BaseActivity() {
                        is UiState.Success -> {
                             binding.progressBar.visibility = View.GONE
                             binding.swipeRefreshLayout.isRefreshing = false
-                            state.data.data?.let { users ->
+                            state.data.data.let { users ->
                                if (users.isNotEmpty()) {
                                    val validatedUsers = users.mapNotNull { user ->
                                        // Validate required fields to prevent displaying invalid data
@@ -81,11 +81,9 @@ class MainActivity : BaseActivity() {
                                    }
                                     adapter.submitList(validatedUsers)
                                } else {
-                                  Toast.makeText(this@MainActivity, getString(R.string.no_users_available), Toast.LENGTH_LONG).show()
-                              }
-                          } ?: run {
-                              Toast.makeText(this@MainActivity, getString(R.string.invalid_response_format), Toast.LENGTH_LONG).show()
-                          }
+                                   Toast.makeText(this@MainActivity, getString(R.string.no_users_available), Toast.LENGTH_LONG).show()
+                               }
+                           } ?: Toast.makeText(this@MainActivity, getString(R.string.invalid_response_format), Toast.LENGTH_LONG).show()
                       }
                       is UiState.Error -> {
                           binding.progressBar.visibility = View.GONE

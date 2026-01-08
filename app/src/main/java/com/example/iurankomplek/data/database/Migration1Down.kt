@@ -6,13 +6,13 @@ import androidx.sqlite.db.SupportSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQueryBuilder
 
 val Migration1Down = object : Migration(1, 0) {
-    override fun migrate(database: SupportSQLiteDatabase) {
+    override fun migrate(db: SupportSQLiteDatabase) {
         val query = SupportSQLiteQueryBuilder.builder("sqlite_master")
             .selection("type = ? AND name IN (?, ?)", arrayOf("table", "users", "financial_records"))
             .create()
         
         val tables = mutableListOf<String>()
-        database.query(query).use { cursor ->
+        db.query(query).use { cursor ->
             while (cursor.moveToNext()) {
                 tables.add(cursor.getString(1))
             }
@@ -23,13 +23,13 @@ val Migration1Down = object : Migration(1, 0) {
                 .selection("type = ? AND tbl_name = ?", arrayOf("index", table))
                 .create()
             
-            database.query(indexQuery).use { cursor ->
+            db.query(indexQuery).use { cursor ->
                 while (cursor.moveToNext()) {
-                    database.execSQL("DROP INDEX IF EXISTS ${cursor.getString(1)}")
+                    db.execSQL("DROP INDEX IF EXISTS ${cursor.getString(1)}")
                 }
             }
             
-            database.execSQL("DROP TABLE IF EXISTS $table")
+            db.execSQL("DROP TABLE IF EXISTS $table")
         }
     }
 }

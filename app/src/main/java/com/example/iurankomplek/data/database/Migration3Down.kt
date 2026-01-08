@@ -4,17 +4,17 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 val Migration3Down = object : Migration(3, 2) {
-    override fun migrate(database: SupportSQLiteDatabase) {
+    override fun migrate(db: SupportSQLiteDatabase) {
         // Drop composite indexes created in Migration 3
         // This down migration preserves all data, only removes performance indexes
-        
+
         // Drop users name sort index
-        database.execSQL("DROP INDEX IF EXISTS idx_users_name_sort")
-        
+        db.execSQL("DROP INDEX IF EXISTS idx_users_name_sort")
+
         // Drop financial records user+updated index
-        database.execSQL("DROP INDEX IF EXISTS idx_financial_user_updated")
-        
+        db.execSQL("DROP INDEX IF EXISTS idx_financial_user_updated")
+
         // Drop webhook retry queue index
-        database.execSQL("DROP INDEX IF EXISTS idx_webhook_retry_queue")
+        db.execSQL("DROP INDEX IF EXISTS idx_webhook_retry_queue")
     }
 }

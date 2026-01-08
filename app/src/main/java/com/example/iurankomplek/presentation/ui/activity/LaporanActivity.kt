@@ -86,15 +86,13 @@ class LaporanActivity : BaseActivity() {
                                   return@let
                               }
                               
-                              // Convert LegacyDataItemDto to DataItem and set on adapter
-                              val dataItems = EntityMapper.toDataItemList(dataArray)
-                              adapter.submitList(dataItems)
-                              
-                              // Calculate and set summary items with payment integration
-                              calculateAndSetSummary(dataItems)
-                          } ?: run {
-                              Toast.makeText(this@LaporanActivity, getString(R.string.invalid_response_format), Toast.LENGTH_LONG).show()
-                          }
+                            // Convert LegacyDataItemDto to DataItem and set on adapter
+                               val dataItems = EntityMapper.toDataItemList(dataArray)
+                               adapter.submitList(dataItems)
+
+                               // Calculate and set summary items with payment integration
+                               calculateAndSetSummary(dataItems)
+                           } ?: Toast.makeText(this@LaporanActivity, getString(R.string.invalid_response_format), Toast.LENGTH_LONG).show()
                      }
                      is UiState.Error -> {
                          binding.progressBar.visibility = View.GONE
@@ -145,11 +143,11 @@ class LaporanActivity : BaseActivity() {
     }
     
      private fun integratePaymentTransactions(
-        validatedDataItems: List<com.example.iurankomplek.model.DataItem>,
+        _validatedDataItems: List<com.example.iurankomplek.model.DataItem>,
         currentTotalIuranBulanan: Int,
         currentTotalPengeluaran: Int,
-        currentTotalIuranIndividu: Int,
-        currentRekapIuran: Int
+        _currentTotalIuranIndividu: Int,
+        _currentRekapIuran: Int
     ) {
         // Fetch completed payment transactions from local database to integrate with financial reporting
         lifecycleScope.launch(Dispatchers.IO) {

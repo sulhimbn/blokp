@@ -102,11 +102,11 @@ class VendorViewModel(
                 name, contactPerson, phoneNumber, email, specialty, address,
                 licenseNumber, insuranceInfo, contractStart, contractEnd
             )
-                .onSuccess { response ->
+                .onSuccess { _ ->
                     // Optionally refresh vendor list after creation
                     loadVendors()
                 }
-                .onFailure { exception ->
+                .onFailure { _ ->
                     // Handle error - could emit to a separate error state flow
                 }
         }
@@ -125,11 +125,11 @@ class VendorViewModel(
             vendorRepository.createWorkOrder(
                 title, description, category, priority, propertyId, reporterId, estimatedCost
             )
-                .onSuccess { response ->
+                .onSuccess { _ ->
                     // Optionally refresh work order list after creation
                     loadWorkOrders()
                 }
-                .onFailure { exception ->
+                .onFailure { _ ->
                     // Handle error - could emit to a separate error state flow
                 }
         }

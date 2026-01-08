@@ -89,7 +89,7 @@ class CircuitBreaker(
         }
     }
     
-    private fun onFailure(exception: Throwable) {
+    private fun onFailure(_exception: Throwable) {
         lastFailureTime.set(System.currentTimeMillis())
         
         when (currentState) {

@@ -4,8 +4,8 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 val Migration2 = object : Migration(1, 2) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("""
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("""
             CREATE TABLE IF NOT EXISTS webhook_events (
                 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 idempotency_key TEXT NOT NULL,
@@ -23,17 +23,17 @@ val Migration2 = object : Migration(1, 2) {
             )
         """)
         
-        database.execSQL("""
+        db.execSQL("""
             CREATE UNIQUE INDEX IF NOT EXISTS index_webhook_events_idempotency_key 
             ON webhook_events(idempotency_key)
         """)
         
-        database.execSQL("""
+        db.execSQL("""
             CREATE INDEX IF NOT EXISTS index_webhook_events_status 
             ON webhook_events(status)
         """)
         
-        database.execSQL("""
+        db.execSQL("""
             CREATE INDEX IF NOT EXISTS index_webhook_events_event_type 
             ON webhook_events(event_type)
         """)
