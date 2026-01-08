@@ -28,6 +28,14 @@ object Constants {
         const val PRODUCTION_BASE_URL = "https://api.apispreadsheets.com/data/"
         const val MOCK_BASE_URL = "https://api-mock:5000/data/"
         const val DOCKER_ENV_KEY = "DOCKER_ENV"
+        
+        // API Versioning
+        const val API_VERSION = "v1"
+        const val API_VERSION_PREFIX = "api/$API_VERSION/"
+        
+        // Version Strategy: Path-based versioning (e.g., /api/v1/users)
+        // Backward compatibility: Maintain non-versioned endpoints until deprecation
+        // Deprecation timeline: 6 months notice before removing old endpoints
     }
     
     // Security Constants
@@ -64,6 +72,10 @@ object Constants {
         const val FINANCIAL_VIEW_MODEL = "FinancialViewModel"
         const val MAIN_ACTIVITY = "MainActivity"
         const val LAPORAN_ACTIVITY = "LaporanActivity"
+        const val ERROR_HANDLER = "ErrorHandler"
+        const val API_CLIENT = "ApiClient"
+        const val CIRCUIT_BREAKER = "CircuitBreaker"
+        const val RATE_LIMITER = "RateLimiter"
     }
 
     // Toast Duration Constants
