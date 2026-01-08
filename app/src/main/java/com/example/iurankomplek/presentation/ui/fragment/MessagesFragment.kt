@@ -15,12 +15,14 @@ import com.example.iurankomplek.databinding.FragmentMessagesBinding
 import com.example.iurankomplek.data.repository.MessageRepositoryFactory
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.presentation.viewmodel.MessageViewModel
+import com.example.iurankomplek.utils.Constants
 import kotlinx.coroutines.launch
 
 class MessagesFragment : Fragment() {
 
+    private var _binding: FragmentMessagesBinding? = null
+    private val binding get() = _binding!!
     private lateinit var adapter: MessageAdapter
-    private lateinit var binding: FragmentMessagesBinding
     private lateinit var viewModel: MessageViewModel
 
     override fun onCreateView(
@@ -28,7 +30,7 @@ class MessagesFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentMessagesBinding.inflate(inflater, container, false)
+        _binding = FragmentMessagesBinding.inflate(inflater, container, false)
 
         adapter = MessageAdapter()
         binding.rvMessages.layoutManager = LinearLayoutManager(context)
@@ -36,7 +38,7 @@ class MessagesFragment : Fragment() {
 
         initializeViewModel()
         observeMessagesState()
-        viewModel.loadMessages("default_user_id")
+        viewModel.loadMessages(Constants.Api.DEFAULT_USER_ID)
 
         return binding.root
     }
@@ -73,5 +75,10 @@ class MessagesFragment : Fragment() {
                 }
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

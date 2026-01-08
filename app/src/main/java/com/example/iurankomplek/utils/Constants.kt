@@ -28,6 +28,7 @@ object Constants {
         const val PRODUCTION_BASE_URL = "https://api.apispreadsheets.com/data/"
         const val MOCK_BASE_URL = "https://api-mock:5000/data/"
         const val DOCKER_ENV_KEY = "DOCKER_ENV"
+        const val DEFAULT_USER_ID = "default_user_id"
         
         // API Versioning
         const val API_VERSION = "v1"

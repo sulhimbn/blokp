@@ -19,8 +19,9 @@ import kotlinx.coroutines.launch
 
 class CommunityFragment : Fragment() {
 
+    private var _binding: FragmentCommunityBinding? = null
+    private val binding get() = _binding!!
     private lateinit var adapter: CommunityPostAdapter
-    private lateinit var binding: FragmentCommunityBinding
     private lateinit var viewModel: CommunityPostViewModel
 
     override fun onCreateView(
@@ -28,7 +29,7 @@ class CommunityFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentCommunityBinding.inflate(inflater, container, false)
+        _binding = FragmentCommunityBinding.inflate(inflater, container, false)
 
         adapter = CommunityPostAdapter()
         binding.rvCommunity.layoutManager = LinearLayoutManager(context)
@@ -73,5 +74,10 @@ class CommunityFragment : Fragment() {
                 }
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

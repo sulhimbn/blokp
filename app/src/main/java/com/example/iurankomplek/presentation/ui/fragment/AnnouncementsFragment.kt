@@ -19,8 +19,9 @@ import kotlinx.coroutines.launch
 
 class AnnouncementsFragment : Fragment() {
 
+    private var _binding: FragmentAnnouncementsBinding? = null
+    private val binding get() = _binding!!
     private lateinit var adapter: AnnouncementAdapter
-    private lateinit var binding: FragmentAnnouncementsBinding
     private lateinit var viewModel: AnnouncementViewModel
 
     override fun onCreateView(
@@ -28,7 +29,7 @@ class AnnouncementsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentAnnouncementsBinding.inflate(inflater, container, false)
+        _binding = FragmentAnnouncementsBinding.inflate(inflater, container, false)
 
         adapter = AnnouncementAdapter()
         binding.rvAnnouncements.layoutManager = LinearLayoutManager(context)
@@ -73,5 +74,10 @@ class AnnouncementsFragment : Fragment() {
                 }
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
