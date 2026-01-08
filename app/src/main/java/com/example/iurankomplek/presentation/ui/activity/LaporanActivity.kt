@@ -12,8 +12,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityLaporanBinding
-import com.example.iurankomplek.data.repository.PemanfaatanRepositoryFactory
 import com.example.iurankomplek.utils.InputSanitizer
+import com.example.iurankomplek.di.DependencyContainer
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.data.repository.TransactionRepositoryFactory
 import com.example.iurankomplek.presentation.viewmodel.FinancialViewModel
@@ -34,12 +34,9 @@ class LaporanActivity : BaseActivity() {
         binding = ActivityLaporanBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Initialize ViewModel with use case and payment integration
-        val pemanfaatanRepository = PemanfaatanRepositoryFactory.getInstance()
-        val loadFinancialDataUseCase = com.example.iurankomplek.domain.usecase.LoadFinancialDataUseCase(pemanfaatanRepository)
-        val paymentSummaryIntegrationUseCase = com.example.iurankomplek.domain.usecase.PaymentSummaryIntegrationUseCase(
-            TransactionRepositoryFactory.getMockInstance(this)
-        )
+        // Initialize ViewModel with use case and payment integration from DI container
+        val loadFinancialDataUseCase = DependencyContainer.provideLoadFinancialDataUseCase()
+        val paymentSummaryIntegrationUseCase = DependencyContainer.providePaymentSummaryIntegrationUseCase()
         viewModel = ViewModelProvider(
             this,
             FinancialViewModel.Factory(

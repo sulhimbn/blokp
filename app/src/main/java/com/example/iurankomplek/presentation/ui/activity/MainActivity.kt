@@ -8,7 +8,6 @@ import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.iurankomplek.databinding.ActivityMainBinding
-import com.example.iurankomplek.data.repository.UserRepositoryFactory
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.utils.InputSanitizer
 import com.example.iurankomplek.presentation.viewmodel.UserViewModel
@@ -17,6 +16,7 @@ import kotlinx.coroutines.launch
 import com.example.iurankomplek.presentation.ui.helper.RecyclerViewHelper
 import com.example.iurankomplek.presentation.ui.helper.SwipeRefreshHelper
 import com.example.iurankomplek.presentation.ui.helper.StateManager
+import com.example.iurankomplek.di.DependencyContainer
 
 class MainActivity : BaseActivity() {
     private lateinit var adapter: UserAdapter
@@ -29,9 +29,8 @@ class MainActivity : BaseActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         
-        // Initialize ViewModel with use case
-        val userRepository = UserRepositoryFactory.getInstance()
-        val loadUsersUseCase = com.example.iurankomplek.domain.usecase.LoadUsersUseCase(userRepository)
+        // Initialize ViewModel with use case from DI container
+        val loadUsersUseCase = DependencyContainer.provideLoadUsersUseCase()
         viewModel = ViewModelProvider(this, UserViewModel.Factory(loadUsersUseCase))[UserViewModel::class.java]
         
         // Initialize StateManager
