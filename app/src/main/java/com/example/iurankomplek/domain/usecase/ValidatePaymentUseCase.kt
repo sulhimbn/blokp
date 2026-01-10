@@ -2,6 +2,7 @@ package com.example.iurankomplek.domain.usecase
 
 import com.example.iurankomplek.payment.PaymentMethod
 import com.example.iurankomplek.utils.Constants
+import com.example.iurankomplek.utils.OperationResult
 import java.math.BigDecimal
 
 data class PaymentValidationResult(
@@ -24,25 +25,25 @@ data class ValidatedPayment(
 )
 
 class ValidatePaymentUseCase {
-    
+
     operator fun invoke(
         amountText: String,
         spinnerPosition: Int
-    ): Result<ValidatedPayment> {
+    ): OperationResult<ValidatedPayment> {
         val validationResult = validateAmountText(amountText)
         if (!validationResult.isValid) {
-            return Result.failure(IllegalArgumentException(validationResult.errorMessage))
+            return OperationResult.Error(IllegalArgumentException(validationResult.errorMessage), validationResult.errorMessage)
         }
-        
+
         val amount = parseAmount(amountText)
         val amountValidation = validateAmount(amount)
         if (!amountValidation.isValid) {
-            return Result.failure(IllegalArgumentException(amountValidation.errorMessage))
+            return OperationResult.Error(IllegalArgumentException(amountValidation.errorMessage), amountValidation.errorMessage)
         }
-        
+
         val paymentMethod = mapSpinnerPositionToPaymentMethod(spinnerPosition)
-        
-        return Result.success(ValidatedPayment(amount, paymentMethod))
+
+        return OperationResult.Success(ValidatedPayment(amount, paymentMethod))
     }
     
     private fun validateAmountText(amountText: String): PaymentValidationResult {

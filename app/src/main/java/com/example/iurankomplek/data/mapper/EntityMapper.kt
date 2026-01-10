@@ -5,6 +5,7 @@ import com.example.iurankomplek.data.entity.FinancialRecordEntity
 import com.example.iurankomplek.data.entity.UserEntity
 import com.example.iurankomplek.data.entity.UserWithFinancialRecords
 import com.example.iurankomplek.model.DataItem
+import kotlin.Result
 import java.util.Date
 
 object EntityMapper {
@@ -58,26 +59,21 @@ object EntityMapper {
     }
     
     fun toLegacyDto(userWithFinancial: UserWithFinancialRecords): Result<LegacyDataItemDto> {
-        return try {
-            val financialRecord = userWithFinancial.latestFinancialRecord
-                ?: return Result.failure(IllegalStateException("User must have at least one financial record"))
-
-            Result.success(LegacyDataItemDto(
+        return Result.success(
+            LegacyDataItemDto(
                 first_name = userWithFinancial.user.firstName,
                 last_name = userWithFinancial.user.lastName,
                 email = userWithFinancial.user.email,
                 alamat = userWithFinancial.user.alamat,
-                iuran_perwarga = financialRecord.iuranPerwarga,
-                total_iuran_rekap = financialRecord.totalIuranRekap,
-                jumlah_iuran_bulanan = financialRecord.jumlahIuranBulanan,
-                total_iuran_individu = financialRecord.totalIuranIndividu,
-                pengeluaran_iuran_warga = financialRecord.pengeluaranIuranWarga,
-                pemanfaatan_iuran = financialRecord.pemanfaatanIuran,
+                iuran_perwarga = userWithFinancial.latestFinancialRecord?.iuranPerwarga ?: 0,
+                total_iuran_rekap = userWithFinancial.latestFinancialRecord?.totalIuranRekap ?: 0,
+                jumlah_iuran_bulanan = userWithFinancial.latestFinancialRecord?.jumlahIuranBulanan ?: 0,
+                total_iuran_individu = userWithFinancial.latestFinancialRecord?.totalIuranIndividu ?: 0,
+                pengeluaran_iuran_warga = userWithFinancial.latestFinancialRecord?.pengeluaranIuranWarga ?: 0,
+                pemanfaatan_iuran = userWithFinancial.latestFinancialRecord?.pemanfaatanIuran ?: 0,
                 avatar = userWithFinancial.user.avatar
-            ))
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+            )
+        )
     }
     
     fun fromLegacyDtoList(dtoList: List<LegacyDataItemDto>): List<Pair<UserEntity, FinancialRecordEntity>> {

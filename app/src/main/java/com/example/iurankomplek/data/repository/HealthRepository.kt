@@ -1,4 +1,5 @@
 package com.example.iurankomplek.data.repository
+import com.example.iurankomplek.utils.OperationResult
 
 import com.example.iurankomplek.network.ApiServiceV1
 import com.example.iurankomplek.network.model.HealthCheckRequest

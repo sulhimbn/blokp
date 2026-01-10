@@ -1,4 +1,5 @@
 package com.example.iurankomplek.domain.usecase
+import com.example.iurankomplek.utils.OperationResult
 
 import com.example.iurankomplek.data.api.models.UserResponse
 import com.example.iurankomplek.data.repository.UserRepository

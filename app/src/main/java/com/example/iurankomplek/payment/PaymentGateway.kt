@@ -1,11 +1,12 @@
 package com.example.iurankomplek.payment
 
 import java.math.BigDecimal
+import com.example.iurankomplek.utils.OperationResult
 
 interface PaymentGateway {
-    suspend fun processPayment(request: PaymentRequest): Result<PaymentResponse>
-    suspend fun refundPayment(transactionId: String): Result<RefundResponse>
-    suspend fun getPaymentStatus(transactionId: String): Result<PaymentStatus>
+    suspend fun processPayment(request: PaymentRequest): OperationResult<PaymentResponse>
+    suspend fun refundPayment(transactionId: String): OperationResult<RefundResponse>
+    suspend fun getPaymentStatus(transactionId: String): OperationResult<PaymentStatus>
 }
 
 enum class PaymentMethod {

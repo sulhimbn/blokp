@@ -1,4 +1,5 @@
 package com.example.iurankomplek.data.cache
+import com.example.iurankomplek.utils.OperationResult
 
 import com.example.iurankomplek.data.entity.UserEntity
 import com.example.iurankomplek.data.entity.FinancialRecordEntity

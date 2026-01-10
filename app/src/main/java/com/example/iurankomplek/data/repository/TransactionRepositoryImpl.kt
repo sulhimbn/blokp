@@ -8,9 +8,9 @@ import com.example.iurankomplek.payment.RefundResponse
 import com.example.iurankomplek.payment.toApiPaymentResponse
 import com.example.iurankomplek.data.dao.TransactionDao
 import com.example.iurankomplek.data.entity.Transaction
+import com.example.iurankomplek.utils.OperationResult
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
-import kotlin.Result
 
 class TransactionRepositoryImpl(
     private val paymentGateway: PaymentGateway,
@@ -22,7 +22,7 @@ class TransactionRepositoryImpl(
         description: String,
         customerId: Long,
         paymentMethod: String
-    ): Result<com.example.iurankomplek.model.PaymentResponse> {
+    ): OperationResult<com.example.iurankomplek.model.PaymentResponse> {
         return try {
             val paymentRequest = PaymentRequest(
                 amount = java.math.BigDecimal(amount),
@@ -36,18 +36,18 @@ class TransactionRepositoryImpl(
                     else -> PaymentMethod.CREDIT_CARD
                 }
             )
-            val kotlinResult: Result<com.example.iurankomplek.payment.PaymentResponse> = paymentGateway.processPayment(paymentRequest)
-            return when {
-                kotlinResult.isSuccess -> Result.success(kotlinResult.getOrThrow().toApiPaymentResponse())
-                kotlinResult.isFailure -> throw kotlinResult.exceptionOrNull() ?: Exception("Unknown error")
+            val gatewayResult: OperationResult<com.example.iurankomplek.payment.PaymentResponse> = paymentGateway.processPayment(paymentRequest)
+            return when (gatewayResult) {
+                is OperationResult.Success -> OperationResult.Success(gatewayResult.data.toApiPaymentResponse())
+                is OperationResult.Error -> throw gatewayResult.exception
                 else -> throw Exception("Unknown error")
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            OperationResult.Error(e, e.message ?: "Payment failed")
         }
     }
 
-    override suspend fun processPayment(request: PaymentRequest): Result<Transaction> {
+    override suspend fun processPayment(request: PaymentRequest): OperationResult<Transaction> {
         return try {
             val transaction = Transaction.create(request)
             transactionDao.insert(transaction)
@@ -59,7 +59,7 @@ class TransactionRepositoryImpl(
                     updatedAt = Date()
                 )
                 transactionDao.update(updatedTransaction)
-            }.onFailure { _ ->
+            }.onError { _ ->
                 val failedTransaction = transaction.copy(
                     status = PaymentStatus.FAILED,
                     updatedAt = Date()
@@ -67,9 +67,9 @@ class TransactionRepositoryImpl(
                 transactionDao.update(failedTransaction)
             }
 
-            paymentResult.map { transaction }
+            paymentResult
         } catch (e: Exception) {
-            Result.failure(e)
+            OperationResult.Error(e, e.message ?: "Payment failed")
         }
     }
 
@@ -93,7 +93,7 @@ class TransactionRepositoryImpl(
         transactionDao.update(transaction)
     }
 
-    override suspend fun refundPayment(transactionId: String, reason: String?): Result<RefundResponse> {
+    override suspend fun refundPayment(transactionId: String, reason: String?): OperationResult<RefundResponse> {
         return try {
             val refundResult = paymentGateway.refundPayment(transactionId)
 
@@ -110,7 +110,7 @@ class TransactionRepositoryImpl(
 
             refundResult
         } catch (e: Exception) {
-            Result.failure(e)
+            OperationResult.Error(e, e.message ?: "Refund failed")
         }
     }
 

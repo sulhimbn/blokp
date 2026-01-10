@@ -3,14 +3,15 @@ package com.example.iurankomplek.payment
 import java.math.BigDecimal
 import java.util.Date
 import java.util.UUID
+import com.example.iurankomplek.utils.OperationResult
 
 class MockPaymentGateway : PaymentGateway {
-    override suspend fun processPayment(request: PaymentRequest): Result<PaymentResponse> {
+    override suspend fun processPayment(request: PaymentRequest): OperationResult<PaymentResponse> {
         // Simulate payment processing
         return try {
             // In a real implementation, this would call actual payment gateway APIs
             Thread.sleep(500) // Simulate network delay
-            
+
             val response = PaymentResponse(
                 transactionId = UUID.randomUUID().toString(),
                 status = PaymentStatus.COMPLETED,
@@ -21,14 +22,14 @@ class MockPaymentGateway : PaymentGateway {
                 referenceNumber = "REF-${System.currentTimeMillis()}",
                 metadata = request.metadata
             )
-            
-            Result.success(response)
+
+            OperationResult.Success(response)
         } catch (e: Exception) {
-            Result.failure(e)
+            OperationResult.Error(e, e.message ?: "Payment failed")
         }
     }
 
-    override suspend fun refundPayment(transactionId: String): Result<RefundResponse> {
+    override suspend fun refundPayment(transactionId: String): OperationResult<RefundResponse> {
         return try {
             // In a real implementation, this would get the original transaction amount
             // For mock, we'll generate a refund amount based on the transaction ID
@@ -41,11 +42,30 @@ class MockPaymentGateway : PaymentGateway {
                 refundTime = System.currentTimeMillis(),
                 reason = "Mock refund"
             )
-            
-            Result.success(response)
+
+            OperationResult.Success(response)
         } catch (e: Exception) {
-            Result.failure(e)
+            OperationResult.Error(e, e.message ?: "Refund failed")
         }
+    }
+
+    private fun calculateRefundAmount(transactionId: String): BigDecimal {
+        // In a real implementation, this would look up the original transaction
+        // For mock, we'll return a value based on the transaction ID
+        val hash = transactionId.hashCode().toString()
+        val amountDigits = hash.takeLast(4) // Take last 4 digits of hash
+        val amount = if (amountDigits.toIntOrNull() ?: 0 > 0) amountDigits.toInt() else com.example.iurankomplek.utils.Constants.Payment.DEFAULT_REFUND_AMOUNT_MIN
+        return BigDecimal(amount.toString())
+    }
+
+    override suspend fun getPaymentStatus(transactionId: String): OperationResult<PaymentStatus> {
+        return try {
+            // In a real implementation, this would query the payment gateway for status
+            OperationResult.Success(PaymentStatus.COMPLETED)
+        } catch (e: Exception) {
+            OperationResult.Error(e, e.message ?: "Status check failed")
+        }
+    }
     }
 
     private fun calculateRefundAmount(transactionId: String): BigDecimal {
