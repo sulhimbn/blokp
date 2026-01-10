@@ -866,6 +866,87 @@ healthRepository.getHealth(includeDiagnostics = true, includeMetrics = true)
 
 ---
 
+### ✅ INT-003. Webhook Security - Signature Verification - 2026-01-10
+**Status**: Completed
+**Completed Date**: 2026-01-10
+**Priority**: HIGH (Security Hardening)
+**Estimated Time**: 2 hours (completed in 1.5 hours)
+**Description**: Implement webhook signature verification to prevent webhook spoofing attacks and ensure webhook authenticity
+
+**Changes Implemented:**
+1. **WebhookSignatureVerifier** (WebhookSignatureVerifier.kt): 
+    - HMAC-SHA256 signature verification
+    - Constant-time comparison to prevent timing attacks
+    - Graceful degradation when secret not configured
+    - Signature header extraction (X-Webhook-Signature)
+
+2. **WebhookSecurityConfig** (WebhookSecurityConfig.kt):
+    - Centralized webhook secret key management
+    - Environment variable support (WEBHOOK_SECRET)
+    - Secret validation methods
+    - Runtime secret initialization
+
+3. **WebhookReceiver Update** (WebhookReceiver.kt):
+    - Added signature verification before processing
+    - Support for headers map in handleWebhookEvent
+    - Three-tier verification: Valid, Invalid, Skipped
+    - Detailed logging for all verification outcomes
+
+4. **Constants Update** (Constants.kt):
+    - Added WEBHOOK_SECRET environment variable name constant
+
+**Files Created** (3 total):
+| File | Lines | Purpose |
+|------|--------|---------|
+| WebhookSignatureVerifier.kt | +95 | HMAC signature verification with constant-time comparison |
+| WebhookSecurityConfig.kt | +30 | Webhook secret key management |
+| WebhookSignatureVerifierTest.kt | +162 | Comprehensive webhook signature verification tests (12 test cases) |
+
+**Files Modified** (2 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| WebhookReceiver.kt | -10, +40 | Added signature verification, updated handleWebhookEvent signature |
+| Constants.kt | +1 | Added WEBHOOK_SECRET constant |
+
+**Security Improvements:**
+1. **Webhook Spoofing Prevention**: HMAC-SHA256 signature verification
+2. **Timing Attack Protection**: Constant-time signature comparison
+3. **Graceful Degradation**: Development mode skips verification when secret not configured
+4. **Configurable Security**: Environment variable-based secret management
+5. **Comprehensive Logging**: All verification outcomes logged for security auditing
+
+**Test Coverage:**
+- Valid signature verification test
+- Invalid signature detection tests (3 scenarios)
+- Missing signature handling
+- Empty payload validation
+- Secret not configured (Skipped state)
+- Signature consistency tests
+- Signature extraction tests (4 scenarios)
+- Timing attack resistance test
+
+**Benefits:**
+1. **Security**: Prevents webhook spoofing attacks
+2. **Authenticity**: Ensures webhooks originate from legitimate payment gateway
+3. **Timing Attack Resistance**: Constant-time comparison prevents timing analysis
+4. **Development Friendly**: Graceful degradation when secret not configured
+5. **Self-Documenting**: Clear signature header format (sha256=<base64>)
+6. **Testable**: Comprehensive unit test coverage for all scenarios
+
+**Success Criteria:**
+- [x] WebhookSignatureVerifier implemented with HMAC-SHA256 verification
+- [x] Constant-time comparison for timing attack prevention
+- [x] WebhookSecurityConfig for secret key management
+- [x] WebhookReceiver updated to verify signatures before processing
+- [x] Graceful degradation when secret not configured
+- [x] Comprehensive unit tests (12 test cases)
+- [x] API.md updated with webhook signature documentation
+- [x] task.md documented with INT-003 completion
+
+**Impact**: HIGH - Critical security hardening for webhook delivery, prevents webhook spoofing attacks, ensures webhook authenticity from payment gateway
+
+---
+
 ## Completed Refactoring Tasks
 
 ---

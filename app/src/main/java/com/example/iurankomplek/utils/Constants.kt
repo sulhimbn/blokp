@@ -111,6 +111,7 @@ object Constants {
         const val MAX_EVENT_RETENTION_DAYS = 30
         const val RETRY_JITTER_MS = 500L
         const val DEFAULT_RETRY_LIMIT = 50
+        const val SECRET_ENV_VAR = "WEBHOOK_SECRET"
     }
 
     // Circuit Breaker Constants

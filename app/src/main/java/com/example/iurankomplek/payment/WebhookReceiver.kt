@@ -18,19 +18,24 @@ data class WebhookPayload(
 
 class WebhookReceiver(
     private val transactionRepository: TransactionRepository,
-    private val webhookQueue: WebhookQueue? = null
+    private val webhookQueue: WebhookQueue? = null,
+    private val signatureVerifier: WebhookSignatureVerifier = WebhookSignatureVerifier()
 ) {
     private val json = Json { ignoreUnknownKeys = true }
 
     companion object {
         private val TAG = Constants.Tags.WEBHOOK_RECEIVER
+        private const val SIGNATURE_HEADER = "X-Webhook-Signature"
     }
 
     suspend fun setupWebhookListener(_webhookUrl: String) {
         Log.d(TAG, "Webhook listener setup completed")
     }
 
-    fun handleWebhookEvent(payload: String) {
+    fun handleWebhookEvent(
+        payload: String,
+        headers: Map<String, String> = emptyMap()
+    ) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 if (payload.isBlank()) {
@@ -38,29 +43,53 @@ class WebhookReceiver(
                     return@launch
                 }
 
-                val webhookPayload = parseWebhookPayload(payload)
-                
-                if (webhookPayload.eventType.isBlank()) {
-                    Log.e(TAG, "Invalid webhook payload: missing event type")
-                    return@launch
-                }
+                val signature = WebhookSignatureVerifier.extractSignature(headers)
+                val verificationResult = signatureVerifier.verifyWebhookSignature(payload, signature)
 
-                if (webhookQueue != null) {
-                    webhookQueue.enqueue(
-                        eventType = webhookPayload.eventType,
-                        payload = payload,
-                        transactionId = webhookPayload.transactionId,
-                        metadata = webhookPayload.metadata
-                    )
-                    Log.d(TAG, "Webhook event queued: ${webhookPayload.eventType}")
-                } else {
-                    processImmediately(webhookPayload)
+                when (verificationResult) {
+                    is WebhookVerificationResult.Valid -> {
+                        Log.d(TAG, "Webhook signature verified successfully")
+                        processWebhook(payload)
+                    }
+                    is WebhookVerificationResult.Invalid -> {
+                        Log.e(TAG, "Invalid webhook signature: ${verificationResult.reason}")
+                        return@launch
+                    }
+                    is WebhookVerificationResult.Skipped -> {
+                        Log.w(TAG, "Webhook signature verification skipped: ${verificationResult.reason}")
+                        processWebhook(payload)
+                    }
                 }
             } catch (e: kotlinx.serialization.SerializationException) {
                 Log.e(TAG, "Invalid JSON payload: ${e.message}")
             } catch (e: Exception) {
                 Log.e(TAG, "Error handling webhook: ${e.message}", e)
             }
+        }
+    }
+
+    private suspend fun processWebhook(payload: String) {
+        try {
+            val webhookPayload = parseWebhookPayload(payload)
+            
+            if (webhookPayload.eventType.isBlank()) {
+                Log.e(TAG, "Invalid webhook payload: missing event type")
+                return@launch
+            }
+
+            if (webhookQueue != null) {
+                webhookQueue.enqueue(
+                    eventType = webhookPayload.eventType,
+                    payload = payload,
+                    transactionId = webhookPayload.transactionId,
+                    metadata = webhookPayload.metadata
+                )
+                Log.d(TAG, "Webhook event queued: ${webhookPayload.eventType}")
+            } else {
+                processImmediately(webhookPayload)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error processing webhook: ${e.message}", e)
         }
     }
 

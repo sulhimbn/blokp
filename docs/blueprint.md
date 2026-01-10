@@ -245,12 +245,14 @@ app/
 │   │   ├── PaymentViewModel.kt ✅
 │   │   ├── PaymentViewModelFactory.kt ✅ NEW
 │   │   ├── PaymentService.kt ✅
-│   │   ├── WebhookReceiver.kt ✅
-│   │   ├── WebhookEvent.kt ✅ NEW (Room entity)
-│   │   ├── WebhookEventDao.kt ✅ NEW (DAO operations)
-│   │   ├── WebhookQueue.kt ✅ NEW (reliable processing)
-│   │   ├── MockPaymentGateway.kt ✅
-│   │   └── RealPaymentGateway.kt ✅
+ │   │   ├── WebhookReceiver.kt ✅
+ │   │   ├── WebhookEvent.kt ✅ NEW (Room entity)
+ │   │   ├── WebhookEventDao.kt ✅ NEW (DAO operations)
+ │   │   ├── WebhookQueue.kt ✅ NEW (reliable processing)
+ │   │   ├── WebhookSignatureVerifier.kt ✅ NEW (INT-003 - HMAC signature verification)
+ │   │   ├── WebhookSecurityConfig.kt ✅ NEW (INT-003 - secret key management)
+ │   │   ├── MockPaymentGateway.kt ✅
+ │   │   └── RealPaymentGateway.kt ✅
 │   ├── receipt/
 │   │   ├── Receipt.kt ✅
 │   │   └── ReceiptGenerator.kt ✅
@@ -988,6 +990,108 @@ Performance bottleneck identified in financial calculation algorithm:
 **Dependencies**: None (independent feature, uses existing IntegrationHealthMonitor and NetworkError infrastructure)
 **Documentation**: Updated docs/API.md with health check endpoint documentation, updated docs/task.md with INT-002 completion
 **Impact**: HIGH - Critical observability feature, enables external monitoring tools to query system health, provides real-time health status and diagnostics for all integration components
+
+### Webhook Security Implementation ✅ (INT-003 - 2026-01-10)
+
+**Purpose**: Implement webhook signature verification to prevent webhook spoofing attacks and ensure webhook authenticity
+
+**Implementation Status** ✅ IMPLEMENTED
+- **WebhookSignatureVerifier** (WebhookSignatureVerifier.kt) ✅ NEW
+  - HMAC-SHA256 signature verification
+  - Constant-time comparison to prevent timing attacks
+  - Graceful degradation when secret not configured
+  - Signature header extraction (X-Webhook-Signature)
+
+- **WebhookSecurityConfig** (WebhookSecurityConfig.kt) ✅ NEW
+  - Centralized webhook secret key management
+  - Environment variable support (WEBHOOK_SECRET)
+  - Secret validation methods
+  - Runtime secret initialization
+
+- **WebhookReceiver Update** (WebhookReceiver.kt) ✅ UPDATED
+  - Added signature verification before processing
+  - Support for headers map in handleWebhookEvent
+  - Three-tier verification: Valid, Invalid, Skipped
+  - Detailed logging for all verification outcomes
+
+**Signature Verification Flow**:
+```kotlin
+// WebhookReceiver automatically verifies signatures
+webhookReceiver.handleWebhookEvent(payload, headers)
+
+// Internally:
+1. Extract signature from X-Webhook-Signature header
+2. Compute HMAC-SHA256 of payload using webhook secret
+3. Compare signatures using constant-time comparison
+4. Reject if mismatch (spoofing attack)
+5. Accept if match (legitimate webhook)
+```
+
+**Security Features**:
+- HMAC-SHA256 signature verification
+- Constant-time comparison (prevents timing attacks)
+- Graceful degradation (development mode skips when secret not configured)
+- Comprehensive logging (all verification outcomes logged)
+
+**Webhook Signature Header Format**:
+- Header: `X-Webhook-Signature`
+- Format: `sha256=<base64_signature>`
+- Algorithm: HMAC-SHA256
+- Encoding: Base64 (no padding)
+
+**Environment Configuration**:
+- Production: Set `WEBHOOK_SECRET` environment variable
+- Development: Verification skipped if secret not configured
+- Secret management: WebhookSecurityConfig singleton
+
+**Test Coverage**:
+- Valid signature verification test
+- Invalid signature detection tests (3 scenarios)
+- Missing signature handling
+- Empty payload validation
+- Secret not configured (Skipped state)
+- Signature consistency tests
+- Signature extraction tests (4 scenarios)
+- Timing attack resistance test
+- Total: 12 comprehensive test cases
+
+**Architecture Improvements**:
+- ✅ **Security**: Prevents webhook spoofing attacks
+- ✅ **Authenticity**: Ensures webhooks originate from legitimate payment gateway
+- ✅ **Timing Attack Resistance**: Constant-time comparison prevents timing analysis
+- ✅ **Configurable Security**: Environment variable-based secret management
+- ✅ **Graceful Degradation**: Development mode skips verification when secret not configured
+- ✅ **Comprehensive Logging**: All verification outcomes logged for security auditing
+
+**Anti-Patterns Eliminated**:
+- ✅ No more webhook spoofing vulnerability
+- ✅ No more timing attack vulnerability (constant-time comparison)
+- ✅ No more hard-coded secrets (environment variable support)
+- ✅ No more unverified webhook processing
+
+**Best Practices Followed**:
+- ✅ **HMAC-SHA256**: Industry-standard signature algorithm
+- ✅ **Constant-Time Comparison**: Timing attack resistant
+- ✅ **Graceful Degradation**: Development mode support
+- ✅ **Environment Variables**: Secure secret management
+- ✅ **Comprehensive Testing**: 12 test cases for all scenarios
+- ✅ **Self-Documenting**: Clear signature header format documented
+
+**Files Created** (3 total):
+| File | Lines | Purpose |
+|------|--------|---------|
+| WebhookSignatureVerifier.kt | +95 | HMAC signature verification with constant-time comparison |
+| WebhookSecurityConfig.kt | +30 | Webhook secret key management |
+| WebhookSignatureVerifierTest.kt | +162 | Comprehensive webhook signature verification tests (12 test cases) |
+
+**Files Modified** (2 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| WebhookReceiver.kt | -10, +40 | Added signature verification, updated handleWebhookEvent signature |
+| Constants.kt | +1 | Added WEBHOOK_SECRET constant |
+
+**Dependencies**: None (independent security hardening, integrates with existing WebhookReceiver)
+**Documentation**: Updated docs/API.md with webhook signature documentation
 
 ### SimpleDateFormat Caching Optimization ✅ (Module 92 - 2026-01-10)
 

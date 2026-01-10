@@ -76,6 +76,75 @@ The application implements a flexible payment processing system with the followi
 5. Transaction status is updated to COMPLETED or FAILED based on result
 6. Receipt is generated for successful payments
 
+#### Webhook Security & Reliability
+The application implements secure webhook delivery with signature verification and retry logic:
+
+**Webhook Signature Verification:**
+- HMAC-SHA256 signature validation for all incoming webhooks
+- Constant-time comparison to prevent timing attacks
+- Graceful degradation: Allows webhooks when secret not configured (development mode)
+- Signature header: `X-Webhook-Signature` with format `sha256=<base64_signature>`
+
+**Signature Verification Flow:**
+```kotlin
+// WebhookReceiver automatically verifies signatures
+webhookReceiver.handleWebhookEvent(payload, headers)
+
+// Internally:
+1. Extract signature from X-Webhook-Signature header
+2. Compute HMAC-SHA256 of payload using webhook secret
+3. Compare signatures using constant-time comparison
+4. Reject if mismatch (spoofing attack)
+5. Accept if match (legitimate webhook)
+```
+
+**Environment Configuration:**
+- Production: Set `WEBHOOK_SECRET` environment variable
+- Development: Verification skipped if secret not configured
+- Secret management: `WebhookSecurityConfig` for secret key storage
+
+**Webhook Reliability Features:**
+- Idempotency keys for duplicate prevention
+- Queue-based processing with retry logic
+- Exponential backoff with jitter
+- Up to 5 retries with 60s max delay
+- Persistent storage for failed events
+- Automatic cleanup of old events (30 days retention)
+
+**Webhook Event Types:**
+- `payment.success` - Payment completed successfully
+- `payment.failed` - Payment failed
+- `payment.refunded` - Payment refunded
+
+**Components:**
+- `WebhookSignatureVerifier` - HMAC signature validation
+- `WebhookSecurityConfig` - Secret key management
+- `WebhookReceiver` - Webhook event handler with signature verification
+- `WebhookQueue` - Queue-based delivery with retry logic
+- `WebhookEvent` - Room entity for webhook storage
+- `WebhookPayloadProcessor` - Payload processing business logic
+
+**Security Benefits:**
+1. Prevents webhook spoofing attacks
+2. Ensures webhook authenticity from payment gateway
+3. Constant-time comparison prevents timing attacks
+4. Configurable secret key management
+5. Graceful degradation for development/testing
+
+**Reliability Benefits:**
+1. No data loss: Queued processing ensures delivery
+2. Retry logic: Transient failures automatically retried
+3. Idempotency: Duplicate event detection
+4. Persistence: Survives app restarts
+5. Monitoring: Track delivery status and failures
+
+For detailed webhook implementation, see:
+- `payment/WebhookSignatureVerifier.kt` - Signature verification
+- `payment/WebhookSecurityConfig.kt` - Secret management
+- `payment/WebhookReceiver.kt` - Event handler
+- `payment/WebhookQueue.kt` - Reliable delivery
+- `tests/WebhookSignatureVerifierTest.kt` - Security tests
+
 ## Base URLs
 
 ### Production
