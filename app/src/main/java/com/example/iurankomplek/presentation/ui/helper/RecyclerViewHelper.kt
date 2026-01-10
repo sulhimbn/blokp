@@ -50,6 +50,7 @@ object RecyclerViewHelper {
         // Set optimizations
         recyclerView.setHasFixedSize(true)
         recyclerView.setItemViewCacheSize(itemCount)
+        recyclerView.recycledViewPool.setMaxRecycledViews(0, itemCount)
         recyclerView.adapter = adapter
         
         // Enable keyboard navigation if requested

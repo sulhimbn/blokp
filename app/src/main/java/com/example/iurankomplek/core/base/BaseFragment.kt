@@ -35,6 +35,7 @@ abstract class BaseFragment<T> : Fragment() {
             layoutManager = LinearLayoutManager(requireContext())
             setHasFixedSize(true)
             setItemViewCacheSize(20)
+            recycledViewPool.setMaxRecycledViews(0, 20)
             adapter = createAdapter()
         }
     }
