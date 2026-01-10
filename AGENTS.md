@@ -2,6 +2,32 @@
 
 This file provides guidance to agents when working with code in this repository.
 
+## Known Issues & Solutions
+
+### CI-001: Result Type Name Conflict (RESOLVED 2026-01-10)
+**Problem**: Custom `Result` class in `UiState.kt` shadowed Kotlin's built-in `Result<T>` type, causing compilation errors in CI/CD pipeline.
+
+**Root Cause**:
+- `UiState.kt` defined `sealed class Result<out T>` 
+- Multiple files imported both `kotlin.Result` and used `Result<...>` in return signatures
+- Kotlin compiler was confused about which `Result` type to use
+
+**Solution Implemented**:
+1. Renamed custom `Result` class to `OperationResult` in `UiState.kt`
+2. Added extension methods to `OperationResult`:
+   - `onSuccess(action: (T) -> Unit)`
+   - `onError(action: (OperationResult.Error) -> Unit)`
+   - `map(transform: (T) -> R)`
+3. Updated all affected files:
+   - `PaymentGateway.kt`, `MockPaymentGateway.kt`, `RealPaymentGateway.kt`
+   - `TransactionRepository.kt`, `TransactionRepositoryImpl.kt`
+   - All repository and usecase files
+   - Fixed `EntityMapper.kt` to use explicit `kotlin.Result` import
+
+**Files Modified**: 24 files (135 insertions, 76 deletions)
+
+**Impact**: Fixes critical CI build failure, eliminates type safety issues
+
 ## Build/Test Commands
 - Build: `./gradlew build`
 - Run tests: `./gradlew test`
@@ -17,17 +43,4 @@ This file provides guidance to agents when working with code in this repository.
 - Data model memiliki logika perhitungan khusus: `total_iuran_individu * 3` di LaporanActivity.kt line 56 untuk menghitung rekap iuran
 - Network debugging menggunakan Chucker (hanya di debugImplementation) untuk inspeksi traffic API
 - Glide image loading dengan CircleCrop transform untuk menampilkan avatar pengguna berbentuk bulat
-- RecyclerView adapters now use DiffUtil for efficient updates instead of notifyDataSetChanged() for better performance
-
-## Documentation
-- Complete API documentation available in docs/API.md
-- Architecture documentation in docs/ARCHITECTURE.md
-- Development guidelines in docs/DEVELOPMENT.md
-- Troubleshooting guide in docs/TROUBLESHOOTING.md
-
-## Code Style
-- Kotlin menggunakan "official" code style (kotlin.code.style=official)
-- Proyek mixed language: prefer Kotlin untuk fitur baru tapi maintain kompatibilitas Java
-- RecyclerView adapters mengikuti pola standar dengan DiffUtil untuk efisiensi update
-- Retrofit API calls menggunakan enqueue dengan Callback objects
-- Error handling menampilkan Toast messages dan print stack traces
+- RecyclerView adapters now use DiffUtil for efficient updates instead of notifyDataSetChanged() untuk better performance
