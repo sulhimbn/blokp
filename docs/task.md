@@ -1171,6 +1171,245 @@ class IntegrationHealthMonitor(
 - ❌ No more tightly coupled health monitoring code
 
 ---
+
+### REFACTOR-010. AppDatabase.kt - Long Migration List Line
+**Status**: Pending
+**Priority**: Medium
+**Estimated Time**: 30 minutes
+**Location**: data/database/AppDatabase.kt (line 45)
+
+**Issue**: Migration list declaration is too long (382 characters) and hard to read
+```kotlin
+// Line 45 - 382 characters, very hard to read:
+.addMigrations(Migration1(), Migration1Down, Migration2, Migration2Down, Migration3, Migration3Down, Migration4, Migration4Down, Migration5, Migration5Down, Migration6, Migration6Down, Migration7, Migration7Down, Migration8, Migration8Down, Migration9, Migration9Down, Migration10, Migration10Down, Migration11(), Migration11Down, Migration12(), Migration12Down)
+```
+- Impact: Difficult to see which migrations are registered
+- Hard to add new migrations without errors
+- Code review and maintenance complexity
+
+**Suggestion**: Extract migrations to a separate list or use multiline formatting
+```kotlin
+// Option 1: Extract to list
+private val migrations = arrayOf(
+    Migration1(), Migration1Down, Migration2, Migration2Down,
+    Migration3, Migration3Down, Migration4, Migration4Down,
+    Migration5, Migration5Down, Migration6, Migration6Down,
+    Migration7, Migration7Down, Migration8, Migration8Down,
+    Migration9, Migration9Down, Migration10, Migration10Down,
+    Migration11(), Migration11Down, Migration12(), Migration12Down
+)
+
+fun getDatabase(context: Context, scope: CoroutineScope): AppDatabase {
+    return INSTANCE ?: synchronized(this) {
+        val instance = Room.databaseBuilder(...)
+            .addCallback(DatabaseCallback(scope))
+            .addMigrations(*migrations)  // Unpack with spread operator
+            .build()
+        ...
+    }
+}
+```
+
+**Benefits**:
+- Improved readability (easier to see all migrations)
+- Easier to add/remove migrations
+- Better maintainability (single source for migration list)
+- Less error-prone (visual alignment helps catch missing migrations)
+
+**Files to Modify**:
+- AppDatabase.kt (extract migrations to list)
+
+**Anti-Patterns Eliminated**:
+- ❌ No more 382-character long lines
+- ❌ No more unreadable method chaining
+- ❌ No more error-prone migration registration
+
+---
+
+### REFACTOR-011. AppDatabase.kt - Empty DatabaseCallback Override Methods
+**Status**: Pending
+**Priority**: Low
+**Estimated Time**: 15 minutes
+**Location**: data/database/AppDatabase.kt (lines 52-60)
+
+**Issue**: DatabaseCallback class overrides onCreate and onOpen methods but does nothing
+```kotlin
+private class DatabaseCallback(private val scope: CoroutineScope) : RoomDatabase.Callback() {
+    override fun onCreate(db: SupportSQLiteDatabase) {
+        super.onCreate(db)  // Empty - no custom logic
+    }
+
+    override fun onOpen(db: SupportSQLiteDatabase) {
+        super.onOpen(db)  // Empty - no custom logic
+    }
+}
+```
+- Impact: Dead code that provides no value
+- Confuses code readers (why override if not used?)
+- Unnecessary complexity
+
+**Suggestion**: Remove empty override methods and unused DatabaseCallback class
+```kotlin
+// Remove DatabaseCallback class entirely
+
+companion object {
+    @Volatile
+    private var INSTANCE: AppDatabase? = null
+
+    fun getDatabase(context: Context, scope: CoroutineScope): AppDatabase {
+        return INSTANCE ?: synchronized(this) {
+            val instance = Room.databaseBuilder(
+                context.applicationContext,
+                AppDatabase::class.java,
+                "iuran_komplek_database"
+            )
+                // Remove .addCallback(DatabaseCallback(scope)) - not needed
+                .addMigrations(/* migrations */)
+                .build()
+            INSTANCE = instance
+            instance
+        }
+    }
+}
+```
+
+**Benefits**:
+- Cleaner code (no dead code)
+- Less confusion (no unused overrides)
+- Simplified initialization (one less step)
+
+**Files to Modify**:
+- AppDatabase.kt (remove DatabaseCallback class)
+
+**Anti-Patterns Eliminated**:
+- ❌ No more empty override methods
+- ❌ No more unused DatabaseCallback class
+- ❌ No more dead code in database initialization
+
+---
+
+### REFACTOR-012. DependencyContainer - Duplicate UseCase Instantiation
+**Status**: Pending
+**Priority**: Medium
+**Estimated Time**: 30 minutes
+**Location**: di/DependencyContainer.kt (lines 109-123)
+
+**Issue**: ValidateFinancialDataUseCase and CalculateFinancialTotalsUseCase created multiple times in different provider methods
+```kotlin
+// Lines 109-114: provideLoadFinancialDataUseCase
+fun provideLoadFinancialDataUseCase(): LoadFinancialDataUseCase {
+    val validateFinancialDataUseCase = ValidateFinancialDataUseCase()           // Created here
+    val calculateFinancialTotalsUseCase = CalculateFinancialTotalsUseCase()     // Created here
+    val validateFinancialDataWithDeps = ValidateFinancialDataUseCase(calculateFinancialTotalsUseCase)
+    return LoadFinancialDataUseCase(providePemanfaatanRepository(), validateFinancialDataWithDeps)
+}
+
+// Lines 119-124: provideCalculateFinancialSummaryUseCase
+fun provideCalculateFinancialSummaryUseCase(): CalculateFinancialSummaryUseCase {
+    val validateFinancialDataUseCase = ValidateFinancialDataUseCase()           // Created again!
+    val calculateFinancialTotalsUseCase = CalculateFinancialTotalsUseCase()     // Created again!
+    val validateFinancialDataWithDeps = ValidateFinancialDataUseCase(calculateFinancialTotalsUseCase)
+    return CalculateFinancialSummaryUseCase(validateFinancialDataWithDeps, calculateFinancialTotalsUseCase)
+}
+```
+- Impact: Violates DRY principle
+- Creates multiple instances of same objects
+- Inconsistent dependency management
+- Potential bugs if instances have different states
+
+**Suggestion**: Create single provider methods for base UseCases
+```kotlin
+// Add private provider methods for base UseCases
+private fun provideBaseCalculateFinancialTotalsUseCase(): CalculateFinancialTotalsUseCase {
+    return CalculateFinancialTotalsUseCase()
+}
+
+private fun provideBaseValidateFinancialDataUseCase(
+    calculateFinancialTotalsUseCase: CalculateFinancialTotalsUseCase
+): ValidateFinancialDataUseCase {
+    return ValidateFinancialDataUseCase(calculateFinancialTotalsUseCase)
+}
+
+// Update existing methods to use base providers
+fun provideLoadFinancialDataUseCase(): LoadFinancialDataUseCase {
+    val calculateFinancialTotalsUseCase = provideBaseCalculateFinancialTotalsUseCase()
+    val validateFinancialDataWithDeps = provideBaseValidateFinancialDataUseCase(calculateFinancialTotalsUseCase)
+    return LoadFinancialDataUseCase(providePemanfaatanRepository(), validateFinancialDataWithDeps)
+}
+
+fun provideCalculateFinancialSummaryUseCase(): CalculateFinancialSummaryUseCase {
+    val calculateFinancialTotalsUseCase = provideBaseCalculateFinancialTotalsUseCase()
+    val validateFinancialDataWithDeps = provideBaseValidateFinancialDataUseCase(calculateFinancialTotalsUseCase)
+    return CalculateFinancialSummaryUseCase(validateFinancialDataWithDeps, calculateFinancialTotalsUseCase)
+}
+```
+
+**Benefits**:
+- Single source of truth for UseCase creation
+- Consistent instances across providers
+- DRY principle followed
+- Easier to modify UseCase initialization
+
+**Files to Modify**:
+- DependencyContainer.kt (add base provider methods)
+
+**Anti-Patterns Eliminated**:
+- ❌ No more duplicate UseCase instantiation
+- ❌ No more DRY principle violations
+- ❌ No more inconsistent dependency management
+
+---
+
+### REFACTOR-013. RateLimiter - Magic Number in perMinute Method
+**Status**: Pending
+**Priority**: Low
+**Estimated Time**: 15 minutes
+**Location**: utils/RateLimiter.kt (line 59)
+
+**Issue**: perMinute factory method uses magic number 60000L instead of constant
+```kotlin
+// Line 59 - Magic number 60000L
+fun perMinute(requestsPerMinute: Int): RateLimiter {
+    return RateLimiter(
+        maxRequests = requestsPerMinute,
+        timeWindowMs = 60000L  // Magic number - hard to understand
+    )
+}
+```
+- Impact: Unclear what 60000 represents (ms? seconds?)
+- Hardcoded value scattered across codebase
+- Violates constants best practice
+- Constants.kt already has ONE_MINUTE_MS defined
+
+**Suggestion**: Use Constants.kt.ONE_MINUTE_MS instead
+```kotlin
+import com.example.iurankomplek.utils.Constants
+
+// Line 59 - Use constant
+fun perMinute(requestsPerMinute: Int): RateLimiter {
+    return RateLimiter(
+        maxRequests = requestsPerMinute,
+        timeWindowMs = Constants.Time.ONE_MINUTE_MS  // Clear and documented
+    )
+}
+```
+
+**Benefits**:
+- Self-documenting code (ONE_MINUTE_MS is clear)
+- Single source of truth for time constants
+- Consistent with existing constants pattern
+- Easier to modify (change in one place)
+
+**Files to Modify**:
+- RateLimiter.kt (import Constants, use ONE_MINUTE_MS)
+
+**Anti-Patterns Eliminated**:
+- ❌ No more magic numbers
+- ❌ No more unclear time values
+- ❌ No more scattered constant definitions
+
+---
+
 **Issues Fixed**:
 
 **1. Technology Stack Outdated** (Line 9-18):
