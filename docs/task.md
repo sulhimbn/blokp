@@ -7959,3 +7959,299 @@ private fun createApiServiceV1(): ApiServiceV1 {
 **Impact**: MEDIUM - Webhook delivery state machine integrity enhancement, database-level validation prevents invalid webhook events, ensures retry logic consistency and idempotency guarantee reliability
 
 ---
+
+### [REFACTOR] Toast Display Centralization - Extract ToastHelper
+**Status**: Pending
+**Priority**: Medium
+**Estimated Time**: 1-2 hours
+**Location**: Multiple files (15+ Toast.makeText calls scattered)
+
+**Issue**: Toast.makeText usage is scattered across 15+ files with inconsistent patterns
+- TransactionHistoryAdapter (lines 61, 65): Toast inside adapter
+- WorkOrderManagementFragment: Toast in fragment
+- VendorDatabaseFragment: Toast in fragment
+- VendorCommunicationFragment: Toast in fragment
+- VendorManagementActivity (lines 49, 65): Toast in activity
+- PaymentActivity (line 47): Toast in activity
+- BaseFragment: Conditional toast display
+- No centralized toast management
+- Inconsistent toast durations (LENGTH_SHORT, LENGTH_LONG)
+- No single place to control toast behavior
+
+**Code Pattern**:
+```kotlin
+// Toast scattered across files - Inconsistent:
+Toast.makeText(context, getString(R.string.refund_processed), Toast.LENGTH_SHORT).show()
+Toast.makeText(this, getString(R.string.toast_error, error), Toast.LENGTH_SHORT).show()
+Toast.makeText(requireContext(), "message", Toast.LENGTH_LONG).show()
+
+// Proposed: Centralized ToastHelper
+ToastHelper.showSuccess(context, R.string.refund_processed)
+ToastHelper.showError(context, R.string.toast_error, error)
+ToastHelper.showInfo(requireContext(), "message")
+```
+
+**Suggestion**: Extract ToastHelper utility class for consistent toast display
+- showSuccess(): Green/toast for success messages
+- showError(): Red toast for error messages
+- showInfo(): Blue toast for informational messages
+- showWarning(): Orange toast for warning messages
+- Consistent duration (LENGTH_SHORT by default)
+- Centralized styling control
+- Easy to test and mock
+
+**Files to Create**:
+- utils/ToastHelper.kt (NEW)
+
+**Files to Modify**:
+- TransactionHistoryAdapter.kt (replace Toast.makeText with ToastHelper)
+- WorkOrderManagementFragment.kt (replace Toast.makeText with ToastHelper)
+- VendorDatabaseFragment.kt (replace Toast.makeText with ToastHelper)
+- VendorCommunicationFragment.kt (replace Toast.makeText with ToastHelper)
+- VendorManagementActivity.kt (replace Toast.makeText with ToastHelper)
+- PaymentActivity.kt (replace Toast.makeText with ToastHelper)
+- BaseFragment.kt (replace conditional toast with ToastHelper)
+- Other files with Toast.makeText usage
+
+**Benefits**:
+- **Code Consistency**: All toasts use same helper, consistent behavior
+- **Maintainability**: Change toast styling in one place
+- **Testability**: Mock ToastHelper for UI testing
+- **Semantic Clarity**: showSuccess(), showError() clearer than generic makeText()
+- **Type Safety**: Resource IDs for strings enforced
+- **Accessibility**: Consistent toast duration for screen readers
+
+**Anti-Patterns Eliminated**:
+- ❌ No more scattered Toast.makeText calls
+- ❌ No more inconsistent toast durations
+- ❌ No more duplicated toast creation code
+
+---
+
+### [REFACTOR] TransactionHistoryAdapter - Remove Business Logic
+**Status**: Pending
+**Priority**: High
+**Estimated Time**: 2 hours
+**Location**: presentation/adapter/TransactionHistoryAdapter.kt (95 lines)
+
+**Issue**: TransactionHistoryAdapter contains business logic (refund processing) violating separation of concerns
+- Lines 55-67: Async refund processing in adapter
+- Direct TransactionRepository dependency in adapter
+- UI logic mixed with business logic
+- Adapter should only render data, not process refunds
+- Harder to test (adapter has business logic responsibilities)
+- Violates Single Responsibility Principle
+
+**Code Pattern**:
+```kotlin
+// TransactionHistoryAdapter - Business logic in adapter:
+class TransactionHistoryAdapter(
+    private val transactionRepository: TransactionRepository  // Business dependency!
+) : ListAdapter<...> {
+    
+    init {
+        btnRefund.setOnClickListener {
+            coroutineScope.launch(Dispatchers.IO) {
+                // Business logic in adapter!
+                val result = transactionRepository.refundPayment(...)
+            }
+        }
+    }
+}
+```
+
+**Suggestion**: Move refund processing to Activity/ViewModel using callback pattern
+- Adapter emits refund request event (callback/lambda)
+- Activity/ViewModel handles refund business logic
+- Adapter receives updated transaction list to refresh UI
+- Adapter only responsible for rendering and user interaction
+
+**Files to Modify**:
+- TransactionHistoryAdapter.kt (remove transactionRepository, add refund callback)
+- TransactionHistoryActivity.kt (handle refund processing)
+
+**Refactored Pattern**:
+```kotlin
+// Adapter - Pure UI logic:
+class TransactionHistoryAdapter(
+    private val onRefundRequested: (Transaction) -> Unit
+) : ListAdapter<...> {
+    
+    init {
+        btnRefund.setOnClickListener {
+            currentTransaction?.let { onRefundRequested(it) }
+        }
+    }
+}
+
+// Activity - Handles business logic:
+class TransactionHistoryActivity : BaseActivity() {
+    private fun setupAdapter() {
+        adapter = TransactionHistoryAdapter { transaction ->
+            lifecycleScope.launch {
+                viewModel.processRefund(transaction)
+            }
+        }
+    }
+}
+```
+
+**Benefits**:
+- **Separation of Concerns**: Adapter handles UI only, Activity handles business logic
+- **Testability**: Adapter easier to test (no business logic)
+- **Reusability**: Adapter can be used without repository dependency
+- **Single Responsibility**: Each class has one clear purpose
+- **Consistency**: Follows pattern of other adapters (VendorAdapter, etc.)
+
+**Anti-Patterns Eliminated**:
+- ❌ No more business logic in adapters
+- ❌ No more repository dependencies in UI components
+- ❌ No more async operations in ViewHolder
+
+---
+
+### [REFACTOR] DependencyContainer - Module-Based Organization
+**Status**: Pending
+**Priority**: Medium
+**Estimated Time**: 2-3 hours
+**Location**: di/DependencyContainer.kt (276 lines, 49 methods)
+
+**Issue**: DependencyContainer has too many provider methods in single file, hard to navigate
+- 29 provider methods (fun provide*) scattered in one file
+- 14 volatile singleton properties
+- All dependencies in single flat structure
+- No logical grouping by module/layer
+- Hard to find specific provider quickly
+- File has grown organically without refactoring
+
+**Current Structure**:
+```kotlin
+object DependencyContainer {
+    // 14 volatile singletons
+    private var userRepository: UserRepository? = null
+    private var pemanfaatanRepository: PemanfaatanRepository? = null
+    // ... 12 more singletons
+    
+    // 29 provider methods in one file
+    fun provideUserRepository() { ... }
+    fun providePemanfaatanRepository() { ... }
+    fun provideUserViewModel() { ... }
+    fun provideFinancialViewModel() { ... }
+    fun provideLoadUsersUseCase() { ... }
+    // ... 24 more methods
+}
+```
+
+**Suggestion**: Reorganize DependencyContainer into module-based structure
+- **RepositoryModule**: All repository providers
+- **ViewModelModule**: All ViewModel providers
+- **UseCaseModule**: All UseCase providers
+- **NetworkModule**: API, interceptors, circuit breaker
+- **PaymentModule**: Payment gateway, webhook queue
+- **DatabaseModule**: Database, DAOs
+- **DependencyContainer**: Orchestrates modules
+
+**Files to Create**:
+- di/RepositoryModule.kt (NEW - repository providers)
+- di/ViewModelModule.kt (NEW - ViewModel providers)
+- di/UseCaseModule.kt (NEW - UseCase providers)
+- di/NetworkModule.kt (NEW - API and interceptors)
+- di/PaymentModule.kt (NEW - payment components)
+
+**Files to Modify**:
+- di/DependencyContainer.kt (refactor to use modules)
+
+**Refactored Structure**:
+```kotlin
+// RepositoryModule.kt
+object RepositoryModule {
+    private var userRepository: UserRepository? = null
+    
+    fun provideUserRepository(): UserRepository { ... }
+    fun providePemanfaatanRepository(): PemanfaatanRepository { ... }
+    // ... other repositories
+}
+
+// DependencyContainer.kt - Orchestrator:
+object DependencyContainer {
+    fun provideUserViewModel(): UserViewModel {
+        return UserViewModel(
+            UserRepositoryModule.provideUserRepository(),
+            UseCaseModule.provideLoadUsersUseCase()
+        )
+    }
+}
+```
+
+**Benefits**:
+- **Organization**: Logical grouping by module/layer
+- **Navigability**: Easy to find specific provider
+- **Maintainability**: Changes isolated to relevant module
+- **Readability**: Smaller focused files
+- **Scalability**: Easy to add new modules
+- **Testing**: Modules can be tested independently
+
+**Anti-Patterns Eliminated**:
+- ❌ No more monolithic 276-line file
+- ❌ No more flat structure with 29 methods
+- ❌ No more difficulty finding providers
+
+---
+
+### [REFACTOR] Adapter ViewHolders - Remove Business Logic Duplication
+**Status**: Pending
+**Priority**: Medium
+**Estimated Time**: 1.5 hours
+**Location**: Multiple adapter ViewHolders (TransactionHistoryAdapter, etc.)
+
+**Issue**: ViewHolders contain duplicated UI thread switching and error handling logic
+- TransactionHistoryAdapter: runOnUiThread helper in ViewHolder (lines 58, 64)
+- Similar patterns in other adapters
+- runOnUiThread logic duplicated across adapters
+- Error handling inconsistent across ViewHolders
+- No centralized UI thread management in adapters
+
+**Code Pattern**:
+```kotlin
+// TransactionHistoryAdapter - Duplicated runOnUiThread:
+class TransactionViewHolder(...) {
+    init {
+        btnRefund.setOnClickListener {
+            coroutineScope.launch(Dispatchers.IO) {
+                // Business logic
+                runOnUiThread(context) {  // Helper in ViewHolder
+                    // UI update
+                }
+            }
+        }
+    }
+    
+    // Other adapters have similar pattern
+}
+```
+
+**Suggestion**: Extract AdapterViewHolder base class with common UI thread helper
+- BaseAdapterViewHolder: Common ViewHolder utilities
+- runOnUiThread(): Centralized UI thread switching
+- handleError(): Centralized error handling
+- All adapters extend base ViewHolder
+
+**Files to Create**:
+- presentation/adapter/BaseAdapterViewHolder.kt (NEW)
+
+**Files to Modify**:
+- TransactionHistoryAdapter.kt (extend BaseAdapterViewHolder)
+- Other adapters with similar patterns
+
+**Benefits**:
+- **Code Reuse**: runOnUiThread logic shared across all adapters
+- **Consistency**: Same error handling pattern
+- **Maintainability**: Change in one place updates all adapters
+- **Less Duplication**: Remove repeated runOnUiThread blocks
+
+**Anti-Patterns Eliminated**:
+- ❌ No more duplicated runOnUiThread logic
+- ❌ No more inconsistent UI thread handling
+- ❌ No more repetitive ViewHolder patterns
+
+---
