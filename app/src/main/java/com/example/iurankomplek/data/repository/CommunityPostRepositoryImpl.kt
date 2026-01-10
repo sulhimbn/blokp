@@ -3,7 +3,6 @@ import com.example.iurankomplek.utils.OperationResult
 
 import com.example.iurankomplek.model.CommunityPost
 import com.example.iurankomplek.network.model.CreateCommunityPostRequest
-import com.example.iurankomplek.utils.Result
 import kotlinx.coroutines.delay
 import java.util.concurrent.ConcurrentHashMap
 
@@ -12,9 +11,9 @@ class CommunityPostRepositoryImpl(
 ) : CommunityPostRepository, BaseRepository() {
     private val cache = ConcurrentHashMap<String, CommunityPost>()
 
-    override suspend fun getCommunityPosts(forceRefresh: Boolean): Result<List<CommunityPost>> {
+    override suspend fun getCommunityPosts(forceRefresh: Boolean): OperationResult<List<CommunityPost>> {
         if (!forceRefresh && cache.isNotEmpty()) {
-            return Result.Success(cache.values.toList())
+            return OperationResult.Success(cache.values.toList())
         }
 
         return executeWithCircuitBreakerV2 { apiService.getCommunityPosts() }
@@ -25,7 +24,7 @@ class CommunityPostRepositoryImpl(
         title: String,
         content: String,
         category: String
-    ): Result<CommunityPost> {
+    ): OperationResult<CommunityPost> {
         val request = CreateCommunityPostRequest(
             authorId = authorId,
             title = title,
@@ -37,20 +36,20 @@ class CommunityPostRepositoryImpl(
         }
     }
 
-    override suspend fun getCachedCommunityPosts(): Result<List<CommunityPost>> {
+    override suspend fun getCachedCommunityPosts(): OperationResult<List<CommunityPost>> {
         return try {
-            Result.Success(cache.values.toList())
+            OperationResult.Success(cache.values.toList())
         } catch (e: Exception) {
-            Result.Error(e, e.message ?: "Unknown error")
+            OperationResult.Error(e, e.message ?: "Unknown error")
         }
     }
 
-    override suspend fun clearCache(): Result<Unit> {
+    override suspend fun clearCache(): OperationResult<Unit> {
         return try {
             cache.clear()
-            Result.Success(Unit)
+            OperationResult.Success(Unit)
         } catch (e: Exception) {
-            Result.Error(e, e.message ?: "Unknown error")
+            OperationResult.Error(e, e.message ?: "Unknown error")
         }
     }
 }

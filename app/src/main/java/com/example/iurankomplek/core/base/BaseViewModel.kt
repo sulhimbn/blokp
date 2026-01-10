@@ -2,7 +2,7 @@ package com.example.iurankomplek.core.base
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.iurankomplek.utils.Result
+import com.example.iurankomplek.utils.OperationResult
 import com.example.iurankomplek.utils.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,27 +33,27 @@ abstract class BaseViewModel : ViewModel() {
     protected fun <T> executeWithLoadingStateForResult(
         stateFlow: MutableStateFlow<UiState<T>>,
         preventDuplicate: Boolean = true,
-        operation: suspend () -> Result<T>
+        operation: suspend () -> OperationResult<T>
     ) {
         if (preventDuplicate && stateFlow.value is UiState.Loading) {
             return
         }
-        
+
         viewModelScope.launch {
             stateFlow.value = UiState.Loading
             try {
                 val result = operation()
                 when (result) {
-                    is Result.Success -> {
+                    is OperationResult.Success -> {
                         stateFlow.value = UiState.Success(result.data)
                     }
-                    is Result.Error -> {
+                    is OperationResult.Error -> {
                         stateFlow.value = UiState.Error(result.message)
                     }
-                    is Result.Loading -> {
+                    is OperationResult.Loading -> {
                         stateFlow.value = UiState.Loading
                     }
-                    Result.Empty -> {
+                    OperationResult.Empty -> {
                         stateFlow.value = UiState.Error("No data available")
                     }
                 }

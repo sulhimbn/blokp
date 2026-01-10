@@ -9,18 +9,17 @@ import com.example.iurankomplek.network.model.ApiErrorCode
 import com.example.iurankomplek.network.resilience.CircuitBreaker
 import com.example.iurankomplek.network.resilience.CircuitBreakerResult
 import com.example.iurankomplek.utils.RetryHelper
-import com.example.iurankomplek.utils.Result
 import retrofit2.Response
 
 interface HealthRepository {
-    suspend fun getHealth(includeDiagnostics: Boolean = false, includeMetrics: Boolean = false): Result<HealthCheckResponse>
+    suspend fun getHealth(includeDiagnostics: Boolean = false, includeMetrics: Boolean = false): OperationResult<HealthCheckResponse>
 }
 
 class HealthRepositoryImpl(
     private val apiService: ApiServiceV1
 ) : HealthRepository, BaseRepository() {
 
-    override suspend fun getHealth(includeDiagnostics: Boolean, includeMetrics: Boolean): Result<HealthCheckResponse> {
+    override suspend fun getHealth(includeDiagnostics: Boolean, includeMetrics: Boolean): OperationResult<HealthCheckResponse> {
         val result = executeWithCircuitBreakerV1 {
             val request = HealthCheckRequest(
                 includeDiagnostics = includeDiagnostics,
@@ -29,7 +28,7 @@ class HealthRepositoryImpl(
             apiService.getHealth(request)
         }
         return when (result) {
-            is Result.Error -> throw NetworkError.HttpError(
+            is OperationResult.Error -> throw NetworkError.HttpError(
                 code = ApiErrorCode.SERVICE_UNAVAILABLE,
                 userMessage = "Health check failed",
                 httpCode = 500,

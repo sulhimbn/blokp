@@ -5,11 +5,10 @@ import com.example.iurankomplek.model.VendorResponse
 import com.example.iurankomplek.model.SingleVendorResponse
 import com.example.iurankomplek.model.WorkOrderResponse
 import com.example.iurankomplek.model.SingleWorkOrderResponse
-import com.example.iurankomplek.utils.Result
 
 interface VendorRepository {
-    suspend fun getVendors(): Result<VendorResponse>
-    suspend fun getVendor(id: String): Result<SingleVendorResponse>
+    suspend fun getVendors(): OperationResult<VendorResponse>
+    suspend fun getVendor(id: String): OperationResult<SingleVendorResponse>
     suspend fun createVendor(
         name: String,
         contactPerson: String,
@@ -21,7 +20,7 @@ interface VendorRepository {
         insuranceInfo: String,
         contractStart: String,
         contractEnd: String
-    ): Result<SingleVendorResponse>
+    ): OperationResult<SingleVendorResponse>
 
     suspend fun updateVendor(
         id: String,
@@ -36,10 +35,10 @@ interface VendorRepository {
         contractStart: String,
         contractEnd: String,
         isActive: Boolean
-    ): Result<SingleVendorResponse>
+    ): OperationResult<SingleVendorResponse>
 
-    suspend fun getWorkOrders(): Result<WorkOrderResponse>
-    suspend fun getWorkOrder(id: String): Result<SingleWorkOrderResponse>
+    suspend fun getWorkOrders(): OperationResult<WorkOrderResponse>
+    suspend fun getWorkOrder(id: String): OperationResult<SingleWorkOrderResponse>
     suspend fun createWorkOrder(
         title: String,
         description: String,
@@ -48,17 +47,17 @@ interface VendorRepository {
         propertyId: String,
         reporterId: String,
         estimatedCost: Double
-    ): Result<SingleWorkOrderResponse>
+    ): OperationResult<SingleWorkOrderResponse>
 
     suspend fun assignVendorToWorkOrder(
         workOrderId: String,
         vendorId: String,
         scheduledDate: String?
-    ): Result<SingleWorkOrderResponse>
+    ): OperationResult<SingleWorkOrderResponse>
 
     suspend fun updateWorkOrderStatus(
         workOrderId: String,
         status: String,
         notes: String?
-    ): Result<SingleWorkOrderResponse>
+    ): OperationResult<SingleWorkOrderResponse>
 }

@@ -2,10 +2,9 @@ package com.example.iurankomplek.data.repository
 import com.example.iurankomplek.utils.OperationResult
 
 import com.example.iurankomplek.model.Announcement
-import com.example.iurankomplek.utils.Result
 
 interface AnnouncementRepository {
-    suspend fun getAnnouncements(forceRefresh: Boolean = false): Result<List<Announcement>>
-    suspend fun getCachedAnnouncements(): Result<List<Announcement>>
-    suspend fun clearCache(): Result<Unit>
+    suspend fun getAnnouncements(forceRefresh: Boolean = false): OperationResult<List<Announcement>>
+    suspend fun getCachedAnnouncements(): OperationResult<List<Announcement>>
+    suspend fun clearCache(): OperationResult<Unit>
 }

@@ -13,50 +13,49 @@ import com.example.iurankomplek.network.model.NetworkError
 import com.example.iurankomplek.network.resilience.CircuitBreaker
 import com.example.iurankomplek.network.resilience.CircuitBreakerResult
 import com.example.iurankomplek.network.resilience.CircuitBreakerState
-import com.example.iurankomplek.utils.Result
 import kotlinx.coroutines.flow.first
 
 class UserRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiServiceV1
 ) : UserRepository, BaseRepository() {
 
-    override suspend fun getUsers(forceRefresh: Boolean): Result<UserResponse> {
+    override suspend fun getUsers(forceRefresh: Boolean): OperationResult<UserResponse> {
         return try {
             if (!forceRefresh) {
                 val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
                 if (usersWithFinancials.isNotEmpty()) {
                     val userResponse = UserResponse(EntityMapper.toLegacyDtoList(usersWithFinancials).getOrThrow())
-                    return Result.Success(userResponse)
+                    return OperationResult.Success(userResponse)
                 }
             }
 
             val result = executeWithCircuitBreakerV1 { apiService.getUsers() }
-            if (result is Result.Success) {
+            if (result is OperationResult.Success) {
                 saveUsersToCache(result.data)
             }
             result
         } catch (e: Exception) {
-            Result.Error(e, e.message ?: "Unknown error")
+            OperationResult.Error(e, e.message ?: "Unknown error")
         }
     }
 
-    override suspend fun getCachedUsers(): Result<UserResponse> {
+    override suspend fun getCachedUsers(): OperationResult<UserResponse> {
         return try {
             val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
             val userResponse = UserResponse(EntityMapper.toLegacyDtoList(usersWithFinancials).getOrThrow())
-            Result.Success(userResponse)
+            OperationResult.Success(userResponse)
         } catch (e: Exception) {
-            Result.Error(e, e.message ?: "Unknown error")
+            OperationResult.Error(e, e.message ?: "Unknown error")
         }
     }
 
-    override suspend fun clearCache(): Result<Unit> {
+    override suspend fun clearCache(): OperationResult<Unit> {
         return try {
             CacheManager.getUserDao().deleteAll()
             CacheManager.getFinancialRecordDao().deleteAll()
-            Result.Success(Unit)
+            OperationResult.Success(Unit)
         } catch (e: Exception) {
-            Result.Error(e, e.message ?: "Unknown error")
+            OperationResult.Error(e, e.message ?: "Unknown error")
         }
     }
 

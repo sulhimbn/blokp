@@ -3,7 +3,6 @@ import com.example.iurankomplek.utils.OperationResult
 
 import com.example.iurankomplek.model.Message
 import com.example.iurankomplek.network.model.SendMessageRequest
-import com.example.iurankomplek.utils.Result
 import kotlinx.coroutines.delay
 import java.util.concurrent.ConcurrentHashMap
 
@@ -12,25 +11,25 @@ class MessageRepositoryImpl(
 ) : MessageRepository, BaseRepository() {
     private val cache = ConcurrentHashMap<String, List<Message>>()
 
-    override suspend fun getMessages(userId: String): Result<List<Message>> {
+    override suspend fun getMessages(userId: String): OperationResult<List<Message>> {
         val cachedMessages = cache[userId]
         if (cachedMessages != null) {
-            return Result.Success(cachedMessages)
+            return OperationResult.Success(cachedMessages)
         }
 
         return executeWithCircuitBreakerV2 { apiService.getMessages(userId) }
             .also { result ->
-                if (result is Result.Success) {
+                if (result is OperationResult.Success) {
                     cache[userId] = result.data
                 }
             }
     }
 
-    override suspend fun getMessagesWithUser(receiverId: String, senderId: String): Result<List<Message>> {
+    override suspend fun getMessagesWithUser(receiverId: String, senderId: String): OperationResult<List<Message>> {
         return executeWithCircuitBreakerV2 { apiService.getMessagesWithUser(receiverId, senderId) }
     }
 
-    override suspend fun sendMessage(senderId: String, receiverId: String, content: String): Result<Message> {
+    override suspend fun sendMessage(senderId: String, receiverId: String, content: String): OperationResult<Message> {
         val request = SendMessageRequest(
             senderId = senderId,
             receiverId = receiverId,
@@ -39,21 +38,21 @@ class MessageRepositoryImpl(
         return executeWithCircuitBreakerV1 { apiService.sendMessage(request) }
     }
 
-    override suspend fun getCachedMessages(userId: String): Result<List<Message>> {
+    override suspend fun getCachedMessages(userId: String): OperationResult<List<Message>> {
         return try {
             val messages = cache[userId] ?: emptyList()
-            Result.Success(messages)
+            OperationResult.Success(messages)
         } catch (e: Exception) {
-            Result.Error(e, e.message ?: "Unknown error")
+            OperationResult.Error(e, e.message ?: "Unknown error")
         }
     }
 
-    override suspend fun clearCache(): Result<Unit> {
+    override suspend fun clearCache(): OperationResult<Unit> {
         return try {
             cache.clear()
-            Result.Success(Unit)
+            OperationResult.Success(Unit)
         } catch (e: Exception) {
-            Result.Error(e, e.message ?: "Unknown error")
+            OperationResult.Error(e, e.message ?: "Unknown error")
         }
     }
 }
