@@ -2218,8 +2218,8 @@ Performance gap in WebhookEvent index strategy:
 
 ### Core Technologies ✅
 - **Platform**: Android SDK API level 34
-- **Language**: Kotlin 100% (no Java)
-- **Build System**: Gradle 8.1
+- **Language**: Kotlin 1.9.25 (100% - no Java)
+- **Build System**: Gradle 8.10.2, Android Gradle Plugin 8.13.0
 - **Minimum SDK**: Android 7.0 (API 24)
 - **Target SDK**: Android 14 (API 34)
 
