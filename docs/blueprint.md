@@ -2562,15 +2562,17 @@ Performance gap in WebhookEvent index strategy:
    - Thread-safe state management with Mutex
    - Reset capability for manual recovery
 
-### Webhook Reliability Patterns ✅ NEW (Documentation Updated 2026-01-08)
-- ✅ **Comprehensive Documentation**: Full webhook reliability patterns documented
-   - **API_INTEGRATION_PATTERNS.md**: Detailed webhook architecture section (400+ lines)
-   - **Components**: WebhookEvent, WebhookQueue, WebhookReceiver, WebhookPayloadProcessor
-   - **Architecture**: Persistent storage, queue-based processing, automatic retries
-   - **Idempotency**: Duplicate prevention with unique keys
-   - **Monitoring**: Real-time observability with queue metrics
-   - **Testing**: 53 test cases covering all webhook components
-   - **Best Practices**: Guidelines for consumers, senders, and operations
+ ### Webhook Reliability Patterns ✅ NEW (Documentation Updated 2026-01-10)
+ - ✅ **Comprehensive Documentation**: Full webhook reliability patterns documented
+    - **API_INTEGRATION_PATTERNS.md**: Detailed webhook architecture section (400+ lines)
+    - **API_HEADERS_AND_ERRORS.md**: HTTP headers, error codes, resilience patterns (480+ lines) ✅ NEW (2026-01-10)
+    - **Components**: WebhookEvent, WebhookQueue, WebhookReceiver, WebhookPayloadProcessor
+    - **Architecture**: Persistent storage, queue-based processing, automatic retries
+    - **Idempotency**: Duplicate prevention with unique keys
+    - **Monitoring**: Real-time observability with queue metrics
+    - **Testing**: 53 test cases covering all webhook components
+    - **Best Practices**: Guidelines for consumers, senders, and operations
+    - **Headers Documentation**: Request/response headers (X-Request-ID, X-Retry-After, X-RateLimit-*, X-CircuitBreaker-State) ✅ NEW
 - ✅ **Persistent Webhook Storage**: All webhooks stored before processing
    - WebhookEvent Room entity with comprehensive tracking
    - Idempotency key with unique index (prevents duplicate processing)

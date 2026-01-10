@@ -47,6 +47,66 @@ Track architectural refactoring tasks and their status.
 
 ---
 
+## Integration Engineer Tasks - 2026-01-10
+
+---
+
+### ✅ DOC-001. API Headers and Error Response Standardization - 2026-01-10
+**Status**: Completed
+**Completed Date**: 2026-01-10
+**Priority**: HIGH (API Contract)
+**Estimated Time**: 2-3 hours (completed in 1.5 hours)
+**Description**: Create comprehensive documentation for HTTP headers, error responses, and resilience patterns used in the API layer
+
+**Documentation Created:**
+1. **API_HEADERS_AND_ERRORS.md** - New comprehensive documentation covering:
+   - Request headers (X-Request-ID, X-Retryable, X-Circuit-Breaker-State)
+   - Response headers (X-Request-ID, X-Retry-After, X-RateLimit-*, X-Response-Time)
+   - Webhook delivery headers (X-Webhook-Idempotency-Key, X-Webhook-Delivered-At)
+   - Standard error response format with ApiErrorDetail structure
+   - All 11 error codes with HTTP status code mapping
+   - Retry strategy documentation (exponential backoff, jitter, max retries)
+   - Circuit breaker states and transitions
+   - Request ID lifecycle and tracing
+   - Response examples for success, error, rate limit, and circuit breaker scenarios
+
+**Benefits:**
+1. **Self-Documenting API**: All resilience patterns now documented in single source of truth
+2. **Client Integration Guide**: Clear header definitions for API consumers
+3. **Error Response Standardization**: Consistent error format across all endpoints documented
+4. **Retry Strategy Clarity**: Exponential backoff algorithm with examples documented
+5. **Circuit Breaker Visibility**: State transitions and behavior clearly explained
+6. **Practical Examples**: Real request/response examples for all scenarios
+7. **Reference Documentation**: Links to existing API.md and API_INTEGRATION_PATTERNS.md
+
+**Files Created** (1 total):
+| File | Lines | Purpose |
+|------|--------|---------|
+| API_HEADERS_AND_ERRORS.md | +480 | HTTP headers, error codes, resilience patterns |
+
+**Files Modified** (1 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| docs/API.md | -1, +2 | Added reference to API_HEADERS_AND_ERRORS.md |
+
+**Success Criteria:**
+- [x] Request headers documented (X-Request-ID, X-Retryable, etc.)
+- [x] Response headers documented (X-Retry-After, X-RateLimit-*, X-Circuit-Breaker-State)
+- [x] Standard error response format defined with ApiErrorDetail structure
+- [x] All 11 error codes documented with HTTP status mapping
+- [x] Retry strategy documented (exponential backoff + jitter)
+- [x] Circuit breaker states and transitions explained
+- [x] Request/response examples provided for success, error, rate limit, and circuit breaker
+- [x] Webhook delivery headers documented
+- [x] API.md updated to reference new documentation
+- [x] Glossary of terms defined
+
+**Impact**: HIGH - Critical documentation for API consumers, provides single source of truth for all resilience patterns, error codes, and header conventions
+**Dependencies**: None (independent documentation)
+**Documentation**: New API_HEADERS_AND_ERRORS.md created with 480 lines, API.md updated
+
+---
+
 ## Completed Refactoring Tasks
 
 ---

@@ -8,6 +8,7 @@ IuranKomplek API menyediakan endpoints untuk mengambil data pengguna dan informa
 
 **[OpenAPI 3.0 Specification](openapi.yaml)** - Machine-readable API contract (OpenAPI/Swagger)
 **[API Integration Patterns](API_INTEGRATION_PATTERNS.md)** - Circuit breaker, rate limiting, retry logic
+**[API Headers and Error Responses](API_HEADERS_AND_ERRORS.md)** - HTTP headers, error codes, resilience headers, retry strategies
 
 The OpenAPI specification provides:
 - Standardized API contract for all endpoints
