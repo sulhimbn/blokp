@@ -1,6 +1,7 @@
 package com.example.iurankomplek.network
 
 import com.example.iurankomplek.BuildConfig
+import com.example.iurankomplek.network.interceptor.HealthCheckInterceptor
 import com.example.iurankomplek.network.interceptor.NetworkErrorInterceptor
 import com.example.iurankomplek.network.interceptor.RequestIdInterceptor
 import com.example.iurankomplek.network.interceptor.RetryableRequestInterceptor
@@ -80,6 +81,7 @@ import java.util.concurrent.TimeUnit
                 .addInterceptor(RequestIdInterceptor())
                 .addInterceptor(rateLimiter)
                 .addInterceptor(RetryableRequestInterceptor())
+                .addInterceptor(HealthCheckInterceptor(enableLogging = BuildConfig.DEBUG))
                 .addInterceptor(NetworkErrorInterceptor(enableLogging = BuildConfig.DEBUG))
                 .build()
         } else {
@@ -90,6 +92,7 @@ import java.util.concurrent.TimeUnit
                 .addInterceptor(RequestIdInterceptor())
                 .addInterceptor(rateLimiter)
                 .addInterceptor(RetryableRequestInterceptor())
+                .addInterceptor(HealthCheckInterceptor(enableLogging = true))
                 .addInterceptor(NetworkErrorInterceptor(enableLogging = true))
 
             if (BuildConfig.DEBUG) {

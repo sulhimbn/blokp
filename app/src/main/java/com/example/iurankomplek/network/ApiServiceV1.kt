@@ -22,6 +22,8 @@ import com.example.iurankomplek.network.model.UpdateWorkOrderRequest
 import com.example.iurankomplek.network.model.SendMessageRequest
 import com.example.iurankomplek.network.model.CreateCommunityPostRequest
 import com.example.iurankomplek.network.model.InitiatePaymentRequest
+import com.example.iurankomplek.network.model.HealthCheckRequest
+import com.example.iurankomplek.network.model.HealthCheckResponse
 import retrofit2.Body
 import retrofit2.GET
 import retrofit2.POST
@@ -113,4 +115,7 @@ interface ApiServiceV1 {
         @Path("id") id: String,
         @Body request: UpdateWorkOrderRequest
     ): Response<ApiResponse<SingleWorkOrderResponse>>
+    
+    @POST("api/v1/health")
+    suspend fun getHealth(@Body request: HealthCheckRequest): Response<ApiResponse<HealthCheckResponse>>
 }

@@ -408,6 +408,119 @@ Track architectural refactoring tasks and their status.
 
 ---
 
+### ✅ INT-002. Integration Health Check API - 2026-01-10
+**Status**: Completed
+**Completed Date**: 2026-01-10
+**Priority**: HIGH (Observability)
+**Estimated Time**: 2 hours (completed in 1.5 hours)
+**Description**: Implement Integration Health Check API endpoint for external monitoring tools to query system health status
+
+**Changes Implemented**:
+1. **Health Check Models** (HealthCheckModels.kt): 
+   - HealthCheckRequest: Request model with diagnostics/metrics flags
+   - HealthCheckResponse: Complete health status response
+   - ComponentHealth: Individual component health details
+   - HealthDiagnostics: Circuit breaker and rate limiter diagnostics
+   - HealthMetrics: Performance metrics (health score, success rate, response time)
+   - RateLimitStats: Per-endpoint rate limit statistics
+
+2. **Health Service** (HealthService.kt):
+   - getHealth(): Main method to generate health check response
+   - buildComponentHealthMap(): Maps IntegrationHealthStatus to component health
+   - buildDiagnostics(): Creates detailed diagnostics when requested
+   - buildMetrics(): Builds performance metrics when requested
+   - Singleton pattern for consistent instance access
+
+3. **Health Check Interceptor** (HealthCheckInterceptor.kt):
+   - Automatically tracks request health for all API calls
+   - Records request metrics via IntegrationHealthMonitor
+   - Logs requests in debug mode
+   - Skips health endpoint to avoid infinite recursion
+
+4. **Health Repository** (HealthRepository.kt):
+   - getHealth(): Wrapper for health check API call
+   - executeWithCircuitBreakerV1: Resilient API call with circuit breaker
+   - Proper error handling with NetworkError.HttpError
+
+5. **API Endpoint** (ApiServiceV1.kt):
+   - POST /api/v1/health: Main health check endpoint
+   - Supports optional diagnostics and metrics inclusion
+   - Returns standardized ApiResponse<HealthCheckResponse> wrapper
+
+6. **Interceptor Integration** (ApiConfig.kt):
+   - Added HealthCheckInterceptor to interceptor chain
+   - Positioned before NetworkErrorInterceptor for proper health tracking
+   - Enabled in debug builds for logging
+
+**Files Created** (4 total):
+| File | Lines | Purpose |
+|------|--------|---------|
+| HealthCheckModels.kt | +41 | Health check request/response models |
+| HealthService.kt | +109 | Health check service business logic |
+| HealthCheckInterceptor.kt | +75 | Automatic health tracking interceptor |
+| HealthRepository.kt | +25 | Health check repository |
+
+**Files Modified** (2 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| ApiServiceV1.kt | +3 | Added /api/v1/health endpoint |
+| ApiConfig.kt | +2 | Added HealthCheckInterceptor to chain |
+
+**Files Created for Tests** (2 total):
+| File | Lines | Purpose |
+|------|--------|---------|
+| HealthServiceTest.kt | +150 | Health service tests (7 test cases) |
+| HealthRepositoryTest.kt | +118 | Health repository tests (6 test cases) |
+
+**Benefits**:
+1. **External Monitoring**: API endpoint for monitoring tools (Prometheus, Datadog, Uptime Robot)
+2. **Real-Time Health**: Live health status via HTTP request
+3. **Diagnostics**: Optional detailed component diagnostics
+4. **Metrics**: Performance metrics (health score, success rate, response time)
+5. **Standardized Format**: Consistent health check response across all endpoints
+6. **Automatic Tracking**: HealthCheckInterceptor tracks all requests automatically
+7. **Circuit Breaker Visibility**: Circuit breaker state exposed in health response
+8. **Rate Limit Visibility**: Per-endpoint rate limit statistics included
+9. **Zero Configuration**: Health check works out of the box with existing IntegrationHealthMonitor
+10. **API Version**: Health status includes application version for deployment tracking
+
+**Health Check API Usage**:
+```kotlin
+// Basic health check (status only)
+healthRepository.getHealth()
+// Response: status, version, uptimeMs, components, timestamp
+
+// Health check with diagnostics
+healthRepository.getHealth(includeDiagnostics = true)
+// Response: + circuit breaker state, + rate limit stats
+
+// Health check with metrics
+healthRepository.getHealth(includeMetrics = true)
+// Response: + healthScore, successRate, averageResponseTimeMs, errorRate
+
+// Full health check
+healthRepository.getHealth(includeDiagnostics = true, includeMetrics = true)
+// Response: All status + diagnostics + metrics
+```
+
+**Success Criteria**:
+- [x] Health check models created (HealthCheckRequest, HealthCheckResponse, ComponentHealth, HealthDiagnostics, HealthMetrics, RateLimitStats)
+- [x] HealthService implemented with IntegrationHealthMonitor integration
+- [x] HealthCheckInterceptor created for automatic health tracking
+- [x] HealthRepository implemented with circuit breaker protection
+- [x] POST /api/v1/health endpoint added to ApiServiceV1
+- [x] HealthCheckInterceptor integrated into ApiConfig interceptor chain
+- [x] HealthServiceTest created (7 test cases)
+- [x] HealthRepositoryTest created (6 test cases)
+- [x] API.md updated with health check endpoint documentation
+- [x] Task documented in task.md
+
+**Dependencies**: None (independent feature, uses existing IntegrationHealthMonitor and NetworkError infrastructure)
+**Documentation**: Updated docs/API.md with health check endpoint documentation
+**Impact**: HIGH - Critical observability feature, enables external monitoring tools to query system health, provides real-time health status and diagnostics for all integration components
+
+---
+
 ### ✅ DOC-001. API Headers and Error Response Standardization - 2026-01-10
 **Status**: Completed
 **Completed Date**: 2026-01-10

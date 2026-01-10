@@ -573,6 +573,146 @@ Content-Type: application/json
 - **[API Integration Patterns](API_INTEGRATION_PATTERNS.md)** - Resilience pattern implementation details
 - **[OpenAPI Specification](openapi.yaml)** - Machine-readable API contract
 
+## Health Check Endpoint
+
+The application provides a dedicated health check endpoint for external monitoring tools and observability.
+
+### POST /api/v1/health
+
+**Purpose**: Real-time system health status for monitoring tools (Prometheus, Datadog, Uptime Robot, etc.)
+
+**Request Headers**:
+```
+POST /api/v1/health HTTP/1.1
+Host: api.apispreadsheets.com
+Content-Type: application/json
+X-Request-ID: req_1234567890_abc42
+```
+
+**Request Body**:
+```json
+{
+  "includeDiagnostics": false,
+  "includeMetrics": false
+}
+```
+
+**Response Headers**:
+```
+HTTP/1.1 200 OK
+X-Request-ID: req_1234567890_abc42
+X-Response-Time: 45
+Content-Type: application/json
+```
+
+**Response Body**:
+```json
+{
+  "data": {
+    "status": "HEALTHY",
+    "version": "1.0.0",
+    "uptimeMs": 86400000,
+    "components": {
+      "circuit_breaker": {
+        "status": "HEALTHY",
+        "healthy": true,
+        "message": "All integration systems operational"
+      },
+      "rate_limiter": {
+        "status": "HEALTHY",
+        "healthy": true,
+        "message": "Rate limiter within normal limits"
+      },
+      "api_service": {
+        "status": "HEALTHY",
+        "healthy": true,
+        "message": "API service operational"
+      },
+      "network": {
+        "status": "HEALTHY",
+        "healthy": true,
+        "message": "Network connectivity normal"
+      }
+    },
+    "timestamp": 1704672000000,
+    "diagnostics": {
+      "circuitBreakerState": "CLOSED",
+      "circuitBreakerFailures": 0,
+      "rateLimitStats": {
+        "GET:/api/v1/users": {
+          "requestCount": 50,
+          "lastRequestTime": 1704671995000
+        }
+      }
+    },
+    "metrics": {
+      "healthScore": 95.5,
+      "totalRequests": 100,
+      "successRate": 95.0,
+      "averageResponseTimeMs": 150.0,
+      "errorRate": 5.0,
+      "timeoutCount": 1,
+      "rateLimitViolations": 0
+    }
+  },
+  "request_id": "req_1234567890_abc42",
+  "timestamp": 1704672000000
+}
+```
+
+**Health Status Values**:
+- `HEALTHY` - All systems operational
+- `DEGRADED` - Some components degraded, service still functional
+- `UNHEALTHY` - Critical systems failing
+- `CIRCUIT_OPEN` - Circuit breaker is open
+- `RATE_LIMITED` - Rate limit exceeded
+
+**Monitoring Tool Integration**:
+
+**Prometheus Configuration**:
+```yaml
+scrape_configs:
+  - job_name: 'iurankomplek_health'
+    scrape_interval: 30s
+    metrics_path: /api/v1/health
+    scheme: https
+    static_configs:
+      - targets: ['api.apispreadsheets.com']
+    relabel_configs:
+      - source_labels: [job_name]
+      - regex: 'job_name="([^:]+)"'
+      - target_label: __address__
+      - replacement: '${1}'
+```
+
+**Datadog Synthetics Monitor**:
+- Type: API Test
+- URL: https://api.apispreadsheets.com/api/v1/health
+- Method: POST
+- Request Body: `{"includeDiagnostics": true, "includeMetrics": true}`
+- Assertion: `response.data.status == "HEALTHY"`
+- Alert: Health score drops below 90
+
+**Uptime Robot Monitor**:
+- URL: https://api.apispreadsheets.com/api/v1/health
+- Method: POST
+- Request Body: `{"includeDiagnostics": false, "includeMetrics": false}`
+- Expected Status: 200 OK
+- Keywords: Check for `"status": "HEALTHY"` in response
+- Alert Interval: 1 minute
+
+**cURL Command**:
+```bash
+curl -X POST https://api.apispreadsheets.com/api/v1/health \
+  -H "Content-Type: application/json" \
+  -d '{"includeDiagnostics": true, "includeMetrics": true}'
+```
+
+**Response Time Metrics**:
+- Target: `< 500ms` for basic health check
+- Target: `< 1000ms` for health check with metrics
+- Alert: Response time > 2000ms indicates degradation
+
 ## Glossary
 
 | Term | Definition |
