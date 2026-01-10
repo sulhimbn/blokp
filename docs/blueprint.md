@@ -406,16 +406,20 @@ app/
 - **Refactored Fragments**: MessagesFragment, AnnouncementsFragment, CommunityFragment, VendorDatabaseFragment, VendorCommunicationFragment, WorkOrderManagementFragment
 
 ### 5. Separation of Concerns ✅
-- **Activities**: UI interactions, navigation only
+- **Activities**: UI interactions, navigation only, business logic integration
 - **ViewModels**: Business logic, state management
 - **Repositories**: Data fetching, caching, transformation
 - **Adapters**: View rendering only (with DiffUtil)
+- **StateManager**: UI state visibility (loading, success, error, empty) - centralized across all Activities (REFACTOR-006 - 2026-01-10)
 
 ### 5. State Management ✅
 - Modern StateFlow for reactive UI
 - UiState sealed class for type-safe state
 - Loading, Success, and Error states
 - Single source of truth for UI state
+- **Consistent State Observation**: All Activities use StateManager.observeState (REFACTOR-006 - 2026-01-10)
+- **Eliminated Manual State Handling**: No more manual collect + when pattern in Activities
+- **Centralized UI Visibility**: StateManager handles loading/success/error/empty states
 
 ## Architecture Patterns Implemented ✅
 
@@ -433,6 +437,7 @@ app/
 - ✅ Dependency Injection Pattern - Pragmatic DI container (Module ARCH-003)
 - ✅ Service Locator Pattern - DependencyContainer provides dependencies (Module ARCH-003)
 - ✅ Helper Pattern - RecyclerViewHelper for consistent RecyclerView setup (REFACTOR-005 - 2026-01-10)
+- ✅ StateManager Pattern - Consistent UI state management across Activities (REFACTOR-006 - 2026-01-10)
 
 ### Architectural Patterns ✅
 - ✅ MVVM - Model-View-ViewModel

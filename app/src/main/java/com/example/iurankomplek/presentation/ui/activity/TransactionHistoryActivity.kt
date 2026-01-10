@@ -7,12 +7,12 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityTransactionHistoryBinding
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.presentation.viewmodel.TransactionViewModel
 import com.example.iurankomplek.di.DependencyContainer
 import com.example.iurankomplek.presentation.ui.helper.RecyclerViewHelper
+import com.example.iurankomplek.presentation.ui.helper.StateManager
 import com.example.iurankomplek.payment.PaymentStatus
 import kotlinx.coroutines.launch
 
@@ -20,6 +20,7 @@ class TransactionHistoryActivity : BaseActivity() {
     private lateinit var binding: ActivityTransactionHistoryBinding
     private lateinit var transactionAdapter: TransactionHistoryAdapter
     private lateinit var viewModel: TransactionViewModel
+    private lateinit var stateManager: StateManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +34,17 @@ class TransactionHistoryActivity : BaseActivity() {
 
     private fun setupTransactionHistory() {
         viewModel = DependencyContainer.provideTransactionViewModel()
+
+        stateManager = StateManager.create(
+            progressBar = binding.progressBar,
+            emptyStateTextView = binding.tvEmptyState,
+            errorStateLayout = null,
+            errorStateTextView = null,
+            retryTextView = null,
+            recyclerView = binding.rvTransactionHistory,
+            scope = lifecycleScope,
+            context = this
+        )
 
         val transactionRepository = DependencyContainer.provideTransactionRepository()
         transactionAdapter = TransactionHistoryAdapter(lifecycleScope, transactionRepository)
@@ -48,28 +60,16 @@ class TransactionHistoryActivity : BaseActivity() {
     }
 
     private fun observeTransactionsState() {
-        lifecycleScope.launch {
-            viewModel.transactionsState.collect { state ->
-                when (state) {
-                    is UiState.Idle -> {
-                    }
-                    is UiState.Loading -> {
-                        binding.progressBar.visibility = android.view.View.VISIBLE
-                    }
-                    is UiState.Success -> {
-                        binding.progressBar.visibility = android.view.View.GONE
-                        transactionAdapter.submitList(state.data)
-                    }
-                    is UiState.Error -> {
-                        binding.progressBar.visibility = android.view.View.GONE
-                        Toast.makeText(
-                            this@TransactionHistoryActivity,
-                            state.error,
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                }
+        stateManager.observeState(viewModel.transactionsState, onSuccess = { transactions ->
+            if (transactions.isEmpty()) {
+                stateManager.showEmpty()
             }
-        }
+        }, onError = { error ->
+            Toast.makeText(
+                this@TransactionHistoryActivity,
+                error,
+                Toast.LENGTH_LONG
+            ).show()
+        })
     }
 }

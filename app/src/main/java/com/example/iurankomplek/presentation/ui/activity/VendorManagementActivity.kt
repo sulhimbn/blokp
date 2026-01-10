@@ -5,9 +5,9 @@ import com.example.iurankomplek.presentation.adapter.VendorAdapter
 import com.example.iurankomplek.R
 import android.os.Bundle
 import android.widget.Toast
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.iurankomplek.presentation.ui.helper.StateManager
+import com.example.iurankomplek.presentation.ui.helper.RecyclerViewHelper
 import kotlinx.coroutines.launch
 import com.example.iurankomplek.databinding.ActivityVendorManagementBinding
 import com.example.iurankomplek.utils.UiState
@@ -19,48 +19,59 @@ class VendorManagementActivity : BaseActivity() {
     private lateinit var binding: ActivityVendorManagementBinding
     private lateinit var vendorAdapter: VendorAdapter
     private lateinit var vendorViewModel: VendorViewModel
+    private lateinit var stateManager: StateManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityVendorManagementBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        
+
         // Initialize ViewModel
         vendorViewModel = DependencyContainer.provideVendorViewModel()
-        
+
+        // Initialize StateManager
+        stateManager = StateManager.create(
+            progressBar = binding.loadingProgressBar,
+            emptyStateTextView = binding.emptyStateTextView,
+            errorStateLayout = binding.errorStateLayout,
+            errorStateTextView = binding.errorStateTextView,
+            retryTextView = binding.retryTextView,
+            recyclerView = binding.vendorRecyclerView,
+            scope = lifecycleScope,
+            context = this
+        )
+
         setupViews()
         observeVendors()
         vendorViewModel.loadVendors()
     }
-    
+
     private fun setupViews() {
         vendorAdapter = VendorAdapter { vendor ->
             Toast.makeText(this, getString(R.string.toast_vendor_info, vendor.name), Toast.LENGTH_SHORT).show()
         }
 
-        binding.vendorRecyclerView.apply {
-            layoutManager = LinearLayoutManager(this@VendorManagementActivity)
-            adapter = vendorAdapter
-        }
+        RecyclerViewHelper.configureRecyclerView(
+            recyclerView = binding.vendorRecyclerView,
+            itemCount = 20,
+            enableKeyboardNav = true,
+            adapter = vendorAdapter,
+            orientation = resources.configuration.orientation,
+            screenWidthDp = resources.configuration.screenWidthDp
+        )
     }
-    
+
     private fun observeVendors() {
-        lifecycleScope.launch {
-            vendorViewModel.vendorState.collect { state ->
-                when (state) {
-                    is UiState.Idle -> {
-                    }
-                    is UiState.Loading -> {
-                        // Show loading indicator
-                    }
-                    is UiState.Success -> {
-                        vendorAdapter.submitList(state.data.data)
-                    }
-                    is UiState.Error -> {
-                        Toast.makeText(this@VendorManagementActivity, getString(R.string.toast_error, state.error), Toast.LENGTH_SHORT).show()
-                    }
+        stateManager.observeState(vendorViewModel.vendorState, onSuccess = { data ->
+            data.data.let { vendors ->
+                if (vendors.isNotEmpty()) {
+                    vendorAdapter.submitList(vendors)
+                } else {
+                    stateManager.showEmpty()
                 }
             }
-        }
+        }, onError = { error ->
+            Toast.makeText(this@VendorManagementActivity, getString(R.string.toast_error, error), Toast.LENGTH_SHORT).show()
+        })
     }
 }

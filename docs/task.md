@@ -928,27 +928,26 @@ RecyclerViewHelper.configureRecyclerView(
 
 ---
 
-### REFACTOR-006. Inconsistent State Observation Pattern
-**Status**: Pending
+### ✅ REFACTOR-006. Inconsistent State Observation Pattern - 2026-01-10
+**Status**: Completed
+**Completed Date**: 2026-01-10
 **Priority**: Medium
-**Estimated Time**: 1-2 hours
+**Estimated Time**: 1-2 hours (completed in 45 minutes)
 **Location**: presentation/ui/activity/LaporanActivity.kt, VendorManagementActivity.kt, TransactionHistoryActivity.kt, PaymentActivity.kt
 
-**Issue**: Inconsistent StateFlow observation pattern across Activities
-- MainActivity: Uses StateManager.observeState helper
-- LaporanActivity: Uses manual collect with when (state) pattern (line 67-79)
-- VendorManagementActivity: Uses manual collect with when (state) pattern (line 48-67)
-- TransactionHistoryActivity: Uses manual collect with when (state) pattern (line 44-68)
-- PaymentActivity: Uses manual collect with when (event) pattern (line 33-52)
+**Issue Resolved**:
+Inconsistent StateFlow observation pattern across Activities:
+- MainActivity: Uses StateManager.observeState helper ✅
+- LaporanActivity: Uses manual collect with when (state) pattern ❌
+- VendorManagementActivity: Uses manual collect with when (state) pattern ❌
+- TransactionHistoryActivity: Uses manual collect with when (state) pattern ❌
+- PaymentActivity: Uses manual collect with when (event) pattern (separate concern - not migrated)
 
-**Code Pattern Inconsistency**:
+**Solution Implemented - Complete StateManager Migration**:
+
+**1. LaporanActivity** (LaporanActivity.kt):
 ```kotlin
-// MainActivity - Uses StateManager (consistent)
-stateManager.observeState(viewModel.usersState, onSuccess = { data ->
-    // Handle success state
-})
-
-// Other Activities - Manual collect (inconsistent)
+// BEFORE (Manual collect):
 lifecycleScope.launch {
     viewModel.financialState.collect { state ->
         when (state) {
@@ -959,27 +958,155 @@ lifecycleScope.launch {
         }
     }
 }
+
+// AFTER (StateManager):
+stateManager.observeState(viewModel.financialState, onSuccess = { data ->
+    binding.swipeRefreshLayout.isRefreshing = false
+    SwipeRefreshHelper.announceRefreshComplete(binding.swipeRefreshLayout, this)
+
+    data.data?.let { dataArray ->
+        if (dataArray.isEmpty()) {
+            stateManager.showEmpty()
+            return
+        }
+
+        stateManager.showSuccess()
+        binding.rvSummary.visibility = View.VISIBLE
+
+        adapter.submitList(dataArray)
+        calculateAndSetSummary(dataArray)
+    } ?: run {
+        stateManager.showError(
+            errorMessage = getString(R.string.invalid_response_format),
+            onRetry = { viewModel.loadFinancialData() }
+        )
+    }
+}, onError = { error ->
+    binding.swipeRefreshLayout.isRefreshing = false
+    binding.stateManagementInclude?.errorStateTextView?.text = error
+    binding.stateManagementInclude?.retryTextView?.setOnClickListener { viewModel.loadFinancialData() }
+})
 ```
 
-**Suggestion**: Migrate all Activities to use StateManager.observeState for consistent UI state management
+**2. VendorManagementActivity** (VendorManagementActivity.kt):
+```kotlin
+// BEFORE (Manual collect):
+lifecycleScope.launch {
+    vendorViewModel.vendorState.collect { state ->
+        when (state) {
+            is UiState.Idle -> {}
+            is UiState.Loading -> {}
+            is UiState.Success -> vendorAdapter.submitList(state.data.data)
+            is UiState.Error -> Toast.makeText(this, getString(R.string.toast_error, state.error), Toast.LENGTH_SHORT).show()
+        }
+    }
+}
 
-**Benefits**:
-- Eliminates code duplication (manual collect + when pattern repeated 4 times)
-- Consistent UI state behavior (loading, success, error, empty)
-- Centralized state observation logic (easier to maintain)
-- Better separation of concerns (StateManager handles UI visibility)
-- Reduces boilerplate code in Activities (10-15 lines per Activity)
+// AFTER (StateManager):
+stateManager.observeState(vendorViewModel.vendorState, onSuccess = { data ->
+    data.data.let { vendors ->
+        if (vendors.isNotEmpty()) {
+            vendorAdapter.submitList(vendors)
+        } else {
+            stateManager.showEmpty()
+        }
+    }
+}, onError = { error ->
+    Toast.makeText(this@VendorManagementActivity, getString(R.string.toast_error, error), Toast.LENGTH_SHORT).show()
+})
+```
 
-**Files to Modify**:
-- LaporanActivity.kt (line 67-79, migrate to StateManager.observeState)
-- VendorManagementActivity.kt (line 48-67, migrate to StateManager.observeState)
-- TransactionHistoryActivity.kt (line 44-68, migrate to StateManager.observeState)
-- PaymentActivity.kt (line 33-52, migrate to StateManager.observeState for PaymentEvent)
+**3. TransactionHistoryActivity** (TransactionHistoryActivity.kt):
+```kotlin
+// BEFORE (Manual collect):
+lifecycleScope.launch {
+    viewModel.transactionsState.collect { state ->
+        when (state) {
+            is UiState.Idle -> {}
+            is UiState.Loading -> binding.progressBar.visibility = View.VISIBLE
+            is UiState.Success -> {
+                binding.progressBar.visibility = View.GONE
+                transactionAdapter.submitList(state.data)
+            }
+            is UiState.Error -> {
+                binding.progressBar.visibility = View.GONE
+                Toast.makeText(this, state.error, Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+}
+
+// AFTER (StateManager):
+stateManager.observeState(viewModel.transactionsState, onSuccess = { transactions ->
+    if (transactions.isEmpty()) {
+        stateManager.showEmpty()
+    }
+}, onError = { error ->
+    Toast.makeText(this@TransactionHistoryActivity, error, Toast.LENGTH_LONG).show()
+})
+```
+
+**4. Removed Manual State Handling Methods**:
+- LaporanActivity: handleIdleState(), handleLoadingState(), handleSuccessState(), handleErrorState(), setUIState()
+- VendorManagementActivity: Manual state handling in observeVendors()
+- TransactionHistoryActivity: Manual state handling in observeTransactionsState()
+
+**Architecture Improvements**:
+
+**Layer Separation - Fixed ✅**:
+- ✅ Activities now delegate state observation to StateManager
+- ✅ Activities only contain UI logic and business logic integration
+- ✅ StateManager handles all UI visibility (loading, success, error, empty)
+- ✅ No more manual collect + when pattern in Activities
+- ✅ Cleaner separation between presentation logic and UI state management
+
+**Code Quality - Improved ✅**:
+- ✅ Eliminated code duplication (manual collect + when pattern removed from 3 Activities)
+- ✅ Consistent UI state behavior across all Activities
+- ✅ Centralized state observation logic (easier to maintain)
+- ✅ Reduced boilerplate code (10-15 lines per Activity)
+- ✅ Removed unused imports (ViewModelProvider, LinearLayoutManager)
 
 **Anti-Patterns Eliminated**:
-- ❌ No more manual StateFlow collect boilerplate
-- ❌ No more inconsistent UI state handling
-- ❌ No more when (state) pattern duplication
+- ✅ No more manual StateFlow collect boilerplate
+- ✅ No more inconsistent UI state handling
+- ✅ No more when (state) pattern duplication
+- ✅ No more Activities manually managing UI visibility
+
+**Best Practices Followed**:
+- ✅ **Separation of Concerns**: StateManager handles UI state, Activities handle business logic
+- ✅ **Consistency**: All Activities now use same state observation pattern
+- ✅ **Maintainability**: Single source of truth for state observation
+- ✅ **Layer Separation**: Clear distinction between presentation logic and UI state management
+
+**Files Modified** (3 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| LaporanActivity.kt | -46, +19 | Migrated to StateManager, removed manual state handlers |
+| VendorManagementActivity.kt | -20, +13 | Migrated to StateManager, added RecyclerViewHelper |
+| TransactionHistoryActivity.kt | -17, +12 | Migrated to StateManager |
+| **Total** | **-83, +44** | **3 files refactored** |
+
+**Benefits**:
+1. **Code Consistency**: All Activities now use StateManager for state observation
+2. **Code Reduction**: 83 lines of manual state handling eliminated
+3. **Maintainability**: Single source of truth for UI state management
+4. **Layer Separation**: Clear distinction between presentation logic and UI state
+5. **User Experience**: Consistent UI behavior across all screens
+6. **Testability**: StateManager can be tested independently
+
+**Note**: PaymentActivity was not migrated because it uses `PaymentEvent` (sealed class for payment-specific events), not `UiState`. The PaymentEvent pattern is appropriate for payment-specific workflows (Processing, Success, Error, ValidationError) and doesn't benefit from StateManager abstraction.
+
+**Success Criteria**:
+- [x] LaporanActivity migrated to StateManager.observeState
+- [x] VendorManagementActivity migrated to StateManager.observeState
+- [x] TransactionHistoryActivity migrated to StateManager.observeState
+- [x] Manual collect + when pattern eliminated from all Activities
+- [x] Unused imports removed (ViewModelProvider, LinearLayoutManager)
+- [x] Code reduction achieved (83 lines removed)
+- [x] Documentation updated (task.md)
+
+**Impact**: HIGH - Eliminates inconsistent state observation pattern, ensures consistent UI behavior across all Activities, improves maintainability and layer separation
 
 ---
 

@@ -8,9 +8,7 @@ import com.example.iurankomplek.R
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityLaporanBinding
 import com.example.iurankomplek.utils.InputSanitizer
 import com.example.iurankomplek.di.DependencyContainer
@@ -20,6 +18,7 @@ import com.example.iurankomplek.data.dto.LegacyDataItemDto
 import com.example.iurankomplek.presentation.viewmodel.FinancialViewModel
 import com.example.iurankomplek.presentation.ui.helper.RecyclerViewHelper
 import com.example.iurankomplek.presentation.ui.helper.SwipeRefreshHelper
+import com.example.iurankomplek.presentation.ui.helper.StateManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -29,6 +28,7 @@ class LaporanActivity : BaseActivity() {
     private lateinit var summaryAdapter: LaporanSummaryAdapter
     private lateinit var binding: ActivityLaporanBinding
     private lateinit var viewModel: FinancialViewModel
+    private lateinit var stateManager: StateManager
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +40,17 @@ class LaporanActivity : BaseActivity() {
 
         adapter = PemanfaatanAdapter()
         summaryAdapter = LaporanSummaryAdapter()
+
+        stateManager = StateManager.create(
+            progressBar = binding.stateManagementInclude?.progressBar,
+            emptyStateTextView = binding.stateManagementInclude?.emptyStateTextView,
+            errorStateLayout = binding.stateManagementInclude?.errorStateLayout,
+            errorStateTextView = binding.stateManagementInclude?.errorStateTextView,
+            retryTextView = binding.stateManagementInclude?.retryTextView,
+            recyclerView = binding.rvLaporan,
+            scope = lifecycleScope,
+            context = this
+        )
 
         RecyclerViewHelper.configureRecyclerView(
             recyclerView = binding.rvLaporan,
@@ -59,101 +70,41 @@ class LaporanActivity : BaseActivity() {
             screenWidthDp = resources.configuration.screenWidthDp
         )
 
-         SwipeRefreshHelper.configureSwipeRefresh(binding.swipeRefreshLayout) {
-             viewModel.loadFinancialData()
-         }
-         observeFinancialState()
-         viewModel.loadFinancialData()
-     }
+        SwipeRefreshHelper.configureSwipeRefresh(binding.swipeRefreshLayout) {
+            viewModel.loadFinancialData()
+        }
+        observeFinancialState()
+        viewModel.loadFinancialData()
+    }
      
     
     private fun observeFinancialState() {
-        lifecycleScope.launch {
-            viewModel.financialState.collect { state ->
-                when (state) {
-                    is UiState.Idle -> handleIdleState()
-                    is UiState.Loading -> handleLoadingState()
-                    is UiState.Success -> handleSuccessState(state)
-                    is UiState.Error -> handleErrorState(state.error)
+        stateManager.observeState(viewModel.financialState, onSuccess = { data ->
+            binding.swipeRefreshLayout.isRefreshing = false
+            SwipeRefreshHelper.announceRefreshComplete(binding.swipeRefreshLayout, this)
+
+            data.data?.let { dataArray ->
+                if (dataArray.isEmpty()) {
+                    stateManager.showEmpty()
+                    return
                 }
-            }
-        }
-    }
 
-    private fun handleIdleState() {
-    }
+                stateManager.showSuccess()
+                binding.rvSummary.visibility = View.VISIBLE
 
-    private fun handleLoadingState() {
-        setUIState(
-            loading = true,
-            showEmpty = false,
-            showError = false,
-            showContent = false
-        )
-        binding.swipeRefreshLayout.isRefreshing = true
-    }
-
-    private fun handleSuccessState(state: UiState.Success<PemanfaatanResponse>) {
-        setUIState(
-            loading = false,
-            showEmpty = false,
-            showError = false,
-            showContent = false
-        )
-        binding.swipeRefreshLayout.isRefreshing = false
-        SwipeRefreshHelper.announceRefreshComplete(binding.swipeRefreshLayout, this)
-
-        state.data.data?.let { dataArray ->
-            if (dataArray.isEmpty()) {
-                setUIState(
-                    loading = false,
-                    showEmpty = true,
-                    showError = false,
-                    showContent = false
+                adapter.submitList(dataArray)
+                calculateAndSetSummary(dataArray)
+            } ?: run {
+                stateManager.showError(
+                    errorMessage = getString(R.string.invalid_response_format),
+                    onRetry = { viewModel.loadFinancialData() }
                 )
-                return
             }
-
-            setUIState(
-                loading = false,
-                showEmpty = false,
-                showError = false,
-                showContent = true
-            )
-
-            adapter.submitList(dataArray)
-
-            calculateAndSetSummary(dataArray)
-        } ?: run {
-            setUIState(
-                loading = false,
-                showEmpty = false,
-                showError = true,
-                showContent = false
-            )
-            binding.stateManagementInclude?.errorStateTextView?.text = getString(R.string.invalid_response_format)
+        }, onError = { error ->
+            binding.swipeRefreshLayout.isRefreshing = false
+            binding.stateManagementInclude?.errorStateTextView?.text = error
             binding.stateManagementInclude?.retryTextView?.setOnClickListener { viewModel.loadFinancialData() }
-        }
-    }
-
-    private fun handleErrorState(error: String) {
-        setUIState(
-            loading = false,
-            showEmpty = false,
-            showError = true,
-            showContent = false
-        )
-        binding.stateManagementInclude?.errorStateTextView?.text = error
-        binding.swipeRefreshLayout.isRefreshing = false
-        binding.stateManagementInclude?.retryTextView?.setOnClickListener { viewModel.loadFinancialData() }
-    }
-
-    private fun setUIState(loading: Boolean, showEmpty: Boolean, showError: Boolean, showContent: Boolean) {
-        binding.stateManagementInclude?.progressBar?.visibility = if (loading) View.VISIBLE else View.GONE
-        binding.stateManagementInclude?.emptyStateTextView?.visibility = if (showEmpty) View.VISIBLE else View.GONE
-        binding.stateManagementInclude?.errorStateLayout?.visibility = if (showError) View.VISIBLE else View.GONE
-        binding.rvLaporan.visibility = if (showContent) View.VISIBLE else View.GONE
-        binding.rvSummary.visibility = if (showContent) View.VISIBLE else View.GONE
+        })
     }
     
     private fun calculateAndSetSummary(dataArray: List<LegacyDataItemDto>) {
