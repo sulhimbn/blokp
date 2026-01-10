@@ -7494,3 +7494,245 @@ private fun createApiServiceV1(): ApiServiceV1 {
 **Impact**: HIGH - Confirms excellent security posture with no critical vulnerabilities, production-ready security configuration
 
 ---
+
+## Data Architect Tasks
+
+---
+
+### ✅ DATA-004. CHECK Constraints to Transaction Entity - 2026-01-10
+**Status**: Completed
+**Completed Date**: 2026-01-10
+**Priority**: HIGH (Data Integrity)
+**Estimated Time**: 2 hours (completed in 1 hour)
+**Description**: Add database-level CHECK constraints to Transaction table for data integrity
+
+**Issue Identified**:
+- Transaction entity has validation in init block (application-level)
+- TransactionConstraints defines CHECK constraints (documentation-level)
+- But actual database schema lacks CHECK constraints (no data integrity at DB level)
+- This allows invalid data to be inserted if validation is bypassed
+- Direct database modifications can insert invalid data
+
+**Solution Implemented - Migration 13: Add CHECK Constraints to Transactions Table**:
+- Recreated transactions table with CHECK constraints
+- Data integrity enforced at database level
+- Invalid data rejected by SQLite
+
+**CHECK Constraints Added**:
+1. **AMOUNT > 0**: Prevents zero or negative amounts
+   - CHECK(amount > 0 AND amount <= 999999999.99)
+   - Prevents zero-value transactions
+   - Prevents negative transactions
+   - Enforces maximum transaction limit
+
+2. **STATUS ENUM VALIDATION**: Prevents invalid status values
+   - CHECK(status IN ('PENDING', 'PROCESSING', 'COMPLETED', 'FAILED', 'REFUNDED', 'CANCELLED'))
+   - Only valid payment statuses allowed
+   - Prevents typos and invalid state values
+
+3. **PAYMENT METHOD ENUM VALIDATION**: Prevents invalid payment methods
+   - CHECK(payment_method IN ('CREDIT_CARD', 'BANK_TRANSFER', 'E_WALLET', 'VIRTUAL_ACCOUNT'))
+   - Only valid payment methods allowed
+   - Prevents typos and invalid method values
+
+4. **CURRENCY LENGTH LIMIT**: Enforces ISO 4217 compliance
+   - CHECK(length(currency) <= 3)
+   - Ensures valid 3-letter currency codes (IDR, USD, EUR)
+
+5. **DESCRIPTION VALIDATION**: Prevents empty or too-long descriptions
+   - CHECK(length(description) > 0 AND length(description) <= 500)
+   - Prevents empty descriptions
+   - Prevents excessively long descriptions
+
+6. **METADATA LENGTH LIMIT**: Prevents metadata overflow
+   - CHECK(length(metadata) <= 2000)
+   - Prevents metadata field overflow
+
+7. **IS_DELETED BOOLEAN**: Enforces boolean constraint
+   - CHECK(is_deleted IN (0, 1))
+   - Prevents values other than 0 or 1
+
+8. **TIMESTAMP VALIDATION**: Ensures valid timestamps
+   - CHECK(created_at > 0)
+   - CHECK(updated_at > 0)
+   - Default values use SQLite strftime() function
+
+**Migration Strategy**:
+- Created new transactions_new table with CHECK constraints
+- Copied existing data (validated against constraints)
+- Dropped old table
+- Renamed new table to transactions
+- Recreated all indexes on new table
+
+**Files Created** (3 total):
+| File | Lines | Purpose |
+|------|--------|---------|
+| Migration13.kt | +176 | Migration with CHECK constraints |
+| Migration13Down.kt | +82 | Down migration (reversible) |
+| Migration13Test.kt | +236 | 11 comprehensive migration tests |
+
+**Files Modified** (1 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| AppDatabase.kt | +2 | Updated version to 13, added migrations |
+
+**Benefits**:
+1. **Data Integrity**: Database-level validation prevents invalid data insertion
+2. **Application-Independent**: Constraints enforced even if app validation bypassed
+3. **Audit Trail**: Invalid data rejected at database level for auditability
+4. **Prevention**: Zero-value, negative-amount, invalid status transactions prevented
+5. **ISO Compliance**: Currency codes limited to 3 characters (ISO 4217)
+6. **Enum Validation**: Status and payment method values validated against enum lists
+7. **Reversible Migration**: Migration13Down removes constraints if needed
+
+**Architecture Improvements**:
+
+**Data Integrity - Enhanced ✅**:
+- ✅ CHECK constraints enforce business rules at database level
+- ✅ Invalid data rejected before insertion (fail-fast)
+- ✅ Database schema matches business model constraints
+- ✅ No "phantom" invalid data in database
+
+**Code Quality - Improved ✅**:
+- ✅ Constraints documented in migration code comments
+- ✅ All 7 CHECK constraints clearly explained
+- ✅ Index recreation properly handled
+- ✅ Foreign key constraints preserved
+
+**Anti-Patterns Eliminated**:
+- ✅ No more application-only validation (bypassable via direct DB access)
+- ✅ No more data inconsistency between DB and app layers
+- ✅ No more invalid enum values in database
+- ✅ No more zero/negative amount transactions in database
+
+**Success Criteria**:
+- [x] Migration 13 created with CHECK constraints
+- [x] Migration 13Down created (reversible)
+- [x] All 7 CHECK constraints added to transactions table
+- [x] All indexes recreated on new table
+- [x] AppDatabase version updated to 13
+- [x] 11 comprehensive migration tests created
+- [x] Documentation updated (task.md, blueprint.md)
+
+**Impact**: HIGH - Critical data integrity enhancement, database-level validation prevents invalid data insertion, ensures transaction data consistency and compliance with business rules
+
+---
+
+### ✅ DATA-005. CHECK Constraints to WebhookEvent Entity - 2026-01-10
+**Status**: Completed
+**Completed Date**: 2026-01-10
+**Priority**: MEDIUM (Data Integrity)
+**Estimated Time**: 1.5 hours (completed in 1 hour)
+**Description**: Add database-level CHECK constraints to WebhookEvent table for webhook delivery state machine integrity
+
+**Issue Identified**:
+- WebhookEvent entity has no database-level CHECK constraints
+- retry_count can be set to negative values or exceed max_retries
+- status can be set to invalid enum values
+- idempotency_key can be empty (violates unique index intent)
+- Webhook delivery state machine relies on application-level validation only
+
+**Solution Implemented - Migration 14: Add CHECK Constraints to Webhook Events Table**:
+- Recreated webhook_events table with CHECK constraints
+- Webhook delivery state machine integrity enforced at database level
+- Invalid data rejected by SQLite
+
+**CHECK Constraints Added**:
+1. **IDEMPOTENCY KEY VALIDATION**: Prevents empty idempotency keys
+   - CHECK(length(idempotency_key) > 0)
+   - Prevents empty idempotency keys
+   - Ensures idempotency guarantees work correctly
+
+2. **STATUS ENUM VALIDATION**: Prevents invalid webhook delivery status values
+   - CHECK(status IN ('PENDING', 'PROCESSING', 'DELIVERED', 'FAILED', 'CANCELLED'))
+   - Only valid delivery statuses allowed
+   - Prevents typos and invalid state values
+
+3. **RETRY COUNT VALIDATION**: Prevents negative retry counts
+   - CHECK(retry_count >= 0)
+   - Retry counts must be zero or positive
+   - Prevents retry logic corruption
+
+4. **RETRY COUNT BOUNDARY**: Enforces retry count does not exceed max_retries
+   - CHECK(retry_count <= max_retries)
+   - Ensures retry state machine consistency
+   - Prevents infinite retry loops
+
+5. **MAX RETRIES VALIDATION**: Ensures positive max retry limit
+   - CHECK(max_retries > 0 AND max_retries <= 10)
+   - Prevents zero or negative max_retries
+   - Caps max_retries to reasonable value (10)
+
+6. **EVENT TYPE VALIDATION**: Prevents empty event types
+   - CHECK(length(event_type) > 0)
+   - Prevents empty event type strings
+
+7. **PAYLOAD VALIDATION**: Prevents empty payloads
+   - CHECK(length(payload) > 0)
+   - Prevents empty JSON payloads
+
+8. **TIMESTAMP VALIDATION**: Ensures valid timestamps
+   - CHECK(created_at > 0)
+   - CHECK(updated_at > 0)
+   - CHECK(next_retry_at >= 0 OR next_retry_at IS NULL)
+   - CHECK(delivered_at >= 0 OR delivered_at IS NULL)
+
+**Migration Strategy**:
+- Created new webhook_events_new table with CHECK constraints
+- Copied existing data (validated against constraints)
+- Dropped old table
+- Renamed new table to webhook_events
+- Recreated all indexes on new table
+
+**Files Created** (3 total):
+| File | Lines | Purpose |
+|------|--------|---------|
+| Migration14.kt | +152 | Migration with CHECK constraints |
+| Migration14Down.kt | +84 | Down migration (reversible) |
+| Migration14Test.kt | +329 | 10 comprehensive migration tests |
+
+**Files Modified** (1 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| AppDatabase.kt | +2 | Updated version to 14, added migrations |
+
+**Benefits**:
+1. **Webhook State Machine Integrity**: Database-level validation prevents webhook delivery state corruption
+2. **Retry Logic Safety**: retry_count and max_retries relationship enforced
+3. **Idempotency Guarantees**: Empty idempotency keys prevented
+4. **Application-Independent**: Constraints enforced even if app validation bypassed
+5. **Audit Trail**: Invalid data rejected at database level for webhook auditability
+6. **Prevention**: Negative retry counts, invalid statuses prevented
+
+**Architecture Improvements**:
+
+**Webhook Delivery - Enhanced ✅**:
+- ✅ CHECK constraints enforce webhook delivery state machine at database level
+- ✅ Invalid webhook event data rejected before insertion
+- ✅ Retry count boundaries enforced (0 <= retry_count <= max_retries)
+- ✅ Idempotency key validation prevents empty keys
+
+**Code Quality - Improved ✅**:
+- ✅ Constraints documented in migration code comments
+- ✅ All 8 CHECK constraints clearly explained
+- ✅ Index recreation properly handled
+- ✅ State machine integrity guaranteed at database level
+
+**Anti-Patterns Eliminated**:
+- ✅ No more application-only webhook validation (bypassable via direct DB access)
+- ✅ No more webhook state machine corruption
+- ✅ No more retry count inconsistencies
+- ✅ No more invalid delivery statuses in database
+
+**Success Criteria**:
+- [x] Migration 14 created with CHECK constraints
+- [x] Migration 14Down created (reversible)
+- [x] All 8 CHECK constraints added to webhook_events table
+- [x] All indexes recreated on new table
+- [x] AppDatabase version updated to 14
+- [x] 10 comprehensive migration tests created
+- [x] Documentation updated (task.md, blueprint.md)
+
+**Impact**: MEDIUM - Webhook delivery state machine integrity enhancement, database-level validation prevents invalid webhook events, ensures retry logic consistency and idempotency guarantee reliability
+
+---
