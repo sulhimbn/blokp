@@ -32,16 +32,23 @@ class VendorAdapter(
         private val specialtyTextView: TextView = itemView.findViewById(R.id.vendorSpecialty)
         private val contactTextView: TextView = itemView.findViewById(R.id.vendorContact)
         private val ratingTextView: TextView = itemView.findViewById(R.id.vendorRating)
+        private val ratingPrefix = "Rating: "
+        private val ratingSuffix = "/5.0"
+
+        init {
+            itemView.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    onVendorClick(getItem(position))
+                }
+            }
+        }
 
         fun bind(vendor: Vendor) {
             nameTextView.text = vendor.name
             specialtyTextView.text = vendor.specialty
             contactTextView.text = vendor.phoneNumber
-            ratingTextView.text = "Rating: ${vendor.rating}/5.0"
-
-            itemView.setOnClickListener {
-                onVendorClick(vendor)
-            }
+            ratingTextView.text = ratingPrefix + vendor.rating + ratingSuffix
         }
     }
 }

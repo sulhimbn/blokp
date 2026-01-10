@@ -20,12 +20,30 @@ class PemanfaatanAdapter : ListAdapter<LegacyDataItemDto, PemanfaatanAdapter.Lis
     }
 
     override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
-        val item = getItem(position)
-        holder.binding.itemPemanfaatan.text = "-" + InputSanitizer.sanitizePemanfaatan(item.pemanfaatan_iuran) + ":"
-        // Validate that financial values are non-negative before displaying and apply security formatting
-        val pengeluaranValue = if (item.pengeluaran_iuran_warga >= 0) item.pengeluaran_iuran_warga else 0
-        holder.binding.itemDanaPemanfaatan.text = InputSanitizer.formatCurrency(pengeluaranValue)
+        holder.bind(getItem(position))
     }
 
-    class ListViewHolder(val binding: ItemPemanfaatanBinding): RecyclerView.ViewHolder(binding.root)
+    class ListViewHolder(val binding: ItemPemanfaatanBinding): RecyclerView.ViewHolder(binding.root) {
+        private val dashPrefix = "-"
+        private val colonSuffix = ":"
+
+        fun bind(item: LegacyDataItemDto) {
+            binding.itemPemanfaatan.text = dashPrefix + InputSanitizer.sanitizePemanfaatan(item.pemanfaatan_iuran) + colonSuffix
+            binding.itemDanaPemanfaatan.text = InputSanitizer.formatCurrency(if (item.pengeluaran_iuran_warga >= 0) item.pengeluaran_iuran_warga else 0)
+        }
+    }
 }
+
+    class ListViewHolder(val binding: ItemPemanfaatanBinding): RecyclerView.ViewHolder(binding.root) {
+        private val dashPrefix = "-"
+        private val colonSuffix = ":"
+
+        fun bind(item: LegacyDataItemDto) {
+            binding.itemPemanfaatan.text = dashPrefix + InputSanitizer.sanitizePemanfaatan(item.pemanfaatan_iuran) + colonSuffix
+            binding.itemDanaPemanfaatan.text = InputSanitizer.formatCurrency(if (item.pengeluaran_iuran_warga >= 0) item.pengeluaran_iuran_warga else 0)
+        }
+    }
+
+    override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
+        holder.bind(getItem(position))
+    }

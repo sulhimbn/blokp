@@ -33,15 +33,20 @@ class WorkOrderAdapter(
         private val statusTextView: TextView = itemView.findViewById(R.id.workOrderStatus)
         private val priorityTextView: TextView = itemView.findViewById(R.id.workOrderPriority)
 
+        init {
+            itemView.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    onWorkOrderClick(getItem(position))
+                }
+            }
+        }
+
         fun bind(workOrder: WorkOrder) {
             titleTextView.text = workOrder.title
             categoryTextView.text = workOrder.category
             statusTextView.text = workOrder.status
             priorityTextView.text = workOrder.priority
-
-            itemView.setOnClickListener {
-                onWorkOrderClick(workOrder)
-            }
         }
     }
 }

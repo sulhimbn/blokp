@@ -45,8 +45,33 @@ class TransactionHistoryAdapter(
         private val tvStatus: TextView = itemView.findViewById(R.id.tv_status)
         private val tvPaymentMethod: TextView = itemView.findViewById(R.id.tv_payment_method)
         private val btnRefund: Button = itemView.findViewById(R.id.btn_refund)
+        private var currentTransaction: Transaction? = null
+
+        init {
+            btnRefund.setOnClickListener {
+                val transaction = currentTransaction
+                if (transaction != null) {
+                    val context = itemView.context
+                    coroutineScope.launch(Dispatchers.IO) {
+                        val result = transactionRepository.refundPayment(transaction.id, "User requested refund")
+                        if (result.isSuccess) {
+                            runOnUiThread(context) {
+                                tvStatus.text = PaymentStatus.REFUNDED.name
+                                btnRefund.visibility = View.GONE
+                                Toast.makeText(context, context.getString(R.string.refund_processed_successfully), Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            runOnUiThread(context) {
+                                Toast.makeText(context, context.getString(R.string.refund_failed, result.exceptionOrNull()?.message), Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         fun bind(transaction: Transaction) {
+            currentTransaction = transaction
             val context = itemView.context
             val formattedAmount = CURRENCY_FORMATTER.format(transaction.amount.toDouble())
             tvAmount.text = formattedAmount
@@ -57,22 +82,6 @@ class TransactionHistoryAdapter(
 
             if (transaction.status == PaymentStatus.COMPLETED) {
                 btnRefund.visibility = View.VISIBLE
-                btnRefund.setOnClickListener {
-                     coroutineScope.launch(Dispatchers.IO) {
-                         val result = transactionRepository.refundPayment(transaction.id, "User requested refund")
-                         if (result.isSuccess) {
-                             runOnUiThread(context) {
-                                 tvStatus.text = PaymentStatus.REFUNDED.name
-                                 btnRefund.visibility = View.GONE
-                                 Toast.makeText(context, context.getString(R.string.refund_processed_successfully), Toast.LENGTH_SHORT).show()
-                             }
-                         } else {
-                             runOnUiThread(context) {
-                                 Toast.makeText(context, context.getString(R.string.refund_failed, result.exceptionOrNull()?.message), Toast.LENGTH_LONG).show()
-                             }
-                         }
-                     }
-                }
             } else {
                 btnRefund.visibility = View.GONE
             }

@@ -19,11 +19,12 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageViewHolder>(Di
         private val contentTextView: TextView = itemView.findViewById(R.id.messageContent)
         private val timestampTextView: TextView = itemView.findViewById(R.id.messageTimestamp)
         private val senderTextView: TextView = itemView.findViewById(R.id.messageSender)
+        private val senderPrefix = "From: "
 
         fun bind(message: Message) {
             contentTextView.text = message.content
             timestampTextView.text = message.timestamp
-            senderTextView.text = "From: ${message.senderId}"
+            senderTextView.text = senderPrefix + message.senderId
         }
     }
 
