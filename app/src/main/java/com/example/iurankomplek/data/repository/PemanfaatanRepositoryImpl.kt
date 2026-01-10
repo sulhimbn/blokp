@@ -25,9 +25,13 @@ class PemanfaatanRepositoryImpl(
         return cacheFirstStrategy(
             getFromCache = {
                 val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
-                val dataItemList = usersWithFinancials.map { EntityMapper.toLegacyDto(it) }
-                val pemanfaatanResponse = PemanfaatanResponse(dataItemList)
-                if (dataItemList.isEmpty()) null else pemanfaatanResponse
+                val mappingResult = EntityMapper.toLegacyDtoList(usersWithFinancials)
+                if (mappingResult.isSuccess) {
+                    val pemanfaatanResponse = PemanfaatanResponse(mappingResult.getOrThrow())
+                    if (mappingResult.getOrThrow().isEmpty()) null else pemanfaatanResponse
+                } else {
+                    null
+                }
             },
             getFromNetwork = {
                 val circuitBreakerResult = circuitBreaker.execute {
@@ -64,9 +68,13 @@ class PemanfaatanRepositoryImpl(
     override suspend fun getCachedPemanfaatan(): Result<PemanfaatanResponse> {
         return try {
             val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
-            val dataItemList = usersWithFinancials.map { EntityMapper.toLegacyDto(it) }
-            val pemanfaatanResponse = PemanfaatanResponse(dataItemList)
-            Result.success(pemanfaatanResponse)
+            val mappingResult = EntityMapper.toLegacyDtoList(usersWithFinancials)
+            if (mappingResult.isSuccess) {
+                val pemanfaatanResponse = PemanfaatanResponse(mappingResult.getOrThrow())
+                Result.success(pemanfaatanResponse)
+            } else {
+                Result.failure(mappingResult.exceptionOrNull() ?: Exception("Mapping failed"))
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }

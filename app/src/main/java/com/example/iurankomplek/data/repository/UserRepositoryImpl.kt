@@ -22,9 +22,13 @@ class UserRepositoryImpl(
         return cacheFirstStrategy(
             getFromCache = {
                 val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
-                val dataItemList = usersWithFinancials.map { EntityMapper.toLegacyDto(it) }
-                val userResponse = UserResponse(dataItemList)
-                if (dataItemList.isEmpty()) null else userResponse
+                val mappingResult = EntityMapper.toLegacyDtoList(usersWithFinancials)
+                if (mappingResult.isSuccess) {
+                    val userResponse = UserResponse(mappingResult.getOrThrow())
+                    if (mappingResult.getOrThrow().isEmpty()) null else userResponse
+                } else {
+                    null
+                }
             },
             getFromNetwork = {
                 val circuitBreakerResult = circuitBreaker.execute {
@@ -61,9 +65,13 @@ class UserRepositoryImpl(
     override suspend fun getCachedUsers(): Result<UserResponse> {
         return try {
             val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
-            val dataItemList = usersWithFinancials.map { EntityMapper.toLegacyDto(it) }
-            val userResponse = UserResponse(dataItemList)
-            Result.success(userResponse)
+            val mappingResult = EntityMapper.toLegacyDtoList(usersWithFinancials)
+            if (mappingResult.isSuccess) {
+                val userResponse = UserResponse(mappingResult.getOrThrow())
+                Result.success(userResponse)
+            } else {
+                Result.failure(mappingResult.exceptionOrNull() ?: Exception("Mapping failed"))
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }

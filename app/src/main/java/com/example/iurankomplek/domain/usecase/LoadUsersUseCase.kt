@@ -33,11 +33,7 @@ class LoadUsersUseCase(
      */
     suspend operator fun invoke(forceRefresh: Boolean): Result<UserResponse> {
         return try {
-            if (forceRefresh) {
-                userRepository.getUsers()
-            } else {
-                userRepository.getUsers()
-            }
+            userRepository.getUsers(forceRefresh = forceRefresh)
         } catch (e: Exception) {
             Result.failure(e)
         }

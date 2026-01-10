@@ -4,6 +4,7 @@ import com.example.iurankomplek.R
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import java.lang.ref.WeakReference
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -129,16 +130,22 @@ abstract class BaseActivity : AppCompatActivity() {
 
         Log.d("BaseActivity", "Scheduling retry $retryCount in ${delay}ms")
 
+        val activityRef = WeakReference(this@BaseActivity)
         val runnable = Runnable {
-            executeWithRetry(
-                maxRetries = maxRetries,
-                initialDelayMs = initialDelayMs,
-                maxDelayMs = maxDelayMs,
-                operation = operation,
-                onSuccess = onSuccess,
-                onError = onError,
-                currentRetry = retryCount
-            )
+            val activity = activityRef.get()
+            if (activity != null && !activity.isFinishing) {
+                activity.executeWithRetry(
+                    maxRetries = maxRetries,
+                    initialDelayMs = initialDelayMs,
+                    maxDelayMs = maxDelayMs,
+                    operation = operation,
+                    onSuccess = onSuccess,
+                    onError = onError,
+                    currentRetry = retryCount
+                )
+            } else {
+                Log.d("BaseActivity", "Activity destroyed or finishing, skipping retry $retryCount")
+            }
         }
 
         val retryId = "${System.currentTimeMillis()}_${retryCount}"

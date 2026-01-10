@@ -57,23 +57,27 @@ object EntityMapper {
         return Pair(userEntity, financialRecordEntity)
     }
     
-    fun toLegacyDto(userWithFinancial: UserWithFinancialRecords): LegacyDataItemDto {
-        val financialRecord = userWithFinancial.latestFinancialRecord
-            ?: throw IllegalStateException("User must have at least one financial record")
-        
-        return LegacyDataItemDto(
-            first_name = userWithFinancial.user.firstName,
-            last_name = userWithFinancial.user.lastName,
-            email = userWithFinancial.user.email,
-            alamat = userWithFinancial.user.alamat,
-            iuran_perwarga = financialRecord.iuranPerwarga,
-            total_iuran_rekap = financialRecord.totalIuranRekap,
-            jumlah_iuran_bulanan = financialRecord.jumlahIuranBulanan,
-            total_iuran_individu = financialRecord.totalIuranIndividu,
-            pengeluaran_iuran_warga = financialRecord.pengeluaranIuranWarga,
-            pemanfaatan_iuran = financialRecord.pemanfaatanIuran,
-            avatar = userWithFinancial.user.avatar
-        )
+    fun toLegacyDto(userWithFinancial: UserWithFinancialRecords): Result<LegacyDataItemDto> {
+        return try {
+            val financialRecord = userWithFinancial.latestFinancialRecord
+                ?: return Result.failure(IllegalStateException("User must have at least one financial record"))
+
+            Result.success(LegacyDataItemDto(
+                first_name = userWithFinancial.user.firstName,
+                last_name = userWithFinancial.user.lastName,
+                email = userWithFinancial.user.email,
+                alamat = userWithFinancial.user.alamat,
+                iuran_perwarga = financialRecord.iuranPerwarga,
+                total_iuran_rekap = financialRecord.totalIuranRekap,
+                jumlah_iuran_bulanan = financialRecord.jumlahIuranBulanan,
+                total_iuran_individu = financialRecord.totalIuranIndividu,
+                pengeluaran_iuran_warga = financialRecord.pengeluaranIuranWarga,
+                pemanfaatan_iuran = financialRecord.pemanfaatanIuran,
+                avatar = userWithFinancial.user.avatar
+            ))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
     
     fun fromLegacyDtoList(dtoList: List<LegacyDataItemDto>): List<Pair<UserEntity, FinancialRecordEntity>> {
@@ -82,7 +86,17 @@ object EntityMapper {
         }
     }
     
-    fun toLegacyDtoList(usersWithFinancials: List<UserWithFinancialRecords>): List<LegacyDataItemDto> {
-        return usersWithFinancials.map { toLegacyDto(it) }
+    fun toLegacyDtoList(usersWithFinancials: List<UserWithFinancialRecords>): Result<List<LegacyDataItemDto>> {
+        return try {
+            val results = usersWithFinancials.map { toLegacyDto(it) }
+            val failures = results.filter { it.isFailure }
+            if (failures.isNotEmpty()) {
+                Result.failure(failures.first().exceptionOrNull() ?: Exception("Mapping failed"))
+            } else {
+                Result.success(results.map { it.getOrThrow() })
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

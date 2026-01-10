@@ -34,11 +34,7 @@ class LoadFinancialDataUseCase(
      */
     suspend operator fun invoke(forceRefresh: Boolean): Result<PemanfaatanResponse> {
         return try {
-            if (forceRefresh) {
-                pemanfaatanRepository.getPemanfaatan()
-            } else {
-                pemanfaatanRepository.getPemanfaatan()
-            }
+            pemanfaatanRepository.getPemanfaatan(forceRefresh = forceRefresh)
         } catch (e: Exception) {
             Result.failure(e)
         }
