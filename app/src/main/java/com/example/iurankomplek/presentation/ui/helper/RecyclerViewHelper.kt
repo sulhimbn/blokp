@@ -15,7 +15,7 @@ object RecyclerViewHelper {
 
     /**
      * Configure RecyclerView with responsive layout and optimizations
-     * 
+     *
      * @param recyclerView The RecyclerView to configure
      * @param itemCount Cache size for view recycling (default: 20)
      * @param enableKeyboardNav Enable keyboard navigation (default: true)
@@ -27,7 +27,7 @@ object RecyclerViewHelper {
         recyclerView: RecyclerView,
         itemCount: Int = 20,
         enableKeyboardNav: Boolean = true,
-        adapter: RecyclerView.Adapter<ViewHolder>,
+        adapter: RecyclerView.Adapter<*>,
         orientation: Int,
         screenWidthDp: Int
     ) {

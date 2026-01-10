@@ -34,11 +34,11 @@ class MainActivity : BaseActivity() {
         
         // Initialize StateManager
         stateManager = StateManager.create(
-            progressBar = binding.stateManagementInclude.progressBar,
-            emptyStateTextView = binding.stateManagementInclude.emptyStateTextView,
-            errorStateLayout = binding.stateManagementInclude.errorStateLayout,
-            errorStateTextView = binding.stateManagementInclude.errorStateTextView,
-            retryTextView = binding.stateManagementInclude.retryTextView,
+            progressBar = binding.stateManagementInclude?.progressBar,
+            emptyStateTextView = binding.stateManagementInclude?.emptyStateTextView,
+            errorStateLayout = binding.stateManagementInclude?.errorStateLayout,
+            errorStateTextView = binding.stateManagementInclude?.errorStateTextView,
+            retryTextView = binding.stateManagementInclude?.retryTextView,
             recyclerView = binding.rvUsers,
             scope = lifecycleScope,
             context = this

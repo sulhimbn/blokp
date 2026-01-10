@@ -14,11 +14,11 @@ import kotlinx.coroutines.launch
  * Reduces boilerplate code across activities and fragments
  */
 class StateManager(
-    private val progressBar: ProgressBar,
-    private val emptyStateTextView: TextView,
-    private val errorStateLayout: View,
-    private val errorStateTextView: TextView,
-    private val retryTextView: TextView,
+    private val progressBar: ProgressBar?,
+    private val emptyStateTextView: TextView?,
+    private val errorStateLayout: View?,
+    private val errorStateTextView: TextView?,
+    private val retryTextView: TextView?,
     private val recyclerView: View,
     private val scope: LifecycleCoroutineScope,
     private val context: android.content.Context
@@ -62,9 +62,9 @@ class StateManager(
      * Show loading state
      */
     fun showLoading() {
-        progressBar.visibility = View.VISIBLE
-        emptyStateTextView.visibility = View.GONE
-        errorStateLayout.visibility = View.GONE
+        progressBar?.visibility = View.VISIBLE
+        emptyStateTextView?.visibility = View.GONE
+        errorStateLayout?.visibility = View.GONE
         recyclerView.visibility = View.GONE
     }
 
@@ -72,9 +72,9 @@ class StateManager(
      * Show success state
      */
     fun showSuccess() {
-        progressBar.visibility = View.GONE
-        emptyStateTextView.visibility = View.GONE
-        errorStateLayout.visibility = View.GONE
+        progressBar?.visibility = View.GONE
+        emptyStateTextView?.visibility = View.GONE
+        errorStateLayout?.visibility = View.GONE
         recyclerView.visibility = View.VISIBLE
     }
 
@@ -82,15 +82,15 @@ class StateManager(
      * Show empty state
      */
     fun showEmpty() {
-        progressBar.visibility = View.GONE
-        emptyStateTextView.visibility = View.VISIBLE
-        errorStateLayout.visibility = View.GONE
+        progressBar?.visibility = View.GONE
+        emptyStateTextView?.visibility = View.VISIBLE
+        errorStateLayout?.visibility = View.GONE
         recyclerView.visibility = View.GONE
     }
 
     /**
      * Show error state
-     * 
+     *
      * @param errorMessage Error message to display
      * @param onRetry Optional retry callback
      */
@@ -98,15 +98,15 @@ class StateManager(
         errorMessage: String,
         onRetry: (() -> Unit)? = null
     ) {
-        progressBar.visibility = View.GONE
-        emptyStateTextView.visibility = View.GONE
-        errorStateLayout.visibility = View.VISIBLE
+        progressBar?.visibility = View.GONE
+        emptyStateTextView?.visibility = View.GONE
+        errorStateLayout?.visibility = View.VISIBLE
         recyclerView.visibility = View.GONE
-        
-        errorStateTextView.text = errorMessage
-        
+
+        errorStateTextView?.text = errorMessage
+
         if (onRetry != null) {
-            retryTextView.setOnClickListener {
+            retryTextView?.setOnClickListener {
                 onRetry()
             }
         }
@@ -114,11 +114,11 @@ class StateManager(
 
     /**
      * Set retry callback
-     * 
+     *
      * @param onRetry Callback to execute on retry
      */
     fun setRetryCallback(onRetry: () -> Unit) {
-        retryTextView.setOnClickListener {
+        retryTextView?.setOnClickListener {
             onRetry()
         }
     }
@@ -129,11 +129,11 @@ class StateManager(
          * Use this if you have a layout with include_state_management
          */
         fun create(
-            progressBar: ProgressBar,
-            emptyStateTextView: TextView,
-            errorStateLayout: View,
-            errorStateTextView: TextView,
-            retryTextView: TextView,
+            progressBar: ProgressBar?,
+            emptyStateTextView: TextView?,
+            errorStateLayout: View?,
+            errorStateTextView: TextView?,
+            retryTextView: TextView?,
             recyclerView: View,
             scope: LifecycleCoroutineScope,
             context: android.content.Context

@@ -81,10 +81,8 @@ class UserRepositoryImpl(
     
     override suspend fun clearCache(): Result<Unit> {
         return try {
-            com.example.iurankomplek.data.cache.CacheManager.getDatabase().runInTransaction {
-                CacheManager.getUserDao().deleteAll()
-                CacheManager.getFinancialRecordDao().deleteAll()
-            }
+            CacheManager.getUserDao().deleteAll()
+            CacheManager.getFinancialRecordDao().deleteAll()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

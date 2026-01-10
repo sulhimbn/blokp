@@ -9,7 +9,7 @@ import com.example.iurankomplek.network.model.UpdateVendorRequest
 
 class VendorRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiService
-) : VendorRepository(), BaseRepositoryLegacy {
+) : VendorRepository, BaseRepositoryLegacy {
 
     override suspend fun getVendors(): Result<VendorResponse> = executeWithCircuitBreaker {
         apiService.getVendors()

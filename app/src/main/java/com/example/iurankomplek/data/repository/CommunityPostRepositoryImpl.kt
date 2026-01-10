@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 class CommunityPostRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiService
-) : CommunityPostRepository(), BaseRepositoryLegacy {
+) : CommunityPostRepository, BaseRepositoryLegacy {
     private val cache = ConcurrentHashMap<String, CommunityPost>()
 
     override suspend fun getCommunityPosts(forceRefresh: Boolean): Result<List<CommunityPost>> {
