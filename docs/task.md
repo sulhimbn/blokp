@@ -384,6 +384,89 @@ Track architectural refactoring tasks and their status.
 
 ---
 
+### ✅ DOC-004. README.md API Documentation Enhancement - 2026-01-10
+**Status**: Completed
+**Completed Date**: 2026-01-10
+**Priority**: MEDIUM (Documentation Accuracy)
+**Estimated Time**: 30 minutes (completed in 20 minutes)
+**Description**: Update README.md API Configuration section to clearly recommend v1 API usage and improve documentation organization
+
+**Changes Implemented**:
+1. **API Configuration Section**:
+   - Updated endpoints table to show v1 API paths (`/api/v1/*`)
+   - Added `/api/v1/health` health check endpoint
+   - Added API versioning subsection explaining v1 vs Legacy
+   - Added link to API.md for complete details
+
+2. **Base URLs Section**:
+   - Updated base URLs to show v1 API paths (`/api/v1/`)
+   - Clarified production vs development mock API usage
+
+3. **Data Models Section**:
+   - Added v1 API response format documentation
+   - Documented `ApiResponse<T>` and `ApiListResponse<T>` wrappers
+   - Separated response models from data models
+
+4. **Technology Stack Section**:
+   - Added OWASP dependency-check plugin to dependencies
+   - Maintained accurate version numbers
+
+5. **Resilience Patterns Section**:
+   - Renamed from "Circuit Breaker Configuration" to "Resilience Patterns"
+   - Added retry logic and rate limiting documentation
+   - Added link to API_INTEGRATION_PATTERNS.md for details
+   - Mentioned automatic handling in BaseRepository
+
+6. **Testing Section**:
+   - Added `./gradlew build` command to test commands
+   - Verified all commands match AGENTS.md
+
+7. **Documentation Section**:
+   - Reorganized into clear categories (Users, Developers)
+   - Added API Documentation, Architecture & Development subsections
+   - Added Testing & Performance subsection
+   - Added Security subsection
+   - Added Roadmap & Tasks subsection
+   - Removed duplicate/truncated documentation file reference
+
+8. **Quick Start Section**:
+   - Consolidated API configuration with verify installation
+   - Removed duplicate verification steps
+   - Improved flow and clarity
+
+**Files Modified** (1 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| README.md | -15, +45 | Updated API Configuration, reorganized Documentation section |
+| **Total** | **-15, +45** | **1 file updated** |
+
+**Benefits**:
+1. **API Clarity**: v1 API endpoints clearly marked as recommended
+2. **Better Organization**: Documentation section now categorized by audience
+3. **Complete Coverage**: All key API features documented (health check, resilience patterns)
+4. **Developer Experience**: Clear v1 API migration guidance
+5. **Single Source of Truth**: Links to detailed docs where appropriate
+6. **Reduced Confusion**: Clear distinction between v1 and Legacy API
+
+**Success Criteria**:
+- [x] API Configuration section updated with v1 endpoints
+- [x] API versioning subsection added
+- [x] Base URLs updated to show v1 paths
+- [x] v1 API response format documented
+- [x] Resilience patterns section expanded
+- [x] Documentation section reorganized by category
+- [x] Quick Start section consolidated
+- [x] All links verified to existing docs
+- [x] task.md updated with completion
+
+**Impact**: MEDIUM - Improves documentation accuracy and developer onboarding, provides clear v1 API guidance, better documentation organization for users and developers
+
+---
+
+
+
+---
+
 ### ✅ DOC-002. User Guides Creation - 2026-01-10
 **Status**: Completed
 **Completed Date**: 2026-01-10

@@ -105,6 +105,9 @@ org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3
 
 // Debugging (debug only)
 com.github.chuckerteam.chucker:library:3.3.0
+
+// Security
+org.owasp:dependency-check-gradle:12.1.0
 ```
 
 ### Architecture Patterns
@@ -216,16 +219,13 @@ http://localhost:8080
 
 > **📖 Detailed Docker Setup**: See [`docs/docker-setup.md`](docs/docker-setup.md) for comprehensive Docker configuration instructions.
 
-### Step 3: Configure API (Optional)
+### Step 3: Verify Installation
 
 The application automatically switches between environments:
-
-- **Production**: Uses `https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/`
-- **Development (Mock)**: Uses `http://api-mock:5000/data/QjX6hB1ST2IDKaxB/`
+- **Production**: Uses production API v1 endpoint
+- **Development (Mock)**: Uses mock API server in Docker
 
 Auto-switching is based on `BuildConfig.DEBUG` and `DOCKER_ENV` environment variable.
-
-### Step 4: Verify Installation
 
 ```bash
 # Run unit tests
@@ -286,40 +286,83 @@ BlokP/
 
 ## 🔌 API Configuration
 
-### Endpoints
+### API Versioning
+
+The application supports two API versions:
+
+- **Version 1 (Recommended)**: `/api/v1/*` - Standardized wrappers, error handling, request tracking
+- **Legacy API**: `/data/{SPREADSHEET_ID}/` - Maintained for backward compatibility
+
+See [API Documentation](docs/API.md) for complete details.
+
+### Endpoints (v1 API - Recommended)
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/users` | GET | Retrieve user/resident data |
-| `/pemanfaatan` | GET | Retrieve financial usage data |
-| `/vendors` | GET | Retrieve vendor information |
-| `/announcements` | GET | Retrieve community announcements |
-| `/messages` | GET/POST | Send/receive messages |
-| `/payments/*` | POST/GET | Payment processing |
+| `/api/v1/users` | GET | Retrieve user/resident data |
+| `/api/v1/pemanfaatan` | GET | Retrieve financial usage data |
+| `/api/v1/vendors` | GET | Retrieve vendor information |
+| `/api/v1/announcements` | GET | Retrieve community announcements |
+| `/api/v1/messages` | GET/POST | Send/receive messages |
+| `/api/v1/payments/*` | POST/GET | Payment processing |
+| `/api/v1/health` | POST | Health check endpoint |
 
 ### Base URLs
 
 ```kotlin
-// Production
-https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/
+// Production (v1 API)
+https://api.apispreadsheets.com/api/v1/
 
 // Development (Mock API)
-http://api-mock:5000/data/QjX6hB1ST2IDKaxB/
+http://api-mock:5000/api/v1/
 ```
 
-### Circuit Breaker Configuration
+### Resilience Patterns
 
-The application implements fault tolerance with circuit breaker pattern:
+The application implements fault tolerance with:
 
-```kotlin
-Circuit Breaker Configuration:
+**Circuit Breaker** - Automatic failure protection
 - Failure Threshold: 3 failures before opening circuit
 - Success Threshold: 2 successes before closing circuit
 - Timeout: 60 seconds before attempting recovery
-- Half-Open Max Calls: 3 requests during testing state
-```
+- Handled automatically in BaseRepository (no manual setup needed)
 
-### Data Models
+**Retry Logic** - Exponential backoff with jitter
+- Automatic retries on transient failures
+- Configurable max retry attempts
+- Jitter prevents thundering herd problem
+
+**Rate Limiting** - Request rate protection
+- Per-endpoint rate limits
+- Automatic retry-after header handling
+- Circuit breaker integration
+
+> **See [API Integration Patterns](docs/API_INTEGRATION_PATTERNS.md)** for detailed implementation.
+
+### Data Models (v1 API)
+
+#### v1 API Response Format
+
+All v1 API responses use standardized wrappers:
+
+```kotlin
+// Success response wrapper
+ApiResponse<T>(
+    data: T,           // Response data
+    success: Boolean,  // Success flag
+    message: String,   // Status message
+    timestamp: Long    // Response timestamp
+)
+
+// List response wrapper
+ApiListResponse<T>(
+    data: List<T>,
+    pagination: PaginationMetadata,
+    success: Boolean,
+    message: String,
+    timestamp: Long
+)
+```
 
 #### User Data Model
 
@@ -339,13 +382,6 @@ data class DataItem(
 )
 ```
 
-#### Response Model
-
-```kotlin
-data class UserResponse(val data: List<DataItem>)
-data class PemanfaatanResponse(val data: List<DataItem>)
-```
-
 ## 🧪 Testing
 
 ### Running Tests
@@ -357,7 +393,7 @@ data class PemanfaatanResponse(val data: List<DataItem>)
 # Run specific test class
 ./gradlew test --tests "com.example.iurankomplek.ExampleUnitTest"
 
-# Run instrumented tests (requires emulator/device)
+# Run instrumented tests (requires emulator)
 ./gradlew connectedAndroidTest
 
 # Run tests with Docker
@@ -365,6 +401,9 @@ data class PemanfaatanResponse(val data: List<DataItem>)
 
 # Generate code coverage report
 ./gradlew test jacocoTestReport
+
+# Build and test
+./gradlew build
 ```
 
 ### Test Coverage
@@ -445,25 +484,37 @@ We welcome contributions! Please follow these guidelines:
 
 - [**User Guides**](docs/USER_GUIDES.md) - Step-by-step guides for common workflows
 - [**Features Overview**](docs/feature.md) - Detailed feature descriptions
-- [**Setup Instructions**](docs/docker-setup.md) - Environment setup guide
+- [**Troubleshooting**](docs/TROUBLESHOOTING.md) - Common issues and solutions
 
 ### For Developers
 
-- [**API Documentation Hub**](docs/API_DOCS_HUB.md) - Unified entry point for all API documentation
+#### API Documentation
+- [**API Documentation Hub**](docs/API_DOCS_HUB.md) - Unified entry point for all API docs
+- [**API Documentation**](docs/API.md) - Complete API reference with endpoints
+- [**API Integration Patterns**](docs/API_INTEGRATION_PATTERNS.md) - Circuit breaker, retry logic
 - [**API Versioning**](docs/API_VERSIONING.md) - API versioning strategy and migration guide
 - [**API Endpoint Catalog**](docs/API_ENDPOINT_CATALOG.md) - Complete endpoint reference with schemas
-- [**API Error Codes**](docs/API_ERROR_CODES.md) - Comprehensive error reference with recovery strategies
-- [**Architecture Documentation**](docs/ARCHITECTURE.md) - System architecture and component relationships
+- [**API Error Codes**](docs/API_ERROR_CODES.md) - Comprehensive error reference
+- [**API Headers and Errors**](docs/API_HEADERS_AND_ERRORS.md) - HTTP headers, error responses
+
+#### Architecture & Development
 - [**Architecture Blueprint**](docs/blueprint.md) - Detailed architecture blueprint
+- [**Architecture Documentation**](docs/ARCHITECTURE.md) - System architecture and component relationships
 - [**Development Guidelines**](docs/DEVELOPMENT.md) - Coding standards and development workflow
-- [**Troubleshooting Guide**](docs/TROUBLESHOOTING.md) - Common issues and solutions
-
-### Additional Resources
-
-- [**API Integration Patterns**](docs/API_INTEGRATION_PATTERNS.md) - Circuit breaker, retry logic
-- [**Caching Strategy**](docs/CACHING_STRATEGY.md) - Offline support and sync
-- [**Security Audit Report**](docs/SECURITY_AUDIT_REPORT.md) - Security architecture
+- [**Caching Strategy**](docs/CACHING_STRATEGY.md) - Offline support and data synchronization
 - [**Database Schema**](docs/DATABASE_SCHEMA.md) - Database structure
+
+#### Testing & Performance
+- [**Testing Summary**](docs/TESTING_SUMMARY.md) - Test coverage and strategies
+- [**Performance Optimization**](docs/PERFORMANCE_OPTIMIZATION.md) - Performance improvements
+
+#### Security
+- [**Security Audit Report**](docs/SECURITY_AUDIT_REPORT.md) - Security architecture and compliance
+- [**Security Assessment**](docs/SECURITY_ASSESSMENT_2026-01-10_REPORT.md) - Latest security assessment
+
+#### Roadmap & Tasks
+- [**Roadmap**](docs/ROADMAP.md) - Project roadmap and milestones
+- [**Actionable Tasks**](docs/actionable-tasks.md) - Available development tasks
 
 ## 📄 License
 
@@ -560,6 +611,9 @@ Latest security audit completed: **2026-01-08**
 
 # Run specific test
 ./gradlew test --tests "com.example.iurankomplek.ExampleUnitTest"
+
+# Compile Kotlin only
+./gradlew :app:compileDebugKotlin
 
 # View dependency tree
 ./gradlew app:dependencies
