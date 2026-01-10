@@ -268,4 +268,83 @@ class ReceiptGeneratorTest {
             metadata = metadata
         )
     }
+
+    @Test
+    fun `generateReceipt is thread-safe under concurrent access`() {
+        val transaction = createTestTransaction(id = "txn-concurrent")
+        val numberOfThreads = 10
+        val receiptsPerThread = 100
+        val generatedReceipts = mutableListOf<com.example.iurankomplek.data.dto.Receipt>()
+        val receiptNumbers = mutableListOf<String>()
+
+        val threads = (1..numberOfThreads).map { threadIndex ->
+            Thread {
+                repeat(receiptsPerThread) { iteration ->
+                    val receipt = receiptGenerator.generateReceipt(transaction)
+                    synchronized(generatedReceipts) {
+                        generatedReceipts.add(receipt)
+                        receiptNumbers.add(receipt.receiptNumber)
+                    }
+                }
+            }.apply { start() }
+        }
+
+        threads.forEach { it.join() }
+
+        assertEquals(numberOfThreads * receiptsPerThread, generatedReceipts.size)
+        assertEquals(numberOfThreads * receiptsPerThread, receiptNumbers.size)
+
+        val uniqueReceiptIds = generatedReceipts.map { it.id }.toSet()
+        assertEquals(numberOfThreads * receiptsPerThread, uniqueReceiptIds.size)
+
+        val uniqueReceiptNumbers = receiptNumbers.toSet()
+        assertEquals(numberOfThreads * receiptsPerThread, uniqueReceiptNumbers.size)
+
+        generatedReceipts.forEach { receipt ->
+            assertEquals(transaction.id, receipt.transactionId)
+            assertEquals(transaction.amount, receipt.amount)
+            assertNotNull(receipt.qrCode)
+            assertTrue(receipt.qrCode!!.contains(transaction.id))
+        }
+    }
+
+    @Test
+    fun `generateReceipt generates valid receipt number format consistently`() {
+        val transaction = createTestTransaction(id = "txn-format-test")
+        val numberOfReceipts = 100
+        val receiptNumbers = mutableListOf<String>()
+
+        repeat(numberOfReceipts) {
+            val receipt = receiptGenerator.generateReceipt(transaction)
+            receiptNumbers.add(receipt.receiptNumber)
+        }
+
+        receiptNumbers.forEach { receiptNumber ->
+            assertTrue("Receipt number should start with 'RCPT-' prefix", receiptNumber.startsWith("RCPT-"))
+            assertTrue("Receipt number should contain date separator", receiptNumber.count { it == '-' } == 2)
+        }
+
+        val uniqueReceiptNumbers = receiptNumbers.toSet()
+        assertEquals("All receipt numbers should be unique", numberOfReceipts, uniqueReceiptNumbers.size)
+    }
+
+    @Test
+    fun `generateReceipt handles rapid sequential calls`() {
+        val transaction = createTestTransaction(id = "txn-sequential")
+        val numberOfReceipts = 50
+        val generatedReceipts = mutableListOf<com.example.iurankomplek.data.dto.Receipt>()
+
+        repeat(numberOfReceipts) {
+            val receipt = receiptGenerator.generateReceipt(transaction)
+            generatedReceipts.add(receipt)
+        }
+
+        assertEquals(numberOfReceipts, generatedReceipts.size)
+
+        val uniqueReceiptIds = generatedReceipts.map { it.id }.toSet()
+        assertEquals("All receipt IDs should be unique", numberOfReceipts, uniqueReceiptIds.size)
+
+        val uniqueReceiptNumbers = generatedReceipts.map { it.receiptNumber }.toSet()
+        assertEquals("All receipt numbers should be unique", numberOfReceipts, uniqueReceiptNumbers.size)
+    }
 }

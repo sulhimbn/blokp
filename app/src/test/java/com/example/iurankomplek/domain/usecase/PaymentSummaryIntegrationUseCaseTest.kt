@@ -198,4 +198,255 @@ class PaymentSummaryIntegrationUseCaseTest {
         verify(mockTransactionRepository).getTransactionsByStatus(PaymentStatus.COMPLETED)
         verifyNoMoreInteractions(mockTransactionRepository)
     }
+
+    @Test
+    fun `invoke handles large transaction count`() = runTest {
+        val manyTransactions = (1..100).map { index ->
+            Transaction(
+                id = index.toString(),
+                amount = "50000",
+                status = PaymentStatus.COMPLETED,
+                timestamp = Date()
+            )
+        }
+
+        doReturn(kotlinx.coroutines.flow.FlowKt.flowOf(manyTransactions)).`when`(
+            mockTransactionRepository
+        ).getTransactionsByStatus(PaymentStatus.COMPLETED)
+
+        val result = useCase()
+
+        assertEquals(5000000, result.paymentTotal)
+        assertEquals(100, result.transactionCount)
+        assertTrue(result.isIntegrated)
+        assertNull(result.error)
+        verify(mockTransactionRepository).getTransactionsByStatus(PaymentStatus.COMPLETED)
+        verifyNoMoreInteractions(mockTransactionRepository)
+    }
+
+    @Test
+    fun `invoke handles near-maximum int values`() = runTest {
+        val nearMaxInt = Int.MAX_VALUE / 2
+        val largeTransactions = listOf(
+            Transaction(
+                id = "1",
+                amount = nearMaxInt.toString(),
+                status = PaymentStatus.COMPLETED,
+                timestamp = Date()
+            ),
+            Transaction(
+                id = "2",
+                amount = nearMaxInt.toString(),
+                status = PaymentStatus.COMPLETED,
+                timestamp = Date()
+            )
+        )
+
+        doReturn(kotlinx.coroutines.flow.FlowKt.flowOf(largeTransactions)).`when`(
+            mockTransactionRepository
+        ).getTransactionsByStatus(PaymentStatus.COMPLETED)
+
+        val result = useCase()
+
+        assertEquals(nearMaxInt * 2, result.paymentTotal)
+        assertEquals(2, result.transactionCount)
+        assertTrue(result.isIntegrated)
+        assertNull(result.error)
+        verify(mockTransactionRepository).getTransactionsByStatus(PaymentStatus.COMPLETED)
+        verifyNoMoreInteractions(mockTransactionRepository)
+    }
+
+    @Test
+    fun `invoke handles decimal amount truncation`() = runTest {
+        val decimalTransactions = listOf(
+            Transaction(
+                id = "1",
+                amount = "100000.50",
+                status = PaymentStatus.COMPLETED,
+                timestamp = Date()
+            ),
+            Transaction(
+                id = "2",
+                amount = "50000.99",
+                status = PaymentStatus.COMPLETED,
+                timestamp = Date()
+            ),
+            Transaction(
+                id = "3",
+                amount = "75000.33",
+                status = PaymentStatus.COMPLETED,
+                timestamp = Date()
+            )
+        )
+
+        doReturn(kotlinx.coroutines.flow.FlowKt.flowOf(decimalTransactions)).`when`(
+            mockTransactionRepository
+        ).getTransactionsByStatus(PaymentStatus.COMPLETED)
+
+        val result = useCase()
+
+        assertEquals(225000, result.paymentTotal)
+        assertEquals(3, result.transactionCount)
+        assertTrue(result.isIntegrated)
+        assertNull(result.error)
+        verify(mockTransactionRepository).getTransactionsByStatus(PaymentStatus.COMPLETED)
+        verifyNoMoreInteractions(mockTransactionRepository)
+    }
+
+    @Test
+    fun `invoke handles very small amounts`() = runTest {
+        val smallTransactions = listOf(
+            Transaction(
+                id = "1",
+                amount = "1",
+                status = PaymentStatus.COMPLETED,
+                timestamp = Date()
+            ),
+            Transaction(
+                id = "2",
+                amount = "2",
+                status = PaymentStatus.COMPLETED,
+                timestamp = Date()
+            ),
+            Transaction(
+                id = "3",
+                amount = "3",
+                status = PaymentStatus.COMPLETED,
+                timestamp = Date()
+            )
+        )
+
+        doReturn(kotlinx.coroutines.flow.FlowKt.flowOf(smallTransactions)).`when`(
+            mockTransactionRepository
+        ).getTransactionsByStatus(PaymentStatus.COMPLETED)
+
+        val result = useCase()
+
+        assertEquals(6, result.paymentTotal)
+        assertEquals(3, result.transactionCount)
+        assertTrue(result.isIntegrated)
+        assertNull(result.error)
+        verify(mockTransactionRepository).getTransactionsByStatus(PaymentStatus.COMPLETED)
+        verifyNoMoreInteractions(mockTransactionRepository)
+    }
+
+    @Test
+    fun `invoke handles alternating small and large amounts`() = runTest {
+        val alternatingTransactions = listOf(
+            Transaction(
+                id = "1",
+                amount = "1000000",
+                status = PaymentStatus.COMPLETED,
+                timestamp = Date()
+            ),
+            Transaction(
+                id = "2",
+                amount = "1000",
+                status = PaymentStatus.COMPLETED,
+                timestamp = Date()
+            ),
+            Transaction(
+                id = "3",
+                amount = "5000000",
+                status = PaymentStatus.COMPLETED,
+                timestamp = Date()
+            ),
+            Transaction(
+                id = "4",
+                amount = "500",
+                status = PaymentStatus.COMPLETED,
+                timestamp = Date()
+            )
+        )
+
+        doReturn(kotlinx.coroutines.flow.FlowKt.flowOf(alternatingTransactions)).`when`(
+            mockTransactionRepository
+        ).getTransactionsByStatus(PaymentStatus.COMPLETED)
+
+        val result = useCase()
+
+        assertEquals(6001500, result.paymentTotal)
+        assertEquals(4, result.transactionCount)
+        assertTrue(result.isIntegrated)
+        assertNull(result.error)
+        verify(mockTransactionRepository).getTransactionsByStatus(PaymentStatus.COMPLETED)
+        verifyNoMoreInteractions(mockTransactionRepository)
+    }
+
+    @Test
+    fun `invoke handles single large transaction`() = runTest {
+        val singleLargeTransaction = listOf(
+            Transaction(
+                id = "1",
+                amount = "10000000",
+                status = PaymentStatus.COMPLETED,
+                timestamp = Date()
+            )
+        )
+
+        doReturn(kotlinx.coroutines.flow.FlowKt.flowOf(singleLargeTransaction)).`when`(
+            mockTransactionRepository
+        ).getTransactionsByStatus(PaymentStatus.COMPLETED)
+
+        val result = useCase()
+
+        assertEquals(10000000, result.paymentTotal)
+        assertEquals(1, result.transactionCount)
+        assertTrue(result.isIntegrated)
+        assertNull(result.error)
+        verify(mockTransactionRepository).getTransactionsByStatus(PaymentStatus.COMPLETED)
+        verifyNoMoreInteractions(mockTransactionRepository)
+    }
+
+    @Test
+    fun `invoke handles boundary value just below overflow threshold`() = runTest {
+        val boundaryValue = Int.MAX_VALUE / 2
+        val boundaryTransactions = listOf(
+            Transaction(
+                id = "1",
+                amount = boundaryValue.toString(),
+                status = PaymentStatus.COMPLETED,
+                timestamp = Date()
+            )
+        )
+
+        doReturn(kotlinx.coroutines.flow.FlowKt.flowOf(boundaryTransactions)).`when`(
+            mockTransactionRepository
+        ).getTransactionsByStatus(PaymentStatus.COMPLETED)
+
+        val result = useCase()
+
+        assertEquals(boundaryValue, result.paymentTotal)
+        assertEquals(1, result.transactionCount)
+        assertTrue(result.isIntegrated)
+        assertNull(result.error)
+        verify(mockTransactionRepository).getTransactionsByStatus(PaymentStatus.COMPLETED)
+        verifyNoMoreInteractions(mockTransactionRepository)
+    }
+
+    @Test
+    fun `invoke calculates total for repeating same amounts`() = runTest {
+        val sameAmount = "25000"
+        val repeatingTransactions = (1..50).map { index ->
+            Transaction(
+                id = index.toString(),
+                amount = sameAmount,
+                status = PaymentStatus.COMPLETED,
+                timestamp = Date()
+            )
+        }
+
+        doReturn(kotlinx.coroutines.flow.FlowKt.flowOf(repeatingTransactions)).`when`(
+            mockTransactionRepository
+        ).getTransactionsByStatus(PaymentStatus.COMPLETED)
+
+        val result = useCase()
+
+        assertEquals(25000 * 50, result.paymentTotal)
+        assertEquals(50, result.transactionCount)
+        assertTrue(result.isIntegrated)
+        assertNull(result.error)
+        verify(mockTransactionRepository).getTransactionsByStatus(PaymentStatus.COMPLETED)
+        verifyNoMoreInteractions(mockTransactionRepository)
+    }
 }
