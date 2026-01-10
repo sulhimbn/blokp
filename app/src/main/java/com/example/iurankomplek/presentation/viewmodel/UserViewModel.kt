@@ -2,33 +2,23 @@ package com.example.iurankomplek.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
+import com.example.iurankomplek.core.base.BaseViewModel
 import com.example.iurankomplek.domain.usecase.LoadUsersUseCase
 import com.example.iurankomplek.data.api.models.UserResponse
 import com.example.iurankomplek.utils.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 
 class UserViewModel(
     private val loadUsersUseCase: LoadUsersUseCase
-) : ViewModel() {
+) : BaseViewModel() {
     
-    private val _usersState = MutableStateFlow<UiState<UserResponse>>(UiState.Loading)
+    private val _usersState = createMutableStateFlow<UserResponse>(UiState.Loading)
     val usersState: StateFlow<UiState<UserResponse>> = _usersState
     
     fun loadUsers() {
-        if (_usersState.value is UiState.Loading) return // Prevent duplicate calls
-        
-        viewModelScope.launch {
-            _usersState.value = UiState.Loading
+        executeWithLoadingStateForResult(_usersState) {
             loadUsersUseCase()
-                .onSuccess { response ->
-                    _usersState.value = UiState.Success(response)
-                }
-                .onFailure { exception ->
-                    _usersState.value = UiState.Error(exception.message ?: "Unknown error occurred")
-                }
         }
     }
     

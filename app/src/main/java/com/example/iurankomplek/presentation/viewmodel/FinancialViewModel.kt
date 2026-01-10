@@ -2,35 +2,25 @@ package com.example.iurankomplek.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
+import com.example.iurankomplek.core.base.BaseViewModel
 import com.example.iurankomplek.domain.usecase.LoadFinancialDataUseCase
 import com.example.iurankomplek.data.api.models.PemanfaatanResponse
 import com.example.iurankomplek.utils.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 
 class FinancialViewModel(
     private val loadFinancialDataUseCase: LoadFinancialDataUseCase,
     private val calculateFinancialSummaryUseCase: com.example.iurankomplek.domain.usecase.CalculateFinancialSummaryUseCase = com.example.iurankomplek.domain.usecase.CalculateFinancialSummaryUseCase(),
     private val paymentSummaryIntegrationUseCase: com.example.iurankomplek.domain.usecase.PaymentSummaryIntegrationUseCase? = null
-) : ViewModel() {
+) : BaseViewModel() {
     
-    private val _financialState = MutableStateFlow<UiState<PemanfaatanResponse>>(UiState.Loading)
+    private val _financialState = createMutableStateFlow<PemanfaatanResponse>(UiState.Loading)
     val financialState: StateFlow<UiState<PemanfaatanResponse>> = _financialState
     
     fun loadFinancialData() {
-        if (_financialState.value is UiState.Loading) return // Prevent duplicate calls
-        
-        viewModelScope.launch {
-            _financialState.value = UiState.Loading
+        executeWithLoadingStateForResult(_financialState) {
             loadFinancialDataUseCase()
-                .onSuccess { response ->
-                    _financialState.value = UiState.Success(response)
-                }
-                .onFailure { exception ->
-                    _financialState.value = UiState.Error(exception.message ?: "Unknown error occurred")
-                }
         }
     }
     

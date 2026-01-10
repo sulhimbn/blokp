@@ -2,7 +2,7 @@ package com.example.iurankomplek.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
+import com.example.iurankomplek.core.base.BaseViewModel
 import com.example.iurankomplek.data.repository.VendorRepository
 import com.example.iurankomplek.model.VendorResponse
 import com.example.iurankomplek.model.SingleVendorResponse
@@ -11,77 +11,44 @@ import com.example.iurankomplek.model.SingleWorkOrderResponse
 import com.example.iurankomplek.utils.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 
 class VendorViewModel(
     private val vendorRepository: VendorRepository
-) : ViewModel() {
+) : BaseViewModel() {
     
-    private val _vendorState = MutableStateFlow<UiState<VendorResponse>>(UiState.Loading)
+    private val _vendorState = createMutableStateFlow<VendorResponse>(UiState.Loading)
     val vendorState: StateFlow<UiState<VendorResponse>> = _vendorState
     
-    private val _workOrderState = MutableStateFlow<UiState<WorkOrderResponse>>(UiState.Loading)
+    private val _workOrderState = createMutableStateFlow<WorkOrderResponse>(UiState.Loading)
     val workOrderState: StateFlow<UiState<WorkOrderResponse>> = _workOrderState
     
-    private val _vendorDetailState = MutableStateFlow<UiState<SingleVendorResponse>>(UiState.Loading)
+    private val _vendorDetailState = createMutableStateFlow<SingleVendorResponse>(UiState.Loading)
     val vendorDetailState: StateFlow<UiState<SingleVendorResponse>> = _vendorDetailState
     
-    private val _workOrderDetailState = MutableStateFlow<UiState<SingleWorkOrderResponse>>(UiState.Loading)
+    private val _workOrderDetailState = createMutableStateFlow<SingleWorkOrderResponse>(UiState.Loading)
     val workOrderDetailState: StateFlow<UiState<SingleWorkOrderResponse>> = _workOrderDetailState
     
     fun loadVendors() {
-        if (_vendorState.value is UiState.Loading) return // Prevent duplicate calls
-        
-        viewModelScope.launch {
-            _vendorState.value = UiState.Loading
+        executeWithLoadingStateForResult(_vendorState) {
             vendorRepository.getVendors()
-                .onSuccess { response ->
-                    _vendorState.value = UiState.Success(response)
-                }
-                .onFailure { exception ->
-                    _vendorState.value = UiState.Error(exception.message ?: "Unknown error occurred")
-                }
         }
     }
     
     fun loadWorkOrders() {
-        if (_workOrderState.value is UiState.Loading) return // Prevent duplicate calls
-        
-        viewModelScope.launch {
-            _workOrderState.value = UiState.Loading
+        executeWithLoadingStateForResult(_workOrderState) {
             vendorRepository.getWorkOrders()
-                .onSuccess { response ->
-                    _workOrderState.value = UiState.Success(response)
-                }
-                .onFailure { exception ->
-                    _workOrderState.value = UiState.Error(exception.message ?: "Unknown error occurred")
-                }
         }
     }
     
     fun loadVendorDetail(id: String) {
-        viewModelScope.launch {
-            _vendorDetailState.value = UiState.Loading
+        executeWithLoadingStateForResult(_vendorDetailState, preventDuplicate = false) {
             vendorRepository.getVendor(id)
-                .onSuccess { response ->
-                    _vendorDetailState.value = UiState.Success(response)
-                }
-                .onFailure { exception ->
-                    _vendorDetailState.value = UiState.Error(exception.message ?: "Unknown error occurred")
-                }
         }
     }
     
     fun loadWorkOrderDetail(id: String) {
-        viewModelScope.launch {
-            _workOrderDetailState.value = UiState.Loading
+        executeWithLoadingStateForResult(_workOrderDetailState, preventDuplicate = false) {
             vendorRepository.getWorkOrder(id)
-                .onSuccess { response ->
-                    _workOrderDetailState.value = UiState.Success(response)
-                }
-                .onFailure { exception ->
-                    _workOrderDetailState.value = UiState.Error(exception.message ?: "Unknown error occurred")
-                }
         }
     }
     

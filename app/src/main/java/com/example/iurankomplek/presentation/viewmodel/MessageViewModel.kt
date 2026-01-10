@@ -2,64 +2,38 @@ package com.example.iurankomplek.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
+import com.example.iurankomplek.core.base.BaseViewModel
 import com.example.iurankomplek.data.repository.MessageRepository
 import com.example.iurankomplek.model.Message
 import com.example.iurankomplek.utils.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 
 class MessageViewModel(
     private val messageRepository: MessageRepository
-) : ViewModel() {
+) : BaseViewModel() {
 
-    private val _messagesState = MutableStateFlow<UiState<List<Message>>>(UiState.Loading)
+    private val _messagesState = createMutableStateFlow<List<Message>>(UiState.Loading)
     val messagesState: StateFlow<UiState<List<Message>>> = _messagesState
 
-    private val _sendMessageState = MutableStateFlow<UiState<Message>>(UiState.Idle)
+    private val _sendMessageState = createMutableStateFlow<Message>(UiState.Idle)
     val sendMessageState: StateFlow<UiState<Message>> = _sendMessageState
 
     fun loadMessages(userId: String) {
-        if (_messagesState.value is UiState.Loading) return
-
-        viewModelScope.launch {
-            _messagesState.value = UiState.Loading
+        executeWithLoadingStateForResult(_messagesState) {
             messageRepository.getMessages(userId)
-                .onSuccess { messages ->
-                    _messagesState.value = UiState.Success(messages)
-                }
-                .onFailure { exception ->
-                    _messagesState.value = UiState.Error(exception.message ?: "Unknown error occurred")
-                }
         }
     }
 
     fun loadMessagesWithUser(receiverId: String, senderId: String) {
-        if (_messagesState.value is UiState.Loading) return
-
-        viewModelScope.launch {
-            _messagesState.value = UiState.Loading
+        executeWithLoadingStateForResult(_messagesState) {
             messageRepository.getMessagesWithUser(receiverId, senderId)
-                .onSuccess { messages ->
-                    _messagesState.value = UiState.Success(messages)
-                }
-                .onFailure { exception ->
-                    _messagesState.value = UiState.Error(exception.message ?: "Unknown error occurred")
-                }
         }
     }
 
     fun sendMessage(senderId: String, receiverId: String, content: String) {
-        viewModelScope.launch {
-            _sendMessageState.value = UiState.Loading
+        executeWithLoadingStateForResult(_sendMessageState, preventDuplicate = false) {
             messageRepository.sendMessage(senderId, receiverId, content)
-                .onSuccess { message ->
-                    _sendMessageState.value = UiState.Success(message)
-                }
-                .onFailure { exception ->
-                    _sendMessageState.value = UiState.Error(exception.message ?: "Unknown error occurred")
-                }
         }
     }
 

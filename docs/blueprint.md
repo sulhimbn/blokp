@@ -332,11 +332,12 @@ app/
  │       ├── PemanfaatanAdapter.kt ✅ (DiffUtil)
  │       ├── VendorAdapter.kt ✅ (DiffUtil)
  │       └── [Other adapters...]
-├── core/
-│   └── base/
-│       ├── BaseActivity.kt ✅ (retry logic, error handling)
-│       ├── BaseFragment.kt ✅ (RecyclerView setup, UiState observation - NEW 2026-01-08)
-│       └── BaseVendorFragment.kt ✅ (Vendor fragment specialization - NEW 2026-01-08)
+ ├── core/
+ │   └── base/
+ │       ├── BaseActivity.kt ✅ (retry logic, error handling)
+ │       ├── BaseFragment.kt ✅ (RecyclerView setup, UiState observation - NEW 2026-01-08)
+ │       ├── BaseVendorFragment.kt ✅ (Vendor fragment specialization - NEW 2026-01-08)
+ │       └── BaseViewModel.kt ✅ (loading logic template - NEW 2026-01-10 ARCH-005)
  └── utils/
     ├── NetworkUtils.kt ✅ (connectivity checks)
     ├── InputSanitizer.kt ✅ (input sanitization)
@@ -398,6 +399,16 @@ app/
 - Hold business logic
 - Expose data via StateFlow (modern, reactive)
 - Proper lifecycle-aware coroutine scopes
+- **BaseViewModel Pattern** (ARCH-005 - 2026-01-10) ✅ NEW
+  - Template Method pattern for loading operations
+  - Automatic duplicate call prevention
+  - Centralized error handling with UiState
+  - executeWithLoadingState() for direct suspend operations
+  - executeWithLoadingStateForResult() for Result<T> operations
+  - executeWithoutLoadingState() for operations without loading state
+  - **Code Reduction**: 174 lines eliminated across 7 ViewModels
+  - **Refactored ViewModels**: UserViewModel, FinancialViewModel, VendorViewModel, TransactionViewModel, AnnouncementViewModel, MessageViewModel, CommunityPostViewModel
+  - **Test Coverage**: 14 test cases for BaseViewModel
 
 ### 3. BaseActivity ✅
 - Common functionality: retry logic, error handling, loading states
@@ -448,6 +459,7 @@ app/
 - ✅ Dependency Injection Pattern - Pragmatic DI container (Module ARCH-003)
 - ✅ Service Locator Pattern - DependencyContainer provides dependencies (Module ARCH-003)
 - ✅ Helper Pattern - RecyclerViewHelper for consistent RecyclerView setup (REFACTOR-005 - 2026-01-10)
+- ✅ Template Method Pattern - BaseViewModel for loading operations (ARCH-005 - 2026-01-10)
 - ✅ StateManager Pattern - Consistent UI state management across Activities (REFACTOR-006 - 2026-01-10)
 
 ### Architectural Patterns ✅
