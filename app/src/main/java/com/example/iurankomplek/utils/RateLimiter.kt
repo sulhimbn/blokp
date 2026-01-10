@@ -1,5 +1,6 @@
 package com.example.iurankomplek.utils
 
+import com.example.iurankomplek.utils.Constants
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.math.max
@@ -56,7 +57,7 @@ class RateLimiter(
         fun perMinute(requestsPerMinute: Int): RateLimiter {
             return RateLimiter(
                 maxRequests = requestsPerMinute,
-                timeWindowMs = 60000L
+                timeWindowMs = Constants.Network.ONE_MINUTE_MS
             )
         }
         
