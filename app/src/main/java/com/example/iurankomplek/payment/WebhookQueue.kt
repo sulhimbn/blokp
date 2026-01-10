@@ -16,6 +16,10 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.security.SecureRandom
 
+sealed class WebhookException(message: String, cause: Throwable? = null) : Exception(message, cause) {
+    class ProcessingFailed(message: String = "Webhook processing returned false", cause: Throwable? = null) : WebhookException(message, cause)
+}
+
 class WebhookQueue(
     private val webhookEventDao: WebhookEventDao,
     private val transactionRepository: TransactionRepository
@@ -153,7 +157,7 @@ class WebhookQueue(
                 webhookEventDao.markAsDelivered(eventId)
                 Log.d(TAG, "Webhook event $eventId delivered successfully")
             } else {
-                throw Exception("Webhook processing returned false")
+                throw WebhookException.ProcessingFailed()
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error processing webhook event $eventId: ${e.message}", e)

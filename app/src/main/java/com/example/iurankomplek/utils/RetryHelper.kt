@@ -7,6 +7,11 @@ import java.net.UnknownHostException
 import javax.net.ssl.SSLException
 import kotlin.math.pow
 
+sealed class ApiException(message: String, cause: Throwable? = null) : Exception(message, cause) {
+    class ResponseBodyNull(message: String = "Response body is null", cause: Throwable? = null) : ApiException(message, cause)
+    class UnknownError(message: String = "Unknown error occurred", cause: Throwable? = null) : ApiException(message, cause)
+}
+
 object RetryHelper {
 
     suspend fun <T : Any> executeWithRetry(
@@ -20,7 +25,7 @@ object RetryHelper {
             try {
                 val response = apiCall()
                 if (response.isSuccessful) {
-                    return response.body() ?: throw Exception("Response body is null")
+                    return response.body() ?: throw ApiException.ResponseBodyNull()
                 } else {
                     val isRetryable = isRetryableError(response.code())
                     if (currentRetry < maxRetries && isRetryable) {
@@ -52,7 +57,7 @@ object RetryHelper {
             }
         }
 
-        throw lastException ?: Exception("Unknown error occurred")
+        throw lastException ?: ApiException.UnknownError()
     }
 
     private fun isRetryableError(httpCode: Int): Boolean {

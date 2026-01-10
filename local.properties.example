@@ -5,3 +5,16 @@ sdk.dir=
 # Add your Google Sheets API spreadsheet ID here
 # This is used to construct API endpoints for data fetching
 API_SPREADSHEET_ID=YOUR_SHEET_ID_HERE
+
+# API Base URLs
+# Production API base URL (optional, defaults to https://api.apispreadsheets.com/data/)
+# PRODUCTION_BASE_URL=https://api.apispreadsheets.com/data/
+
+# Mock API base URL for testing (optional, defaults to https://api-mock:5000/data/)
+# MOCK_BASE_URL=https://api-mock:5000/data/
+
+# Certificate Pinning
+# Certificate pins for HTTPS security (optional, uses default pins if not set)
+# Format: sha256/PIN1;sha256/PIN2;sha256/PIN3
+# Extract pins using: openssl s_client -connect api.apispreadsheets.com:443 -showcerts
+# CERTIFICATE_PINNER=sha256/PIN1;sha256/PIN2;sha256/PIN3

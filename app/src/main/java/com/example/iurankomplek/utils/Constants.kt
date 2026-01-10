@@ -27,8 +27,8 @@ object Constants {
     
     // API Constants
     object Api {
-        const val PRODUCTION_BASE_URL = "https://api.apispreadsheets.com/data/"
-        const val MOCK_BASE_URL = "https://api-mock:5000/data/"
+        val PRODUCTION_BASE_URL: String get() = BuildConfig.PRODUCTION_BASE_URL
+        val MOCK_BASE_URL: String get() = BuildConfig.MOCK_BASE_URL
         const val DOCKER_ENV_KEY = "DOCKER_ENV"
         const val DEFAULT_USER_ID = "default_user_id"
         
@@ -43,14 +43,13 @@ object Constants {
     
     // Security Constants
     object Security {
-        const val CERTIFICATE_PINNER = "sha256/PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=" +
-                ";sha256/G9LNNAql897egYsabashkzUCTEJkWBzgoEtk8X/678c=" +
-                ";sha256/++MBgDH5WGvL9Bcn5Be30cRcL0f5O+NyoXuWtQdX1aI="
+        val CERTIFICATE_PINNER: String get() = BuildConfig.CERTIFICATE_PINNER
         // Certificate pins extracted on 2026-01-08
         // Primary: PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=
         // Backup #1: G9LNNAql897egYsabashkzUCTEJkWBzgoEtk8X/678c=
         // Backup #2: ++MBgDH5WGvL9Bcn5Be30cRcL0f5O+NyoXuWtQdX1aI=
         // Reference: https://developer.android.com/training/articles/security-ssl#Pinning
+        // Configure via local.properties or environment variable: CERTIFICATE_PINNER
     }
     
     // Financial Constants

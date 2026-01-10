@@ -24,6 +24,24 @@ plugins {
             logger.warn("API_SPREADSHEET_ID not configured. Set it in local.properties or as environment variable.")
         }
         buildConfigField "String", "API_SPREADSHEET_ID", "\"${apiSpreadsheetId ?: ''}\""
+
+        def productionBaseUrl = project.hasProperty('PRODUCTION_BASE_URL') ? project.property('PRODUCTION_BASE_URL') : System.getenv('PRODUCTION_BASE_URL')
+        if (productionBaseUrl == null) {
+            logger.warn("PRODUCTION_BASE_URL not configured. Using default value: https://api.apispreadsheets.com/data/")
+        }
+        buildConfigField "String", "PRODUCTION_BASE_URL", "\"${productionBaseUrl ?: 'https://api.apispreadsheets.com/data/'}\""
+
+        def mockBaseUrl = project.hasProperty('MOCK_BASE_URL') ? project.property('MOCK_BASE_URL') : System.getenv('MOCK_BASE_URL')
+        if (mockBaseUrl == null) {
+            logger.warn("MOCK_BASE_URL not configured. Using default value: https://api-mock:5000/data/")
+        }
+        buildConfigField "String", "MOCK_BASE_URL", "\"${mockBaseUrl ?: 'https://api-mock:5000/data/'}\""
+
+        def certificatePinner = project.hasProperty('CERTIFICATE_PINNER') ? project.property('CERTIFICATE_PINNER') : System.getenv('CERTIFICATE_PINNER')
+        if (certificatePinner == null) {
+            logger.warn("CERTIFICATE_PINNER not configured. Using default pins.")
+        }
+        buildConfigField "String", "CERTIFICATE_PINNER", "\"${certificatePinner ?: 'sha256/PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=;sha256/G9LNNAql897egYsabashkzUCTEJkWBzgoEtk8X/678c=;sha256/++MBgDH5WGvL9Bcn5Be30cRcL0f5O+NyoXuWtQdX1aI='}\""
     }
 
     configurations.all {

@@ -9,8 +9,13 @@ import com.example.iurankomplek.payment.toApiPaymentResponse
 import com.example.iurankomplek.data.dao.TransactionDao
 import com.example.iurankomplek.data.entity.Transaction
 import com.example.iurankomplek.utils.OperationResult
+import com.example.iurankomplek.utils.PaymentException
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
+
+sealed class PaymentException(message: String, cause: Throwable? = null) : Exception(message, cause) {
+    class UnknownError(message: String = "Unknown payment error", cause: Throwable? = null) : PaymentException(message, cause)
+}
 
 class TransactionRepositoryImpl(
     private val paymentGateway: PaymentGateway,
@@ -40,7 +45,7 @@ class TransactionRepositoryImpl(
             return when (gatewayResult) {
                 is OperationResult.Success -> OperationResult.Success(gatewayResult.data.toApiPaymentResponse())
                 is OperationResult.Error -> throw gatewayResult.exception
-                else -> throw Exception("Unknown error")
+                else -> throw PaymentException.UnknownError()
             }
         } catch (e: Exception) {
             OperationResult.Error(e, e.message ?: "Payment failed")
