@@ -50,7 +50,6 @@ data class HealthMetrics(
     val successRate: Double,
     val averageResponseTimeMs: Double,
     val errorRate: Double,
-)
     val timeoutCount: Int,
     val rateLimitViolations: Int
 )
