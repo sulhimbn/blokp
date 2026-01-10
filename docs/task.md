@@ -7,13 +7,238 @@ Track architectural refactoring tasks and their status.
 
 ---
 
-### ✅ DOC-001. Critical Documentation Fix - 2026-01-10
-**Status**: Completed
-**Completed Date**: 2026-01-10
-**Priority**: CRITICAL (Documentation)
-**Estimated Time**: 1 hour (completed in 30 minutes)
-**Description**: Fix actively misleading documentation in docs/architecture.md
+## Pending Refactoring Tasks
 
+---
+
+### REFACTOR-005. Inconsistent RecyclerView Setup Pattern
+**Status**: Pending
+**Priority**: Medium
+**Estimated Time**: 1-2 hours
+**Location**: presentation/ui/activity/LaporanActivity.kt, TransactionHistoryActivity.kt
+
+**Issue**: Inconsistent RecyclerView setup pattern across Activities
+- LaporanActivity (line 54-57): Manual setup with setLayoutManager, setHasFixedSize, setItemViewCacheSize
+- TransactionHistoryActivity (line 40-41): Manual setup with setLayoutManager, setAdapter
+- MainActivity: Uses RecyclerViewHelper.configureRecyclerView helper
+- Only 2 Activities use RecyclerViewHelper, causing code duplication
+
+**Code Pattern Inconsistency**:
+```kotlin
+// LaporanActivity - Manual setup (inconsistent)
+binding.rvSummary.layoutManager = LinearLayoutManager(this)
+binding.rvSummary.setHasFixedSize(true)
+binding.rvSummary.setItemViewCacheSize(20)
+binding.rvSummary.adapter = summaryAdapter
+
+// TransactionHistoryActivity - Manual setup (inconsistent)
+binding.rvTransactionHistory.layoutManager = LinearLayoutManager(this)
+binding.rvTransactionHistory.adapter = transactionAdapter
+
+// MainActivity - Uses helper (consistent)
+RecyclerViewHelper.configureRecyclerView(
+    recyclerView = binding.rvUsers,
+    itemCount = 20,
+    enableKeyboardNav = true,
+    adapter = adapter,
+    orientation = resources.configuration.orientation,
+    screenWidthDp = resources.configuration.screenWidthDp
+)
+```
+
+**Suggestion**: Migrate LaporanActivity and TransactionHistoryActivity to use RecyclerViewHelper.configureRecyclerView for consistent RecyclerView setup across all Activities
+
+**Benefits**:
+- Eliminates code duplication (setLayoutManager, setHasFixedSize, setItemViewCacheSize)
+- Ensures consistent RecyclerView behavior across all Activities
+- Centralized RecyclerView configuration (future changes only in one place)
+- Better keyboard navigation and responsive design support
+- Single responsibility (RecyclerViewHelper handles all RecyclerView setup)
+
+**Files to Modify**:
+- LaporanActivity.kt (line 54-57, migrate to RecyclerViewHelper)
+- TransactionHistoryActivity.kt (line 40-41, migrate to RecyclerViewHelper)
+
+**Anti-Patterns Eliminated**:
+- ❌ No more manual RecyclerView setup code duplication
+- ❌ No more inconsistent RecyclerView configurations
+- ❌ No more setHasFixedSize/setItemViewCacheSize scattered across Activities
+
+---
+
+### REFACTOR-006. Inconsistent State Observation Pattern
+**Status**: Pending
+**Priority**: Medium
+**Estimated Time**: 1-2 hours
+**Location**: presentation/ui/activity/LaporanActivity.kt, VendorManagementActivity.kt, TransactionHistoryActivity.kt, PaymentActivity.kt
+
+**Issue**: Inconsistent StateFlow observation pattern across Activities
+- MainActivity: Uses StateManager.observeState helper
+- LaporanActivity: Uses manual collect with when (state) pattern (line 67-79)
+- VendorManagementActivity: Uses manual collect with when (state) pattern (line 48-67)
+- TransactionHistoryActivity: Uses manual collect with when (state) pattern (line 44-68)
+- PaymentActivity: Uses manual collect with when (event) pattern (line 33-52)
+
+**Code Pattern Inconsistency**:
+```kotlin
+// MainActivity - Uses StateManager (consistent)
+stateManager.observeState(viewModel.usersState, onSuccess = { data ->
+    // Handle success state
+})
+
+// Other Activities - Manual collect (inconsistent)
+lifecycleScope.launch {
+    viewModel.financialState.collect { state ->
+        when (state) {
+            is UiState.Idle -> handleIdleState()
+            is UiState.Loading -> handleLoadingState()
+            is UiState.Success -> handleSuccessState(state)
+            is UiState.Error -> handleErrorState(state.error)
+        }
+    }
+}
+```
+
+**Suggestion**: Migrate all Activities to use StateManager.observeState for consistent UI state management
+
+**Benefits**:
+- Eliminates code duplication (manual collect + when pattern repeated 4 times)
+- Consistent UI state behavior (loading, success, error, empty)
+- Centralized state observation logic (easier to maintain)
+- Better separation of concerns (StateManager handles UI visibility)
+- Reduces boilerplate code in Activities (10-15 lines per Activity)
+
+**Files to Modify**:
+- LaporanActivity.kt (line 67-79, migrate to StateManager.observeState)
+- VendorManagementActivity.kt (line 48-67, migrate to StateManager.observeState)
+- TransactionHistoryActivity.kt (line 44-68, migrate to StateManager.observeState)
+- PaymentActivity.kt (line 33-52, migrate to StateManager.observeState for PaymentEvent)
+
+**Anti-Patterns Eliminated**:
+- ❌ No more manual StateFlow collect boilerplate
+- ❌ No more inconsistent UI state handling
+- ❌ No more when (state) pattern duplication
+
+---
+
+### REFACTOR-007. Unused RepositoryFactory Imports
+**Status**: Pending
+**Priority**: Low
+**Estimated Time**: 30 minutes
+**Location**: presentation/ui/activity/LaporanActivity.kt, VendorManagementActivity.kt, TransactionHistoryActivity.kt
+
+**Issue**: Unused RepositoryFactory import statements
+- LaporanActivity (line 18): Imports TransactionRepositoryFactory but never uses it
+- VendorManagementActivity (line 13): Imports VendorRepositoryFactory but never uses it
+- TransactionHistoryActivity (line 12): Imports TransactionRepositoryFactory but never uses it
+- All Activities now use DependencyContainer.provide*ViewModel() instead
+- These are dead code / unused imports
+
+**Code Pattern**:
+```kotlin
+// LaporanActivity - Unused import (dead code)
+import com.example.iurankomplek.data.repository.TransactionRepositoryFactory
+
+// All Activities now use DependencyContainer instead
+viewModel = DependencyContainer.provideFinancialViewModel()
+```
+
+**Suggestion**: Remove unused RepositoryFactory imports from Activities
+
+**Benefits**:
+- Cleaner imports (remove dead code)
+- Reduces confusion (RepositoryFactory no longer used in Activities)
+- Improves code maintainability (fewer unused imports to manage)
+
+**Files to Modify**:
+- LaporanActivity.kt (remove line 18)
+- VendorManagementActivity.kt (remove line 13)
+- TransactionHistoryActivity.kt (remove line 12)
+
+**Anti-Patterns Eliminated**:
+- ❌ No more unused imports cluttering code
+- ❌ No more dead code from legacy patterns
+
+---
+
+### REFACTOR-008. Large Class - IntegrationHealthMonitor
+**Status**: Pending
+**Priority**: Medium
+**Estimated Time**: 2-3 hours
+**Location**: network/health/IntegrationHealthMonitor.kt (300 lines)
+
+**Issue**: IntegrationHealthMonitor class is too large (300 lines) with multiple responsibilities
+- Component health tracking (componentHealth map)
+- Request tracking (IntegrationHealthTracker)
+- Circuit breaker state monitoring
+- Rate limit monitoring
+- Health check scheduling
+- Statistics aggregation
+
+**Current Structure**:
+```kotlin
+class IntegrationHealthMonitor(
+    private val circuitBreaker: CircuitBreaker = ApiConfig.circuitBreaker,
+    private val rateLimiter: RateLimiterInterceptor = ApiConfig.rateLimiter
+) {
+    // Component health tracking
+    private val componentHealth = ConcurrentHashMap<String, IntegrationHealthStatus>()
+    
+    // Request tracking
+    private val tracker = IntegrationHealthTracker()
+    
+    // Health check scheduling
+    private val lastHealthCheck = AtomicLong(0)
+    
+    // Statistics tracking
+    private val circuitBreakerFailures = AtomicInteger(0)
+    private val rateLimitViolations = AtomicInteger(0)
+    
+    // Multiple responsibilities in single class
+    fun recordRequest(...)
+    fun recordRetry(...)
+    fun recordCircuitBreakerOpen(...)
+    fun recordRateLimitExceeded(...)
+    fun checkCircuitBreakerHealth(...)
+    fun checkRateLimiterHealth(...)
+    fun getHealthReport(...)
+    fun resetHealthStatus(...)
+    // ... 300 lines total
+}
+```
+
+**Suggestion**: Extract separate classes for different responsibilities
+1. **ComponentHealthTracker**: Manages component health state (Healthy, Degraded, CircuitOpen, RateLimited)
+2. **HealthStatisticsCollector**: Aggregates statistics (failures, violations, success rates)
+3. **HealthCheckScheduler**: Manages periodic health checks
+4. **IntegrationHealthMonitor**: Orchestrates the above components
+
+**Benefits**:
+- Single Responsibility Principle (each class has one clear purpose)
+- Easier testing (can test components independently)
+- Better maintainability (changes to health tracking isolated to one class)
+- Clearer code organization (300 lines → 4 smaller classes)
+
+**Estimated Breakdown**:
+- ComponentHealthTracker: ~70 lines
+- HealthStatisticsCollector: ~60 lines
+- HealthCheckScheduler: ~80 lines
+- IntegrationHealthMonitor (refactored): ~90 lines
+
+**Files to Create**:
+- network/health/ComponentHealthTracker.kt (NEW)
+- network/health/HealthStatisticsCollector.kt (NEW)
+- network/health/HealthCheckScheduler.kt (NEW)
+
+**Files to Modify**:
+- IntegrationHealthMonitor.kt (refactor to use extracted classes)
+
+**Anti-Patterns Eliminated**:
+- ❌ No more god class with multiple responsibilities
+- ❌ No more difficult-to-test monolithic class
+- ❌ No more tightly coupled health monitoring code
+
+---
 **Issues Fixed**:
 
 **1. Technology Stack Outdated** (Line 9-18):
