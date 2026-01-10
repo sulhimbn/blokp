@@ -14,7 +14,7 @@ import com.example.iurankomplek.presentation.viewmodel.MessageViewModel
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.utils.Constants
 
-class MessagesFragment : BaseFragment<List<Message>>>() {
+class MessagesFragment : BaseFragment<List<Message>>() {
 
     private var _binding: FragmentMessagesBinding? = null
     private val binding get() = _binding!!
