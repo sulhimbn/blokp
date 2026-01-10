@@ -24,7 +24,7 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageViewHolder>(Di
         fun bind(message: Message) {
             contentTextView.text = message.content
             timestampTextView.text = message.timestamp
-            senderTextView.text = SENDER_PREFIX + message.senderId
+            senderTextView.text = "$SENDER_PREFIX${message.senderId}"
         }
     }
 

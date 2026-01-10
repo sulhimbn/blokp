@@ -26,7 +26,7 @@ class CommunityPostAdapter : ListAdapter<CommunityPost, CommunityPostAdapter.Com
             titleTextView.text = post.title
             contentTextView.text = post.content
             categoryTextView.text = post.category
-            likesTextView.text = LIKES_PREFIX + post.likes
+            likesTextView.text = "$LIKES_PREFIX${post.likes}"
         }
     }
 

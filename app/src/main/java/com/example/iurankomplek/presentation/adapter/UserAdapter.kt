@@ -29,7 +29,7 @@ class UserAdapter : ListAdapter<LegacyDataItemDto, UserAdapter.ListViewHolder>(U
         val firstName = InputSanitizer.sanitizeName(user.first_name).takeIf { it.isNotBlank() }
         val lastName = InputSanitizer.sanitizeName(user.last_name).takeIf { it.isNotBlank() }
         holder.binding.itemName.text = when {
-            firstName != null && lastName != null -> firstName + " " + lastName
+            firstName != null && lastName != null -> "$firstName $lastName"
             firstName != null -> firstName
             lastName != null -> lastName
             else -> "Unknown User"
