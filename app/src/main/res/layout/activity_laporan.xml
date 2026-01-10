@@ -51,7 +51,9 @@
                 android:layout_height="wrap_content">
 
                 <!-- State Management Include -->
-                <include layout="@layout/include_state_management" />
+                <include
+                    android:id="@+id/stateManagementInclude"
+                    layout="@layout/include_state_management" />
 
                 <!-- RecyclerView for summary items -->
                 <androidx.recyclerview.widget.RecyclerView

@@ -11,9 +11,9 @@ import com.example.iurankomplek.databinding.FragmentCommunityBinding
 import com.example.iurankomplek.presentation.adapter.CommunityPostAdapter
 import com.example.iurankomplek.presentation.viewmodel.CommunityPostViewModel
 import com.example.iurankomplek.utils.UiState
-import com.example.iurankomplek.data.api.models.CommunityPostDto
+import com.example.iurankomplek.model.CommunityPost
 
-class CommunityFragment : BaseFragment<UiState<List<CommunityPostDto>>>() {
+class CommunityFragment : BaseFragment<UiState<List<CommunityPost>>>() {
 
     private var _binding: FragmentCommunityBinding? = null
     private val binding get() = _binding!!

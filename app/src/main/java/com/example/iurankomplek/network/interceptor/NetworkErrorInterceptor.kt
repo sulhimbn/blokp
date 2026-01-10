@@ -37,12 +37,16 @@ class NetworkErrorInterceptor(
             val responseTime = System.currentTimeMillis() - startTime
 
             if (response.isSuccessful) {
-                healthMonitor?.recordRequest(
-                    endpoint = endpoint,
-                    responseTimeMs = responseTime,
-                    success = true,
-                    httpCode = response.code
-                )
+                healthMonitor?.let { monitor ->
+                    kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                        monitor.recordRequest(
+                            endpoint = endpoint,
+                            responseTimeMs = responseTime,
+                            success = true,
+                            httpCode = response.code
+                        )
+                    }
+                }
             }
 
             if (!response.isSuccessful) {

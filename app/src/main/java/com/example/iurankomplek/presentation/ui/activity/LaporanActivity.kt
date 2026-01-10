@@ -128,8 +128,8 @@ class LaporanActivity : BaseActivity() {
                 showError = true,
                 showContent = false
             )
-            binding.errorStateTextView.text = getString(R.string.invalid_response_format)
-            binding.retryTextView.setOnClickListener { viewModel.loadFinancialData() }
+            binding.stateManagementInclude.errorStateTextView.text = getString(R.string.invalid_response_format)
+            binding.stateManagementInclude.retryTextView.setOnClickListener { viewModel.loadFinancialData() }
         }
     }
 
@@ -140,15 +140,15 @@ class LaporanActivity : BaseActivity() {
             showError = true,
             showContent = false
         )
-        binding.errorStateTextView.text = error
+        binding.stateManagementInclude.errorStateTextView.text = error
         binding.swipeRefreshLayout.isRefreshing = false
-        binding.retryTextView.setOnClickListener { viewModel.loadFinancialData() }
+        binding.stateManagementInclude.retryTextView.setOnClickListener { viewModel.loadFinancialData() }
     }
 
     private fun setUIState(loading: Boolean, showEmpty: Boolean, showError: Boolean, showContent: Boolean) {
-        binding.progressBar.visibility = if (loading) View.VISIBLE else View.GONE
-        binding.emptyStateTextView.visibility = if (showEmpty) View.VISIBLE else View.GONE
-        binding.errorStateLayout.visibility = if (showError) View.VISIBLE else View.GONE
+        binding.stateManagementInclude.progressBar.visibility = if (loading) View.VISIBLE else View.GONE
+        binding.stateManagementInclude.emptyStateTextView.visibility = if (showEmpty) View.VISIBLE else View.GONE
+        binding.stateManagementInclude.errorStateLayout.visibility = if (showError) View.VISIBLE else View.GONE
         binding.rvLaporan.visibility = if (showContent) View.VISIBLE else View.GONE
         binding.rvSummary.visibility = if (showContent) View.VISIBLE else View.GONE
     }

@@ -67,8 +67,4 @@ class VendorDatabaseFragment : BaseFragment<UiState<com.example.iurankomplek.mod
     override fun loadData() {
         vendorViewModel.loadVendors()
     }
-
-    override fun initializeViewModel(viewModelProvider: ViewModelProvider) {
-        vendorViewModel = com.example.iurankomplek.di.DependencyContainer.provideVendorViewModel()
-    }
 }

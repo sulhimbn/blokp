@@ -10,6 +10,7 @@ import com.example.iurankomplek.databinding.FragmentWorkOrderManagementBinding
 import com.example.iurankomplek.presentation.adapter.WorkOrderAdapter
 import com.example.iurankomplek.presentation.viewmodel.VendorViewModel
 import com.example.iurankomplek.utils.UiState
+import com.example.iurankomplek.model.WorkOrderResponse
 
 class WorkOrderManagementFragment : BaseFragment<UiState<WorkOrderResponse>>() {
 

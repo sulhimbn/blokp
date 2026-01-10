@@ -11,9 +11,9 @@ import com.example.iurankomplek.databinding.FragmentAnnouncementsBinding
 import com.example.iurankomplek.presentation.adapter.AnnouncementAdapter
 import com.example.iurankomplek.presentation.viewmodel.AnnouncementViewModel
 import com.example.iurankomplek.utils.UiState
-import com.example.iurankomplek.data.api.models.AnnouncementDto
+import com.example.iurankomplek.model.Announcement
 
-class AnnouncementsFragment : BaseFragment<UiState<List<AnnouncementDto>>>() {
+class AnnouncementsFragment : BaseFragment<UiState<List<Announcement>>>() {
 
     private var _binding: FragmentAnnouncementsBinding? = null
     private val binding get() = _binding!!
