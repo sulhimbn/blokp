@@ -5,7 +5,6 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.iurankomplek.data.DataTypeConverters
 import com.example.iurankomplek.data.dao.FinancialRecordDao
 import com.example.iurankomplek.data.dao.TransactionDao
@@ -16,7 +15,6 @@ import com.example.iurankomplek.data.entity.UserEntity
 import com.example.iurankomplek.payment.WebhookEvent
 import com.example.iurankomplek.payment.WebhookEventDao
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @Database(
     entities = [UserEntity::class, FinancialRecordEntity::class, Transaction::class, WebhookEvent::class],
@@ -34,6 +32,15 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
+        private val migrations = arrayOf(
+            Migration1(), Migration1Down, Migration2, Migration2Down,
+            Migration3, Migration3Down, Migration4, Migration4Down,
+            Migration5, Migration5Down, Migration6, Migration6Down,
+            Migration7, Migration7Down, Migration8, Migration8Down,
+            Migration9, Migration9Down, Migration10, Migration10Down,
+            Migration11(), Migration11Down, Migration12(), Migration12Down
+        )
+
         fun getDatabase(context: Context, scope: CoroutineScope): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -41,21 +48,10 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "iuran_komplek_database"
                 )
-                    .addCallback(DatabaseCallback(scope))
-                    .addMigrations(Migration1(), Migration1Down, Migration2, Migration2Down, Migration3, Migration3Down, Migration4, Migration4Down, Migration5, Migration5Down, Migration6, Migration6Down, Migration7, Migration7Down, Migration8, Migration8Down, Migration9, Migration9Down, Migration10, Migration10Down, Migration11(), Migration11Down, Migration12(), Migration12Down)
+                    .addMigrations(*migrations)
                     .build()
                 INSTANCE = instance
                 instance
-            }
-        }
-
-        private class DatabaseCallback(private val scope: CoroutineScope) : RoomDatabase.Callback() {
-            override fun onCreate(db: SupportSQLiteDatabase) {
-                super.onCreate(db)
-            }
-
-            override fun onOpen(db: SupportSQLiteDatabase) {
-                super.onOpen(db)
             }
         }
     }
