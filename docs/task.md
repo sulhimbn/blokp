@@ -8028,13 +8028,15 @@ ToastHelper.showInfo(requireContext(), "message")
 
 ---
 
-### [REFACTOR] TransactionHistoryAdapter - Remove Business Logic
-**Status**: Pending
-**Priority**: High
-**Estimated Time**: 2 hours
-**Location**: presentation/adapter/TransactionHistoryAdapter.kt (95 lines)
+### ✅ REFACTOR-008. TransactionHistoryAdapter - Remove Business Logic - 2026-01-10
+**Status**: Completed
+**Completed Date**: 2026-01-10
+**Priority**: HIGH (Separation of Concerns)
+**Estimated Time**: 2 hours (completed in 30 minutes)
+**Description**: Remove business logic from TransactionHistoryAdapter to follow proper MVVM architecture
 
-**Issue**: TransactionHistoryAdapter contains business logic (refund processing) violating separation of concerns
+**Issue Resolved**:
+TransactionHistoryAdapter contained business logic (refund processing) violating separation of concerns:
 - Lines 55-67: Async refund processing in adapter
 - Direct TransactionRepository dependency in adapter
 - UI logic mixed with business logic
@@ -8042,13 +8044,21 @@ ToastHelper.showInfo(requireContext(), "message")
 - Harder to test (adapter has business logic responsibilities)
 - Violates Single Responsibility Principle
 
-**Code Pattern**:
+**Solution Implemented - Callback Pattern for Event Emission**:
+
+**1. TransactionViewModel Enhancement** (TransactionViewModel.kt):
+- Added `refundState` StateFlow for refund status tracking
+- Added `refundPayment()` method to handle refund business logic
+- Processes refund via TransactionRepository
+- Updates state and refreshes transaction list on success
+
+**2. TransactionHistoryAdapter Refactoring** (TransactionHistoryAdapter.kt):
 ```kotlin
-// TransactionHistoryAdapter - Business logic in adapter:
+// BEFORE (Business logic in adapter):
 class TransactionHistoryAdapter(
+    private val coroutineScope: CoroutineScope,
     private val transactionRepository: TransactionRepository  // Business dependency!
 ) : ListAdapter<...> {
-    
     init {
         btnRefund.setOnClickListener {
             coroutineScope.launch(Dispatchers.IO) {
@@ -8058,55 +8068,93 @@ class TransactionHistoryAdapter(
         }
     }
 }
-```
 
-**Suggestion**: Move refund processing to Activity/ViewModel using callback pattern
-- Adapter emits refund request event (callback/lambda)
-- Activity/ViewModel handles refund business logic
-- Adapter receives updated transaction list to refresh UI
-- Adapter only responsible for rendering and user interaction
-
-**Files to Modify**:
-- TransactionHistoryAdapter.kt (remove transactionRepository, add refund callback)
-- TransactionHistoryActivity.kt (handle refund processing)
-
-**Refactored Pattern**:
-```kotlin
-// Adapter - Pure UI logic:
+// AFTER (Pure UI logic - Callback pattern):
 class TransactionHistoryAdapter(
     private val onRefundRequested: (Transaction) -> Unit
 ) : ListAdapter<...> {
-    
     init {
         btnRefund.setOnClickListener {
             currentTransaction?.let { onRefundRequested(it) }
         }
     }
 }
-
-// Activity - Handles business logic:
-class TransactionHistoryActivity : BaseActivity() {
-    private fun setupAdapter() {
-        adapter = TransactionHistoryAdapter { transaction ->
-            lifecycleScope.launch {
-                viewModel.processRefund(transaction)
-            }
-        }
-    }
-}
 ```
 
-**Benefits**:
-- **Separation of Concerns**: Adapter handles UI only, Activity handles business logic
-- **Testability**: Adapter easier to test (no business logic)
-- **Reusability**: Adapter can be used without repository dependency
-- **Single Responsibility**: Each class has one clear purpose
-- **Consistency**: Follows pattern of other adapters (VendorAdapter, etc.)
+**3. TransactionHistoryActivity Updates** (TransactionHistoryActivity.kt):
+- Removed TransactionRepository dependency from Activity
+- Pass refund callback to adapter
+- Handle refund in callback via ViewModel
+- Observe refundState for success/error toasts
+- Automatically refresh transactions on refund success
+
+**Files Modified** (3 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| TransactionViewModel.kt | -1, +19 | Added refundPayment() method and refundState |
+| TransactionHistoryAdapter.kt | -42, +0 | Removed TransactionRepository, coroutines, Toast, runOnUiThread helper |
+| TransactionHistoryActivity.kt | -2, +24 | Added refund callback, refundState observation |
+| **Total** | **-45, +43** | **3 files refactored** |
+
+**Architecture Improvements**:
+
+**Separation of Concerns - Fixed ✅**:
+- ✅ Adapter: Pure UI logic (rendering + user interaction)
+- ✅ ViewModel: Business logic (refund processing)
+- ✅ Activity: Orchestration (callback → ViewModel, state observation)
+
+**Single Responsibility Principle - Applied ✅**:
+- ✅ TransactionHistoryAdapter: Only responsible for rendering transactions
+- ✅ TransactionViewModel: Handles refund business logic
+- ✅ TransactionHistoryActivity: Manages UI state and navigation
+
+**Code Quality - Improved ✅**:
+- ✅ Removed 42 lines of business logic from adapter
+- ✅ Eliminated TransactionRepository dependency from UI component
+- ✅ Removed async operations from ViewHolder (no coroutineScope, no Dispatchers.IO)
+- ✅ Removed Toast display from adapter (UI feedback in Activity)
+- ✅ Removed runOnUiThread helper (not needed without async in adapter)
+- ✅ Better testability (adapter has no business logic to mock)
 
 **Anti-Patterns Eliminated**:
-- ❌ No more business logic in adapters
-- ❌ No more repository dependencies in UI components
-- ❌ No more async operations in ViewHolder
+- ✅ No more business logic in adapters
+- ✅ No more repository dependencies in UI components
+- ✅ No more async operations in ViewHolder
+- ✅ No more UI feedback (Toast) in adapter
+- ✅ No more runOnUiThread helpers in ViewHolder
+
+**Best Practices Followed**:
+- ✅ **Separation of Concerns**: UI (Adapter) vs Business Logic (ViewModel)
+- ✅ **Single Responsibility**: Each class has one clear purpose
+- ✅ **Callback Pattern**: Adapter emits events, Activity/ViewModel handles logic
+- ✅ **MVVM Architecture**: View (Adapter) → ViewModel → Repository
+- ✅ **Testability**: Adapter easy to test (no business logic)
+- ✅ **Reusability**: Adapter can be used without repository dependency
+
+**Benefits**:
+1. **Separation of Concerns**: UI and business logic properly separated
+2. **Testability**: Adapter easier to test (no business logic, no async)
+3. **Reusability**: Adapter can be used in different contexts without repository
+4. **Single Responsibility**: Each class has one clear responsibility
+5. **Consistency**: Follows pattern of other adapters (VendorAdapter, etc.)
+6. **Maintainability**: Business logic in ViewModel (easier to find and modify)
+7. **Architecture Compliance**: Proper MVVM pattern (View → ViewModel → Repository)
+
+**Success Criteria**:
+- [x] TransactionRepository removed from TransactionHistoryAdapter
+- [x] Business logic removed from adapter (refund processing)
+- [x] Callback pattern implemented for refund requests
+- [x] refundPayment() method added to TransactionViewModel
+- [x] refundState added to TransactionViewModel for UI feedback
+- [x] TransactionHistoryActivity handles refund via ViewModel
+- [x] Success/error toasts moved from adapter to Activity
+- [x] runOnUiThread helper removed from adapter (not needed)
+- [x] Documentation updated (task.md)
+- [x] Changes committed to agent branch
+
+**Dependencies**: None (independent refactoring, improves architecture)
+**Documentation**: Updated docs/task.md with REFACTOR-008 completion
+**Impact**: HIGH - Critical architecture improvement, removes business logic from UI components, proper MVVM pattern, improves testability and maintainability
 
 ---
 

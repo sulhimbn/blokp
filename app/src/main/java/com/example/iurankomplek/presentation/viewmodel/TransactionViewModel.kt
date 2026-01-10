@@ -19,6 +19,9 @@ class TransactionViewModel(
     private val _transactionsState = MutableStateFlow<UiState<List<Transaction>>>(UiState.Loading)
     val transactionsState: StateFlow<UiState<List<Transaction>>> = _transactionsState
 
+    private val _refundState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
+    val refundState: StateFlow<UiState<Unit>> = _refundState
+
     fun loadTransactionsByStatus(status: PaymentStatus) {
         viewModelScope.launch {
             _transactionsState.value = UiState.Loading
@@ -27,6 +30,23 @@ class TransactionViewModel(
                 _transactionsState.value = UiState.Success(transactions)
             } catch (exception: Exception) {
                 _transactionsState.value = UiState.Error(exception.message ?: "Unknown error occurred")
+            }
+        }
+    }
+
+    fun refundPayment(transactionId: String, reason: String) {
+        viewModelScope.launch {
+            _refundState.value = UiState.Loading
+            try {
+                val result = transactionRepository.refundPayment(transactionId, reason)
+                if (result.isSuccess) {
+                    _refundState.value = UiState.Success(Unit)
+                    loadAllTransactions()
+                } else {
+                    _refundState.value = UiState.Error(result.exceptionOrNull()?.message ?: "Refund failed")
+                }
+            } catch (exception: Exception) {
+                _refundState.value = UiState.Error(exception.message ?: "Unknown error occurred")
             }
         }
     }
