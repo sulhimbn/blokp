@@ -86,14 +86,13 @@ class LaporanActivity : BaseActivity() {
             data.data?.let { dataArray ->
                 if (dataArray.isEmpty()) {
                     stateManager.showEmpty()
-                    return
+                } else {
+                    stateManager.showSuccess()
+                    binding.rvSummary.visibility = View.VISIBLE
+
+                    adapter.submitList(dataArray)
+                    calculateAndSetSummary(dataArray)
                 }
-
-                stateManager.showSuccess()
-                binding.rvSummary.visibility = View.VISIBLE
-
-                adapter.submitList(dataArray)
-                calculateAndSetSummary(dataArray)
             } ?: run {
                 stateManager.showError(
                     errorMessage = getString(R.string.invalid_response_format),

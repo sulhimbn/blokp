@@ -9,6 +9,7 @@ import com.example.iurankomplek.network.model.ApiErrorCode
 import com.example.iurankomplek.network.resilience.CircuitBreaker
 import com.example.iurankomplek.network.resilience.CircuitBreakerResult
 import com.example.iurankomplek.utils.RetryHelper
+import com.example.iurankomplek.utils.Result
 import retrofit2.Response
 
 interface HealthRepository {
@@ -17,22 +18,24 @@ interface HealthRepository {
 
 class HealthRepositoryImpl(
     private val apiService: ApiServiceV1
-) : HealthRepository, BaseRepository {
-    
+) : HealthRepository, BaseRepository() {
+
     override suspend fun getHealth(includeDiagnostics: Boolean, includeMetrics: Boolean): Result<HealthCheckResponse> {
-        return executeWithCircuitBreakerV1 {
+        val result = executeWithCircuitBreakerV1 {
             val request = HealthCheckRequest(
                 includeDiagnostics = includeDiagnostics,
                 includeMetrics = includeMetrics
             )
             apiService.getHealth(request)
-        }.onFailure { error ->
-            throw NetworkError.HttpError(
+        }
+        return when (result) {
+            is Result.Error -> throw NetworkError.HttpError(
                 code = ApiErrorCode.SERVICE_UNAVAILABLE,
                 userMessage = "Health check failed",
                 httpCode = 500,
-                details = error.message
+                details = result.message
             )
+            else -> result
         }
     }
 }

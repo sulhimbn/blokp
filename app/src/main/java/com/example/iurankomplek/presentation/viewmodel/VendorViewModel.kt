@@ -2,6 +2,7 @@ package com.example.iurankomplek.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.example.iurankomplek.core.base.BaseViewModel
 import com.example.iurankomplek.data.repository.VendorRepository
 import com.example.iurankomplek.model.VendorResponse

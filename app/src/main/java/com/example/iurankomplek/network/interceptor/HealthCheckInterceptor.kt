@@ -6,6 +6,8 @@ import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 
 class HealthCheckInterceptor(
     private val healthMonitor: IntegrationHealthMonitor = IntegrationHealthMonitor.getInstance(),

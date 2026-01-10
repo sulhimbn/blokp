@@ -1,11 +1,15 @@
 package com.example.iurankomplek.data.repository
 import com.example.iurankomplek.utils.OperationResult
 
+import retrofit2.Response
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.network.model.NetworkError
 import com.example.iurankomplek.network.resilience.CircuitBreaker
 import com.example.iurankomplek.network.resilience.CircuitBreakerResult
+import com.example.iurankomplek.data.api.models.ApiListResponse
 import com.example.iurankomplek.data.api.models.ApiResponse
+import com.example.iurankomplek.utils.Result as AppResult
+import kotlin.Result
 
 abstract class BaseRepository {
     
@@ -15,24 +19,24 @@ abstract class BaseRepository {
     
     protected suspend fun <T : Any> executeWithCircuitBreaker(
         apiCall: suspend () -> retrofit2.Response<T>
-    ): Result<T> {
+    ): AppResult<T> {
         val circuitBreakerResult = circuitBreaker.execute {
             com.example.iurankomplek.utils.RetryHelper.executeWithRetry(
                 apiCall = apiCall,
                 maxRetries = maxRetries
             )
         }
-        
+
         return when (circuitBreakerResult) {
-            is CircuitBreakerResult.Success -> Result.success(circuitBreakerResult.value)
-            is CircuitBreakerResult.Failure -> Result.failure(circuitBreakerResult.exception)
-            is CircuitBreakerResult.CircuitOpen -> Result.failure(NetworkError.CircuitBreakerError())
+            is CircuitBreakerResult.Success -> AppResult.Success(circuitBreakerResult.value)
+            is CircuitBreakerResult.Failure -> AppResult.Error(circuitBreakerResult.exception, circuitBreakerResult.exception.message ?: "Unknown error")
+            is CircuitBreakerResult.CircuitOpen -> AppResult.Error(NetworkError.CircuitBreakerError(), "Circuit breaker open")
         }
     }
 
     protected suspend fun <T : Any> executeWithCircuitBreakerV1(
         apiCall: suspend () -> retrofit2.Response<ApiResponse<T>>
-    ): Result<T> {
+    ): AppResult<T> {
         val circuitBreakerResult = circuitBreaker.execute {
             com.example.iurankomplek.utils.RetryHelper.executeWithRetry(
                 apiCall = apiCall,
@@ -43,25 +47,27 @@ abstract class BaseRepository {
         return when (circuitBreakerResult) {
             is CircuitBreakerResult.Success -> {
                 val response = circuitBreakerResult.value
-                val body = response.body()
-                if (response.isSuccessful && body != null) {
-                    Result.success(body.data)
+                if (response.isSuccessful && response.body() != null) {
+                    AppResult.Success(response.body()!!.data)
                 } else {
-                    Result.failure(NetworkError.HttpError(
-                        code = com.example.iurankomplek.network.model.ApiErrorCode.fromHttpCode(response.code),
-                        userMessage = "API request failed",
-                        httpCode = response.code
-                    ))
+                    AppResult.Error(
+                        NetworkError.HttpError(
+                            code = com.example.iurankomplek.network.model.ApiErrorCode.fromHttpCode(response.code()),
+                            userMessage = "API request failed",
+                            httpCode = response.code()
+                        ),
+                        "API request failed"
+                    )
                 }
             }
-            is CircuitBreakerResult.Failure -> Result.failure(circuitBreakerResult.exception)
-            is CircuitBreakerResult.CircuitOpen -> Result.failure(NetworkError.CircuitBreakerError())
+            is CircuitBreakerResult.Failure -> AppResult.Error(circuitBreakerResult.exception, circuitBreakerResult.exception.message ?: "Unknown error")
+            is CircuitBreakerResult.CircuitOpen -> AppResult.Error(NetworkError.CircuitBreakerError(), "Circuit breaker open")
         }
     }
 
     protected suspend fun <T : Any> executeWithCircuitBreakerV2(
         apiCall: suspend () -> retrofit2.Response<ApiListResponse<T>>
-    ): Result<List<T>> {
+    ): AppResult<List<T>> {
         val circuitBreakerResult = circuitBreaker.execute {
             com.example.iurankomplek.utils.RetryHelper.executeWithRetry(
                 apiCall = apiCall,
@@ -72,19 +78,21 @@ abstract class BaseRepository {
         return when (circuitBreakerResult) {
             is CircuitBreakerResult.Success -> {
                 val response = circuitBreakerResult.value
-                val body = response.body()
-                if (response.isSuccessful && body != null) {
-                    Result.success(body.data)
+                if (response.isSuccessful && response.body() != null) {
+                    AppResult.Success(response.body()!!.data)
                 } else {
-                    Result.failure(NetworkError.HttpError(
-                        code = com.example.iurankomplek.network.model.ApiErrorCode.fromHttpCode(response.code),
-                        userMessage = "API request failed",
-                        httpCode = response.code
-                    ))
+                    AppResult.Error(
+                        NetworkError.HttpError(
+                            code = com.example.iurankomplek.network.model.ApiErrorCode.fromHttpCode(response.code()),
+                            userMessage = "API request failed",
+                            httpCode = response.code()
+                        ),
+                        "API request failed"
+                    )
                 }
             }
-            is CircuitBreakerResult.Failure -> Result.failure(circuitBreakerResult.exception)
-            is CircuitBreakerResult.CircuitOpen -> Result.failure(NetworkError.CircuitBreakerError())
+            is CircuitBreakerResult.Failure -> AppResult.Error(circuitBreakerResult.exception, circuitBreakerResult.exception.message ?: "Unknown error")
+            is CircuitBreakerResult.CircuitOpen -> AppResult.Error(NetworkError.CircuitBreakerError(), "Circuit breaker open")
         }
     }
 }

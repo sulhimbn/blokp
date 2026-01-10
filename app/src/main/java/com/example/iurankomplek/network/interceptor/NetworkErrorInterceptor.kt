@@ -16,6 +16,8 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import javax.net.ssl.SSLException
 import android.util.Log
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Dispatchers
 
 class NetworkErrorInterceptor(
     private val enableLogging: Boolean = false,

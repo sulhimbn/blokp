@@ -5,6 +5,7 @@ import com.example.iurankomplek.model.VendorResponse
 import com.example.iurankomplek.model.SingleVendorResponse
 import com.example.iurankomplek.model.WorkOrderResponse
 import com.example.iurankomplek.model.SingleWorkOrderResponse
+import com.example.iurankomplek.utils.Result
 
 interface VendorRepository {
     suspend fun getVendors(): Result<VendorResponse>
@@ -21,7 +22,7 @@ interface VendorRepository {
         contractStart: String,
         contractEnd: String
     ): Result<SingleVendorResponse>
-    
+
     suspend fun updateVendor(
         id: String,
         name: String,
@@ -36,7 +37,7 @@ interface VendorRepository {
         contractEnd: String,
         isActive: Boolean
     ): Result<SingleVendorResponse>
-    
+
     suspend fun getWorkOrders(): Result<WorkOrderResponse>
     suspend fun getWorkOrder(id: String): Result<SingleWorkOrderResponse>
     suspend fun createWorkOrder(
@@ -48,13 +49,13 @@ interface VendorRepository {
         reporterId: String,
         estimatedCost: Double
     ): Result<SingleWorkOrderResponse>
-    
+
     suspend fun assignVendorToWorkOrder(
         workOrderId: String,
         vendorId: String,
         scheduledDate: String?
     ): Result<SingleWorkOrderResponse>
-    
+
     suspend fun updateWorkOrderStatus(
         workOrderId: String,
         status: String,

@@ -21,7 +21,7 @@ class WorkOrderManagementFragment : BaseFragment<WorkOrderResponse>() {
     private lateinit var vendorViewModel: VendorViewModel
 
     override val recyclerView: RecyclerView
-        get() = binding.workOrderRecyclerView
+        get() = binding.workOrderRecyclerView!!
 
     override val progressBar: View
         get() = binding.root.findViewById(com.example.iurankomplek.R.id.progressBar)
@@ -51,7 +51,7 @@ class WorkOrderManagementFragment : BaseFragment<WorkOrderResponse>() {
 
     override fun initializeViewModel(viewModelProvider: ViewModelProvider) {
         val factory = com.example.iurankomplek.di.DependencyContainer.provideVendorViewModel()
-        vendorViewModel = viewModelProvider.get(VendorViewModel::class.java, factory)
+        vendorViewModel = ViewModelProvider(factory)[VendorViewModel::class.java]
     }
 
     override fun observeViewModelState() {

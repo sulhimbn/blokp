@@ -2,6 +2,7 @@ package com.example.iurankomplek.data.repository
 import com.example.iurankomplek.utils.OperationResult
 
 import com.example.iurankomplek.model.Message
+import com.example.iurankomplek.utils.Result
 
 interface MessageRepository {
     suspend fun getMessages(userId: String): Result<List<Message>>

@@ -9,10 +9,11 @@ import com.example.iurankomplek.network.model.UpdateVendorRequest
 import com.example.iurankomplek.network.model.CreateWorkOrderRequest
 import com.example.iurankomplek.network.model.AssignVendorRequest
 import com.example.iurankomplek.network.model.UpdateWorkOrderRequest
+import com.example.iurankomplek.utils.Result
 
 class VendorRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiServiceV1
-) : VendorRepository, BaseRepository {
+) : VendorRepository, BaseRepository() {
 
     override suspend fun getVendors(): Result<VendorResponse> = executeWithCircuitBreakerV1 {
         apiService.getVendors()
@@ -39,7 +40,7 @@ class VendorRepositoryImpl(
                 licenseNumber, insuranceInfo, contractStart, contractEnd)
         )
     }
-    
+
     override suspend fun updateVendor(
         id: String,
         name: String,
@@ -59,15 +60,15 @@ class VendorRepositoryImpl(
                 licenseNumber, insuranceInfo, contractStart, contractEnd, isActive)
         )
     }
-    
+
     override suspend fun getWorkOrders(): Result<WorkOrderResponse> = executeWithCircuitBreakerV1 {
         apiService.getWorkOrders()
     }
-    
+
     override suspend fun getWorkOrder(id: String): Result<SingleWorkOrderResponse> = executeWithCircuitBreakerV1 {
         apiService.getWorkOrder(id)
     }
-    
+
     override suspend fun createWorkOrder(
         title: String,
         description: String,
@@ -81,7 +82,7 @@ class VendorRepositoryImpl(
             CreateWorkOrderRequest(title, description, category, priority, propertyId, reporterId, estimatedCost)
         )
     }
-    
+
     override suspend fun assignVendorToWorkOrder(
         workOrderId: String,
         vendorId: String,
@@ -89,7 +90,7 @@ class VendorRepositoryImpl(
     ): Result<SingleWorkOrderResponse> = executeWithCircuitBreaker {
         apiService.assignVendorToWorkOrder(workOrderId, AssignVendorRequest(vendorId, scheduledDate))
     }
-    
+
     override suspend fun updateWorkOrderStatus(
         workOrderId: String,
         status: String,

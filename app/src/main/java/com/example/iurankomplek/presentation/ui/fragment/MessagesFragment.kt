@@ -9,6 +9,7 @@ import com.example.iurankomplek.R
 import com.example.iurankomplek.core.base.BaseFragment
 import com.example.iurankomplek.di.DependencyContainer
 import com.example.iurankomplek.databinding.FragmentMessagesBinding
+import com.example.iurankomplek.model.Message
 import com.example.iurankomplek.presentation.adapter.MessageAdapter
 import com.example.iurankomplek.presentation.viewmodel.MessageViewModel
 import com.example.iurankomplek.utils.UiState
@@ -44,7 +45,7 @@ class MessagesFragment : BaseFragment<List<Message>>() {
  
     override fun initializeViewModel(viewModelProvider: ViewModelProvider) {
         val factory = DependencyContainer.provideMessageViewModel()
-        viewModel = viewModelProvider.get(MessageViewModel::class.java, factory)
+        viewModel = ViewModelProvider(factory)[MessageViewModel::class.java]
     }
 
     override fun observeViewModelState() {

@@ -232,6 +232,15 @@
     <string name="item_iuran_perwarga">Iuran Per Warga</string>
     <string name="item_total_iuran_individu">Total Iuran Individu</string>
     <string name="menu_item_text">Menu Item</string>
-    <string name="pemanfaatan_title">Pemanfaatan</string>
-    <string name="pemanfaatan_item_cleaning_cost">Cleaning Cost</string>
-</resources>
+     <string name="pemanfaatan_title">Pemanfaatan</string>
+     <string name="pemanfaatan_item_cleaning_cost">Cleaning Cost</string>
+
+     <!-- Work Order -->
+     <string name="work_order_id_not_provided">Work order ID not provided</string>
+     <string name="error_with_message">Error: %s</string>
+     <string name="work_order_not_assigned">Not assigned</string>
+
+     <!-- Refund -->
+     <string name="refund_processed_successfully">Refund processed successfully</string>
+     <string name="refund_failed">Refund failed: %s</string>
+ </resources>

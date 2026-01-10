@@ -13,72 +13,51 @@ import com.example.iurankomplek.network.model.NetworkError
 import com.example.iurankomplek.network.resilience.CircuitBreaker
 import com.example.iurankomplek.network.resilience.CircuitBreakerResult
 import com.example.iurankomplek.network.resilience.CircuitBreakerState
+import com.example.iurankomplek.utils.Result
 import kotlinx.coroutines.flow.first
 import kotlin.math.pow
 import retrofit2.HttpException
 
 class PemanfaatanRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiServiceV1
-) : PemanfaatanRepository, BaseRepository {
+) : PemanfaatanRepository, BaseRepository() {
 
     override suspend fun getPemanfaatan(forceRefresh: Boolean): Result<PemanfaatanResponse> {
-        return cacheFirstStrategy(
-            getFromCache = {
+        return try {
+            if (!forceRefresh) {
                 val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
-                val mappingResult = EntityMapper.toLegacyDtoList(usersWithFinancials)
-                if (mappingResult.isSuccess) {
-                    val pemanfaatanResponse = PemanfaatanResponse(mappingResult.getOrThrow())
-                    if (mappingResult.getOrThrow().isEmpty()) null else pemanfaatanResponse
-                } else {
-                    null
+                if (usersWithFinancials.isNotEmpty()) {
+                    val pemanfaatanResponse = PemanfaatanResponse(EntityMapper.toLegacyDtoList(usersWithFinancials).getOrThrow())
+                    return Result.Success(pemanfaatanResponse)
                 }
-            },
-            getFromNetwork = {
-                val circuitBreakerResult = executeWithCircuitBreaker {
-                    apiService.getPemanfaatan()
-                }
-                circuitBreakerResult.getOrThrow()
-            },
-            isCacheFresh = { response ->
-                if (response.data.isNotEmpty()) {
-                    val latestUpdate = CacheManager.getUserDao().getLatestUpdatedAt()
-                    if (latestUpdate != null) {
-                        CacheManager.isCacheFresh(latestUpdate.time)
-                    } else {
-                        false
-                    }
-                } else {
-                    false
-                }
-            },
-            saveToCache = { response ->
-                savePemanfaatanToCache(response)
-            },
-            forceRefresh = forceRefresh
-        )
+            }
+
+            val result = executeWithCircuitBreaker { apiService.getPemanfaatan() }
+            if (result is Result.Success) {
+                savePemanfaatanToCache(result.data)
+            }
+            result
+        } catch (e: Exception) {
+            Result.Error(e, e.message ?: "Unknown error")
+        }
     }
-    
+
     override suspend fun getCachedPemanfaatan(): Result<PemanfaatanResponse> {
         return try {
             val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
-            val mappingResult = EntityMapper.toLegacyDtoList(usersWithFinancials)
-            if (mappingResult.isSuccess) {
-                val pemanfaatanResponse = PemanfaatanResponse(mappingResult.getOrThrow())
-                Result.success(pemanfaatanResponse)
-            } else {
-                Result.failure(mappingResult.exceptionOrNull() ?: Exception("Mapping failed"))
-            }
+            val pemanfaatanResponse = PemanfaatanResponse(EntityMapper.toLegacyDtoList(usersWithFinancials).getOrThrow())
+            Result.Success(pemanfaatanResponse)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e, e.message ?: "Unknown error")
         }
     }
-    
+
     override suspend fun clearCache(): Result<Unit> {
         return try {
             CacheManager.getFinancialRecordDao().deleteAll()
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e, e.message ?: "Unknown error")
         }
     }
     

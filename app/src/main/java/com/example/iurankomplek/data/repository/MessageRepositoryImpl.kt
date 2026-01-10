@@ -3,24 +3,25 @@ import com.example.iurankomplek.utils.OperationResult
 
 import com.example.iurankomplek.model.Message
 import com.example.iurankomplek.network.model.SendMessageRequest
+import com.example.iurankomplek.utils.Result
 import kotlinx.coroutines.delay
 import java.util.concurrent.ConcurrentHashMap
 
 class MessageRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiServiceV1
-) : MessageRepository, BaseRepository {
+) : MessageRepository, BaseRepository() {
     private val cache = ConcurrentHashMap<String, List<Message>>()
 
     override suspend fun getMessages(userId: String): Result<List<Message>> {
         val cachedMessages = cache[userId]
         if (cachedMessages != null) {
-            return Result.success(cachedMessages)
+            return Result.Success(cachedMessages)
         }
 
         return executeWithCircuitBreakerV2 { apiService.getMessages(userId) }
             .also { result ->
-                result.onSuccess { messages ->
-                    cache[userId] = messages
+                if (result is Result.Success) {
+                    cache[userId] = result.data
                 }
             }
     }
@@ -28,7 +29,7 @@ class MessageRepositoryImpl(
     override suspend fun getMessagesWithUser(receiverId: String, senderId: String): Result<List<Message>> {
         return executeWithCircuitBreakerV2 { apiService.getMessagesWithUser(receiverId, senderId) }
     }
- 
+
     override suspend fun sendMessage(senderId: String, receiverId: String, content: String): Result<Message> {
         val request = SendMessageRequest(
             senderId = senderId,
@@ -41,18 +42,18 @@ class MessageRepositoryImpl(
     override suspend fun getCachedMessages(userId: String): Result<List<Message>> {
         return try {
             val messages = cache[userId] ?: emptyList()
-            Result.success(messages)
+            Result.Success(messages)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e, e.message ?: "Unknown error")
         }
     }
 
     override suspend fun clearCache(): Result<Unit> {
         return try {
             cache.clear()
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e, e.message ?: "Unknown error")
         }
     }
 }

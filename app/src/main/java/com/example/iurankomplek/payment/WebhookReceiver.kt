@@ -71,10 +71,10 @@ class WebhookReceiver(
     private suspend fun processWebhook(payload: String) {
         try {
             val webhookPayload = parseWebhookPayload(payload)
-            
+
             if (webhookPayload.eventType.isBlank()) {
                 Log.e(TAG, "Invalid webhook payload: missing event type")
-                return@launch
+                return
             }
 
             if (webhookQueue != null) {
