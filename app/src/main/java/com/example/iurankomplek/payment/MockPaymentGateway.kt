@@ -7,10 +7,8 @@ import com.example.iurankomplek.utils.OperationResult
 
 class MockPaymentGateway : PaymentGateway {
     override suspend fun processPayment(request: PaymentRequest): OperationResult<PaymentResponse> {
-        // Simulate payment processing
         return try {
-            // In a real implementation, this would call actual payment gateway APIs
-            Thread.sleep(500) // Simulate network delay
+            Thread.sleep(500)
 
             val response = PaymentResponse(
                 transactionId = UUID.randomUUID().toString(),
@@ -31,8 +29,6 @@ class MockPaymentGateway : PaymentGateway {
 
     override suspend fun refundPayment(transactionId: String): OperationResult<RefundResponse> {
         return try {
-            // In a real implementation, this would get the original transaction amount
-            // For mock, we'll generate a refund amount based on the transaction ID
             val refundAmount = calculateRefundAmount(transactionId)
             val response = RefundResponse(
                 refundId = UUID.randomUUID().toString(),
@@ -50,39 +46,17 @@ class MockPaymentGateway : PaymentGateway {
     }
 
     private fun calculateRefundAmount(transactionId: String): BigDecimal {
-        // In a real implementation, this would look up the original transaction
-        // For mock, we'll return a value based on the transaction ID
         val hash = transactionId.hashCode().toString()
-        val amountDigits = hash.takeLast(4) // Take last 4 digits of hash
+        val amountDigits = hash.takeLast(4)
         val amount = if (amountDigits.toIntOrNull() ?: 0 > 0) amountDigits.toInt() else com.example.iurankomplek.utils.Constants.Payment.DEFAULT_REFUND_AMOUNT_MIN
         return BigDecimal(amount.toString())
     }
 
     override suspend fun getPaymentStatus(transactionId: String): OperationResult<PaymentStatus> {
         return try {
-            // In a real implementation, this would query the payment gateway for status
             OperationResult.Success(PaymentStatus.COMPLETED)
         } catch (e: Exception) {
             OperationResult.Error(e, e.message ?: "Status check failed")
-        }
-    }
-    }
-
-    private fun calculateRefundAmount(transactionId: String): BigDecimal {
-        // In a real implementation, this would look up the original transaction
-        // For mock, we'll return a value based on transaction ID
-        val hash = transactionId.hashCode().toString()
-        val amountDigits = hash.takeLast(4) // Take last 4 digits of hash
-        val amount = if (amountDigits.toIntOrNull() ?: 0 > 0) amountDigits.toInt() else com.example.iurankomplek.utils.Constants.Payment.DEFAULT_REFUND_AMOUNT_MIN
-        return BigDecimal(amount.toString())
-    }
-
-    override suspend fun getPaymentStatus(transactionId: String): Result<PaymentStatus> {
-        return try {
-            // In a real implementation, this would query the payment gateway for status
-            Result.success(PaymentStatus.COMPLETED)
-        } catch (e: Exception) {
-            Result.failure(e)
         }
     }
 }
