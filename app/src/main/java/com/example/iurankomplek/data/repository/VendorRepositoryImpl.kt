@@ -77,25 +77,43 @@ class VendorRepositoryImpl(
         propertyId: String,
         reporterId: String,
         estimatedCost: Double
-    ): OperationResult<SingleWorkOrderResponse> = executeWithCircuitBreakerV1 {
-        apiService.createWorkOrder(
-            CreateWorkOrderRequest(title, description, category, priority, propertyId, reporterId, estimatedCost)
-        )
+    ): OperationResult<SingleWorkOrderResponse> {
+        return executeWithCircuitBreakerV1 {
+            apiService.createWorkOrder(
+                CreateWorkOrderRequest(title, description, category, priority, propertyId, reporterId, estimatedCost)
+            )
+        }
     }
 
     override suspend fun assignVendorToWorkOrder(
         workOrderId: String,
         vendorId: String,
         scheduledDate: String?
-    ): OperationResult<SingleWorkOrderResponse> = executeWithCircuitBreaker {
-        apiService.assignVendorToWorkOrder(workOrderId, AssignVendorRequest(vendorId, scheduledDate))
+    ): OperationResult<SingleWorkOrderResponse> {
+        val result = executeWithCircuitBreaker {
+            apiService.assignVendorToWorkOrder(workOrderId, AssignVendorRequest(vendorId, scheduledDate))
+        }
+        return when (result) {
+            is OperationResult.Success -> OperationResult.Success(result.data.data)
+            is OperationResult.Error -> result
+            is OperationResult.Loading -> OperationResult.Error(IllegalStateException("Assignment in progress"), "Assignment in progress")
+            is OperationResult.Empty -> OperationResult.Error(IllegalStateException("No assignment result"), "No assignment result")
+        }
     }
 
     override suspend fun updateWorkOrderStatus(
         workOrderId: String,
         status: String,
         notes: String?
-    ): OperationResult<SingleWorkOrderResponse> = executeWithCircuitBreaker {
-        apiService.updateWorkOrderStatus(workOrderId, UpdateWorkOrderRequest(status, notes))
+    ): OperationResult<SingleWorkOrderResponse> {
+        val result = executeWithCircuitBreaker {
+            apiService.updateWorkOrderStatus(workOrderId, UpdateWorkOrderRequest(status, notes))
+        }
+        return when (result) {
+            is OperationResult.Success -> OperationResult.Success(result.data.data)
+            is OperationResult.Error -> result
+            is OperationResult.Loading -> OperationResult.Error(IllegalStateException("Update in progress"), "Update in progress")
+            is OperationResult.Empty -> OperationResult.Error(IllegalStateException("No update result"), "No update result")
+        }
     }
 }
