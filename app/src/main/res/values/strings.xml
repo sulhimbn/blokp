@@ -85,45 +85,16 @@
      <string name="payment_failed_with_error">Payment failed: %s</string>
      <string name="payment_processed_successfully">Payment processed successfully!</string>
      <string name="payment_invalid_format">Invalid amount format</string>
-     <string name="payment_invalid_value">Invalid amount value</string>
-     <string name="no_messages_available">No messages available</string>
-     <string name="failed_to_load_messages">Failed to load messages</string>
-     <string name="no_announcements_available">No announcements available</string>
-     <string name="failed_to_load_announcements">Failed to load announcements</string>
-     <string name="work_order_id_not_provided">Work order ID not provided</string>
-     <string name="work_order_not_assigned">Not assigned</string>
-     <string name="refund_processed_successfully">Refund processed successfully</string>
-     <string name="refund_failed">Refund failed: %s</string>
-     <string name="no_community_posts_available">No community posts available</string>
-     <string name="failed_to_load_community_posts">Failed to load community posts</string>
-     <string name="error_with_message">Error: %s</string>
-     
-     <!-- Activity Titles -->
-     <string name="main_activity_title">DAFTAR IURAN WARGA KONOHA</string>
-     <string name="menu_activity_title">IURAN KOMPLEK KONOHA</string>
-     <string name="laporan_activity_title">LAPORAN KAS RT</string>
+    <string name="payment_invalid_value">Invalid amount value</string>
 
-     <!-- Menu Items -->
-     <string name="menu_warga">Warga</string>
-     <string name="menu_laporan">Laporan</string>
-     <string name="menu_komunikasi">Komunikasi</string>
-     <string name="menu_pembayaran">Pembayaran</string>
-     <string name="menu_item_text">Menu Item</string>
+    <string-array name="payment_methods">
+        <item>Bank Transfer</item>
+        <item>Cash</item>
+        <item>E-Wallet</item>
+        <item>Credit Card</item>
+    </string-array>
 
-     <!-- Item Labels -->
-     <string name="item_name">Name</string>
-     <string name="item_email">Email</string>
-     <string name="item_address">Address</string>
-     <string name="item_iuran_perwarga">Iuran Perwarga</string>
-     <string name="item_total_iuran_individu">Total Iuran Individu</string>
-
-     <!-- Laporan Screen -->
-      <string name="pemanfaatan_title">2. Pemanfaatan : </string>
-      <string name="pemanfaatan_item_cleaning_cost">- Biaya Kebersihan Lingkungan : </string>
-      <string name="pemanfaatan_item_value">200.000,00</string>
-
-
-      <!-- Transaction History -->
+    <!-- Transaction History -->
     <string name="transaction_item_desc">Transaction history item card</string>
     <string name="transaction_amount">Amount:</string>
     <string name="transaction_amount_value">Transaction amount</string>

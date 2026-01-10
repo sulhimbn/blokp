@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Base Widget Styles -->
+    <style name="Widget.BlokP" />
+
+    <!-- Base Text Appearance Styles -->
+    <style name="TextAppearance.BlokP" />
+
     <style name="Widget.BlokP.Button" parent="Widget.Material3.Button">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
