@@ -372,10 +372,19 @@ app/
  - Single source of truth for data
  - Abstracts data source (API vs future Cache)
  - Enables testing with mock repositories
- - Implemented for all data types (Users, Financial, Vendors, Transactions) ✅ UPDATED
- - Factory pattern for consistent repository instantiation ✅ NEW
- - Interface-based design for dependency inversion ✅ UPDATED
- - **Unified Repository Pattern** (Module 88 - 2026-01-08) ✅ NEW
+    - Implemented for all data types (Users, Financial, Vendors, Transactions) ✅ UPDATED
+    - Factory pattern for consistent repository instantiation ✅ NEW
+    - Interface-based design for dependency inversion ✅ UPDATED
+    - **Unified Repository Pattern** (Module 88 - 2026-01-08) ✅ NEW
+
+    - **API Standardization** (INT-001 - 2026-01-10) ✅ NEW
+    * Migrated all repositories from legacy ApiService to standardized ApiServiceV1
+    * Added executeWithCircuitBreakerV1 method to BaseRepository for ApiResponse<T> wrapper handling
+    * ApiResponse wrapper automatically unwraps .data field from v1 API responses
+    * Created BaseRepositoryLegacy type alias for backward compatibility
+    * Zero breaking changes: repository interfaces unchanged, only internal implementation migrated
+    * Benefits: Consistent API usage, standardized error handling, documentation alignment
+    * Files modified: BaseRepository.kt, UserRepositoryImpl.kt, PemanfaatanRepositoryImpl.kt, VendorRepositoryImpl.kt, MessageRepositoryImpl.kt, AnnouncementRepositoryImpl.kt, CommunityPostRepositoryImpl.kt
    * Strategy Pattern for pluggable caching (InMemoryCacheStrategy, DatabaseCacheStrategy, NoCacheStrategy)
    * BaseRepositoryV2 provides unified error handling and circuit breaker protection
    * Eliminated code duplication (circuit breaker logic centralized)
@@ -4654,12 +4663,18 @@ API Standardization establishes consistent patterns for all endpoints to ensure 
 
 ### API Versioning Strategy
 **Documented in**: `docs/API_STANDARDIZATION.md`
-
+ 
 **Versioning Rules**:
 - URL path versioning: `/api/v1/` prefix
 - Backward compatibility: Maintain previous major versions for 6 months
 - Deprecation headers: X-API-Deprecated, X-API-Sunset, X-API-Recommended-Version
 - Breaking changes: Always increment major version (v1.x → v2.0)
+
+**Implementation Status**:
+- ✅ **ApiServiceV1 Active**: All repositories migrated to ApiServiceV1 (2026-01-10)
+- ✅ **Response Wrappers**: ApiResponse<T> and ApiListResponse<T> used consistently
+- ✅ **Standardized Metadata**: request_id and timestamp in all responses
+- ✅ **Backward Compatible**: Legacy ApiService maintained for reference
 
 ### Naming Conventions
 **JSON (API Response)**: snake_case
