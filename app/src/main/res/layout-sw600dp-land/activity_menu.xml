@@ -42,13 +42,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Warga Menu Item -->
+         <!-- Warga Menu Item -->
         <LinearLayout
             android:id="@+id/cdMenu1"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:layout_marginEnd="@dimen/spacing_lg"
+            android:layout_marginEnd="@dimen/spacing_md"
             android:background="@drawable/bg_card_view_focused"
             android:orientation="vertical"
             android:padding="@dimen/spacing_xl"
@@ -149,13 +149,13 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Pembayaran Menu Item -->
+         <!-- Pembayaran Menu Item -->
         <LinearLayout
             android:id="@+id/cdMenu4"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:layout_marginStart="@dimen/spacing_lg"
+            android:layout_marginStart="@dimen/spacing_md"
             android:background="@drawable/bg_card_view_focused"
             android:orientation="vertical"
             android:padding="@dimen/spacing_xl"

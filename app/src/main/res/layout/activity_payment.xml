@@ -24,14 +24,9 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_amount"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        style="@style/Widget.BlokP.TextInputLayout"
         android:layout_marginBottom="@dimen/margin_md"
         android:hint="@string/payment_amount_hint"
-        app:boxCornerRadiusBottomEnd="@dimen/radius_md"
-        app:boxCornerRadiusBottomStart="@dimen/radius_md"
-        app:boxCornerRadiusTopEnd="@dimen/radius_md"
-        app:boxCornerRadiusTopStart="@dimen/radius_md"
         app:helperText="@string/payment_amount_helper"
         app:layout_constraintTop_toBottomOf="@id/tv_payment_title"
         app:layout_constraintStart_toStartOf="parent"
@@ -39,11 +34,8 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_amount"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            style="@style/Widget.BlokP.TextInputEditText"
             android:inputType="numberDecimal"
-            android:minHeight="@dimen/button_height_min"
-            android:importantForAccessibility="yes"
             android:contentDescription="@string/payment_amount_input_desc"
             android:labelFor="@id/til_amount" />
 
@@ -65,12 +57,9 @@
 
     <Spinner
         android:id="@+id/spinner_payment_method"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:minHeight="@dimen/button_height_min"
+        style="@style/Widget.BlokP.Spinner"
         android:layout_marginBottom="@dimen/margin_lg"
         android:entries="@array/payment_methods"
-        android:importantForAccessibility="yes"
         android:contentDescription="@string/payment_method_spinner_desc"
         app:layout_constraintTop_toBottomOf="@id/tv_payment_method_label"
         app:layout_constraintStart_toStartOf="parent"
@@ -90,29 +79,19 @@
 
     <Button
         android:id="@+id/btn_pay"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/payment_pay_now"
-        android:textSize="@dimen/text_size_normal"
-        android:minHeight="@dimen/button_height_min"
+        style="@style/Widget.BlokP.Button.Primary"
         android:layout_marginBottom="@dimen/margin_md"
-        android:backgroundTint="@color/primary"
+        android:text="@string/payment_pay_now"
         android:contentDescription="@string/payment_pay_now_desc"
-        android:importantForAccessibility="yes"
         app:layout_constraintBottom_toTopOf="@id/btn_view_history"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <Button
         android:id="@+id/btn_view_history"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        style="@style/Widget.BlokP.Button.Secondary"
         android:text="@string/payment_view_history"
-        android:textSize="@dimen/text_size_normal"
-        android:minHeight="@dimen/button_height_min"
-        android:backgroundTint="@color/secondary"
         android:contentDescription="@string/payment_view_history_desc"
-        android:importantForAccessibility="yes"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

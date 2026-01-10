@@ -27,14 +27,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Row 1 Menu Items -->
-    <!-- Warga Menu Item -->
+     <!-- Row 1 Menu Items -->
+     <!-- Warga Menu Item -->
     <LinearLayout
         android:id="@+id/cdMenu1"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/spacing_xxl"
-        android:layout_marginEnd="@dimen/spacing_lg"
+        android:layout_marginEnd="@dimen/spacing_md"
         android:background="@drawable/bg_card_view_focused"
         android:orientation="vertical"
         android:padding="@dimen/spacing_xl"
@@ -108,15 +108,15 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Row 2 Menu Items -->
-    <!-- Komunikasi Menu Item -->
+     <!-- Row 2 Menu Items -->
+     <!-- Komunikasi Menu Item -->
     <LinearLayout
         android:id="@+id/cdMenu3"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/spacing_xl"
         android:layout_marginBottom="@dimen/spacing_xxl"
-        android:layout_marginEnd="@dimen/spacing_lg"
+        android:layout_marginEnd="@dimen/spacing_md"
         android:background="@drawable/bg_card_view_focused"
         android:orientation="vertical"
         android:padding="@dimen/spacing_xl"
