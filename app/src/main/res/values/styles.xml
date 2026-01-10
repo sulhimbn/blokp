@@ -3,7 +3,7 @@
     <style name="Widget.BlokP" />
     <style name="TextAppearance.BlokP" />
     
-    <style name="Widget.BlokP.Button" parent="Widget.Material3.Button">
+    <style name="Widget.BlokP.Button" parent="Widget.MaterialComponents.Button">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:minHeight">@dimen/button_height_min</item>
@@ -24,7 +24,7 @@
         <item name="android:textColor">@color/text_on_secondary</item>
     </style>
 
-    <style name="Widget.BlokP.Button.TextButton" parent="Widget.Material3.Button.TextButton">
+    <style name="Widget.BlokP.Button.TextButton" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">@dimen/text_size_small</item>
@@ -32,7 +32,7 @@
         <item name="android:focusable">true</item>
     </style>
 
-    <style name="Widget.BlokP.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+    <style name="Widget.BlokP.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="boxCornerRadiusBottomEnd">@dimen/radius_md</item>
@@ -41,7 +41,7 @@
         <item name="boxCornerRadiusTopStart">@dimen/radius_md</item>
     </style>
 
-    <style name="Widget.BlokP.TextInputEditText" parent="Widget.Material3.TextInputEditText.OutlinedBox">
+    <style name="Widget.BlokP.TextInputEditText" parent="Widget.MaterialComponents.TextInputEditText.OutlinedBox">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:minHeight">@dimen/button_height_min</item>
