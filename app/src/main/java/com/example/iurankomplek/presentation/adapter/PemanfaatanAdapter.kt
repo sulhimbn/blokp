@@ -24,11 +24,9 @@ class PemanfaatanAdapter : ListAdapter<LegacyDataItemDto, PemanfaatanAdapter.Lis
     }
 
     class ListViewHolder(val binding: ItemPemanfaatanBinding): RecyclerView.ViewHolder(binding.root) {
-        private val dashPrefix = "-"
-        private val colonSuffix = ":"
 
         fun bind(item: LegacyDataItemDto) {
-            binding.itemPemanfaatan.text = dashPrefix + InputSanitizer.sanitizePemanfaatan(item.pemanfaatan_iuran) + colonSuffix
+            binding.itemPemanfaatan.text = "-${InputSanitizer.sanitizePemanfaatan(item.pemanfaatan_iuran)}:"
             binding.itemDanaPemanfaatan.text = InputSanitizer.formatCurrency(if (item.pengeluaran_iuran_warga >= 0) item.pengeluaran_iuran_warga else 0)
         }
     }

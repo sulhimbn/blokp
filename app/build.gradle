@@ -41,7 +41,7 @@ plugins {
         release {
             minifyEnabled = true
             shrinkResources = true
-            proguardFiles = getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles = [getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro']
         }
     }
     buildFeatures {
@@ -71,7 +71,7 @@ plugins {
         checkReleaseBuilds = true
         xmlReport = true
         htmlReport = true
-        disable = 'NotificationPermission'
+        disable 'NotificationPermission'
     }
 }
 

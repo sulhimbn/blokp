@@ -20,13 +20,12 @@ class CommunityPostAdapter : ListAdapter<CommunityPost, CommunityPostAdapter.Com
         private val contentTextView: TextView = itemView.findViewById(R.id.postContent)
         private val categoryTextView: TextView = itemView.findViewById(R.id.postCategory)
         private val likesTextView: TextView = itemView.findViewById(R.id.postLikes)
-        private val likesPrefix = "Likes: "
 
         fun bind(post: CommunityPost) {
             titleTextView.text = post.title
             contentTextView.text = post.content
             categoryTextView.text = post.category
-            likesTextView.text = likesPrefix + post.likes
+            likesTextView.text = "Likes: ${post.likes}"
         }
     }
 
