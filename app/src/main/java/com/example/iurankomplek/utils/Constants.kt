@@ -1,5 +1,7 @@
 package com.example.iurankomplek.utils
 
+import com.example.iurankomplek.BuildConfig
+
 /**
  * Centralized constants for the application
  */
