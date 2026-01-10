@@ -70,7 +70,7 @@
         <item name="android:focusable">true</item>
     </style>
 
-    <style name="Widget.BlokP.Header" parent="TextAppearance.BlokP.Heading.H4">
+    <style name="Widget.BlokP.Header" parent="TextAppearance.BlokP.Heading.H3">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@color/accent_green</item>
@@ -81,6 +81,19 @@
         <item name="android:paddingBottom">@dimen/padding_md</item>
         <item name="android:textColor">@color/text_on_primary</item>
         <item name="android:fontFamily">@font/font</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:importantForAccessibility">yes</item>
+    </style>
+
+    <style name="Widget.BlokP.Header.Large" parent="TextAppearance.BlokP.Heading.H2">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">@dimen/margin_lg</item>
+        <item name="android:layout_marginTop">@dimen/spacing_xxl</item>
+        <item name="android:layout_marginEnd">@dimen/margin_lg</item>
+        <item name="android:fontFamily">@font/font</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:textColor">@color/accent_teal_dark</item>
         <item name="android:textStyle">bold</item>
         <item name="android:importantForAccessibility">yes</item>
     </style>

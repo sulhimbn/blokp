@@ -10,20 +10,9 @@
      <!-- Header Title -->
     <TextView
         android:id="@+id/textView1"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@color/accent_green"
-        android:fontFamily="@font/font"
-        android:gravity="center"
-        android:paddingStart="@dimen/padding_md"
-        android:paddingTop="@dimen/padding_md"
-        android:paddingEnd="@dimen/padding_md"
-        android:paddingBottom="@dimen/padding_md"
+        style="@style/Widget.BlokP.Header"
         android:text="@string/main_activity_title"
-        android:textColor="@color/text_on_primary"
-        android:textSize="@dimen/heading_h4"
-        android:textStyle="bold"
-        android:importantForAccessibility="yes"
+        android:contentDescription="@string/main_activity_title_desc"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
