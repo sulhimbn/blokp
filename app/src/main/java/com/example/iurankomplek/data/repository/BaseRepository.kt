@@ -42,8 +42,9 @@ abstract class BaseRepository {
         return when (circuitBreakerResult) {
             is CircuitBreakerResult.Success -> {
                 val response = circuitBreakerResult.value
-                if (response.isSuccessful && response.body() != null) {
-                    Result.success(response.body()!!.data)
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    Result.success(body.data)
                 } else {
                     Result.failure(NetworkError.HttpError(
                         code = com.example.iurankomplek.network.model.ApiErrorCode.fromHttpCode(response.code()),
