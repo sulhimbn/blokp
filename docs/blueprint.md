@@ -3481,16 +3481,22 @@ Performance gap in WebhookEvent index strategy:
 - **Reasonable build time?**: ⚠️ CHECKING (average 2-3 minutes expected)
 - **Timeout issues?**: ✅ No timeout issues
 
-### CI Pipeline ✅
-- **GitHub Actions**: Android CI workflow
-  - Lint check
-  - Build Debug APK
-  - Build Release APK
-  - Unit tests
-  - Instrumented tests (API levels 29, 34)
-- **Build Artifacts**: APK uploads
-- **Test Reports**: Lint and test reports uploaded
-- **Caching**: Gradle package caching for faster builds
+ ### CI Pipeline ✅
+ - **GitHub Actions**: Android CI/CD workflow (updated 2026-01-10)
+   - Lint check (fails on errors - no continue-on-error)
+   - Build Debug APK (with verification)
+   - Build Release APK (with verification)
+   - Unit tests
+   - Test coverage report and verification (soft failure)
+   - Dependency vulnerability scan (soft failure)
+   - Instrumented tests (API levels 29, 34)
+ - **Build Artifacts**: APK uploads with retention policies
+ - **Test Reports**: All reports uploaded with if-no-files-found: warn
+ - **Caching**: 
+   - Gradle package caching for faster builds
+   - Android build cache for incremental compilation
+ - **Job Dependencies**: Instrumented tests depend on successful build
+ - **Error Handling**: APK verification steps fail build if APKs not generated
 
 ### CI/CD Incident Management ✅
 
