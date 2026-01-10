@@ -796,6 +796,199 @@ object Webhook {
 
 ---
 
+## Health Check API
+
+**Purpose**: Provide REST API endpoint for external monitoring tools to query system health status in real-time.
+
+### Health Check Endpoint
+
+#### POST /api/v1/health
+
+Returns system health status, integration metrics, and optional diagnostics.
+
+**Request Body**:
+```json
+{
+  "includeDiagnostics": false,
+  "includeMetrics": false
+}
+```
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|-----------|-------------|
+| `includeDiagnostics` | Boolean | No | Include detailed circuit breaker and rate limiter diagnostics |
+| `includeMetrics` | Boolean | No | Include performance metrics (success rate, response time) |
+
+**Response Body**:
+```json
+{
+  "data": {
+    "status": "HEALTHY",
+    "version": "1.0.0",
+    "uptimeMs": 86400000,
+    "components": {
+      "circuit_breaker": {
+        "status": "HEALTHY",
+        "healthy": true,
+        "message": "All integration systems operational"
+      },
+      "rate_limiter": {
+        "status": "HEALTHY",
+        "healthy": true,
+        "message": "Rate limiter within normal limits"
+      },
+      "api_service": {
+        "status": "HEALTHY",
+        "healthy": true,
+        "message": "API service operational"
+      },
+      "network": {
+        "status": "HEALTHY",
+        "healthy": true,
+        "message": "Network connectivity normal"
+      }
+    },
+    "timestamp": 1704672000000,
+    "diagnostics": {
+      "circuitBreakerState": "CLOSED",
+      "circuitBreakerFailures": 0,
+      "rateLimitStats": {
+        "GET:/api/v1/users": {
+          "requestCount": 50,
+          "lastRequestTime": 1704671995000
+        }
+      }
+    },
+    "metrics": {
+      "healthScore": 95.5,
+      "totalRequests": 100,
+      "successRate": 95.0,
+      "averageResponseTimeMs": 150.0,
+      "errorRate": 5.0,
+      "timeoutCount": 1,
+      "rateLimitViolations": 0
+    }
+  },
+  "request_id": "req_1234567890_abc42",
+  "timestamp": 1704672000000
+}
+```
+
+### Health Status Values
+
+| Status | Description | Action |
+|--------|-------------|---------|
+| `HEALTHY` | All systems operational | Continue normal monitoring |
+| `DEGRADED` | Some components degraded | Investigate degraded components |
+| `UNHEALTHY` | Critical systems failing | Immediate investigation required |
+| `CIRCUIT_OPEN` | Circuit breaker is open | Check service availability |
+| `RATE_LIMITED` | Rate limit exceeded | Reduce request rate |
+
+### Component Health
+
+| Component | Description | Status Values |
+|-----------|-------------|---------------|
+| `circuit_breaker` | Circuit breaker state | HEALTHY, CIRCUIT_OPEN |
+| `rate_limiter` | Rate limiter status | HEALTHY, RATE_LIMITED |
+| `api_service` | API service health | HEALTHY, DEGRADED, UNHEALTHY |
+| `network` | Network connectivity | HEALTHY, UNHEALTHY |
+
+### Health Metrics
+
+| Metric | Type | Description | Target |
+|--------|-------|-------------|--------|
+| `healthScore` | Double | Overall health score (0-100) | >= 90 |
+| `totalRequests` | Integer | Total requests tracked | N/A |
+| `successRate` | Double | Percentage of successful requests | >= 95% |
+| `averageResponseTimeMs` | Double | Average response time in ms | <= 500 |
+| `errorRate` | Double | Percentage of failed requests | <= 5% |
+| `timeoutCount` | Integer | Number of timeout errors | N/A |
+| `rateLimitViolations` | Integer | Number of rate limit violations | 0 |
+
+### Usage Example
+
+**Basic Health Check**:
+```kotlin
+val result = healthRepository.getHealth()
+result.onSuccess { response ->
+    when (response.status) {
+        "HEALTHY" -> println("System operational")
+        "DEGRADED" -> println("System degraded")
+        "UNHEALTHY" -> println("System unavailable")
+    }
+}
+```
+
+**Health Check with Diagnostics**:
+```kotlin
+healthRepository.getHealth(
+    includeDiagnostics = true,
+    includeMetrics = false
+)
+```
+
+**Full Health Check**:
+```kotlin
+healthRepository.getHealth(
+    includeDiagnostics = true,
+    includeMetrics = true
+)
+```
+
+### Integration with Monitoring Tools
+
+**Prometheus Health Check**:
+```bash
+curl -X POST https://api.example.com/api/v1/health \
+  -H "Content-Type: application/json" \
+  -d '{"includeDiagnostics": true, "includeMetrics": true}'
+```
+
+**Datadog Synthetics**:
+- Create synthetic monitor for POST /api/v1/health
+- Alert on status != "HEALTHY"
+- Monitor healthScore metric (alert if < 90)
+
+**Uptime Robot Monitoring**:
+- Configure HTTP POST monitor for /api/v1/health
+- Parse JSON response.status field
+- Set up alerts for status changes
+
+### Automatic Health Tracking
+
+**HealthCheckInterceptor**: Automatically tracks request health for all API calls
+- Records request metrics via IntegrationHealthMonitor
+- Logs requests in debug mode
+- Monitors circuit breaker and rate limit events
+- Skips health endpoint to avoid infinite recursion
+
+**Intercepted Requests**: All non-health API endpoints automatically monitored
+**Monitoring Data**:
+- Request response times
+- Success/failure counts
+- Timeout errors
+- Rate limit violations
+- Circuit breaker state changes
+
+### Best Practices
+
+**For Monitoring Tools**:
+1. **Check Health Endpoint**: Poll POST /api/v1/health every 30-60 seconds
+2. **Parse JSON Response**: Extract `status` field for alerting
+3. **Monitor Health Score**: Alert if `healthScore` drops below 90
+4. **Check Component Health**: Investigate specific component degradation
+5. **Set Up Alerts**: Notify on status changes (HEALTHY → DEGRADED/UNHEALTHY)
+
+**For Health Check Implementation**:
+1. **Fast Response**: Health check should complete within 500ms
+2. **Timeout Protection**: Set 5s timeout for health check endpoint
+3. **Circuit Breaker Bypass**: Health check not subject to circuit breaker
+4. **Rate Limit Exemption**: Health check endpoint not rate-limited
+5. **Minimal Dependencies**: Avoid complex dependencies in health check path
+
+---
+
 ## Best Practices
 
 ### For API Consumers
