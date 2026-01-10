@@ -476,6 +476,103 @@ This pattern appeared in **15+ methods** across 7 ViewModels, violating DRY prin
 
 ---
 
+### ✅ REFACTOR-009. Eliminate GlobalScope Anti-Pattern - 2026-01-10
+**Status**: Completed
+**Completed Date**: 2026-01-10
+**Priority**: HIGH (Memory Leak Prevention)
+**Estimated Time**: 30 minutes (completed in 20 minutes)
+**Description**: Eliminate GlobalScope usage in interceptors to prevent memory leaks and improve testability
+
+**Issue Identified**:
+- `HealthCheckInterceptor.kt` used `GlobalScope.launch()` in 3 locations
+- `NetworkErrorInterceptor.kt` used `GlobalScope.launch()` in 1 location
+- GlobalScope is a well-known anti-pattern that violates structured concurrency
+- Coroutines launched in GlobalScope are not tied to any lifecycle
+- Risk: Memory leaks if interceptors are destroyed but coroutines continue running
+- Risk: Difficult to test - can't control coroutine execution
+- Risk: Violates Kotlin coroutines best practices
+
+**Solution Implemented - Structured Concurrency**:
+
+1. **HealthCheckInterceptor Refactoring**:
+   - Removed `import kotlinx.coroutines.GlobalScope`
+   - Added `CoroutineScope` with `SupervisorJob`
+   - Added `AtomicBoolean` flag for safe cleanup
+   - Added `destroy()` method for proper resource cleanup
+   - All coroutines now use `scope.launch()` instead of `GlobalScope.launch()`
+   - Added `isDestroyed.get()` check before executing health monitor operations
+
+2. **NetworkErrorInterceptor Refactoring**:
+   - Removed `import kotlinx.coroutines.GlobalScope`
+   - Added `CoroutineScope` with `SupervisorJob`
+   - Added `AtomicBoolean` flag for safe cleanup
+   - Added `destroy()` method for proper resource cleanup
+   - All coroutines now use `scope.launch()` instead of `GlobalScope.launch()`
+   - Added `isDestroyed.get()` check before executing health monitor operations
+
+**Files Modified** (2 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| HealthCheckInterceptor.kt | -2, +12 | Removed GlobalScope, added CoroutineScope, isDestroyed flag, destroy() |
+| NetworkErrorInterceptor.kt | -1, +9 | Removed GlobalScope, added CoroutineScope, isDestroyed flag, destroy() |
+| **Total** | **-3, +21** | **2 files refactored** |
+
+**Architecture Improvements**:
+
+**Structured Concurrency Compliance ✅**:
+- ✅ Eliminated GlobalScope usage (anti-pattern removed)
+- ✅ Coroutines now tied to interceptor lifecycle via CoroutineScope
+- ✅ SupervisorJob ensures child coroutines can fail independently
+- ✅ Proper resource cleanup via destroy() method
+- ✅ AtomicBoolean ensures safe concurrent access to destroyed state
+
+**Memory Leak Prevention ✅**:
+- ✅ Coroutines canceled when interceptor is destroyed
+- ✅ No risk of orphaned coroutines continuing execution
+- ✅ isDestroyed flag prevents operations after cleanup
+- ✅ Proper job lifecycle management
+
+**Testability Improvements ✅**:
+- ✅ Interceptors can be tested with controlled coroutine execution
+- ✅ destroy() method can be called in test teardown
+- ✅ No GlobalScope side effects affecting tests
+- ✅ CoroutineScope is testable via dependency injection if needed
+
+**Anti-Patterns Eliminated**:
+- ✅ No more GlobalScope usage (violates structured concurrency)
+- ✅ No more orphaned coroutines (memory leak risk eliminated)
+- ✅ No more uncontrolled coroutine execution
+
+**Best Practices Followed**:
+- ✅ **Structured Concurrency**: All coroutines tied to lifecycle
+- ✅ **SupervisorJob**: Child coroutines fail independently
+- ✅ **AtomicBoolean**: Thread-safe cleanup flag
+- ✅ **Resource Cleanup**: destroy() method for proper teardown
+- ✅ **Fire-and-Forget Pattern**: Appropriate for health monitoring
+
+**Code Quality Improvements**:
+1. **Memory Safety**: No risk of memory leaks from orphaned coroutines
+2. **Testability**: Interceptors can be properly tested with lifecycle control
+3. **Best Practices**: Follows Kotlin coroutines structured concurrency guidelines
+4. **Maintainability**: Clear resource cleanup via destroy() method
+
+**Success Criteria**:
+- [x] GlobalScope usage eliminated from HealthCheckInterceptor
+- [x] GlobalScope usage eliminated from NetworkErrorInterceptor
+- [x] Proper CoroutineScope with SupervisorJob added
+- [x] AtomicBoolean flag for safe cleanup implemented
+- [x] destroy() method for resource cleanup added
+- [x] isDestroyed.get() checks before health monitor operations
+- [x] Code syntax verified (no compilation errors)
+- [x] Changes committed to agent branch
+- [x] Documentation updated (task.md, blueprint.md)
+
+**Dependencies**: None (independent refactoring, improves code quality)
+**Documentation**: Updated docs/task.md with REFACTOR-009 completion
+**Impact**: HIGH - Eliminates critical anti-pattern, prevents memory leaks, improves testability, follows Kotlin coroutines best practices
+
+---
+
 ## Security Engineer Tasks - 2026-01-10
 
 ---

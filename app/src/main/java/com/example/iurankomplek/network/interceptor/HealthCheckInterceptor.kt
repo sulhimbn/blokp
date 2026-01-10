@@ -6,8 +6,11 @@ import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 
 class HealthCheckInterceptor(
     private val healthMonitor: IntegrationHealthMonitor = IntegrationHealthMonitor.getInstance(),
@@ -15,6 +18,10 @@ class HealthCheckInterceptor(
 ) : Interceptor {
     
     private val TAG = "HealthCheckInterceptor"
+    
+    private val job = SupervisorJob()
+    private val scope = CoroutineScope(Dispatchers.IO + job)
+    private val isDestroyed = AtomicBoolean(false)
     
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
@@ -35,14 +42,18 @@ class HealthCheckInterceptor(
 
             when {
                 httpCode == 429 -> {
-                    kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-                        healthMonitor.recordRateLimitExceeded(endpoint, getRequestCount())
+                    scope.launch {
+                        if (!isDestroyed.get()) {
+                            healthMonitor.recordRateLimitExceeded(endpoint, getRequestCount())
+                        }
                     }
                 }
                 httpCode >= 500 -> {
                     if (httpCode == 503) {
-                        kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-                            healthMonitor.recordCircuitBreakerOpen("api_service")
+                        scope.launch {
+                            if (!isDestroyed.get()) {
+                                healthMonitor.recordCircuitBreakerOpen("api_service")
+                            }
                         }
                     }
                 }
@@ -67,10 +78,17 @@ class HealthCheckInterceptor(
         }
 
         if (!success) {
-            kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-                healthMonitor.recordRetry(endpoint)
+            scope.launch {
+                if (!isDestroyed.get()) {
+                    healthMonitor.recordRetry(endpoint)
+                }
             }
         }
+    }
+    
+    fun destroy() {
+        isDestroyed.set(true)
+        job.cancel()
     }
     
     private fun isHealthEndpoint(endpoint: String): Boolean {

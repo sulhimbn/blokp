@@ -16,8 +16,11 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import javax.net.ssl.SSLException
 import android.util.Log
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 
 class NetworkErrorInterceptor(
     private val enableLogging: Boolean = false,
@@ -27,6 +30,10 @@ class NetworkErrorInterceptor(
 
     private val gson = Gson()
     private val charset: Charset = StandardCharsets.UTF_8
+    
+    private val job = SupervisorJob()
+    private val scope = CoroutineScope(Dispatchers.IO + job)
+    private val isDestroyed = AtomicBoolean(false)
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest: Request = chain.request()
@@ -40,13 +47,15 @@ class NetworkErrorInterceptor(
 
             if (response.isSuccessful) {
                 healthMonitor?.let { monitor ->
-                    kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-                        monitor.recordRequest(
-                            endpoint = endpoint,
-                            responseTimeMs = responseTime,
-                            success = true,
-                            httpCode = response.code
-                        )
+                    scope.launch {
+                        if (!isDestroyed.get()) {
+                            monitor.recordRequest(
+                                endpoint = endpoint,
+                                responseTimeMs = responseTime,
+                                success = true,
+                                httpCode = response.code
+                            )
+                        }
                     }
                 }
             }
@@ -175,6 +184,11 @@ class NetworkErrorInterceptor(
             append("Details: ${error.message}")
         }
         Log.e(tag, message)
+    }
+    
+    fun destroy() {
+        isDestroyed.set(true)
+        job.cancel()
     }
 }
 
