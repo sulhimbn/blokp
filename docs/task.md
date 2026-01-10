@@ -3321,3 +3321,82 @@ Documentation/
   This follows Single Responsibility Principle and improves testability.
 - Priority: Low
 - Effort: Medium (3-4 hours)
+---
+
+### ✅ SANITIZER-001. Dead Code Removal and Architectural Consistency
+**Status**: Completed
+**Completed Date**: 2026-01-10
+**Priority**: HIGH (Code Quality)
+**Estimated Time**: 1-2 hours (completed in 1 hour)
+**Description**: Remove dead code and fix architectural inconsistencies in ViewModel Factory pattern
+
+**Issues Identified:**
+- **UserViewModelFactory.kt** - Dead code (unused, nested Factory exists in UserViewModel)
+- **FinancialViewModelFactory.kt** - Dead code (unused, nested Factory exists in FinancialViewModel)
+- **PaymentViewModelFactory.kt** - Architectural inconsistency (separate Factory file vs nested pattern)
+- **TransactionViewModelFactory.kt** - Redundant wrapper object (unnecessary indirection)
+
+**Code Quality Issues Fixed:**
+1. **Dead Code Removal**:
+   - Removed UserViewModelFactory.kt (19 lines)
+   - Removed FinancialViewModelFactory.kt (19 lines)
+   - Removed PaymentViewModelFactory.kt (22 lines)
+   - Removed TransactionViewModelFactory.kt (9 lines)
+   - Total: 69 lines of dead code removed
+
+2. **Architectural Consistency**:
+   - Added nested Factory class to PaymentViewModel for consistency with other ViewModels
+   - Updated PaymentActivity.kt to use PaymentViewModel.Factory (nested pattern)
+   - Updated TransactionHistoryActivity.kt to use TransactionViewModel.Factory directly
+   - All ViewModels now follow consistent nested Factory pattern
+
+**Architecture Improvements:**
+- **Before**: Mixed Factory patterns (some nested, some separate files, some wrapper objects)
+- **After**: Consistent nested Factory pattern across all ViewModels
+- **Pattern**: All ViewModels now have: `class Factory(...) : ViewModelProvider.Factory`
+
+**Anti-Patterns Eliminated:**
+- ✅ No more dead code (4 unused Factory files removed)
+- ✅ No more architectural inconsistency (all ViewModels use nested Factory)
+- ✅ No more redundant wrapper objects (TransactionViewModelFactory removed)
+- ✅ No more separate Factory files (consistent nested pattern)
+
+**Best Practices Followed:**
+- ✅ **Code Cleanup**: Remove unused code to reduce complexity and maintenance burden
+- ✅ **Architectural Consistency**: Uniform Factory pattern across all ViewModels
+- ✅ **Single Responsibility**: Each Factory is responsible for creating its ViewModel
+- ✅ **DRY Principle**: No duplicate Factory code across separate files
+
+**Files Modified** (7 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| app/src/main/java/com/example/iurankomplek/presentation/viewmodel/UserViewModelFactory.kt | -19 | Deleted (dead code) |
+| app/src/main/java/com/example/iurankomplek/presentation/viewmodel/FinancialViewModelFactory.kt | -19 | Deleted (dead code) |
+| app/src/main/java/com/example/iurankomplek/payment/PaymentViewModelFactory.kt | -22 | Deleted (dead code) |
+| app/src/main/java/com/example/iurankomplek/presentation/viewmodel/TransactionViewModelFactory.kt | -9 | Deleted (redundant wrapper) |
+| app/src/main/java/com/example/iurankomplek/payment/PaymentViewModel.kt | +15 | Added nested Factory |
+| app/src/main/java/com/example/iurankomplek/presentation/ui/activity/PaymentActivity.kt | -1, +1 | Updated to use nested Factory |
+| app/src/main/java/com/example/iurankomplek/presentation/ui/activity/TransactionHistoryActivity.kt | -3, +1 | Updated to use nested Factory directly |
+| **Total** | **-69, +17** | **7 files changed** |
+
+**Benefits:**
+1. **Code Quality**: Removed 69 lines of dead code (cleaner, more maintainable)
+2. **Architectural Consistency**: All ViewModels now use the same Factory pattern
+3. **Reduced Complexity**: Fewer files to maintain (4 deleted)
+4. **Better Discoverability**: Factory classes are now co-located with their ViewModels
+5. **Reduced Confusion**: Clear, consistent pattern for ViewModel creation
+6. **APK Size**: Small reduction (dead code removed)
+
+**Dependencies**: None (independent code cleanup)
+**Documentation**: Updated docs/task.md with SANITIZER-001
+**Impact**: HIGH - Improved code quality and architectural consistency, removed dead code across 4 files
+
+**Pull Request**: https://github.com/sulhimbn/blokp/pull/246
+
+**Success Criteria**:
+- [x] Dead code removed (4 unused Factory files)
+- [x] Architectural consistency fixed (all ViewModels use nested Factory)
+- [x] Activities updated to use correct Factory pattern
+- [x] Changes committed and pushed to agent branch
+- [x] PR updated
+- [x] Documentation updated (task.md)
