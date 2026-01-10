@@ -85,14 +85,7 @@
      <string name="payment_failed_with_error">Payment failed: %s</string>
      <string name="payment_processed_successfully">Payment processed successfully!</string>
      <string name="payment_invalid_format">Invalid amount format</string>
-    <string name="payment_invalid_value">Invalid amount value</string>
-
-    <string-array name="payment_methods">
-        <item>Bank Transfer</item>
-        <item>Cash</item>
-        <item>E-Wallet</item>
-        <item>Credit Card</item>
-    </string-array>
+     <string name="payment_invalid_value">Invalid amount value</string>
 
     <!-- Transaction History -->
     <string name="transaction_item_desc">Transaction history item card</string>
