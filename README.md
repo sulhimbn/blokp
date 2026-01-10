@@ -118,7 +118,21 @@ com.github.chuckerteam.chucker:library:3.3.0
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### 5-Minute Quick Start (For Users)
+
+**Already have the app? Here's how to get started:**
+
+1. **Launch App** - Open IuranKomplek from your home screen
+2. **Main Menu** - You'll see 4 options: Users, Reports, Communication, Payments
+3. **View Users** - Tap "User Management" to see resident directory
+4. **Check Finances** - Tap "Financial Reports" to view dues and expenses
+5. **Process Payments** - Tap "Payments" to record resident payments
+
+> **Need detailed help?** See [User Guides](docs/USER_GUIDES.md) for step-by-step instructions.
+
+---
+
+### Prerequisites (For Developers)
 
 Before you begin, ensure you have:
 
@@ -427,6 +441,12 @@ We welcome contributions! Please follow these guidelines:
 
 ## 📚 Documentation
 
+### For Users
+
+- [**User Guides**](docs/USER_GUIDES.md) - Step-by-step guides for common workflows
+- [**Features Overview**](docs/feature.md) - Detailed feature descriptions
+- [**Setup Instructions**](docs/docker-setup.md) - Environment setup guide
+
 ### For Developers
 
 - [**API Documentation Hub**](docs/API_DOCS_HUB.md) - Unified entry point for all API documentation
@@ -437,11 +457,6 @@ We welcome contributions! Please follow these guidelines:
 - [**Architecture Blueprint**](docs/blueprint.md) - Detailed architecture blueprint
 - [**Development Guidelines**](docs/DEVELOPMENT.md) - Coding standards and development workflow
 - [**Troubleshooting Guide**](docs/TROUBLESHOOTING.md) - Common issues and solutions
-
-### For Users
-
-- [**Features Overview**](docs/feature.md) - Detailed feature descriptions
-- [**Setup Instructions**](docs/docker-setup.md) - Environment setup guide
 
 ### Additional Resources
 
