@@ -3,6 +3,23 @@
        id 'com.android.application' version '8.1.0' apply false
        id 'com.android.library' version '8.1.0' apply false
        id 'org.jetbrains.kotlin.android' version '1.9.22' apply false
+       id 'org.owasp.dependencycheck' version '9.0.7' apply false
    }
 
 apply from: 'gradle/jacoco.gradle'
+
+allprojects {
+    apply plugin: 'org.owasp.dependencycheck'
+    dependencyCheck {
+        format = 'HTML'
+        format = 'XML'
+        suppressionFile = 'dependency-check-suppressions.xml'
+        failBuildOnCVSS = 7
+        analyzedTypes = ['jar', 'aar']
+        scanBuildEnv = false
+        nvd {
+            apiKey = System.getenv('NVD_API_KEY') ?: null
+            datafeedUrl = 'https://nvd.nist.gov/feeds/json/cve/1.1/'
+        }
+    }
+}

@@ -60,11 +60,16 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles(
-              '**/*.gradle*',
               '**/gradle-wrapper.properties',
-              'gradle/libs.versions.toml'
+              'gradle/libs.versions.toml',
+              'build.gradle',
+              'app/build.gradle'
             ) }}
           restore-keys: |
+            ${{ runner.os }}-gradle-${{ hashFiles(
+                '**/gradle-wrapper.properties',
+                'gradle/libs.versions.toml'
+            ) }}-
             ${{ runner.os }}-gradle-
 
       - name: Lint
@@ -78,6 +83,30 @@ jobs:
 
       - name: Unit Tests
         run: ./gradlew test --stacktrace
+
+      - name: Test Coverage Verification
+        run: ./gradlew jacocoTestCoverageVerification --stacktrace
+
+      - name: Dependency Vulnerability Scan
+        run: ./gradlew dependencyCheckAnalyze --stacktrace
+        continue-on-error: true
+
+      - name: Upload Vulnerability Scan Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-check-report
+          path: build/reports/dependency-check-report.html
+
+      - name: Test Coverage Report
+        run: ./gradlew jacocoTestReport --stacktrace
+
+      - name: Upload Test Coverage Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-coverage-report
+          path: app/build/reports/jacoco/
 
       - name: Android Lint Report
         if: always()
@@ -99,6 +128,13 @@ jobs:
         with:
           name: debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload Release APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: app/build/outputs/apk/release/app-release.apk
 
   instrumented-tests:
     name: Instrumented Tests

@@ -51,7 +51,7 @@ tasks.register('jacocoTestCoverageVerification', JacocoCoverageVerification) {
     violationRules {
         rule {
             limit {
-                minimum = 0.0
+                minimum = 0.70
             }
         }
     }

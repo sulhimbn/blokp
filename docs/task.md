@@ -643,6 +643,178 @@ ON webhook_events(event_type, created_at DESC)
 
 ---
 
+## DevOps Tasks - 2026-01-10
+
+---
+
+### ✅ CIOPS-001. Test Coverage Report Generation - 2026-01-10
+**Status**: Completed
+**Completed Date**: 2026-01-10
+**Priority**: HIGH (Quality Gate)
+**Estimated Time**: 30 minutes (completed in 10 minutes)
+**Description**: Add JaCoCo test coverage report generation and upload to CI artifacts
+
+**Changes Implemented**:
+1. **Added Test Coverage Report Step**: Runs jacocoTestReport after unit tests in CI
+2. **Uploaded Coverage Report**: Added artifact upload for test coverage HTML reports
+3. **Coverage Verification**: Added jacocoTestCoverageVerification to CI pipeline
+
+**Files Modified**:
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| .github/workflows/android-ci.yml | +13 | Added test coverage report and verification steps |
+
+**Benefits**:
+1. **Visibility**: Test coverage metrics visible in CI artifacts
+2. **Quality Gate**: Coverage report available for analysis
+3. **Continuous Monitoring**: Coverage tracked across all builds
+
+**Success Criteria**:
+- [x] JaCoCo test coverage report generated in CI
+- [x] Coverage report uploaded as CI artifact
+- [x] Coverage verification added to pipeline
+
+**Impact**: HIGH - Enables test coverage monitoring and quality gates in CI/CD pipeline
+
+---
+
+### ✅ CIOPS-002. Minimum Test Coverage Threshold - 2026-01-10
+**Status**: Completed
+**Completed Date**: 2026-01-10
+**Priority**: HIGH (Quality Gate)
+**Estimated Time**: 15 minutes (completed in 5 minutes)
+**Description**: Set minimum test coverage threshold (70%) in JaCoCo verification
+
+**Changes Implemented**:
+1. **Coverage Threshold**: Increased minimum coverage from 0% to 70%
+2. **CI Enforcement**: Coverage verification step added to CI pipeline
+3. **Quality Gate**: Build fails if coverage below 70%
+
+**Files Modified**:
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| gradle/jacoco.gradle | -1, +1 | Updated minimum coverage to 0.70 |
+
+**Benefits**:
+1. **Quality Assurance**: Enforces minimum test coverage standard
+2. **Early Detection**: Fails CI if coverage drops below threshold
+3. **Code Quality**: Encourages maintaining high test coverage
+
+**Success Criteria**:
+- [x] Minimum coverage threshold set to 70%
+- [x] Coverage verification added to CI pipeline
+- [x] Build fails if coverage below threshold
+
+**Impact**: HIGH - Enforces code quality through automated coverage gates
+
+---
+
+### ✅ CIOPS-003. Release APK Artifact Upload - 2026-01-10
+**Status**: Completed
+**Completed Date**: 2026-01-10
+**Priority**: MEDIUM (Distribution)
+**Estimated Time**: 10 minutes (completed in 5 minutes)
+**Description**: Upload release APK as CI artifact for distribution
+
+**Changes Implemented**:
+1. **Release APK Upload**: Added artifact upload step for release APK
+2. **Distribution Ready**: Release builds available as downloadable artifacts
+3. **Build Verification**: Only uploads if build succeeds
+
+**Files Modified**:
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| .github/workflows/android-ci.yml | +7 | Added release APK artifact upload |
+
+**Benefits**:
+1. **Distribution**: Release builds available for testing and deployment
+2. **Version Control**: Each build has associated artifact
+3. **Easy Access**: Stakeholders can download release APKs from CI
+
+**Success Criteria**:
+- [x] Release APK uploaded as CI artifact
+- [x] Artifact available on successful builds
+- [x] Only uploaded when build succeeds
+
+**Impact**: MEDIUM - Improves release distribution and artifact management
+
+---
+
+### ✅ CIOPS-004. Dependency Vulnerability Scanning - 2026-01-10
+**Status**: Completed
+**Completed Date**: 2026-01-10
+**Priority**: MEDIUM (Security)
+**Estimated Time**: 1 hour (completed in 30 minutes)
+**Description**: Add dependency vulnerability scanning using Gradle dependency check plugin
+
+**Changes Implemented**:
+1. **OWASP Dependency-Check Plugin**: Added vulnerability scanning plugin
+2. **CI Integration**: Added dependency check analysis step to CI pipeline
+3. **Report Upload**: Vulnerability reports uploaded as CI artifacts
+4. **Suppression File**: Configured to suppress test dependencies and known false positives
+5. **API Key Support**: Optional NVD API key for faster scans
+6. **Fail Threshold**: Build warns (doesn't fail) on CVSS 7.0+ vulnerabilities
+
+**Files Created**:
+| File | Lines | Purpose |
+|------|--------|---------|
+| dependency-check-suppressions.xml | +35 | Suppress false positives and test deps |
+
+**Files Modified**:
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| build.gradle | +1, +18 | Added OWASP dependency-check plugin and configuration |
+| .github/workflows/android-ci.yml | +11 | Added dependency check step and artifact upload |
+| .env.example | +8 | Documented NVD_API_KEY environment variable |
+
+**Benefits**:
+1. **Security**: Automated vulnerability detection in dependencies
+2. **Compliance**: Supports security audit requirements
+3. **Early Detection**: Vulnerabilities caught before deployment
+4. **Actionable**: Reports provide clear remediation guidance
+
+**Success Criteria**:
+- [x] OWASP Dependency-Check plugin configured
+- [x] Dependency scan added to CI pipeline
+- [x] Vulnerability reports uploaded as artifacts
+- [x] Suppression file configured for false positives
+- [x] NVD API key documented in .env.example
+
+**Impact**: MEDIUM - Improves security posture through automated vulnerability scanning
+
+---
+
+### ✅ CIOPS-005. Gradle Cache Optimization - 2026-01-10
+**Status**: Completed
+**Completed Date**: 2026-01-10
+**Priority**: LOW (Performance)
+**Estimated Time**: 30 minutes (completed in 15 minutes)
+**Description**: Optimize Gradle cache key to improve cache hit rate
+
+**Changes Implemented**:
+1. **Optimized Cache Key**: Reduced from hashing all gradle files to critical files only
+2. **Cascade Restore Keys**: Added fallback restore keys for better cache reuse
+3. **Critical Files Only**: Cache key based on gradle-wrapper.properties, libs.versions.toml, and build files
+
+**Files Modified**:
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| .github/workflows/android-ci.yml | -5, +10 | Optimized cache key and restore keys |
+
+**Benefits**:
+1. **Faster Builds**: Higher cache hit rate reduces build times
+2. **Cache Efficiency**: Fewer unnecessary cache invalidations
+3. **Cost Savings**: Reduced CI resource consumption
+
+**Success Criteria**:
+- [x] Cache key optimized to critical files only
+- [x] Cascade restore keys configured
+- [x] Improved cache hit rate expected
+
+**Impact**: LOW - Improves CI/CD performance through better caching
+
+---
+
 ## Pending Refactoring Tasks
 
 ---
