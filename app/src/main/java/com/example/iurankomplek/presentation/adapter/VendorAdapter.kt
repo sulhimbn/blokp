@@ -15,6 +15,8 @@ class VendorAdapter(
 
     companion object {
         private val DiffCallback = GenericDiffUtil.byId<Vendor> { it.id }
+        private const val RATING_PREFIX = "Rating: "
+        private const val RATING_SUFFIX = "/5.0"
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VendorViewHolder {
@@ -46,7 +48,7 @@ class VendorAdapter(
             nameTextView.text = vendor.name
             specialtyTextView.text = vendor.specialty
             contactTextView.text = vendor.phoneNumber
-            ratingTextView.text = "Rating: ${vendor.rating}/5.0"
+            ratingTextView.text = RATING_PREFIX + vendor.rating + RATING_SUFFIX
         }
     }
 }

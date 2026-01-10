@@ -12,6 +12,8 @@ class PemanfaatanAdapter : ListAdapter<LegacyDataItemDto, PemanfaatanAdapter.Lis
 
     companion object {
         private val DiffCallback = GenericDiffUtil.byId<LegacyDataItemDto> { it.pemanfaatan_iuran }
+        private const val PEMANFAATAN_PREFIX = "-"
+        private const val PEMANFAATAN_SUFFIX = ":"
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
@@ -26,7 +28,7 @@ class PemanfaatanAdapter : ListAdapter<LegacyDataItemDto, PemanfaatanAdapter.Lis
     class ListViewHolder(val binding: ItemPemanfaatanBinding): RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: LegacyDataItemDto) {
-            binding.itemPemanfaatan.text = "-${InputSanitizer.sanitizePemanfaatan(item.pemanfaatan_iuran)}:"
+            binding.itemPemanfaatan.text = PEMANFAATAN_PREFIX + InputSanitizer.sanitizePemanfaatan(item.pemanfaatan_iuran) + PEMANFAATAN_SUFFIX
             binding.itemDanaPemanfaatan.text = InputSanitizer.formatCurrency(if (item.pengeluaran_iuran_warga >= 0) item.pengeluaran_iuran_warga else 0)
         }
     }

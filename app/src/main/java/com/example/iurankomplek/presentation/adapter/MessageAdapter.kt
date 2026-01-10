@@ -13,6 +13,7 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageViewHolder>(Di
 
     companion object {
         private val DiffCallback = GenericDiffUtil.byId<Message> { it.id }
+        private const val SENDER_PREFIX = "From: "
     }
 
     class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -23,7 +24,7 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageViewHolder>(Di
         fun bind(message: Message) {
             contentTextView.text = message.content
             timestampTextView.text = message.timestamp
-            senderTextView.text = "From: ${message.senderId}"
+            senderTextView.text = SENDER_PREFIX + message.senderId
         }
     }
 

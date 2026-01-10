@@ -13,6 +13,7 @@ class CommunityPostAdapter : ListAdapter<CommunityPost, CommunityPostAdapter.Com
 
     companion object {
         private val DiffCallback = GenericDiffUtil.byId<CommunityPost> { it.id }
+        private const val LIKES_PREFIX = "Likes: "
     }
 
     class CommunityPostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -25,7 +26,7 @@ class CommunityPostAdapter : ListAdapter<CommunityPost, CommunityPostAdapter.Com
             titleTextView.text = post.title
             contentTextView.text = post.content
             categoryTextView.text = post.category
-            likesTextView.text = "Likes: ${post.likes}"
+            likesTextView.text = LIKES_PREFIX + post.likes
         }
     }
 
