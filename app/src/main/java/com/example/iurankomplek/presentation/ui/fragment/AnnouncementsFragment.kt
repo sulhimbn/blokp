@@ -47,9 +47,9 @@ class AnnouncementsFragment : BaseFragment<List<Announcement>>() {
     }
 
     override fun observeViewModelState() {
-        observeUiState(viewModel.announcementsState, showErrorToast = false) { data ->
+        observeUiState(viewModel.announcementsState, { data ->
             adapter.submitList(data)
-        }
+        }, showErrorToast = false)
     }
 
     override fun loadData() {

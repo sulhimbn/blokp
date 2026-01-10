@@ -26,6 +26,9 @@
     <string name="invalid_response_format">Invalid response format</string>
     <string name="no_financial_data_available">No financial data available</string>
     <string name="no_data_available">No data available</string>
+    <string name="no_announcements_available">No announcements available</string>
+    <string name="no_messages_available">No messages available</string>
+    <string name="no_community_posts_available">No community posts available</string>
      <string name="invalid_financial_data_detected">Invalid financial data detected</string>
      <string name="financial_data_exceeds_maximum">Financial data exceeds maximum allowed value</string>
      <string name="error_loading_data">Error loading data</string>
