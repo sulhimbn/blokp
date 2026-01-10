@@ -54,7 +54,7 @@ class VendorDatabaseFragment : BaseFragment<UiState<com.example.iurankomplek.mod
     }
 
     override fun observeViewModelState() {
-        observeUiState(vendorViewModel.vendorState, showErrorToast = false) { vendors ->
+        observeUiState(vendorViewModel.vendorState, false) { vendors ->
             vendorAdapter.submitList(vendors)
         }
     }

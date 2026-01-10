@@ -55,7 +55,7 @@ class WorkOrderManagementFragment : BaseFragment<UiState<WorkOrderResponse>>() {
     }
 
     override fun observeViewModelState() {
-        observeUiState(vendorViewModel.workOrderState, showErrorToast = false) { data ->
+        observeUiState(vendorViewModel.workOrderState, false) { data ->
             workOrderAdapter.submitList(data.data)
         }
     }
