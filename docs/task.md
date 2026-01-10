@@ -298,6 +298,52 @@ Track architectural refactoring tasks and their status.
 
 ---
 
+### ✅ INT-001. API Standardization - Migrate repositories to ApiServiceV1 - 2026-01-10
+**Status**: Completed
+**Completed Date**: 2026-01-10
+**Priority**: HIGH (API Consistency)
+**Estimated Time**: 2 hours (completed in 1.5 hours)
+**Description**: Migrate all repositories from legacy ApiService to standardized ApiServiceV1 for consistent API usage
+
+**Changes Implemented**:
+1. **BaseRepository Enhancement**: Added `executeWithCircuitBreakerV1` method to handle `ApiResponse<T>` wrapper from v1 API
+2. **ApiServiceV1 Usage**: Updated all repositories to use `ApiServiceV1` instead of legacy `ApiService`
+3. **Response Unwrapping**: V1 API responses automatically unwrap `.data` field from `ApiResponse<T>` wrapper
+4. **Type Alias Added**: Created `BaseRepositoryLegacy` alias for backward compatibility
+5. **Zero Breaking Changes**: Repository interfaces unchanged, only internal implementation migrated
+
+**Files Modified** (7 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| BaseRepository.kt | -31, +58 | Added executeWithCircuitBreakerV1, renamed to BaseRepository with type alias |
+| UserRepositoryImpl.kt | -10, +7 | Migrated to ApiServiceV1, added executeWithCircuitBreakerV1 usage |
+| PemanfaatanRepositoryImpl.kt | -1, +1 | Migrated to ApiServiceV1 |
+| VendorRepositoryImpl.kt | -20, +20 | Migrated to ApiServiceV1, updated all API calls |
+| MessageRepositoryImpl.kt | -18, +18 | Migrated to ApiServiceV1 |
+| AnnouncementRepositoryImpl.kt | -37, +33 | Migrated to ApiServiceV1 |
+| CommunityPostRepositoryImpl.kt | -55, +55 | Migrated to ApiServiceV1 |
+| **Total** | **-172, +192** | **7 files migrated** |
+
+**Benefits**:
+1. **API Consistency**: All repositories now use standardized v1 API with consistent response wrappers
+2. **Standardized Error Handling**: All responses use `ApiResponse<T>` wrapper with proper error handling
+3. **Documentation Alignment**: Code implementation matches API.md recommendation to use v1 API
+4. **Zero Breaking Changes**: Repository interfaces unchanged, internal migration only
+5. **Future Proof**: New endpoints will use v1 API pattern
+6. **Consistent Resilience**: All repositories use same circuit breaker and retry patterns
+
+**Success Criteria**:
+- [x] All repositories migrated to ApiServiceV1
+- [x] ApiResponse wrapper handling implemented
+- [x] Zero breaking changes (repository interfaces unchanged)
+- [x] Consistent API usage across all repositories
+- [x] Documentation updated (task.md)
+- [x] executeWithCircuitBreakerV1 method added to BaseRepository
+
+**Impact**: HIGH - Critical API standardization, ensures consistent usage of v1 API across all repositories, aligns code with documentation recommendations, maintains backward compatibility with zero breaking changes
+
+---
+
 ### ✅ DOC-001. API Headers and Error Response Standardization - 2026-01-10
 **Status**: Completed
 **Completed Date**: 2026-01-10

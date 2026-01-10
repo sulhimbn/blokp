@@ -8,14 +8,14 @@ import com.example.iurankomplek.network.model.CreateVendorRequest
 import com.example.iurankomplek.network.model.UpdateVendorRequest
 
 class VendorRepositoryImpl(
-    private val apiService: com.example.iurankomplek.network.ApiService
-) : VendorRepository, BaseRepositoryLegacy {
+    private val apiService: com.example.iurankomplek.network.ApiServiceV1
+) : VendorRepository, BaseRepository {
 
-    override suspend fun getVendors(): Result<VendorResponse> = executeWithCircuitBreaker {
+    override suspend fun getVendors(): Result<VendorResponse> = executeWithCircuitBreakerV1 {
         apiService.getVendors()
     }
 
-    override suspend fun getVendor(id: String): Result<SingleVendorResponse> = executeWithCircuitBreaker {
+    override suspend fun getVendor(id: String): Result<SingleVendorResponse> = executeWithCircuitBreakerV1 {
         apiService.getVendor(id)
     }
 
@@ -30,7 +30,7 @@ class VendorRepositoryImpl(
         insuranceInfo: String,
         contractStart: String,
         contractEnd: String
-    ): Result<SingleVendorResponse> = executeWithCircuitBreaker {
+    ): Result<SingleVendorResponse> = executeWithCircuitBreakerV1 {
         apiService.createVendor(
             CreateVendorRequest(name, contactPerson, phoneNumber, email, specialty, address,
                 licenseNumber, insuranceInfo, contractStart, contractEnd)
@@ -50,18 +50,18 @@ class VendorRepositoryImpl(
         contractStart: String,
         contractEnd: String,
         isActive: Boolean
-    ): Result<SingleVendorResponse> = executeWithCircuitBreaker {
+    ): Result<SingleVendorResponse> = executeWithCircuitBreakerV1 {
         apiService.updateVendor(
             id, UpdateVendorRequest(name, contactPerson, phoneNumber, email, specialty, address,
                 licenseNumber, insuranceInfo, contractStart, contractEnd, isActive)
         )
     }
     
-    override suspend fun getWorkOrders(): Result<WorkOrderResponse> = executeWithCircuitBreaker {
+    override suspend fun getWorkOrders(): Result<WorkOrderResponse> = executeWithCircuitBreakerV1 {
         apiService.getWorkOrders()
     }
     
-    override suspend fun getWorkOrder(id: String): Result<SingleWorkOrderResponse> = executeWithCircuitBreaker {
+    override suspend fun getWorkOrder(id: String): Result<SingleWorkOrderResponse> = executeWithCircuitBreakerV1 {
         apiService.getWorkOrder(id)
     }
     
@@ -73,7 +73,7 @@ class VendorRepositoryImpl(
         propertyId: String,
         reporterId: String,
         estimatedCost: Double
-    ): Result<SingleWorkOrderResponse> = executeWithCircuitBreaker {
+    ): Result<SingleWorkOrderResponse> = executeWithCircuitBreakerV1 {
         apiService.createWorkOrder(
             CreateWorkOrderRequest(title, description, category, priority, propertyId, reporterId, estimatedCost)
         )

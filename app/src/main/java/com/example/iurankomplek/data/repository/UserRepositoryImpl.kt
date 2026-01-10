@@ -8,6 +8,7 @@ import com.example.iurankomplek.data.entity.UserWithFinancialRecords
 import com.example.iurankomplek.data.mapper.EntityMapper
 import com.example.iurankomplek.data.api.models.UserResponse
 import com.example.iurankomplek.network.ApiConfig
+import com.example.iurankomplek.network.ApiServiceV1
 import com.example.iurankomplek.network.model.NetworkError
 import com.example.iurankomplek.network.resilience.CircuitBreaker
 import com.example.iurankomplek.network.resilience.CircuitBreakerResult
@@ -15,8 +16,8 @@ import com.example.iurankomplek.network.resilience.CircuitBreakerState
 import kotlinx.coroutines.flow.first
 
 class UserRepositoryImpl(
-    private val apiService: com.example.iurankomplek.network.ApiService
-) : UserRepository {
+    private val apiService: com.example.iurankomplek.network.ApiServiceV1
+) : UserRepository, BaseRepository {
     private val circuitBreaker: CircuitBreaker = ApiConfig.circuitBreaker
     private val maxRetries = com.example.iurankomplek.utils.Constants.Network.MAX_RETRIES
     
@@ -33,16 +34,8 @@ class UserRepositoryImpl(
                 }
             },
             getFromNetwork = {
-                val circuitBreakerResult = circuitBreaker.execute {
-                    com.example.iurankomplek.utils.RetryHelper.executeWithRetry(
-                        apiCall = { apiService.getUsers() },
-                        maxRetries = maxRetries
-                    )
-                }
-                when (circuitBreakerResult) {
-                    is CircuitBreakerResult.Success -> circuitBreakerResult.value
-                    is CircuitBreakerResult.Failure -> throw circuitBreakerResult.exception
-                    is CircuitBreakerResult.CircuitOpen -> throw NetworkError.CircuitBreakerError()
+                executeWithCircuitBreakerV1 {
+                    apiService.getUsers()
                 }
             },
             isCacheFresh = { response ->

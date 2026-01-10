@@ -17,8 +17,8 @@ import kotlin.math.pow
 import retrofit2.HttpException
 
 class PemanfaatanRepositoryImpl(
-    private val apiService: com.example.iurankomplek.network.ApiService
-) : PemanfaatanRepository {
+    private val apiService: com.example.iurankomplek.network.ApiServiceV1
+) : PemanfaatanRepository, BaseRepository {
     private val circuitBreaker: CircuitBreaker = ApiConfig.circuitBreaker
     private val maxRetries = com.example.iurankomplek.utils.Constants.Network.MAX_RETRIES
 

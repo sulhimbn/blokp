@@ -6,18 +6,18 @@ import kotlinx.coroutines.delay
 import java.util.concurrent.ConcurrentHashMap
 
 class CommunityPostRepositoryImpl(
-    private val apiService: com.example.iurankomplek.network.ApiService
-) : CommunityPostRepository, BaseRepositoryLegacy {
+    private val apiService: com.example.iurankomplek.network.ApiServiceV1
+) : CommunityPostRepository, BaseRepository {
     private val cache = ConcurrentHashMap<String, CommunityPost>()
-
+    
     override suspend fun getCommunityPosts(forceRefresh: Boolean): Result<List<CommunityPost>> {
         if (!forceRefresh && cache.isNotEmpty()) {
             return Result.success(cache.values.toList())
         }
-
-        return executeWithCircuitBreaker { apiService.getCommunityPosts() }
+ 
+        return executeWithCircuitBreakerV1 { apiService.getCommunityPosts() }
     }
-
+ 
     override suspend fun createCommunityPost(
         authorId: String,
         title: String,
@@ -30,11 +30,11 @@ class CommunityPostRepositoryImpl(
             content = content,
             category = category
         )
-        return executeWithCircuitBreaker {
+        return executeWithCircuitBreakerV1 {
             apiService.createCommunityPost(request)
         }
     }
-
+ 
     override suspend fun getCachedCommunityPosts(): Result<List<CommunityPost>> {
         return try {
             Result.success(cache.values.toList())
@@ -42,7 +42,7 @@ class CommunityPostRepositoryImpl(
             Result.failure(e)
         }
     }
-
+ 
     override suspend fun clearCache(): Result<Unit> {
         return try {
             cache.clear()
