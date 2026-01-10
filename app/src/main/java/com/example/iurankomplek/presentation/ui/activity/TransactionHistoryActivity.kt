@@ -12,7 +12,6 @@ import com.example.iurankomplek.databinding.ActivityTransactionHistoryBinding
 import com.example.iurankomplek.data.repository.TransactionRepositoryFactory
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.presentation.viewmodel.TransactionViewModel
-import com.example.iurankomplek.presentation.viewmodel.TransactionViewModelFactory
 import com.example.iurankomplek.payment.PaymentStatus
 import kotlinx.coroutines.launch
 
@@ -35,7 +34,7 @@ class TransactionHistoryActivity : BaseActivity() {
         val transactionRepository = TransactionRepositoryFactory.getInstance(this)
         viewModel = ViewModelProvider(
             this,
-            TransactionViewModelFactory.getInstance(transactionRepository)
+            TransactionViewModel.Factory(transactionRepository)
         )[TransactionViewModel::class.java]
 
         transactionAdapter = TransactionHistoryAdapter(lifecycleScope, transactionRepository)

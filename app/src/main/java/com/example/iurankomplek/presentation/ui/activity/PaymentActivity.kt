@@ -31,7 +31,7 @@ class PaymentActivity : BaseActivity() {
         val receiptGenerator = com.example.iurankomplek.utils.ReceiptGenerator()
         val validatePaymentUseCase = DependencyContainer.provideValidatePaymentUseCase()
         
-        val factory = com.example.iurankomplek.payment.PaymentViewModelFactory(
+        val factory = com.example.iurankomplek.payment.PaymentViewModel.Factory(
             transactionRepository,
             receiptGenerator,
             validatePaymentUseCase

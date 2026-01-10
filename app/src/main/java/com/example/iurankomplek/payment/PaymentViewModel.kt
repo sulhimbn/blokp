@@ -1,6 +1,7 @@
 package com.example.iurankomplek.payment
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.iurankomplek.domain.usecase.ValidatePaymentUseCase
 import com.example.iurankomplek.utils.ReceiptGenerator
@@ -89,5 +90,19 @@ class PaymentViewModel(
     
     fun clearEvent() {
         _paymentEvent.value = null
+    }
+
+    class Factory(
+        private val transactionRepository: TransactionRepository,
+        private val receiptGenerator: ReceiptGenerator,
+        private val validatePaymentUseCase: ValidatePaymentUseCase
+    ) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(PaymentViewModel::class.java)) {
+                @Suppress("UNCHECKED_CAST")
+                return PaymentViewModel(transactionRepository, receiptGenerator, validatePaymentUseCase) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class")
+        }
     }
 }
