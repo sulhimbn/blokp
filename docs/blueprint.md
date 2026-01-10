@@ -724,15 +724,20 @@ Performance bottleneck identified in financial calculation algorithm:
 
 **Implementation:**
 - **DependencyContainer.kt**: Centralized dependency management
-  - provideUserRepository(): Singleton UserRepository instance
-  - providePemanfaatanRepository(): Singleton PemanfaatanRepository instance
-  - provideTransactionRepository(): Singleton TransactionRepository instance
-  - provideLoadUsersUseCase(): LoadUsersUseCase with dependencies
-  - provideLoadFinancialDataUseCase(): LoadFinancialDataUseCase with dependencies
-  - provideCalculateFinancialSummaryUseCase(): CalculateFinancialSummaryUseCase with dependencies
-  - providePaymentSummaryIntegrationUseCase(): PaymentSummaryIntegrationUseCase with dependencies
-  - Initialize in CacheInitializer Application class
-  - Reset method for testing
+   - @Volatile singleton caching for all repositories, PaymentGateway, TransactionDao
+   - Private provider methods for ApiServiceV1, ApiService, TransactionDao, PaymentGateway
+   - Private provider methods for base UseCases (CalculateFinancialTotalsUseCase, ValidateFinancialDataUseCase)
+   - Direct repository instantiation with constructor injection (no Factory pattern)
+   - Thread-safe lazy initialization with double-checked locking
+   - provideUserRepository(): Singleton UserRepository instance
+   - providePemanfaatanRepository(): Singleton PemanfaatanRepository instance
+   - provideTransactionRepository(): Singleton TransactionRepository instance
+   - provideLoadUsersUseCase(): LoadUsersUseCase with dependencies
+   - provideLoadFinancialDataUseCase(): LoadFinancialDataUseCase with dependencies (uses private UseCase providers)
+   - provideCalculateFinancialSummaryUseCase(): CalculateFinancialSummaryUseCase with dependencies (uses private UseCase providers)
+   - providePaymentSummaryIntegrationUseCase(): PaymentSummaryIntegrationUseCase with dependencies
+   - Initialize in CacheInitializer Application class
+   - Reset method for testing (clears all singleton instances)
 
 **Benefits:**
 - ✅ **Single Source of Truth**: All dependencies managed centrally
