@@ -358,6 +358,48 @@ Track architectural refactoring tasks and their status.
 
 ---
 
+### ✅ DOC-003. Documentation Updates - Fix outdated code references - 2026-01-10
+**Status**: Completed
+**Completed Date**: 2026-01-10
+**Priority**: MEDIUM (Documentation Accuracy)
+**Estimated Time**: 30 minutes (completed in 15 minutes)
+**Description**: Update documentation to reflect 100% Kotlin codebase and DependencyContainer usage
+
+**Issues Fixed**:
+1. **AGENTS.md (line 14)**: Changed "Mixed Kotlin/Java codebase" to "Kotlin (100%)"
+   - Codebase is now 100% Kotlin, no Java remaining
+   - Aligned with blueprint.md documentation
+
+2. **DEVELOPMENT.md**: Updated Repository pattern examples from Factory pattern to DependencyContainer
+   - Replaced UserRepositoryFactory with DependencyContainer
+   - Updated ApiService reference to ApiServiceV1 (standardized v1 API)
+   - Updated Activity example to use `DependencyContainer.provideUserViewModel()` instead of Factory pattern
+   - Removed outdated circuit breaker manual code (now handled in BaseRepository)
+
+**Files Modified** (2 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| AGENTS.md | -1, +1 | Updated language description to Kotlin (100%) |
+| docs/DEVELOPMENT.md | -9, +12 | Updated repository pattern examples to DependencyContainer |
+| **Total** | **-10, +13** | **2 files updated** |
+
+**Benefits**:
+1. **Accuracy**: Documentation now matches actual codebase implementation
+2. **Clarity**: Developers see current DI pattern (DependencyContainer) not outdated Factory pattern
+3. **Consistency**: All references to Kotlin/Java usage now correct
+4. **Reduced Confusion**: New developers won't be confused by outdated Factory pattern examples
+
+**Success Criteria**:
+- [x] AGENTS.md updated to reflect 100% Kotlin codebase
+- [x] DEVELOPMENT.md updated to use DependencyContainer instead of Factory pattern
+- [x] ApiService reference updated to ApiServiceV1
+- [x] Activity examples match actual implementation
+- [x] Changes committed to agent branch
+
+**Impact**: MEDIUM - Improves documentation accuracy, reduces confusion for new developers, aligns docs with actual codebase implementation
+
+---
+
 ## Integration Engineer Tasks - 2026-01-10
 
 ---
