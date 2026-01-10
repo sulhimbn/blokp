@@ -32,7 +32,12 @@ abstract class BaseFragment<T> : Fragment() {
 
     protected open fun setupRecyclerView() {
         recyclerView.apply {
-            layoutManager = LinearLayoutManager(requireContext())
+            val isTablet = resources.configuration.smallestScreenWidthDp >= 600
+            layoutManager = if (isTablet) {
+                androidx.recyclerview.widget.GridLayoutManager(requireContext(), 2)
+            } else {
+                LinearLayoutManager(requireContext())
+            }
             setHasFixedSize(true)
             setItemViewCacheSize(20)
             recycledViewPool.setMaxRecycledViews(0, 20)
