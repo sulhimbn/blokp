@@ -12,7 +12,7 @@ import com.example.iurankomplek.presentation.viewmodel.VendorViewModel
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.model.WorkOrderResponse
 
-class WorkOrderManagementFragment : BaseFragment<UiState<WorkOrderResponse>>() {
+class WorkOrderManagementFragment : BaseFragment<WorkOrderResponse>() {
 
     private var _binding: FragmentWorkOrderManagementBinding? = null
     private val binding get() = _binding!!
@@ -55,7 +55,7 @@ class WorkOrderManagementFragment : BaseFragment<UiState<WorkOrderResponse>>() {
     }
 
     override fun observeViewModelState() {
-        observeUiState(vendorViewModel.workOrderState, false) { data ->
+        observeUiState(vendorViewModel.workOrderState, showErrorToast = false) { data ->
             workOrderAdapter.submitList(data.data)
         }
     }

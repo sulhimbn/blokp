@@ -11,7 +11,7 @@ import com.example.iurankomplek.presentation.adapter.VendorAdapter
 import com.example.iurankomplek.presentation.viewmodel.VendorViewModel
 import com.example.iurankomplek.utils.UiState
 
-class VendorCommunicationFragment : BaseFragment<UiState<com.example.iurankomplek.model.VendorResponse>>() {
+class VendorCommunicationFragment : BaseFragment<com.example.iurankomplek.model.VendorResponse>() {
 
     private var _binding: FragmentVendorCommunicationBinding? = null
     private val binding get() = _binding!!

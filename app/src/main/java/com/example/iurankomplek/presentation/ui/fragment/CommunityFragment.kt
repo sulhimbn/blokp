@@ -13,7 +13,7 @@ import com.example.iurankomplek.presentation.viewmodel.CommunityPostViewModel
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.model.CommunityPost
 
-class CommunityFragment : BaseFragment<UiState<List<CommunityPost>>>() {
+class CommunityFragment : BaseFragment<List<CommunityPost>>>() {
 
     private var _binding: FragmentCommunityBinding? = null
     private val binding get() = _binding!!

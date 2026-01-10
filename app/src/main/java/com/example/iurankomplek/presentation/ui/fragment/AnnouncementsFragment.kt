@@ -13,7 +13,7 @@ import com.example.iurankomplek.presentation.viewmodel.AnnouncementViewModel
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.model.Announcement
 
-class AnnouncementsFragment : BaseFragment<UiState<List<Announcement>>>() {
+class AnnouncementsFragment : BaseFragment<List<Announcement>>>() {
 
     private var _binding: FragmentAnnouncementsBinding? = null
     private val binding get() = _binding!!
