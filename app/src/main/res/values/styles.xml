@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Widget.BlokP" parent="Widget.MaterialComponents" />
-    <style name="TextAppearance.BlokP" parent="TextAppearance.AppCompat" />
+    <style name="Widget.BlokP" parent="Widget.Material3" />
+    <style name="TextAppearance.BlokP" parent="TextAppearance.Material3" />
     
     <style name="Widget.BlokP.Button" parent="Widget.Material3.Button">
         <item name="android:layout_width">0dp</item>
