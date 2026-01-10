@@ -40,8 +40,10 @@ object SecurityConfig {
                 .addHeader("X-Content-Type-Options", "nosniff")
                 .addHeader("X-Frame-Options", "DENY")
                 .addHeader("X-XSS-Protection", "1; mode=block")
+                .addHeader("Referrer-Policy", "strict-origin-when-cross-origin")
+                .addHeader("Permissions-Policy", "geolocation=(), microphone=(), camera=()")
                 .build()
-            
+
             chain.proceed(requestWithHeaders)
         }
     }
