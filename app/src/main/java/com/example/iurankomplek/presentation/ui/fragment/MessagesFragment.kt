@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.R
 import com.example.iurankomplek.core.base.BaseFragment
-import com.example.iurankomplek.data.repository.MessageRepositoryFactory
+import com.example.iurankomplek.di.DependencyContainer
 import com.example.iurankomplek.databinding.FragmentMessagesBinding
 import com.example.iurankomplek.presentation.adapter.MessageAdapter
 import com.example.iurankomplek.presentation.viewmodel.MessageViewModel
@@ -43,8 +43,7 @@ class MessagesFragment : BaseFragment<UiState<List<com.example.iurankomplek.data
     override fun createAdapter(): RecyclerView.Adapter<*> = MessageAdapter().also { adapter = it }
 
     override fun initializeViewModel(viewModelProvider: ViewModelProvider) {
-        val messageRepository = MessageRepositoryFactory.getInstance()
-        viewModel = viewModelProvider.get(MessageViewModel::class.java)
+        viewModel = DependencyContainer.provideMessageViewModel()
     }
 
     override fun observeViewModelState() {

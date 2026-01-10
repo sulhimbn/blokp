@@ -31,12 +31,9 @@ class TransactionHistoryActivity : BaseActivity() {
     }
 
     private fun setupTransactionHistory() {
-        val transactionRepository = TransactionRepositoryFactory.getInstance(this)
-        viewModel = ViewModelProvider(
-            this,
-            TransactionViewModel.Factory(transactionRepository)
-        )[TransactionViewModel::class.java]
+        viewModel = DependencyContainer.provideTransactionViewModel()
 
+        val transactionRepository = DependencyContainer.provideTransactionRepository()
         transactionAdapter = TransactionHistoryAdapter(lifecycleScope, transactionRepository)
 
         binding.rvTransactionHistory.layoutManager = LinearLayoutManager(this)

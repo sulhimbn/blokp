@@ -49,8 +49,7 @@ class WorkOrderManagementFragment : BaseFragment<UiState<com.example.iurankomple
     }
 
     override fun initializeViewModel(viewModelProvider: ViewModelProvider) {
-        val repository = com.example.iurankomplek.data.repository.VendorRepositoryFactory.getInstance()
-        vendorViewModel = viewModelProvider.get(VendorViewModel::class.java)
+        vendorViewModel = com.example.iurankomplek.di.DependencyContainer.provideVendorViewModel()
     }
 
     override fun observeViewModelState() {

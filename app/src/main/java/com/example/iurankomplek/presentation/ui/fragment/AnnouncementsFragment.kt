@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.R
 import com.example.iurankomplek.core.base.BaseFragment
-import com.example.iurankomplek.data.repository.AnnouncementRepositoryFactory
+import com.example.iurankomplek.di.DependencyContainer
 import com.example.iurankomplek.databinding.FragmentAnnouncementsBinding
 import com.example.iurankomplek.presentation.adapter.AnnouncementAdapter
 import com.example.iurankomplek.presentation.viewmodel.AnnouncementViewModel
@@ -41,8 +41,8 @@ class AnnouncementsFragment : BaseFragment<UiState<List<com.example.iurankomplek
     override fun createAdapter(): RecyclerView.Adapter<*> = AnnouncementAdapter().also { adapter = it }
 
     override fun initializeViewModel(viewModelProvider: ViewModelProvider) {
-        val announcementRepository = AnnouncementRepositoryFactory.getInstance()
-        viewModel = viewModelProvider.get(AnnouncementViewModel::class.java)
+        val factory = com.example.iurankomplek.di.DependencyContainer.provideAnnouncementViewModel()
+        viewModel = factory
     }
 
     override fun observeViewModelState() {

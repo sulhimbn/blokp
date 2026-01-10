@@ -35,15 +35,7 @@ class LaporanActivity : BaseActivity() {
         setContentView(binding.root)
 
         // Initialize ViewModel with use case and payment integration from DI container
-        val loadFinancialDataUseCase = DependencyContainer.provideLoadFinancialDataUseCase()
-        val paymentSummaryIntegrationUseCase = DependencyContainer.providePaymentSummaryIntegrationUseCase()
-        viewModel = ViewModelProvider(
-            this,
-            FinancialViewModel.Factory(
-                loadFinancialDataUseCase,
-                paymentSummaryIntegrationUseCase = paymentSummaryIntegrationUseCase
-            )
-        )[FinancialViewModel::class.java]
+        viewModel = DependencyContainer.provideFinancialViewModel()
 
         adapter = PemanfaatanAdapter()
         summaryAdapter = LaporanSummaryAdapter()

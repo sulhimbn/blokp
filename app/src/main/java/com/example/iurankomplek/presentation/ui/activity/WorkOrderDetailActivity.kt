@@ -7,7 +7,7 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.iurankomplek.databinding.ActivityWorkOrderDetailBinding
-import com.example.iurankomplek.data.repository.VendorRepositoryFactory
+import com.example.iurankomplek.di.DependencyContainer
 import com.example.iurankomplek.model.WorkOrder
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.utils.InputSanitizer
@@ -34,8 +34,7 @@ class WorkOrderDetailActivity : BaseActivity() {
         }
 
         if (workOrderId != null) {
-            val repository = VendorRepositoryFactory.getInstance()
-            vendorViewModel = ViewModelProvider(this, VendorViewModel.Factory(repository))[VendorViewModel::class.java]
+            vendorViewModel = DependencyContainer.provideVendorViewModel()
 
             observeWorkOrderDetails()
             vendorViewModel.loadWorkOrderDetail(workOrderId)

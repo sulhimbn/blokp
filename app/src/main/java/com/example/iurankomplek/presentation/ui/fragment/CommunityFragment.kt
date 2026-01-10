@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.R
 import com.example.iurankomplek.core.base.BaseFragment
-import com.example.iurankomplek.data.repository.CommunityPostRepositoryFactory
+import com.example.iurankomplek.di.DependencyContainer
 import com.example.iurankomplek.databinding.FragmentCommunityBinding
 import com.example.iurankomplek.presentation.adapter.CommunityPostAdapter
 import com.example.iurankomplek.presentation.viewmodel.CommunityPostViewModel
@@ -41,8 +41,7 @@ class CommunityFragment : BaseFragment<UiState<List<com.example.iurankomplek.dat
     override fun createAdapter(): RecyclerView.Adapter<*> = CommunityPostAdapter().also { adapter = it }
 
     override fun initializeViewModel(viewModelProvider: ViewModelProvider) {
-        val communityPostRepository = CommunityPostRepositoryFactory.getInstance()
-        viewModel = viewModelProvider.get(CommunityPostViewModel::class.java)
+        viewModel = com.example.iurankomplek.di.DependencyContainer.provideCommunityPostViewModel()
     }
 
     override fun observeViewModelState() {

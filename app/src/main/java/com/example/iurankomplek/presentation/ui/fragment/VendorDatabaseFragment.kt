@@ -64,7 +64,6 @@ class VendorDatabaseFragment : BaseFragment<UiState<com.example.iurankomplek.mod
     }
 
     override fun initializeViewModel(viewModelProvider: ViewModelProvider) {
-        val repository = com.example.iurankomplek.data.repository.VendorRepositoryFactory.getInstance()
-        vendorViewModel = viewModelProvider.get(VendorViewModel::class.java)
+        vendorViewModel = com.example.iurankomplek.di.DependencyContainer.provideVendorViewModel()
     }
 }

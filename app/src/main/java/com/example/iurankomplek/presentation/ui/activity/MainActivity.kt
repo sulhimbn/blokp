@@ -30,8 +30,7 @@ class MainActivity : BaseActivity() {
         setContentView(binding.root)
         
         // Initialize ViewModel with use case from DI container
-        val loadUsersUseCase = DependencyContainer.provideLoadUsersUseCase()
-        viewModel = ViewModelProvider(this, UserViewModel.Factory(loadUsersUseCase))[UserViewModel::class.java]
+        viewModel = DependencyContainer.provideUserViewModel()
         
         // Initialize StateManager
         stateManager = StateManager.create(

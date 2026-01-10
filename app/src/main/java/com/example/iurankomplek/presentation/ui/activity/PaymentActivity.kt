@@ -27,17 +27,7 @@ class PaymentActivity : BaseActivity() {
     }
     
     private fun setupViewModel() {
-        val transactionRepository = DependencyContainer.provideTransactionRepository()
-        val receiptGenerator = com.example.iurankomplek.utils.ReceiptGenerator()
-        val validatePaymentUseCase = DependencyContainer.provideValidatePaymentUseCase()
-        
-        val factory = com.example.iurankomplek.payment.PaymentViewModel.Factory(
-            transactionRepository,
-            receiptGenerator,
-            validatePaymentUseCase
-        )
-        
-        paymentViewModel = ViewModelProvider(this, factory)[PaymentViewModel::class.java]
+        paymentViewModel = DependencyContainer.providePaymentViewModel()
     }
     
     private fun setupObservers() {

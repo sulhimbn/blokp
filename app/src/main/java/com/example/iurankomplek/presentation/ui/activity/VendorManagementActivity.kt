@@ -26,8 +26,7 @@ class VendorManagementActivity : BaseActivity() {
         setContentView(binding.root)
         
         // Initialize ViewModel
-        val repository = VendorRepositoryFactory.getInstance()
-        vendorViewModel = ViewModelProvider(this, VendorViewModel.Factory(repository))[VendorViewModel::class.java]
+        vendorViewModel = DependencyContainer.provideVendorViewModel()
         
         setupViews()
         observeVendors()
