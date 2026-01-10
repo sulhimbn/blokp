@@ -4,19 +4,13 @@ import com.example.iurankomplek.core.base.BaseActivity
 import com.example.iurankomplek.R
 import android.os.Bundle
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.observe
 import kotlinx.coroutines.launch
 import com.example.iurankomplek.databinding.ActivityPaymentBinding
-import com.example.iurankomplek.payment.PaymentMethod
+import com.example.iurankomplek.payment.PaymentEvent
 import com.example.iurankomplek.payment.PaymentViewModel
-import com.example.iurankomplek.payment.PaymentViewModelFactory
-import com.example.iurankomplek.utils.ReceiptGenerator
-import com.example.iurankomplek.data.repository.TransactionRepositoryFactory
-import com.example.iurankomplek.utils.Constants
-import java.math.BigDecimal
+import com.example.iurankomplek.di.DependencyContainer
 
 class PaymentActivity : BaseActivity() {
     private lateinit var binding: ActivityPaymentBinding
@@ -27,90 +21,55 @@ class PaymentActivity : BaseActivity() {
         binding = ActivityPaymentBinding.inflate(layoutInflater)
         setContentView(binding.root)
         
-        setupPaymentProcessing()
+        setupViewModel()
+        setupObservers()
         setupClickListeners()
     }
     
-    private fun setupPaymentProcessing() {
-        val transactionRepository = TransactionRepositoryFactory.getInstance(this)
-        val receiptGenerator = ReceiptGenerator()
+    private fun setupViewModel() {
+        val transactionRepository = DependencyContainer.provideTransactionRepository()
+        val receiptGenerator = com.example.iurankomplek.utils.ReceiptGenerator()
+        val validatePaymentUseCase = DependencyContainer.provideValidatePaymentUseCase()
         
-        paymentViewModel = ViewModelProvider(
-            this,
-            PaymentViewModelFactory(transactionRepository, receiptGenerator)
-        )[PaymentViewModel::class.java]
+        val factory = com.example.iurankomplek.payment.PaymentViewModelFactory(
+            transactionRepository,
+            receiptGenerator,
+            validatePaymentUseCase
+        )
+        
+        paymentViewModel = ViewModelProvider(this, factory)[PaymentViewModel::class.java]
+    }
+    
+    private fun setupObservers() {
+        lifecycleScope.launch {
+            paymentViewModel.paymentEvent.collect { event ->
+                when (event) {
+                    is PaymentEvent.Processing -> {
+                    }
+                    is PaymentEvent.Success -> {
+                        Toast.makeText(this@PaymentActivity, getString(R.string.payment_processed_successfully), Toast.LENGTH_LONG).show()
+                    }
+                    is PaymentEvent.Error -> {
+                        Toast.makeText(this@PaymentActivity, getString(R.string.payment_failed_with_error, event.message), Toast.LENGTH_LONG).show()
+                    }
+                    is PaymentEvent.ValidationError -> {
+                        Toast.makeText(this@PaymentActivity, event.message, Toast.LENGTH_SHORT).show()
+                    }
+                    null -> { }
+                }
+            }
+        }
     }
     
     private fun setupClickListeners() {
         binding.btnPay.setOnClickListener {
-            processPayment()
+            val amountText = binding.etAmount.text.toString().trim()
+            val spinnerPosition = binding.spinnerPaymentMethod.selectedItemPosition
+            paymentViewModel.validateAndProcessPayment(amountText, spinnerPosition)
         }
         
         binding.btnViewHistory.setOnClickListener {
             startActivity(android.content.Intent(this, TransactionHistoryActivity::class.java))
         }
     }
-    
-    private fun processPayment() {
-        val amountText = binding.etAmount.text.toString().trim()
-        
-         // SECURITY: Validate input before processing
-         if (amountText.isEmpty()) {
-             Toast.makeText(this, getString(R.string.payment_enter_amount), Toast.LENGTH_SHORT).show()
-             return
-         }
-         
-         try {
-             val amount = BigDecimal(amountText)
-             
-             // SECURITY: Validate amount is positive and within reasonable bounds
-             if (amount <= BigDecimal.ZERO) {
-                 Toast.makeText(this, getString(R.string.payment_amount_greater_than_zero), Toast.LENGTH_SHORT).show()
-                 return
-             }
-             
-             // SECURITY: Add maximum amount limit to prevent abuse
-             val maxPaymentAmount = BigDecimal.valueOf(Constants.Payment.MAX_PAYMENT_AMOUNT)
-             if (amount > maxPaymentAmount) {
-                 Toast.makeText(this, getString(R.string.payment_exceeds_max_limit), Toast.LENGTH_SHORT).show()
-                 return
-             }
-             
-             // SECURITY: Check for suspicious decimal places
-             if (amount.scale() > 2) {
-                 Toast.makeText(this, getString(R.string.payment_max_decimal_places), Toast.LENGTH_SHORT).show()
-                 return
-             }
-            
-            val selectedMethod = when (binding.spinnerPaymentMethod.selectedItemPosition) {
-                0 -> PaymentMethod.CREDIT_CARD
-                1 -> PaymentMethod.BANK_TRANSFER
-                2 -> PaymentMethod.E_WALLET
-                3 -> PaymentMethod.VIRTUAL_ACCOUNT
-                else -> PaymentMethod.CREDIT_CARD
-            }
-            
-            // Update the ViewModel with the amount and selected method
-            paymentViewModel.setAmount(amount)
-            paymentViewModel.selectPaymentMethod(selectedMethod)
-            
-             // Set up observer for UI state changes
-             lifecycleScope.launch {
-                 paymentViewModel.uiState.collect { uiState ->
-                     if (!uiState.isProcessing && uiState.errorMessage != null && uiState.errorMessage.isNotEmpty()) {
-                         Toast.makeText(this@PaymentActivity, getString(R.string.payment_failed_with_error, uiState.errorMessage), Toast.LENGTH_LONG).show()
-                     } else if (!uiState.isProcessing && uiState.errorMessage == null && uiState.amount > BigDecimal.ZERO) {
-                         Toast.makeText(this@PaymentActivity, getString(R.string.payment_processed_successfully), Toast.LENGTH_LONG).show()
-                     }
-                 }
-             }
-
-             // Process the payment using the ViewModel
-             paymentViewModel.processPayment()
-          } catch (e: NumberFormatException) {
-              Toast.makeText(this, getString(R.string.payment_invalid_format), Toast.LENGTH_SHORT).show()
-           } catch (e: ArithmeticException) {
-               Toast.makeText(this, getString(R.string.payment_invalid_value), Toast.LENGTH_SHORT).show()
-           }
-       }
 }

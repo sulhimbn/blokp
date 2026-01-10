@@ -13,6 +13,7 @@ import com.example.iurankomplek.domain.usecase.LoadFinancialDataUseCase
 import com.example.iurankomplek.domain.usecase.LoadUsersUseCase
 import com.example.iurankomplek.domain.usecase.PaymentSummaryIntegrationUseCase
 import com.example.iurankomplek.domain.usecase.ValidateFinancialDataUseCase
+import com.example.iurankomplek.domain.usecase.ValidatePaymentUseCase
 
 /**
  * Simple Dependency Injection container for managing application dependencies
@@ -91,6 +92,13 @@ object DependencyContainer {
      */
     fun providePaymentSummaryIntegrationUseCase(): PaymentSummaryIntegrationUseCase {
         return PaymentSummaryIntegrationUseCase(provideTransactionRepository())
+    }
+    
+    /**
+     * Provide ValidatePaymentUseCase instance
+     */
+    fun provideValidatePaymentUseCase(): ValidatePaymentUseCase {
+        return ValidatePaymentUseCase()
     }
     
     /**
