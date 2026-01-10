@@ -325,6 +325,131 @@ Update status work order.
 
 Mengambil detail work order tertentu.
 
+### Health Check Endpoints (API v1)
+
+#### POST /api/v1/health
+
+Returns system health status and integration metrics.
+
+**Request Format:**
+```json
+{
+  "includeDiagnostics": false,
+  "includeMetrics": false
+}
+```
+
+**Response Format (Basic Health Check):**
+```json
+{
+  "data": {
+    "status": "HEALTHY",
+    "version": "1.0.0",
+    "uptimeMs": 86400000,
+    "components": {
+      "circuit_breaker": {
+        "status": "HEALTHY",
+        "healthy": true,
+        "message": "All integration systems operational"
+      },
+      "rate_limiter": {
+        "status": "HEALTHY",
+        "healthy": true,
+        "message": "Rate limiter within normal limits"
+      },
+      "api_service": {
+        "status": "HEALTHY",
+        "healthy": true,
+        "message": "API service operational"
+      },
+      "network": {
+        "status": "HEALTHY",
+        "healthy": true,
+        "message": "Network connectivity normal"
+      }
+    },
+    "timestamp": 1704672000000
+  },
+  "request_id": "req_1234567890_abc42",
+  "timestamp": 1704672000000
+}
+```
+
+**Response Format (with Diagnostics):**
+```json
+{
+  "data": {
+    "status": "HEALTHY",
+    "version": "1.0.0",
+    "uptimeMs": 86400000,
+    "components": {...},
+    "timestamp": 1704672000000,
+    "diagnostics": {
+      "circuitBreakerState": "CLOSED",
+      "circuitBreakerFailures": 0,
+      "rateLimitStats": {
+        "GET:/api/v1/users": {
+          "requestCount": 50,
+          "lastRequestTime": 1704671995000
+        }
+      }
+    }
+  },
+  "request_id": "req_1234567890_abc42",
+  "timestamp": 1704672000000
+}
+```
+
+**Response Format (with Metrics):**
+```json
+{
+  "data": {
+    "status": "HEALTHY",
+    "version": "1.0.0",
+    "uptimeMs": 86400000,
+    "components": {...},
+    "timestamp": 1704672000000,
+    "metrics": {
+      "healthScore": 95.5,
+      "totalRequests": 100,
+      "successRate": 95.0,
+      "averageResponseTimeMs": 150.0,
+      "errorRate": 5.0,
+      "timeoutCount": 1,
+      "rateLimitViolations": 0
+    }
+  },
+  "request_id": "req_1234567890_abc42",
+  "timestamp": 1704672000000
+}
+```
+
+**Health Status Values:**
+- `HEALTHY` - All systems operational
+- `DEGRADED` - Some components degraded, service still functional
+- `UNHEALTHY` - Critical systems failing
+- `CIRCUIT_OPEN` - Circuit breaker is open
+- `RATE_LIMITED` - Rate limit exceeded
+
+**Component Health:**
+| Component | Description | Status Values |
+|-----------|-------------|---------------|
+| `circuit_breaker` | Circuit breaker state | HEALTHY, CIRCUIT_OPEN |
+| `rate_limiter` | Rate limiter status | HEALTHY, RATE_LIMITED |
+| `api_service` | API service health | HEALTHY, DEGRADED, UNHEALTHY |
+| `network` | Network connectivity | HEALTHY, UNHEALTHY |
+
+**Health Metrics:**
+| Metric | Type | Description |
+|--------|-------|-------------|
+| `healthScore` | Double | Overall health score (0-100) |
+| `totalRequests` | Integer | Total requests tracked |
+| `successRate` | Double | Percentage of successful requests |
+| `averageResponseTimeMs` | Double | Average response time in ms |
+| `errorRate` | Double | Percentage of failed requests |
+| `timeoutCount` | Integer | Number of timeout errors |
+| `rateLimitViolations` | Integer | Number of rate limit violations |
+
 ### Legacy Endpoints (Backward Compatibility)
 
 #### GET /data/QjX6hB1ST2IDKaxB/users
@@ -807,6 +932,62 @@ class UserViewModelFactory(
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
+```
+
+### Health Check Endpoint Usage
+
+#### Checking System Health
+
+```kotlin
+// Basic health check (status only)
+class HealthViewModel(
+    private val healthRepository: HealthRepository
+) : ViewModel() {
+    
+    private val _healthStatus = MutableStateFlow<HealthCheckResponse?>(null)
+    val healthStatus: StateFlow<HealthCheckResponse?> = _healthStatus.asStateFlow()
+    
+    fun checkHealth() {
+        viewModelScope.launch {
+            healthRepository.getHealth()
+                .onSuccess { response ->
+                    _healthStatus.value = response
+                    when (response.status) {
+                        "HEALTHY" -> showMessage("System operational")
+                        "DEGRADED" -> showMessage("System degraded")
+                        "UNHEALTHY" -> showMessage("System unavailable")
+                    }
+                }
+                .onFailure { error ->
+                    showMessage("Health check failed: ${error.message}")
+                }
+        }
+    }
+}
+```
+
+**Health Check with Diagnostics:**
+```kotlin
+healthRepository.getHealth(
+    includeDiagnostics = true,
+    includeMetrics = false
+)
+```
+
+**Health Check with Metrics:**
+```kotlin
+healthRepository.getHealth(
+    includeDiagnostics = false,
+    includeMetrics = true
+)
+```
+
+**Full Health Check:**
+```kotlin
+healthRepository.getHealth(
+    includeDiagnostics = true,
+    includeMetrics = true
+)
 ```
 
 #### Usage Example in Activity
