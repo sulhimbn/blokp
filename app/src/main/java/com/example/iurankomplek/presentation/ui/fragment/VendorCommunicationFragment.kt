@@ -59,6 +59,11 @@ class VendorCommunicationFragment : BaseFragment<UiState<com.example.iurankomple
         }
     }
 
+    override fun initializeViewModel(viewModelProvider: ViewModelProvider) {
+        val factory = com.example.iurankomplek.di.DependencyContainer.provideVendorViewModel()
+        vendorViewModel = viewModelProvider.get(VendorViewModel::class.java, factory)
+    }
+
     override fun loadData() {
         vendorViewModel.loadVendors()
     }

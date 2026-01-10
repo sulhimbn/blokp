@@ -43,7 +43,7 @@ class AnnouncementsFragment : BaseFragment<UiState<List<AnnouncementDto>>>() {
 
     override fun initializeViewModel(viewModelProvider: ViewModelProvider) {
         val factory = com.example.iurankomplek.di.DependencyContainer.provideAnnouncementViewModel()
-        viewModel = factory
+        viewModel = viewModelProvider.get(AnnouncementViewModel::class.java, factory)
     }
 
     override fun observeViewModelState() {

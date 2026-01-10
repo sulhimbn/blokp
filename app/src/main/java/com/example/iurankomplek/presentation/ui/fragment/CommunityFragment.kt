@@ -40,9 +40,10 @@ class CommunityFragment : BaseFragment<UiState<List<CommunityPostDto>>>() {
     }
 
     override fun createAdapter(): RecyclerView.Adapter<*> = CommunityPostAdapter().also { adapter = it }
-
+ 
     override fun initializeViewModel(viewModelProvider: ViewModelProvider) {
-        viewModel = com.example.iurankomplek.di.DependencyContainer.provideCommunityPostViewModel()
+        val factory = com.example.iurankomplek.di.DependencyContainer.provideCommunityPostViewModel()
+        viewModel = viewModelProvider.get(CommunityPostViewModel::class.java, factory)
     }
 
     override fun observeViewModelState() {
