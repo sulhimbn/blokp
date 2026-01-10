@@ -1642,6 +1642,63 @@ ON webhook_events(event_type, created_at DESC)
 
 ---
 
+### ✅ QA-006. Critical Path Testing - HealthCheckInterceptor - 2026-01-10
+**Status**: Completed
+**Completed Date**: 2026-01-10
+**Priority**: HIGH (Critical Path Testing)
+**Estimated Time**: 1.5 hours (completed in 1 hour)
+**Description**: Create comprehensive test coverage for HealthCheckInterceptor to ensure proper health monitoring and error tracking
+
+**Test Coverage**:
+1. **Successful Requests**: Verifies interceptor doesn't interfere with successful requests
+2. **Retry Recording**: Tests that failed requests record retry on health monitor
+3. **Rate Limit Tracking**: Verifies HTTP 429 records rate limit exceeded
+4. **Circuit Breaker Recording**: Verifies HTTP 503 records circuit breaker open
+5. **Health Endpoint Exclusion**: Tests that /api/v1/health and /health endpoints are skipped
+6. **HTTP Method Support**: Tests GET, POST, PUT, DELETE methods
+7. **Network Failures**: Verifies IOException records retry
+8. **Response Preservation**: Tests interceptor doesn't modify response headers or body
+9. **Request Preservation**: Tests interceptor doesn't modify request headers
+10. **Multiple Requests**: Verifies retry tracking across multiple requests
+11. **Query Parameters**: Tests endpoint key extraction with query parameters
+12. **Logging Behavior**: Verifies interceptor with logging enabled doesn't throw errors
+13. **Response Time Measurement**: Verifies response time is measured for all requests
+14. **Default Monitor**: Tests interceptor uses default IntegrationHealthMonitor when not provided
+
+**Files Created**:
+| File | Lines | Purpose |
+|------|--------|---------|
+| HealthCheckInterceptorTest.kt | +531 | Comprehensive interceptor tests |
+
+**Benefits**:
+1. **Critical Path Coverage**: Tests health monitoring interceptor behavior for all HTTP scenarios
+2. **Observability Verification**: Ensures retry, rate limit, and circuit breaker events are properly recorded
+3. **Edge Case Coverage**: Tests health endpoint exclusion, various HTTP methods, network failures
+4. **Non-Intrusion**: Verifies interceptor doesn't modify requests/responses
+5. **Robustness**: Ensures interceptor works correctly with logging enabled/disabled
+
+**Success Criteria**:
+- [x] Successful request tests added (2 tests)
+- [x] Retry recording tests added (2 tests)
+- [x] Rate limit tracking test added (1 test)
+- [x] Circuit breaker recording tests added (2 tests)
+- [x] Health endpoint exclusion tests added (2 tests)
+- [x] HTTP method support tests added (3 tests)
+- [x] Network failure test added (1 test)
+- [x] Response preservation tests added (2 tests)
+- [x] Request preservation test added (1 test)
+- [x] Multiple requests test added (2 tests)
+- [x] Query parameters test added (1 test)
+- [x] Logging behavior test added (1 test)
+- [x] Response time measurement test added (1 test)
+- [x] Default monitor test added (1 test)
+- [x] Total 22 test cases covering all interceptor behaviors
+
+**Dependencies**: None (independent test creation, follows existing interceptor test patterns)
+**Impact**: HIGH - Critical observability component tested, ensures health monitoring interceptor correctly records retries, rate limits, and circuit breaker events for all API calls
+
+---
+
 ## Pending Refactoring Tasks
 
 ---
