@@ -54,6 +54,10 @@
         <item name="android:importantForAccessibility">yes</item>
     </style>
 
+    <style name="TextAppearance.BlokP.Heading.H3" parent="TextAppearance.BlokP.Heading">
+        <item name="android:textSize">@dimen/heading_h3</item>
+    </style>
+
     <style name="TextAppearance.BlokP.Heading.H4" parent="TextAppearance.BlokP.Heading">
         <item name="android:textSize">@dimen/heading_h4</item>
     </style>
