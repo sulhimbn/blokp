@@ -15,9 +15,8 @@ interface HealthRepository {
 }
 
 class HealthRepositoryImpl(
-    private val apiService: ApiServiceV1,
-    private val circuitBreaker: CircuitBreaker
-) : HealthRepository(), BaseRepository() {
+    private val apiService: ApiServiceV1
+) : HealthRepository, BaseRepository {
     
     override suspend fun getHealth(includeDiagnostics: Boolean, includeMetrics: Boolean): Result<HealthCheckResponse> {
         return executeWithCircuitBreakerV1 {

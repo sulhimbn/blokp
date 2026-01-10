@@ -15,17 +15,17 @@ class MessageRepositoryImpl(
         if (cachedMessages != null) {
             return Result.success(cachedMessages)
         }
- 
-        return executeWithCircuitBreakerV1 { apiService.getMessages(userId) }
+
+        return executeWithCircuitBreakerV2 { apiService.getMessages(userId) }
             .also { result ->
                 result.onSuccess { messages ->
                     cache[userId] = messages
                 }
             }
     }
- 
+
     override suspend fun getMessagesWithUser(receiverId: String, senderId: String): Result<List<Message>> {
-        return executeWithCircuitBreakerV1 { apiService.getMessagesWithUser(receiverId, senderId) }
+        return executeWithCircuitBreakerV2 { apiService.getMessagesWithUser(receiverId, senderId) }
     }
  
     override suspend fun sendMessage(senderId: String, receiverId: String, content: String): Result<Message> {

@@ -6,6 +6,9 @@ import com.example.iurankomplek.model.WorkOrderResponse
 import com.example.iurankomplek.model.SingleWorkOrderResponse
 import com.example.iurankomplek.network.model.CreateVendorRequest
 import com.example.iurankomplek.network.model.UpdateVendorRequest
+import com.example.iurankomplek.network.model.CreateWorkOrderRequest
+import com.example.iurankomplek.network.model.AssignVendorRequest
+import com.example.iurankomplek.network.model.UpdateWorkOrderRequest
 
 class VendorRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiServiceV1

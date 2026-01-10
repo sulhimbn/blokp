@@ -45,22 +45,22 @@ class HealthService(
     
     private fun buildComponentHealthMap(healthReport: IntegrationHealthMonitor.HealthReport): Map<String, ComponentHealth> {
         val components = mutableMapOf<String, ComponentHealth>()
-        
+
         healthReport.componentHealth.forEach { (componentName, status) ->
             components[componentName] = ComponentHealth(
-                status = status.getStatusValue(),
+                status = status.status,
                 healthy = status.isHealthy(),
-                message = status.getMessage(),
+                message = status.details,
                 details = null
             )
         }
-        
+
         return components
     }
     
     private fun buildDiagnostics(healthReport: IntegrationHealthMonitor.HealthReport): HealthDiagnostics {
         val circuitBreakerStats = healthReport.circuitBreakerStats
-        val circuitBreakerState = (circuitBreakerStats["state"] as? CircuitBreakerState)?.name ?: "UNKNOWN"
+        val circuitBreakerState = circuitBreakerStats["state"] as? String ?: "UNKNOWN"
         val circuitBreakerFailures = (circuitBreakerStats["failureCount"] as? Int) ?: 0
         
         val rateLimitStatsMap = mutableMapOf<String, RateLimitStats>()

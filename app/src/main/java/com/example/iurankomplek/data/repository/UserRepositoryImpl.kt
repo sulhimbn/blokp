@@ -18,8 +18,6 @@ import kotlinx.coroutines.flow.first
 class UserRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiServiceV1
 ) : UserRepository, BaseRepository {
-    private val circuitBreaker: CircuitBreaker = ApiConfig.circuitBreaker
-    private val maxRetries = com.example.iurankomplek.utils.Constants.Network.MAX_RETRIES
     
     override suspend fun getUsers(forceRefresh: Boolean): Result<UserResponse> {
         return cacheFirstStrategy(

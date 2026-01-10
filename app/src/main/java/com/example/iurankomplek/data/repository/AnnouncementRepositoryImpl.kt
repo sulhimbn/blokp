@@ -14,8 +14,8 @@ class AnnouncementRepositoryImpl(
         if (!forceRefresh && cache.isNotEmpty()) {
             return Result.success(cache.values.toList())
         }
- 
-        return executeWithCircuitBreakerV1 { apiService.getAnnouncements() }
+
+        return executeWithCircuitBreakerV2 { apiService.getAnnouncements() }
     }
  
     override suspend fun getCachedAnnouncements(): Result<List<Announcement>> {

@@ -38,7 +38,7 @@ abstract class BaseRepository {
                 maxRetries = maxRetries
             )
         }
-        
+
         return when (circuitBreakerResult) {
             is CircuitBreakerResult.Success -> {
                 val response = circuitBreakerResult.value
@@ -47,9 +47,38 @@ abstract class BaseRepository {
                     Result.success(body.data)
                 } else {
                     Result.failure(NetworkError.HttpError(
-                        code = com.example.iurankomplek.network.model.ApiErrorCode.fromHttpCode(response.code()),
+                        code = com.example.iurankomplek.network.model.ApiErrorCode.fromHttpCode(response.code),
                         userMessage = "API request failed",
-                        httpCode = response.code()
+                        httpCode = response.code
+                    ))
+                }
+            }
+            is CircuitBreakerResult.Failure -> Result.failure(circuitBreakerResult.exception)
+            is CircuitBreakerResult.CircuitOpen -> Result.failure(NetworkError.CircuitBreakerError())
+        }
+    }
+
+    protected suspend fun <T : Any> executeWithCircuitBreakerV2(
+        apiCall: suspend () -> retrofit2.Response<ApiListResponse<T>>
+    ): Result<List<T>> {
+        val circuitBreakerResult = circuitBreaker.execute {
+            com.example.iurankomplek.utils.RetryHelper.executeWithRetry(
+                apiCall = apiCall,
+                maxRetries = maxRetries
+            )
+        }
+
+        return when (circuitBreakerResult) {
+            is CircuitBreakerResult.Success -> {
+                val response = circuitBreakerResult.value
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    Result.success(body.data)
+                } else {
+                    Result.failure(NetworkError.HttpError(
+                        code = com.example.iurankomplek.network.model.ApiErrorCode.fromHttpCode(response.code),
+                        userMessage = "API request failed",
+                        httpCode = response.code
                     ))
                 }
             }

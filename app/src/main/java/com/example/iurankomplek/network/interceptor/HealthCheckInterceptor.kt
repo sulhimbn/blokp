@@ -23,33 +23,38 @@ class HealthCheckInterceptor(
             val response = chain.proceed(request)
             val responseTimeMs = System.currentTimeMillis() - startTime
             val success = response.isSuccessful
-            
-            recordHealth(endpoint, responseTimeMs, success, response.code())
-            
+            val httpCode = response.code
+
+            recordHealth(endpoint, responseTimeMs, success, httpCode)
+
             if (enableLogging) {
-                logRequest(endpoint, responseTimeMs, success, response.code())
+                logRequest(endpoint, responseTimeMs, success, httpCode)
             }
-            
+
             when {
-                response.code == 429 -> {
-                    healthMonitor.recordRateLimitExceeded(endpoint, getRequestCount())
+                httpCode == 429 -> {
+                    kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                        healthMonitor.recordRateLimitExceeded(endpoint, getRequestCount())
+                    }
                 }
-                response.code >= 500 -> {
-                    if (response.code == 503) {
-                        healthMonitor.recordCircuitBreakerOpen("api_service")
+                httpCode >= 500 -> {
+                    if (httpCode == 503) {
+                        kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                            healthMonitor.recordCircuitBreakerOpen("api_service")
+                        }
                     }
                 }
             }
-            
+
             response
         } catch (e: IOException) {
             val responseTimeMs = System.currentTimeMillis() - startTime
             recordHealth(endpoint, responseTimeMs, false, null)
-            
+
             if (enableLogging) {
                 logError(endpoint, responseTimeMs, e)
             }
-            
+
             throw e
         }
     }
@@ -58,9 +63,11 @@ class HealthCheckInterceptor(
         if (isHealthEndpoint(endpoint)) {
             return
         }
-        
+
         if (!success) {
-            healthMonitor.recordRetry(endpoint)
+            kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                healthMonitor.recordRetry(endpoint)
+            }
         }
     }
     
@@ -73,7 +80,11 @@ class HealthCheckInterceptor(
     }
     
     private fun getRequestCount(): Int {
-        return healthMonitor.getDetailedHealthReport().metrics.requestMetrics.totalRequests
+        var requestCount = 0
+        kotlinx.coroutines.runBlocking {
+            requestCount = healthMonitor.getDetailedHealthReport().metrics.requestMetrics.totalRequests
+        }
+        return requestCount
     }
     
     private fun logRequest(endpoint: String, responseTimeMs: Long, success: Boolean, httpCode: Int) {

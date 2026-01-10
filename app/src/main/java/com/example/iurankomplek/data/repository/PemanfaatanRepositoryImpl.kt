@@ -19,8 +19,6 @@ import retrofit2.HttpException
 class PemanfaatanRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiServiceV1
 ) : PemanfaatanRepository, BaseRepository {
-    private val circuitBreaker: CircuitBreaker = ApiConfig.circuitBreaker
-    private val maxRetries = com.example.iurankomplek.utils.Constants.Network.MAX_RETRIES
 
     override suspend fun getPemanfaatan(forceRefresh: Boolean): Result<PemanfaatanResponse> {
         return cacheFirstStrategy(
@@ -35,17 +33,10 @@ class PemanfaatanRepositoryImpl(
                 }
             },
             getFromNetwork = {
-                val circuitBreakerResult = circuitBreaker.execute {
-                    com.example.iurankomplek.utils.RetryHelper.executeWithRetry(
-                        apiCall = { apiService.getPemanfaatan() },
-                        maxRetries = maxRetries
-                    )
+                val circuitBreakerResult = executeWithCircuitBreaker {
+                    apiService.getPemanfaatan()
                 }
-                when (circuitBreakerResult) {
-                    is CircuitBreakerResult.Success -> circuitBreakerResult.value
-                    is CircuitBreakerResult.Failure -> throw circuitBreakerResult.exception
-                    is CircuitBreakerResult.CircuitOpen -> throw NetworkError.CircuitBreakerError()
-                }
+                circuitBreakerResult.getOrThrow()
             },
             isCacheFresh = { response ->
                 if (response.data.isNotEmpty()) {

@@ -14,8 +14,8 @@ class CommunityPostRepositoryImpl(
         if (!forceRefresh && cache.isNotEmpty()) {
             return Result.success(cache.values.toList())
         }
- 
-        return executeWithCircuitBreakerV1 { apiService.getCommunityPosts() }
+
+        return executeWithCircuitBreakerV2 { apiService.getCommunityPosts() }
     }
  
     override suspend fun createCommunityPost(

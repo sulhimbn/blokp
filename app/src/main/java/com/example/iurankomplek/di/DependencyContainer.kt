@@ -104,7 +104,7 @@ object DependencyContainer {
         return transactionDao ?: synchronized(this) {
             transactionDao ?: AppDatabase.getDatabase(
                 context ?: throw IllegalStateException("DI container not initialized. Call DependencyContainer.initialize() first."),
-                CoroutineScope(com.example.iurankomplek.utils.DispatcherProvider.IO)
+                kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO)
             ).transactionDao().also { transactionDao = it }
         }
     }
