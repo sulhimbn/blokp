@@ -47,9 +47,9 @@ class CommunityFragment : BaseFragment<List<CommunityPost>>() {
     }
 
     override fun observeViewModelState() {
-        observeUiState(viewModel.postsState, showErrorToast = false) { data ->
+        observeUiState(viewModel.postsState, { data ->
             adapter.submitList(data)
-        }
+        }, showErrorToast = false)
     }
 
     override fun loadData() {

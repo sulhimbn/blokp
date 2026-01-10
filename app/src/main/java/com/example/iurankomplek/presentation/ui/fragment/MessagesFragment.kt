@@ -48,9 +48,9 @@ class MessagesFragment : BaseFragment<List<Message>>() {
     }
 
     override fun observeViewModelState() {
-        observeUiState(viewModel.messagesState, showErrorToast = false) { data ->
+        observeUiState(viewModel.messagesState, { data ->
             adapter.submitList(data)
-        }
+        }, showErrorToast = false)
     }
 
     override fun loadData() {
