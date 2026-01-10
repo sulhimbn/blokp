@@ -26,10 +26,20 @@ class ReceiptGenerator {
     }
 
     private fun generateReceiptNumber(): String {
-        val dateFormat = SimpleDateFormat("yyyyMMdd", Locale.US)
-        val date = dateFormat.format(Date())
+        val date = DATE_FORMAT.get().format(Date())
         val random = kotlin.random.Random.nextInt(Constants.Receipt.RANDOM_MAX - Constants.Receipt.RANDOM_MIN + 1) + Constants.Receipt.RANDOM_MIN
         return "RCPT-$date-$random"
+    }
+
+    companion object {
+        @Volatile
+        private var DATE_FORMAT: SimpleDateFormat? = null
+
+        private fun getDateFormat(): SimpleDateFormat {
+            return DATE_FORMAT ?: synchronized(this) {
+                DATE_FORMAT ?: SimpleDateFormat("yyyyMMdd", Locale.US).also { DATE_FORMAT = it }
+            }
+        }
     }
 
     private fun generateQRCode(transactionId: String): String {
