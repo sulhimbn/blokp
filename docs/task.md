@@ -1209,6 +1209,113 @@ abstract class BaseFragment<T> : Fragment() {
 
 ---
 
+### ✅ REFACTOR-013. Dead Code - RepositoryFactory Files
+**Status**: Completed
+**Completed Date**: 2026-01-10
+**Priority**: HIGH (Code Quality)
+**Estimated Time**: 30 minutes (completed in 10 minutes)
+**Location**: data/repository/*Factory.kt
+
+**Issue**: Unused RepositoryFactory files still present in codebase
+- ❌ UserRepositoryFactory.kt (19 lines) - not used anywhere
+- ❌ PemanfaatanRepositoryFactory.kt (19 lines) - not used anywhere
+- ❌ TransactionRepositoryFactory.kt (36 lines) - not used anywhere
+- ❌ VendorRepositoryFactory.kt (19 lines) - not used anywhere
+- ❌ AnnouncementRepositoryFactory.kt (19 lines) - not used anywhere
+- ❌ MessageRepositoryFactory.kt (19 lines) - not used anywhere
+- ❌ CommunityPostRepositoryFactory.kt (19 lines) - not used anywhere
+- All Activities use DependencyContainer.provide*ViewModel() instead
+- All Repositories created by DependencyContainer singleton
+- These Factory files are completely unused (dead code)
+
+**Code Pattern**:
+```kotlin
+// RepositoryFactory files - Dead code (no longer used):
+object UserRepositoryFactory {
+    fun getInstance(): UserRepository {
+        // Creates repository instance
+    }
+}
+
+// DependencyContainer - Now used everywhere:
+fun provideUserRepository(): UserRepository {
+    return singletonUserRepository ?: synchronized(this) {
+        singletonUserRepository ?: UserRepositoryImpl(apiService).also {
+            singletonUserRepository = it
+        }
+    }
+}
+```
+
+**Solution Implemented - RepositoryFactory Files Removed**:
+
+**1. Deleted All RepositoryFactory Files** (7 files removed):
+- UserRepositoryFactory.kt
+- PemanfaatanRepositoryFactory.kt
+- TransactionRepositoryFactory.kt
+- VendorRepositoryFactory.kt
+- AnnouncementRepositoryFactory.kt
+- MessageRepositoryFactory.kt
+- CommunityPostRepositoryFactory.kt
+
+**2. Verified No References**:
+- Grep search for `Factory` returned zero results in source code
+- Grep search for `.getInstance()` returned zero results in source code
+- All codebase uses DependencyContainer instead
+- No test files reference these Factory objects
+
+**Architecture Improvements**:
+
+**Dead Code - Removed ✅**:
+- ✅ 7 unused Factory files deleted (150 lines of dead code)
+- ✅ DependencyContainer is single source of truth for dependency creation
+- ✅ No more duplicate factory patterns
+- ✅ Cleaner repository layer (no unused files)
+
+**Code Quality - Improved ✅**:
+- ✅ Eliminated code duplication (same pattern in 7 files)
+- ✅ Removed confusion (two patterns coexisting: Factory vs DI Container)
+- ✅ Better maintainability (single dependency creation pattern)
+- ✅ Reduced codebase size (150 lines of dead code removed)
+
+**Anti-Patterns Eliminated**:
+- ❌ No more dead Factory files
+- ❌ No more duplicate dependency creation patterns
+- ❌ No more unused singletons
+- ❌ No more confusion between Factory and DI Container patterns
+
+**Files Deleted** (7 total):
+| File | Lines | Purpose |
+|------|--------|---------|
+| UserRepositoryFactory.kt | 19 | Removed - dead code |
+| PemanfaatanRepositoryFactory.kt | 19 | Removed - dead code |
+| TransactionRepositoryFactory.kt | 36 | Removed - dead code |
+| VendorRepositoryFactory.kt | 19 | Removed - dead code |
+| AnnouncementRepositoryFactory.kt | 19 | Removed - dead code |
+| MessageRepositoryFactory.kt | 19 | Removed - dead code |
+| CommunityPostRepositoryFactory.kt | 19 | Removed - dead code |
+| **Total** | **150** | **7 files removed** |
+
+**Benefits**:
+1. **Code Cleanliness**: Removed 150 lines of dead code
+2. **Maintainability**: Single dependency creation pattern (DependencyContainer)
+3. **Clarity**: No confusion between Factory and DI Container patterns
+4. **Reduced Codebase**: Fewer files to maintain and understand
+5. **Better Architecture**: Consistent DI pattern across entire codebase
+
+**Success Criteria**:
+- [x] 7 RepositoryFactory files deleted
+- [x] No remaining references to Factory files in source code
+- [x] DependencyContainer verified as single source of truth
+- [x] 150 lines of dead code removed
+- [x] Documentation updated (task.md)
+
+**Dependencies**: None (independent dead code removal, no functional changes)
+**Documentation**: Updated docs/task.md with REFACTOR-013 completion
+**Impact**: HIGH - Removes 150 lines of dead code, eliminates duplicate dependency creation patterns, improves code maintainability and clarity
+
+---
+
 ### REFACTOR-008. Large Class - IntegrationHealthMonitor
 **Status**: Reviewed - No Action Needed
 **Priority**: Medium
