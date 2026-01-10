@@ -105,7 +105,7 @@ object InputSanitizer {
             val num = input.trim().toInt()
             num > 0
         } catch (e: NumberFormatException) {
-            android.util.Log.d("InputSanitizer", "Invalid positive integer format: $input")
+            android.util.Log.d("InputSanitizer", "Invalid positive integer format")
             false
         }
     }
@@ -119,7 +119,7 @@ object InputSanitizer {
             val num = input.trim().toDouble()
             num > 0 && num <= Constants.Payment.MAX_PAYMENT_AMOUNT
         } catch (e: NumberFormatException) {
-            android.util.Log.d("InputSanitizer", "Invalid positive double format: $input")
+            android.util.Log.d("InputSanitizer", "Invalid positive double format")
             false
         }
     }
@@ -133,6 +133,31 @@ object InputSanitizer {
                 if (input.length > 2048) {
                     return false
                 }
+
+                // Additional validation to prevent potential security issues with URLs
+                val url = URL(input)
+
+                // SECURITY: Only allow http and https protocols
+                val protocol = url.protocol
+                if (protocol != "http" && protocol != "https") {
+                    return false
+                }
+
+                // SECURITY: Check for suspicious URL patterns
+                val host = url.host?.lowercase() ?: ""
+                if (host.contains("localhost") || host.contains("127.0.0.1")) {
+                    return false
+                }
+
+                // Check that URL doesn't contain dangerous characters after validation
+                URL(input).toURI()
+                true
+            }
+        } catch (e: Exception) {
+            android.util.Log.d("InputSanitizer", "Invalid URL format")
+            false
+        }
+    }
                 
                 // Additional validation to prevent potential security issues with URLs
                 val url = URL(input)

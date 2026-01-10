@@ -6,16 +6,16 @@ plugins {
     id 'jacoco'
 }
 
-android {
-    namespace 'com.example.iurankomplek'
-    compileSdk 34
+ android {
+    namespace = 'com.example.iurankomplek'
+    compileSdk = 34
 
     defaultConfig {
-        applicationId "com.example.blokp"
-        minSdk 24
-        targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        applicationId = "com.example.blokp"
+        minSdk = 24
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -36,17 +36,17 @@ android {
     
     buildTypes {
         debug {
-            testCoverageEnabled true
+            testCoverageEnabled = true
         }
         release {
-            minifyEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            minifyEnabled = true
+            shrinkResources = true
+            proguardFiles = getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     buildFeatures {
-        viewBinding true
-        buildConfig true
+        viewBinding = true
+        buildConfig = true
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -67,11 +67,11 @@ android {
     }
 
     lint {
-        abortOnError false
-        checkReleaseBuilds true
-        xmlReport true
-        htmlReport true
-        disable 'NotificationPermission'
+        abortOnError = false
+        checkReleaseBuilds = true
+        xmlReport = true
+        htmlReport = true
+        disable = 'NotificationPermission'
     }
 }
 
