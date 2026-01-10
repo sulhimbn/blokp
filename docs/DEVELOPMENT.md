@@ -180,10 +180,8 @@ interface UserRepository {
 
 // Repository implementation with CircuitBreaker
 class UserRepositoryImpl(
-    private val apiService: ApiService
+    private val apiService: ApiServiceV1
 ) : UserRepository {
-    
-    private val circuitBreaker = ApiConfig.circuitBreaker
     
     override suspend fun getUsers(): Result<List<DataItem>> {
         return try {
@@ -194,28 +192,26 @@ class UserRepositoryImpl(
                 Result.failure(NetworkException(response.code()))
             }
         } catch (e: Exception) {
-            circuitBreaker.recordFailure()
             Result.failure(e)
         }
     }
 }
 
-// Factory pattern for repository instantiation
-object UserRepositoryFactory {
-    private var instance: UserRepository? = null
+// Dependency Injection container (DependencyContainer.kt)
+object DependencyContainer {
+    @Volatile
+    private var userRepository: UserRepository? = null
     
-    fun getInstance(): UserRepository {
-        return instance ?: synchronized(this) {
-            instance ?: UserRepositoryImpl(ApiConfig.getApiService()).also { 
-                instance = it 
-            }
+    fun provideUserRepository(): UserRepository {
+        return userRepository ?: synchronized(this) {
+            userRepository ?: UserRepositoryImpl(ApiConfig.getApiServiceV1()).also { userRepository = it }
         }
     }
 }
 
 // Usage in ViewModel
 class UserViewModel : ViewModel() {
-    private val repository = UserRepositoryFactory.getInstance()
+    private val repository = DependencyContainer.provideUserRepository()
     private val _uiState = MutableStateFlow<UiState<List<DataItem>>>(UiState.Loading)
     val uiState: StateFlow<UiState<List<DataItem>>> = _uiState.asStateFlow()
     
@@ -233,17 +229,18 @@ class UserViewModel : ViewModel() {
     }
 }
 
-// Usage in Activity with Factory pattern
+// Usage in Activity with DependencyContainer
 class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
-    private val viewModel: UserViewModel by viewModels {
-        UserViewModelFactory()
-    }
+    private lateinit var viewModel: UserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Initialize ViewModel with use case from DI container
+        viewModel = DependencyContainer.provideUserViewModel()
 
         setupRecyclerView()
         observeViewModel()
