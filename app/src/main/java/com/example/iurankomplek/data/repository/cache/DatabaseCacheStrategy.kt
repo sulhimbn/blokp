@@ -53,11 +53,8 @@ class DatabaseCacheStrategy<T>(
 
     override suspend fun clear() {
         try {
-            val database = CacheManager.getDatabase()
-            database.runInTransaction {
-                CacheManager.getUserDao().deleteAll()
-                CacheManager.getFinancialRecordDao().deleteAll()
-            }
+            CacheManager.getUserDao().deleteAll()
+            CacheManager.getFinancialRecordDao().deleteAll()
         } catch (e: Exception) {
         }
     }

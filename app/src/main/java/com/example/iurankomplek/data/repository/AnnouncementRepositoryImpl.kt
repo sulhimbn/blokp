@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 class AnnouncementRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiService
-) : AnnouncementRepository(), BaseRepositoryLegacy() {
+) : AnnouncementRepository(), BaseRepositoryLegacy {
     private val cache = ConcurrentHashMap<String, Announcement>()
 
     override suspend fun getAnnouncements(forceRefresh: Boolean): Result<List<Announcement>> {

@@ -11,8 +11,9 @@ import com.example.iurankomplek.databinding.FragmentCommunityBinding
 import com.example.iurankomplek.presentation.adapter.CommunityPostAdapter
 import com.example.iurankomplek.presentation.viewmodel.CommunityPostViewModel
 import com.example.iurankomplek.utils.UiState
+import com.example.iurankomplek.data.api.models.CommunityPostDto
 
-class CommunityFragment : BaseFragment<UiState<List<com.example.iurankomplek.data.dto.CommunityPostDto>>>() {
+class CommunityFragment : BaseFragment<UiState<List<CommunityPostDto>>>() {
 
     private var _binding: FragmentCommunityBinding? = null
     private val binding get() = _binding!!
@@ -45,7 +46,7 @@ class CommunityFragment : BaseFragment<UiState<List<com.example.iurankomplek.dat
     }
 
     override fun observeViewModelState() {
-        observeUiState(viewModel.postsState) { data ->
+        observeUiState(viewModel.postsState, showErrorToast = false) { data ->
             adapter.submitList(data)
         }
     }

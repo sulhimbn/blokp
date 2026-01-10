@@ -1,6 +1,7 @@
 package com.example.iurankomplek.payment
 
 import com.example.iurankomplek.network.ApiService
+import com.example.iurankomplek.network.model.InitiatePaymentRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.math.BigDecimal
@@ -14,10 +15,12 @@ class RealPaymentGateway(
         return withContext(Dispatchers.IO) {
             try {
                 val response = apiService.initiatePayment(
-                    amount = request.amount.toString(),
-                    description = request.description,
-                    customerId = request.customerId,
-                    paymentMethod = request.paymentMethod.name
+                    InitiatePaymentRequest(
+                        amount = request.amount.toString(),
+                        description = request.description,
+                        customerId = request.customerId,
+                        paymentMethod = request.paymentMethod.name
+                    )
                 )
                 
                 if (response.isSuccessful) {

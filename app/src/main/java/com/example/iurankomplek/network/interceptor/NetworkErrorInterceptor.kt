@@ -16,7 +16,6 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import javax.net.ssl.SSLException
 import android.util.Log
-import kotlin.system.measureTimeMillis
 
 class NetworkErrorInterceptor(
     private val enableLogging: Boolean = false,
@@ -26,25 +25,35 @@ class NetworkErrorInterceptor(
 
     private val gson = Gson()
     private val charset: Charset = StandardCharsets.UTF_8
-    
+
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest: Request = chain.request()
         val requestTag = originalRequest.tag(String::class.java) ?: "Unknown Request"
         val endpoint = originalRequest.url.encodedPath
 
         return try {
-            val (response, responseTime) = measureTimeMillis {
-                chain.proceed(originalRequest)
+            val startTime = System.currentTimeMillis()
+            val response = chain.proceed(originalRequest)
+            val responseTime = System.currentTimeMillis() - startTime
+
+            if (response.isSuccessful) {
+                healthMonitor?.recordRequest(
+                    endpoint = endpoint,
+                    responseTimeMs = responseTime,
+                    success = true,
+                    httpCode = response.code
+                )
             }
 
-            healthMonitor?.recordRequest(
-                endpoint = endpoint,
-                responseTimeMs = responseTime,
-                success = response.isSuccessful,
-                httpCode = response.code
-            )
-
             if (!response.isSuccessful) {
+                val error = parseErrorResponse(response, requestTag)
+                if (enableLogging) {
+                    logError(requestTag, error, response.code)
+                }
+                throw error
+            }
+
+            response
                 val error = parseErrorResponse(response, requestTag)
                 if (enableLogging) {
                     logError(requestTag, error, response.code)

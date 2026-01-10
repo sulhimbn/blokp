@@ -6,7 +6,7 @@ import kotlinx.coroutines.channels.Channel
 
 class WebhookEventCleaner(
     private val webhookEventDao: WebhookEventDao,
-    private val eventChannel: kotlinx.coroutines.Channel<Long>
+    private val eventChannel: Channel<Long>
 ) {
     private val TAG = "${Constants.Tags.WEBHOOK_RECEIVER}.EventCleaner"
 

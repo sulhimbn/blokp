@@ -12,6 +12,7 @@ import com.example.iurankomplek.databinding.ActivityTransactionHistoryBinding
 import com.example.iurankomplek.data.repository.TransactionRepositoryFactory
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.presentation.viewmodel.TransactionViewModel
+import com.example.iurankomplek.di.DependencyContainer
 import com.example.iurankomplek.payment.PaymentStatus
 import kotlinx.coroutines.launch
 

@@ -44,7 +44,7 @@ class PemanfaatanRepositoryImpl(
                 when (circuitBreakerResult) {
                     is CircuitBreakerResult.Success -> circuitBreakerResult.value
                     is CircuitBreakerResult.Failure -> throw circuitBreakerResult.exception
-                    is CircuitBreakerResult.CircuitOpen -> throw CircuitBreakerState.Open
+                    is CircuitBreakerResult.CircuitOpen -> throw NetworkError.CircuitBreakerError()
                 }
             },
             isCacheFresh = { response ->

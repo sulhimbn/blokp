@@ -14,7 +14,7 @@ import com.example.iurankomplek.presentation.viewmodel.MessageViewModel
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.utils.Constants
 
-class MessagesFragment : BaseFragment<UiState<List<com.example.iurankomplek.data.dto.LegacyDataItemDto>>>() {
+class MessagesFragment : BaseFragment<UiState<List<Message>>>() {
 
     private var _binding: FragmentMessagesBinding? = null
     private val binding get() = _binding!!
@@ -47,7 +47,7 @@ class MessagesFragment : BaseFragment<UiState<List<com.example.iurankomplek.data
     }
 
     override fun observeViewModelState() {
-        observeUiState(viewModel.messagesState) { data ->
+        observeUiState(viewModel.messagesState, showErrorToast = false) { data ->
             adapter.submitList(data)
         }
     }

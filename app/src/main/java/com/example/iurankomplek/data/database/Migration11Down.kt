@@ -5,16 +5,16 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 /**
  * Migration 11 Down: Remove Partial Indexes
- * 
+ *
  * Reverses Migration 11 by dropping all partial indexes.
  * Database returns to using original indexes that include deleted records.
- * 
+ *
  * Note: This is a safe, reversible migration.
  * - Old indexes remain intact
  * - Only new partial indexes are dropped
  * - No data loss or modification
  */
-class Migration11Down : Migration(11, 10) {
+val Migration11Down = object : Migration(11, 10) {
     override fun migrate(database: SupportSQLiteDatabase) {
         // ===== USERS TABLE =====
         database.execSQL("DROP INDEX IF EXISTS idx_users_email_active")

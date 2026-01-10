@@ -4,7 +4,7 @@ import android.util.Log
 import com.example.iurankomplek.data.repository.TransactionRepository
 import com.example.iurankomplek.utils.Constants
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Channel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

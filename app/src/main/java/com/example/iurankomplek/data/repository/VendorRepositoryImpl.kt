@@ -9,7 +9,7 @@ import com.example.iurankomplek.network.model.UpdateVendorRequest
 
 class VendorRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiService
-) : VendorRepository(), BaseRepositoryLegacy() {
+) : VendorRepository(), BaseRepositoryLegacy {
 
     override suspend fun getVendors(): Result<VendorResponse> = executeWithCircuitBreaker {
         apiService.getVendors()
@@ -75,7 +75,7 @@ class VendorRepositoryImpl(
         estimatedCost: Double
     ): Result<SingleWorkOrderResponse> = executeWithCircuitBreaker {
         apiService.createWorkOrder(
-            title, description, category, priority, propertyId, reporterId, estimatedCost
+            CreateWorkOrderRequest(title, description, category, priority, propertyId, reporterId, estimatedCost)
         )
     }
     
@@ -84,7 +84,7 @@ class VendorRepositoryImpl(
         vendorId: String,
         scheduledDate: String?
     ): Result<SingleWorkOrderResponse> = executeWithCircuitBreaker {
-        apiService.assignVendorToWorkOrder(workOrderId, vendorId, scheduledDate)
+        apiService.assignVendorToWorkOrder(workOrderId, AssignVendorRequest(vendorId, scheduledDate))
     }
     
     override suspend fun updateWorkOrderStatus(
@@ -92,6 +92,6 @@ class VendorRepositoryImpl(
         status: String,
         notes: String?
     ): Result<SingleWorkOrderResponse> = executeWithCircuitBreaker {
-        apiService.updateWorkOrderStatus(workOrderId, status, notes)
+        apiService.updateWorkOrderStatus(workOrderId, UpdateWorkOrderRequest(status, notes))
     }
 }

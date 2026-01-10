@@ -72,8 +72,8 @@ object RecyclerViewHelper {
         adapter: RecyclerView.Adapter<*>,
         columnCount: Int
     ) {
-        recyclerView.focusable = true
-        recyclerView.focusableInTouchMode = true
+        recyclerView.isFocusable = true
+        recyclerView.isFocusableInTouchMode = true
         
         recyclerView.setOnKeyListener { _, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN) {

@@ -8,6 +8,7 @@ import com.example.iurankomplek.data.entity.UserWithFinancialRecords
 import com.example.iurankomplek.data.mapper.EntityMapper
 import com.example.iurankomplek.data.api.models.UserResponse
 import com.example.iurankomplek.network.ApiConfig
+import com.example.iurankomplek.network.model.NetworkError
 import com.example.iurankomplek.network.resilience.CircuitBreaker
 import com.example.iurankomplek.network.resilience.CircuitBreakerResult
 import com.example.iurankomplek.network.resilience.CircuitBreakerState
@@ -41,7 +42,7 @@ class UserRepositoryImpl(
                 when (circuitBreakerResult) {
                     is CircuitBreakerResult.Success -> circuitBreakerResult.value
                     is CircuitBreakerResult.Failure -> throw circuitBreakerResult.exception
-                    is CircuitBreakerResult.CircuitOpen -> throw CircuitBreakerState.Open
+                    is CircuitBreakerResult.CircuitOpen -> throw NetworkError.CircuitBreakerError()
                 }
             },
             isCacheFresh = { response ->

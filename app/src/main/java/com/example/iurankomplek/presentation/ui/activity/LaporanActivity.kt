@@ -16,6 +16,8 @@ import com.example.iurankomplek.utils.InputSanitizer
 import com.example.iurankomplek.di.DependencyContainer
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.data.repository.TransactionRepositoryFactory
+import com.example.iurankomplek.data.api.models.PemanfaatanResponse
+import com.example.iurankomplek.data.dto.LegacyDataItemDto
 import com.example.iurankomplek.presentation.viewmodel.FinancialViewModel
 import com.example.iurankomplek.presentation.ui.helper.RecyclerViewHelper
 import com.example.iurankomplek.presentation.ui.helper.SwipeRefreshHelper
@@ -88,7 +90,7 @@ class LaporanActivity : BaseActivity() {
         binding.swipeRefreshLayout.isRefreshing = true
     }
 
-    private fun handleSuccessState(state: UiState.Success<com.example.iurankomplek.data.dto.PemanfaatanResponse>) {
+    private fun handleSuccessState(state: UiState.Success<PemanfaatanResponse>) {
         setUIState(
             loading = false,
             showEmpty = false,
@@ -106,7 +108,7 @@ class LaporanActivity : BaseActivity() {
                     showError = false,
                     showContent = false
                 )
-                return
+                return@collect
             }
 
             setUIState(
@@ -151,7 +153,7 @@ class LaporanActivity : BaseActivity() {
         binding.rvSummary.visibility = if (showContent) View.VISIBLE else View.GONE
     }
     
-    private fun calculateAndSetSummary(dataArray: List<com.example.iurankomplek.data.dto.LegacyDataItemDto>) {
+    private fun calculateAndSetSummary(dataArray: List<LegacyDataItemDto>) {
         val summary = viewModel.calculateFinancialSummary(dataArray)
         
         if (!summary.isValid) {

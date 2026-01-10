@@ -71,8 +71,8 @@ class WorkOrderDetailActivity : BaseActivity() {
         binding.workOrderStatus.text = workOrder.status
         binding.workOrderPriority.text = workOrder.priority
         binding.workOrderVendor.text = workOrder.vendorName ?: getString(R.string.work_order_not_assigned)
-        binding.workOrderEstimatedCost.text = InputSanitizer.formatCurrency(workOrder.estimatedCost.toIntOrNull() ?: 0)
-        binding.workOrderActualCost.text = InputSanitizer.formatCurrency(workOrder.actualCost.toIntOrNull() ?: 0)
+        binding.workOrderEstimatedCost.text = InputSanitizer.formatCurrency(workOrder.estimatedCost.toInt())
+        binding.workOrderActualCost.text = InputSanitizer.formatCurrency(workOrder.actualCost.toInt())
         binding.workOrderPropertyId.text = workOrder.propertyId
         binding.workOrderCreatedAt.text = workOrder.createdAt
     }

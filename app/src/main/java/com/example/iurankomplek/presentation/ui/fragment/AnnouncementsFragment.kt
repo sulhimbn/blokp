@@ -11,8 +11,9 @@ import com.example.iurankomplek.databinding.FragmentAnnouncementsBinding
 import com.example.iurankomplek.presentation.adapter.AnnouncementAdapter
 import com.example.iurankomplek.presentation.viewmodel.AnnouncementViewModel
 import com.example.iurankomplek.utils.UiState
+import com.example.iurankomplek.data.api.models.AnnouncementDto
 
-class AnnouncementsFragment : BaseFragment<UiState<List<com.example.iurankomplek.data.dto.AnnouncementDto>>>() {
+class AnnouncementsFragment : BaseFragment<UiState<List<AnnouncementDto>>>() {
 
     private var _binding: FragmentAnnouncementsBinding? = null
     private val binding get() = _binding!!
@@ -46,7 +47,7 @@ class AnnouncementsFragment : BaseFragment<UiState<List<com.example.iurankomplek
     }
 
     override fun observeViewModelState() {
-        observeUiState(viewModel.announcementsState) { data ->
+        observeUiState(viewModel.announcementsState, showErrorToast = false) { data ->
             adapter.submitList(data)
         }
     }
