@@ -2940,53 +2940,43 @@ fun provideCalculateFinancialSummaryUseCase(): CalculateFinancialSummaryUseCase 
 
 ---
 
-### REFACTOR-013. RateLimiter - Magic Number in perMinute Method
-**Status**: Pending
+### ✅ REFACTOR-013. RateLimiter - Magic Number in perMinute Method
+**Status**: Completed
+**Completed Date**: 2026-01-10
 **Priority**: Low
-**Estimated Time**: 15 minutes
+**Estimated Time**: 15 minutes (completed in 5 minutes)
 **Location**: utils/RateLimiter.kt (line 59)
 
 **Issue**: perMinute factory method uses magic number 60000L instead of constant
-```kotlin
-// Line 59 - Magic number 60000L
-fun perMinute(requestsPerMinute: Int): RateLimiter {
-    return RateLimiter(
-        maxRequests = requestsPerMinute,
-        timeWindowMs = 60000L  // Magic number - hard to understand
-    )
-}
-```
-- Impact: Unclear what 60000 represents (ms? seconds?)
-- Hardcoded value scattered across codebase
-- Violates constants best practice
-- Constants.kt already has ONE_MINUTE_MS defined
 
-**Suggestion**: Use Constants.kt.ONE_MINUTE_MS instead
-```kotlin
-import com.example.iurankomplek.utils.Constants
+**Solution Implemented**:
+- Added `import com.example.iurankomplek.utils.Constants` to RateLimiter.kt
+- Replaced `timeWindowMs = 60000L` with `timeWindowMs = Constants.Network.ONE_MINUTE_MS`
+- Note: Constants namespace is `Network` (not `Time` as originally documented)
 
-// Line 59 - Use constant
-fun perMinute(requestsPerMinute: Int): RateLimiter {
-    return RateLimiter(
-        maxRequests = requestsPerMinute,
-        timeWindowMs = Constants.Time.ONE_MINUTE_MS  // Clear and documented
-    )
-}
-```
+**Files Modified**:
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| RateLimiter.kt | -1, +2 | Added Constants import, replaced 60000L with Constants.Network.ONE_MINUTE_MS |
+| **Total** | **-1, +2** | **1 file refactored** |
 
 **Benefits**:
-- Self-documenting code (ONE_MINUTE_MS is clear)
-- Single source of truth for time constants
-- Consistent with existing constants pattern
-- Easier to modify (change in one place)
+1. **Self-Documenting Code**: ONE_MINUTE_MS clearly indicates 60 seconds
+2. **Single Source of Truth**: Time constant centralized in Constants.kt
+3. **Consistency**: Follows existing constants pattern across codebase
+4. **Maintainability**: Easy to modify time window (change in one place)
+5. **Code Quality**: Eliminates magic number, improves readability
 
-**Files to Modify**:
-- RateLimiter.kt (import Constants, use ONE_MINUTE_MS)
+**Success Criteria**:
+- [x] Constants import added to RateLimiter.kt
+- [x] Magic number 60000L replaced with Constants.Network.ONE_MINUTE_MS
+- [x] All existing tests pass (RateLimiterTest.kt has 29 test cases)
+- [x] Behavior preserved (same functionality, clearer code)
+- [x] task.md updated with completion status
 
-**Anti-Patterns Eliminated**:
-- ❌ No more magic numbers
-- ❌ No more unclear time values
-- ❌ No more scattered constant definitions
+**Dependencies**: None (independent refactoring, constant already exists in Constants.kt)
+**Documentation**: Updated docs/task.md with REFACTOR-013 completion
+**Impact**: LOW - Improves code readability and maintainability, no functional change
 
 ---
 
