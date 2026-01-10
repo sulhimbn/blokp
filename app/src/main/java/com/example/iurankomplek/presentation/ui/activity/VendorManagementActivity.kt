@@ -10,7 +10,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
 import com.example.iurankomplek.databinding.ActivityVendorManagementBinding
-import com.example.iurankomplek.data.repository.VendorRepositoryFactory
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.presentation.viewmodel.VendorViewModel
 import com.example.iurankomplek.di.DependencyContainer

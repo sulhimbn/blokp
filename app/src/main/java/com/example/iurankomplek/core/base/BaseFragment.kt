@@ -45,7 +45,7 @@ abstract class BaseFragment<T> : Fragment() {
         }
     }
 
-    protected fun <T> observeUiState(
+    protected fun observeUiState(
         stateFlow: kotlinx.coroutines.flow.StateFlow<UiState<T>>,
         onDataLoaded: (T) -> Unit,
         showErrorToast: Boolean = true
@@ -59,8 +59,7 @@ abstract class BaseFragment<T> : Fragment() {
                     }
                     is UiState.Success -> {
                         progressBar.visibility = View.GONE
-                        @Suppress("UNCHECKED_CAST")
-                        onDataLoaded(state.data as T)
+                        onDataLoaded(state.data)
                     }
                     is UiState.Error -> {
                         progressBar.visibility = View.GONE
