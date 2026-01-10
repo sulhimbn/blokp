@@ -9,15 +9,9 @@
 
     <TextView
         android:id="@+id/tv_payment_title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        style="@style/Widget.BlokP.Header"
         android:text="@string/payment_title"
-        android:textSize="@dimen/text_size_xlarge"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:textColor="@color/text_primary"
         android:contentDescription="@string/payment_title_desc"
-        android:layout_marginBottom="@dimen/margin_lg"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -25,6 +19,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_amount"
         style="@style/Widget.BlokP.TextInputLayout"
+        android:layout_marginTop="@dimen/spacing_md"
         android:layout_marginBottom="@dimen/margin_md"
         android:hint="@string/payment_amount_hint"
         app:helperText="@string/payment_amount_helper"
@@ -36,8 +31,7 @@
             android:id="@+id/et_amount"
             style="@style/Widget.BlokP.TextInputEditText"
             android:inputType="numberDecimal"
-            android:contentDescription="@string/payment_amount_input_desc"
-            android:labelFor="@id/til_amount" />
+            android:contentDescription="@string/payment_amount_input_desc" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -80,7 +74,6 @@
     <Button
         android:id="@+id/btn_pay"
         style="@style/Widget.BlokP.Button.Primary"
-        android:layout_marginBottom="@dimen/margin_md"
         android:text="@string/payment_pay_now"
         android:contentDescription="@string/payment_pay_now_desc"
         app:layout_constraintBottom_toTopOf="@id/btn_view_history"

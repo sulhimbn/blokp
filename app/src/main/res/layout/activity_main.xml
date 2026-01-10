@@ -24,6 +24,7 @@
         android:textSize="@dimen/heading_h4"
         android:textStyle="bold"
         android:importantForAccessibility="yes"
+        android:contentDescription="@string/main_activity_title_desc"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

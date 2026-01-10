@@ -9,16 +9,8 @@
 
     <TextView
         android:id="@+id/tv_communication_title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_lg"
-        android:layout_marginBottom="@dimen/margin_lg"
-        android:fontFamily="@font/font"
+        style="@style/Widget.BlokP.Header"
         android:text="@string/communication_center_title"
-        android:textAlignment="center"
-        android:textColor="@color/primary"
-        android:textSize="@dimen/heading_h2"
-        android:textStyle="bold"
         android:contentDescription="@string/communication_center_title_desc"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"

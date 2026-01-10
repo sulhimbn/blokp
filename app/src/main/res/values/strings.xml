@@ -215,8 +215,11 @@
 
     <!-- Activity Titles -->
     <string name="laporan_activity_title">Laporan</string>
+    <string name="laporan_activity_title_desc">Financial report screen title</string>
     <string name="main_activity_title">Main</string>
+    <string name="main_activity_title_desc">Main screen title</string>
     <string name="menu_activity_title">Menu</string>
+    <string name="menu_activity_title_desc">Menu screen title</string>
     <string name="menu_warga">Warga</string>
     <string name="menu_laporan">Laporan</string>
     <string name="menu_komunikasi">Komunikasi</string>

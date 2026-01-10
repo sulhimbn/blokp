@@ -8,7 +8,7 @@
     android:background="@color/background_secondary"
     tools:context=".LaporanActivity">
 
-     <!-- Header Title -->
+      <!-- Header Title -->
     <TextView
         android:id="@+id/textView1"
         android:layout_width="0dp"
@@ -25,6 +25,7 @@
         android:background="@color/accent_green"
         android:textColor="@color/text_on_primary"
         android:importantForAccessibility="yes"
+        android:contentDescription="@string/laporan_activity_title_desc"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

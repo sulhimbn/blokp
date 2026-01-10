@@ -69,4 +69,19 @@
         <item name="android:importantForAccessibility">yes</item>
         <item name="android:focusable">true</item>
     </style>
+
+    <style name="Widget.BlokP.Header" parent="TextAppearance.BlokP.Heading.H4">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@color/accent_green</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingStart">@dimen/padding_md</item>
+        <item name="android:paddingTop">@dimen/padding_md</item>
+        <item name="android:paddingEnd">@dimen/padding_md</item>
+        <item name="android:paddingBottom">@dimen/padding_md</item>
+        <item name="android:textColor">@color/text_on_primary</item>
+        <item name="android:fontFamily">@font/font</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:importantForAccessibility">yes</item>
+    </style>
 </resources>
