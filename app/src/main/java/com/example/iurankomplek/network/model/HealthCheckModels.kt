@@ -1,6 +1,8 @@
 package com.example.iurankomplek.network.model
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.serializer
 import com.example.iurankomplek.data.api.models.ApiResponse
 
 @Serializable
@@ -25,7 +27,7 @@ data class ComponentHealth(
     val status: String,
     val healthy: Boolean,
     val message: String? = null,
-    val details: Map<String, Any>? = null
+    val details: Map<String, @Contextual Any>? = null
 )
 
 @Serializable
@@ -48,6 +50,7 @@ data class HealthMetrics(
     val successRate: Double,
     val averageResponseTimeMs: Double,
     val errorRate: Double,
+)
     val timeoutCount: Int,
     val rateLimitViolations: Int
 )

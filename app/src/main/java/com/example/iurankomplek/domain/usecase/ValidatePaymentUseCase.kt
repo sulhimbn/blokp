@@ -32,20 +32,26 @@ class ValidatePaymentUseCase {
     ): OperationResult<ValidatedPayment> {
         val validationResult = validateAmountText(amountText)
         if (!validationResult.isValid) {
-            return OperationResult.Error(IllegalArgumentException(validationResult.errorMessage), validationResult.errorMessage)
+            return OperationResult.Error(
+                IllegalArgumentException(validationResult.errorMessage ?: "Invalid amount"),
+                validationResult.errorMessage ?: "Invalid amount"
+            )
         }
 
         val amount = parseAmount(amountText)
         val amountValidation = validateAmount(amount)
         if (!amountValidation.isValid) {
-            return OperationResult.Error(IllegalArgumentException(amountValidation.errorMessage), amountValidation.errorMessage)
+            return OperationResult.Error(
+                IllegalArgumentException(amountValidation.errorMessage ?: "Invalid amount"),
+                amountValidation.errorMessage ?: "Invalid amount"
+            )
         }
 
         val paymentMethod = mapSpinnerPositionToPaymentMethod(spinnerPosition)
 
         return OperationResult.Success(ValidatedPayment(amount, paymentMethod))
     }
-    
+
     private fun validateAmountText(amountText: String): PaymentValidationResult {
         if (amountText.isEmpty()) {
             return PaymentValidationResult(
@@ -55,11 +61,11 @@ class ValidatePaymentUseCase {
         }
         return PaymentValidationResult(isValid = true)
     }
-    
+
     private fun parseAmount(amountText: String): BigDecimal {
         return BigDecimal(amountText)
     }
-    
+
     private fun validateAmount(amount: BigDecimal): PaymentValidationResult {
         if (amount <= BigDecimal.ZERO) {
             return PaymentValidationResult(
@@ -67,7 +73,7 @@ class ValidatePaymentUseCase {
                 errorMessage = "Amount must be greater than zero"
             )
         }
-        
+
         val maxPaymentAmount = BigDecimal.valueOf(Constants.Payment.MAX_PAYMENT_AMOUNT)
         if (amount > maxPaymentAmount) {
             return PaymentValidationResult(
@@ -75,17 +81,17 @@ class ValidatePaymentUseCase {
                 errorMessage = "Amount exceeds maximum limit"
             )
         }
-        
+
         if (amount.scale() > 2) {
             return PaymentValidationResult(
                 isValid = false,
                 errorMessage = "Maximum 2 decimal places allowed"
             )
         }
-        
+
         return PaymentValidationResult(isValid = true)
     }
-    
+
     private fun mapSpinnerPositionToPaymentMethod(position: Int): PaymentMethod {
         return when (position) {
             0 -> PaymentMethod.CREDIT_CARD

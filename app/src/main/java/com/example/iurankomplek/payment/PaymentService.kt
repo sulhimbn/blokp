@@ -27,20 +27,26 @@ class PaymentService(
                 customerId = customerId,
                 paymentMethod = paymentMethod
             )
-            
+
             val result = transactionRepository.processPayment(request)
-            result.fold(
-                onSuccess = { transaction ->
-                    val receipt = receiptGenerator.generateReceipt(transaction)
+            when (result) {
+                is OperationResult.Success -> {
+                    val receipt = receiptGenerator.generateReceipt(result.data)
                     onSuccess(receipt)
-                },
-                onFailure = { error ->
-                    onError(error.message ?: "Unknown error occurred")
                 }
-            )
+                is OperationResult.Error -> {
+                    onError(result.message ?: "Unknown error occurred")
+                }
+                is OperationResult.Loading -> {
+                    onError("Payment in progress")
+                }
+                is OperationResult.Empty -> {
+                    onError("No payment result")
+                }
+            }
         }
     }
-    
+
     fun refundPayment(
         transactionId: String,
         reason: String? = null,
@@ -49,14 +55,20 @@ class PaymentService(
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             val result = transactionRepository.refundPayment(transactionId, reason)
-            result.fold(
-                onSuccess = { response ->
-                    onSuccess(response)
-                },
-                onFailure = { error ->
-                    onError(error.message ?: "Unknown error occurred")
+            when (result) {
+                is OperationResult.Success -> {
+                    onSuccess(result.data)
                 }
-            )
+                is OperationResult.Error -> {
+                    onError(result.message ?: "Unknown error occurred")
+                }
+                is OperationResult.Loading -> {
+                    onError("Refund in progress")
+                }
+                is OperationResult.Empty -> {
+                    onError("No refund result")
+                }
+            }
         }
     }
 }

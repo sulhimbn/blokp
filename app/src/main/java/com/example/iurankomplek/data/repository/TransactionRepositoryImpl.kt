@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
 sealed class PaymentException(message: String, cause: Throwable? = null) : Exception(message, cause) {
-    class UnknownError(message: String = "Unknown payment error", cause: Throwable? = null) : PaymentException(message, cause)
+    data class UnknownError(message: String = "Unknown payment error", cause: Throwable? = null) : PaymentException(message, cause)
 }
 
 class TransactionRepositoryImpl(
@@ -58,21 +58,26 @@ class TransactionRepositoryImpl(
             transactionDao.insert(transaction)
 
             val paymentResult = paymentGateway.processPayment(request)
-            paymentResult.onSuccess { _ ->
-                val updatedTransaction = transaction.copy(
-                    status = PaymentStatus.COMPLETED,
-                    updatedAt = Date()
-                )
-                transactionDao.update(updatedTransaction)
-            }.onError { _ ->
-                val failedTransaction = transaction.copy(
-                    status = PaymentStatus.FAILED,
-                    updatedAt = Date()
-                )
-                transactionDao.update(failedTransaction)
+            when (paymentResult) {
+                is OperationResult.Success -> {
+                    val updatedTransaction = transaction.copy(
+                        status = PaymentStatus.COMPLETED,
+                        updatedAt = Date()
+                    )
+                    transactionDao.update(updatedTransaction)
+                    OperationResult.Success(transaction)
+                }
+                is OperationResult.Error -> {
+                    val failedTransaction = transaction.copy(
+                        status = PaymentStatus.FAILED,
+                        updatedAt = Date()
+                    )
+                    transactionDao.update(failedTransaction)
+                    OperationResult.Error(paymentResult.exception, paymentResult.message ?: "Payment failed")
+                }
+                is OperationResult.Loading -> OperationResult.Error(IllegalStateException("Payment still in progress"), "Payment in progress")
+                is OperationResult.Empty -> OperationResult.Error(IllegalStateException("No payment result"), "No payment result")
             }
-
-            paymentResult
         } catch (e: Exception) {
             OperationResult.Error(e, e.message ?: "Payment failed")
         }

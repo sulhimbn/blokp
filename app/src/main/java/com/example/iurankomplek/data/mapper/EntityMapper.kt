@@ -5,7 +5,6 @@ import com.example.iurankomplek.data.entity.FinancialRecordEntity
 import com.example.iurankomplek.data.entity.UserEntity
 import com.example.iurankomplek.data.entity.UserWithFinancialRecords
 import com.example.iurankomplek.model.DataItem
-import kotlin.Result
 import java.util.Date
 
 object EntityMapper {
@@ -58,9 +57,8 @@ object EntityMapper {
         return Pair(userEntity, financialRecordEntity)
     }
     
-    fun toLegacyDto(userWithFinancial: UserWithFinancialRecords): Result<LegacyDataItemDto> {
-        return Result.success(
-            LegacyDataItemDto(
+    fun toLegacyDto(userWithFinancial: UserWithFinancialRecords): LegacyDataItemDto {
+        return LegacyDataItemDto(
                 first_name = userWithFinancial.user.firstName,
                 last_name = userWithFinancial.user.lastName,
                 email = userWithFinancial.user.email,
@@ -73,7 +71,6 @@ object EntityMapper {
                 pemanfaatan_iuran = userWithFinancial.latestFinancialRecord?.pemanfaatanIuran ?: 0,
                 avatar = userWithFinancial.user.avatar
             )
-        )
     }
     
     fun fromLegacyDtoList(dtoList: List<LegacyDataItemDto>): List<Pair<UserEntity, FinancialRecordEntity>> {
@@ -82,17 +79,7 @@ object EntityMapper {
         }
     }
     
-    fun toLegacyDtoList(usersWithFinancials: List<UserWithFinancialRecords>): Result<List<LegacyDataItemDto>> {
-        return try {
-            val results = usersWithFinancials.map { toLegacyDto(it) }
-            val failures = results.filter { it.isFailure }
-            if (failures.isNotEmpty()) {
-                Result.failure(failures.first().exceptionOrNull() ?: Exception("Mapping failed"))
-            } else {
-                Result.success(results.map { it.getOrThrow() })
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    fun toLegacyDtoList(usersWithFinancials: List<UserWithFinancialRecords>): List<LegacyDataItemDto> {
+        return usersWithFinancials.map { toLegacyDto(it) }
     }
 }
