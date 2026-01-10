@@ -54,14 +54,6 @@ class NetworkErrorInterceptor(
             }
 
             response
-                val error = parseErrorResponse(response, requestTag)
-                if (enableLogging) {
-                    logError(requestTag, error, response.code)
-                }
-                throw error
-            }
-
-            response
         } catch (e: SocketTimeoutException) {
             val error = NetworkError.TimeoutError(
                 userMessage = "Request timed out", 
