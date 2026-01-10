@@ -158,31 +158,6 @@ object InputSanitizer {
             false
         }
     }
-                
-                // Additional validation to prevent potential security issues with URLs
-                val url = URL(input)
-                
-                // SECURITY: Only allow http and https protocols
-                val protocol = url.protocol
-                if (protocol != "http" && protocol != "https") {
-                    return false
-                }
-                
-                // SECURITY: Check for suspicious URL patterns
-                val host = url.host?.lowercase() ?: ""
-                if (host.contains("localhost") || host.contains("127.0.0.1")) {
-                    return false
-                }
-
-                // Check that the URL doesn't contain dangerous characters after validation
-                URL(input).toURI()
-                return true
-            }
-        } catch (e: Exception) {
-            android.util.Log.d("InputSanitizer", "Invalid URL format: $input")
-            false
-        }
-    }
     
     /**
      * Validates that input is a safe alphanumeric ID
