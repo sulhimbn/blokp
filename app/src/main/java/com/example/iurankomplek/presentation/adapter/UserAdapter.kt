@@ -1,8 +1,5 @@
 package com.example.iurankomplek.presentation.adapter
 import android.view.LayoutInflater
-import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -53,20 +50,8 @@ class UserAdapter : ListAdapter<LegacyDataItemDto, UserAdapter.ListViewHolder>(U
         holder.binding.itemIuranIndividu.text = "Total Iuran Individu ${InputSanitizer.formatCurrency(totalIuranIndividuValue)}"
     }
 
-    class ListViewHolder(val binding: ItemListBinding): RecyclerView.ViewHolder(binding.root){
-        val tvUserName: TextView
-            get() = binding.itemName
-        val tvEmail: TextView
-            get() = binding.itemEmail
-        val tvAvatar: ImageView
-            get() = binding.itemAvatar
-        val tvAddress: TextView
-            get() = binding.itemAddress
-        val tvIuranPerwarga: TextView
-            get() = binding.itemIuranPerwarga
-        val tvIuranIndividu: TextView
-            get() = binding.itemIuranIndividu
-    }
+    class ListViewHolder(val binding: ItemListBinding): RecyclerView.ViewHolder(binding.root)
+
 
     companion object {
         private val UserDiffCallback = GenericDiffUtil.byId<LegacyDataItemDto> { it.email }
