@@ -43,11 +43,11 @@ class UserAdapter : ListAdapter<LegacyDataItemDto, UserAdapter.ListViewHolder>(U
 
         // Safely display iuran perwarga with validation
         val iuranPerwargaValue = if (user.iuran_perwarga >= 0) user.iuran_perwarga else 0
-        holder.binding.itemIuranPerwarga.text = IURAN_PERWARGA_PREFIX + InputSanitizer.formatCurrency(iuranPerwargaValue)
+        holder.binding.itemIuranPerwarga.text = "$IURAN_PERWARGA_PREFIX${InputSanitizer.formatCurrency(iuranPerwargaValue)}"
 
         // Safely display total iuran individu with validation
         val totalIuranIndividuValue = if (user.total_iuran_individu >= 0) user.total_iuran_individu else 0
-        holder.binding.itemIuranIndividu.text = TOTAL_IURAN_INDIVIDU_PREFIX + InputSanitizer.formatCurrency(totalIuranIndividuValue)
+        holder.binding.itemIuranIndividu.text = "$TOTAL_IURAN_INDIVIDU_PREFIX${InputSanitizer.formatCurrency(totalIuranIndividuValue)}"
     }
 
     class ListViewHolder(val binding: ItemListBinding): RecyclerView.ViewHolder(binding.root)
