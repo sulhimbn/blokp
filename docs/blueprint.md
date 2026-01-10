@@ -6560,10 +6560,11 @@ Comprehensive database index optimization for improved query performance across 
 
 ### Database Index Summary - 2026-01-10
 
-**Total Indexes Added**: 19 new indexes across 2 migrations
+**Total Indexes Added**: 24 new indexes across 4 migrations
 - **Migration16**: 12 partial indexes (financial_records + transactions)
 - **Migration17**: 4 composite indexes (webhook_events)
 - **Migration16 + Migration17**: 3 descending timestamp indexes (included in partial/composite indexes)
+- **Migration18**: 5 partial indexes (users) - NEW
 
 **Overall Database Architecture Improvements:**
 - ✅ **Data Integrity First**: Non-destructive migrations, no data loss risk
