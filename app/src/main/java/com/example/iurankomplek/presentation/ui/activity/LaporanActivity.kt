@@ -15,7 +15,6 @@ import com.example.iurankomplek.databinding.ActivityLaporanBinding
 import com.example.iurankomplek.utils.InputSanitizer
 import com.example.iurankomplek.di.DependencyContainer
 import com.example.iurankomplek.utils.UiState
-import com.example.iurankomplek.data.repository.TransactionRepositoryFactory
 import com.example.iurankomplek.data.api.models.PemanfaatanResponse
 import com.example.iurankomplek.data.dto.LegacyDataItemDto
 import com.example.iurankomplek.presentation.viewmodel.FinancialViewModel
@@ -51,10 +50,14 @@ class LaporanActivity : BaseActivity() {
             screenWidthDp = resources.configuration.screenWidthDp
         )
 
-        binding.rvSummary.layoutManager = LinearLayoutManager(this)
-        binding.rvSummary.setHasFixedSize(true)
-        binding.rvSummary.setItemViewCacheSize(20)
-        binding.rvSummary.adapter = summaryAdapter
+        RecyclerViewHelper.configureRecyclerView(
+            recyclerView = binding.rvSummary,
+            itemCount = 20,
+            enableKeyboardNav = true,
+            adapter = summaryAdapter,
+            orientation = resources.configuration.orientation,
+            screenWidthDp = resources.configuration.screenWidthDp
+        )
 
          SwipeRefreshHelper.configureSwipeRefresh(binding.swipeRefreshLayout) {
              viewModel.loadFinancialData()
