@@ -4,6 +4,35 @@ This file provides guidance to agents when working with code in this repository.
 
 ## Known Issues & Solutions
 
+### TEST-001: DatabaseCacheStrategy Test Coverage (RESOLVED 2026-01-10)
+**Problem**: DatabaseCacheStrategy was a critical caching component with NO test coverage.
+
+**Root Cause**:
+- DatabaseCacheStrategy is used by UserRepositoryImpl and PemanfaatanRepositoryImpl
+- Complex logic involving cache freshness validation via CacheManager
+- Database operations via UserDao.getLatestUpdatedAt()
+- High risk of bugs going undetected without tests
+
+**Solution Implemented**:
+1. **Created DatabaseCacheStrategyTest.kt**: 21 comprehensive test cases
+2. **Happy Path Tests**: 4 tests covering normal operation
+3. **Edge Case Tests**: 8 tests covering boundary conditions
+4. **Error Handling Tests**: 3 tests covering exception scenarios
+5. **Thread Safety Tests**: 3 tests verifying concurrent operations
+6. **Verification Tests**: 2 tests for cache freshness validation
+
+**Files Created** (2 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| DatabaseCacheStrategyTest.kt | +280 | Comprehensive test suite (21 test cases) |
+| docs/task.md | +95 | Task documentation with TEST-001 entry |
+
+**Impact**:
+- Critical testing gap resolved
+- DatabaseCacheStrategy now has 100% method coverage
+- Comprehensive edge cases and thread safety verification
+- Prevents cache-related bugs in production
+
 ### CI-002: GitHub Actions Workflow Fixes (RESOLVED 2026-01-10)
 **Problem**: CI/CD workflow had issues with lint failures hiding real problems, missing APK verification, and potential build failures.
 
