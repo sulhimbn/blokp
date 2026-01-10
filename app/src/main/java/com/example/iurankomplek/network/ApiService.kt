@@ -22,12 +22,12 @@ import com.example.iurankomplek.network.model.UpdateWorkOrderRequest
 import com.example.iurankomplek.network.model.SendMessageRequest
 import com.example.iurankomplek.network.model.CreateCommunityPostRequest
 import com.example.iurankomplek.network.model.InitiatePaymentRequest
-import retrofit2.Body
-import retrofit2.GET
-import retrofit2.POST
-import retrofit2.PUT
-import retrofit2.Path
-import retrofit2.Query
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Path
+import retrofit2.http.Query
 import retrofit2.Response
 
 interface ApiService {

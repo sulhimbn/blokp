@@ -10,6 +10,7 @@ import com.example.iurankomplek.data.api.models.UserResponse
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.network.resilience.CircuitBreaker
 import com.example.iurankomplek.network.resilience.CircuitBreakerResult
+import com.example.iurankomplek.network.resilience.CircuitBreakerState
 import kotlinx.coroutines.flow.first
 
 class UserRepositoryImpl(

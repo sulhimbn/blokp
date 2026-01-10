@@ -1,7 +1,6 @@
 package com.example.iurankomplek.data.repository.cache
 
 import com.example.iurankomplek.data.cache.CacheManager
-import com.example.iurankomplek.data.cache.isCacheFresh
 import kotlinx.coroutines.flow.first
 import java.util.Date
 
@@ -44,7 +43,7 @@ class DatabaseCacheStrategy<T>(
         try {
             val latestUpdate = CacheManager.getUserDao().getLatestUpdatedAt()
             if (latestUpdate != null) {
-                return isCacheFresh(latestUpdate.time)
+                return CacheManager.isCacheFresh(latestUpdate.time)
             }
         } catch (e: Exception) {
         }
@@ -55,7 +54,7 @@ class DatabaseCacheStrategy<T>(
     override suspend fun clear() {
         try {
             val database = CacheManager.getDatabase()
-            database.withTransaction {
+            database.runInTransaction {
                 CacheManager.getUserDao().deleteAll()
                 CacheManager.getFinancialRecordDao().deleteAll()
             }

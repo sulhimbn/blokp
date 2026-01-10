@@ -25,6 +25,7 @@ class IntegrationHealthMonitor(
 
     private val circuitBreakerFailures = AtomicInteger(0)
     private val rateLimitViolations = AtomicInteger(0)
+    private val lastSuccessfulRequest = AtomicLong(0)
 
     init {
         initializeComponentHealth()
@@ -44,6 +45,10 @@ class IntegrationHealthMonitor(
         httpCode: Int? = null
     ) {
         tracker.recordRequest(responseTimeMs, success)
+        
+        if (success) {
+            lastSuccessfulRequest.set(System.currentTimeMillis())
+        }
 
         mutex.withLock {
             updateComponentHealthFromRequest(endpoint, success, httpCode)
@@ -93,7 +98,7 @@ class IntegrationHealthMonitor(
 
     suspend fun checkCircuitBreakerHealth() {
         val state = ApiConfig.getCircuitBreakerState()
-        val isHealthy = state != CircuitBreakerState.OPEN
+        val isHealthy = state != CircuitBreakerState.Open
 
         mutex.withLock {
             if (!isHealthy && componentHealth["circuit_breaker"] !is IntegrationHealthStatus.CircuitOpen) {
@@ -161,7 +166,12 @@ class IntegrationHealthMonitor(
     suspend fun getDetailedHealthReport(): HealthReport {
         val currentHealth = getCurrentHealth()
         val metrics = tracker.generateMetrics()
-        val circuitBreakerStats = ApiConfig.getCircuitBreakerStats()
+        val circuitBreakerStats = mapOf(
+            "state" to ApiConfig.circuitBreaker.getState(),
+            "failureCount" to ApiConfig.circuitBreaker.getFailureCount(),
+            "successCount" to ApiConfig.circuitBreaker.getSuccessCount(),
+            "lastFailureTime" to ApiConfig.circuitBreaker.getLastFailureTime()
+        )
         val rateLimiterStats = ApiConfig.getRateLimiterStats()
 
         return HealthReport(

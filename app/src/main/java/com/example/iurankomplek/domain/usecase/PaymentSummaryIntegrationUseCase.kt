@@ -65,6 +65,6 @@ class PaymentSummaryIntegrationUseCase(
     /**
      * Calculates total payment amount from transactions
      */
-    private fun calculatePaymentTotal(transactions: List<com.example.iurankomplek.data.transaction.Transaction>) =
+    private fun calculatePaymentTotal(transactions: List<com.example.iurankomplek.data.entity.Transaction>) =
         transactions.sumOf { it.amount.toInt() }
 }

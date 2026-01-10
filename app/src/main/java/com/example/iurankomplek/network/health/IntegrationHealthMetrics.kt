@@ -60,7 +60,7 @@ data class IntegrationHealthMetrics(
     )
 
     fun isHealthy(): Boolean {
-        return circuitBreakerMetrics.state != CircuitBreakerState.OPEN &&
+        return circuitBreakerMetrics.state != CircuitBreakerState.Open &&
                rateLimiterMetrics.rateLimitExceededCount == 0 &&
                errorMetrics.circuitBreakerErrors == 0
     }
@@ -69,9 +69,9 @@ data class IntegrationHealthMetrics(
         var score = 100.0
 
         score -= when (circuitBreakerMetrics.state) {
-            CircuitBreakerState.OPEN -> 50.0
-            CircuitBreakerState.HALF_OPEN -> 25.0
-            CircuitBreakerState.CLOSED -> 0.0
+            CircuitBreakerState.Open -> 50.0
+            CircuitBreakerState.HalfOpen -> 25.0
+            CircuitBreakerState.Closed -> 0.0
         }
 
         score -= (rateLimiterMetrics.rateLimitExceededCount * 10.0).coerceAtMost(30.0)
