@@ -209,4 +209,23 @@
 
     <!-- Announcements -->
     <string name="announcements_list_desc">List of all announcements</string>
+
+    <!-- Activity Titles -->
+    <string name="laporan_activity_title">Laporan</string>
+    <string name="main_activity_title">Main</string>
+    <string name="menu_activity_title">Menu</string>
+    <string name="menu_warga">Warga</string>
+    <string name="menu_laporan">Laporan</string>
+    <string name="menu_komunikasi">Komunikasi</string>
+    <string name="menu_pembayaran">Pembayaran</string>
+
+    <!-- Item Labels -->
+    <string name="item_name">Name</string>
+    <string name="item_email">Email</string>
+    <string name="item_address">Address</string>
+    <string name="item_iuran_perwarga">Iuran Per Warga</string>
+    <string name="item_total_iuran_individu">Total Iuran Individu</string>
+    <string name="menu_item_text">Menu Item</string>
+    <string name="pemanfaatan_title">Pemanfaatan</string>
+    <string name="pemanfaatan_item_cleaning_cost">Cleaning Cost</string>
 </resources>

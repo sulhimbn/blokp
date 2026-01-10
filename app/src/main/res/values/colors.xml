@@ -65,4 +65,5 @@
     <color name="green">#00FF00</color>
     <color name="peach">#FFDAB9</color>
     <color name="grey">#FF9E9E9E</color>
+    <color name="neutral_grey">#FF9E9E9E</color>
 </resources>
