@@ -1574,4 +1574,258 @@ class DatabaseMigrationTest {
         assertTrue("Financial records table should have partial indexes", financialPartialIndexCount > 0)
         assertTrue("Transactions table should have partial indexes", transactionPartialIndexCount > 0)
     }
+
+    // ===== Migration 11 Tests (Partial Indexes) =====
+
+    @Test
+    fun `migration11 should create partial index for users email`() {
+        var db = helper.createDatabase(TEST_DB, 10)
+        db.execSQL("INSERT INTO users (email, first_name, last_name, alamat, avatar, is_deleted) VALUES ('test@example.com', 'John', 'Doe', '123 Main St', 'https://example.com/avatar.jpg', 0)")
+        db.execSQL("INSERT INTO users (email, first_name, last_name, alamat, avatar, is_deleted) VALUES ('deleted@example.com', 'Jane', 'Smith', '456 Oak Ave', 'https://example.com/avatar2.jpg', 1)")
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 11, true, Migration1(), Migration1Down, Migration2, Migration2Down, Migration3, Migration3Down, Migration4, Migration4Down, Migration5, Migration5Down, Migration6, Migration6Down, Migration7, Migration7Down, Migration8, Migration8Down, Migration9, Migration9Down, Migration10, Migration10Down, Migration11())
+
+        val cursor = db.query("SELECT sql FROM sqlite_master WHERE type='index' AND name='idx_users_email_active'")
+        var partialIndexFound = false
+        while (cursor.moveToNext()) {
+            val sql = cursor.getString(0)
+            if (sql != null && sql.contains("WHERE is_deleted = 0")) {
+                partialIndexFound = true
+            }
+        }
+        cursor.close()
+
+        assertTrue("Should create partial index for users email (WHERE is_deleted = 0)", partialIndexFound)
+    }
+
+    @Test
+    fun `migration11 should create partial index for users name sort`() {
+        var db = helper.createDatabase(TEST_DB, 10)
+        db.execSQL("INSERT INTO users (email, first_name, last_name, alamat, avatar) VALUES ('test@example.com', 'John', 'Doe', '123 Main St', 'https://example.com/avatar.jpg')")
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 11, true, Migration1(), Migration1Down, Migration2, Migration2Down, Migration3, Migration3Down, Migration4, Migration4Down, Migration5, Migration5Down, Migration6, Migration6Down, Migration7, Migration7Down, Migration8, Migration8Down, Migration9, Migration9Down, Migration10, Migration10Down, Migration11())
+
+        val cursor = db.query("SELECT sql FROM sqlite_master WHERE type='index' AND name='idx_users_name_sort_active'")
+        var partialIndexFound = false
+        while (cursor.moveToNext()) {
+            val sql = cursor.getString(0)
+            if (sql != null && sql.contains("WHERE is_deleted = 0")) {
+                partialIndexFound = true
+            }
+        }
+        cursor.close()
+
+        assertTrue("Should create partial index for users name sort (WHERE is_deleted = 0)", partialIndexFound)
+    }
+
+    @Test
+    fun `migration11 should create partial index for financial records user and updated_at`() {
+        var db = helper.createDatabase(TEST_DB, 10)
+        db.execSQL("INSERT INTO users (email, first_name, last_name, alamat, avatar) VALUES ('test@example.com', 'John', 'Doe', '123 Main St', 'https://example.com/avatar.jpg')")
+        db.execSQL("INSERT INTO financial_records (user_id, iuran_perwarga, jumlah_iuran_bulanan, total_iuran_individu, pengeluaran_iuran_warga, total_iuran_rekap, pemanfaatan_iuran, is_deleted) VALUES (1, 100, 200, 300, 400, 500, 'Maintenance', 0)")
+        db.execSQL("INSERT INTO financial_records (user_id, iuran_perwarga, jumlah_iuran_bulanan, total_iuran_individu, pengeluaran_iuran_warga, total_iuran_rekap, pemanfaatan_iuran, is_deleted) VALUES (1, 150, 250, 350, 450, 550, 'Repair', 1)")
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 11, true, Migration1(), Migration1Down, Migration2, Migration2Down, Migration3, Migration3Down, Migration4, Migration4Down, Migration5, Migration5Down, Migration6, Migration6Down, Migration7, Migration7Down, Migration8, Migration8Down, Migration9, Migration9Down, Migration10, Migration10Down, Migration11())
+
+        val cursor = db.query("SELECT sql FROM sqlite_master WHERE type='index' AND name='idx_financial_user_updated_active'")
+        var partialIndexFound = false
+        while (cursor.moveToNext()) {
+            val sql = cursor.getString(0)
+            if (sql != null && sql.contains("WHERE is_deleted = 0")) {
+                partialIndexFound = true
+            }
+        }
+        cursor.close()
+
+        assertTrue("Should create partial index for financial records user and updated_at (WHERE is_deleted = 0)", partialIndexFound)
+    }
+
+    @Test
+    fun `migration11 should create partial index for transactions user_id`() {
+        var db = helper.createDatabase(TEST_DB, 10)
+        db.execSQL("INSERT INTO users (email, first_name, last_name, alamat, avatar) VALUES ('test@example.com', 'John', 'Doe', '123 Main St', 'https://example.com/avatar.jpg')")
+        db.execSQL("INSERT INTO transactions (id, user_id, amount, currency, status, payment_method, description, is_deleted) VALUES ('txn_123', 1, 1000.00, 'IDR', 'PENDING', 'CREDIT_CARD', 'Test payment', 0)")
+        db.execSQL("INSERT INTO transactions (id, user_id, amount, currency, status, payment_method, description, is_deleted) VALUES ('txn_456', 1, 2000.00, 'IDR', 'COMPLETED', 'BANK_TRANSFER', 'Test payment 2', 1)")
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 11, true, Migration1(), Migration1Down, Migration2, Migration2Down, Migration3, Migration3Down, Migration4, Migration4Down, Migration5, Migration5Down, Migration6, Migration6Down, Migration7, Migration7Down, Migration8, Migration8Down, Migration9, Migration9Down, Migration10, Migration10Down, Migration11())
+
+        val cursor = db.query("SELECT sql FROM sqlite_master WHERE type='index' AND name='idx_transactions_user_active'")
+        var partialIndexFound = false
+        while (cursor.moveToNext()) {
+            val sql = cursor.getString(0)
+            if (sql != null && sql.contains("WHERE is_deleted = 0")) {
+                partialIndexFound = true
+            }
+        }
+        cursor.close()
+
+        assertTrue("Should create partial index for transactions user_id (WHERE is_deleted = 0)", partialIndexFound)
+    }
+
+    @Test
+    fun `migration11 should preserve existing data`() {
+        var db = helper.createDatabase(TEST_DB, 10)
+        db.execSQL("INSERT INTO users (email, first_name, last_name, alamat, avatar, is_deleted) VALUES ('test@example.com', 'John', 'Doe', '123 Main St', 'https://example.com/avatar.jpg', 0)")
+        db.execSQL("INSERT INTO users (email, first_name, last_name, alamat, avatar, is_deleted) VALUES ('deleted@example.com', 'Jane', 'Smith', '456 Oak Ave', 'https://example.com/avatar2.jpg', 1)")
+        db.execSQL("INSERT INTO financial_records (user_id, iuran_perwarga, jumlah_iuran_bulanan, total_iuran_individu, pengeluaran_iuran_warga, total_iuran_rekap, pemanfaatan_iuran, is_deleted) VALUES (1, 100, 200, 300, 400, 500, 'Maintenance', 0)")
+        db.execSQL("INSERT INTO transactions (id, user_id, amount, currency, status, payment_method, description, is_deleted) VALUES ('txn_123', 1, 1000.00, 'IDR', 'PENDING', 'CREDIT_CARD', 'Test payment', 0)")
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 11, true, Migration1(), Migration1Down, Migration2, Migration2Down, Migration3, Migration3Down, Migration4, Migration4Down, Migration5, Migration5Down, Migration6, Migration6Down, Migration7, Migration7Down, Migration8, Migration8Down, Migration9, Migration9Down, Migration10, Migration10Down, Migration11())
+
+        val activeUserCount = db.query("SELECT COUNT(*) FROM users WHERE is_deleted = 0").use { cursor ->
+            cursor.moveToFirst()
+            cursor.getInt(0)
+        }
+        val deletedUserCount = db.query("SELECT COUNT(*) FROM users WHERE is_deleted = 1").use { cursor ->
+            cursor.moveToFirst()
+            cursor.getInt(0)
+        }
+
+        val activeFinancialCount = db.query("SELECT COUNT(*) FROM financial_records WHERE is_deleted = 0").use { cursor ->
+            cursor.moveToFirst()
+            cursor.getInt(0)
+        }
+
+        val activeTransactionCount = db.query("SELECT COUNT(*) FROM transactions WHERE is_deleted = 0").use { cursor ->
+            cursor.moveToFirst()
+            cursor.getInt(0)
+        }
+
+        assertEquals("Active user data should be preserved", 1, activeUserCount)
+        assertEquals("Deleted user data should be preserved", 1, deletedUserCount)
+        assertEquals("Active financial record data should be preserved", 1, activeFinancialCount)
+        assertEquals("Active transaction data should be preserved", 1, activeTransactionCount)
+    }
+
+    @Test
+    fun `migration11Down should drop all partial indexes`() {
+        var db = helper.createDatabase(TEST_DB, 10)
+        db.execSQL("INSERT INTO users (email, first_name, last_name, alamat, avatar) VALUES ('test@example.com', 'John', 'Doe', '123 Main St', 'https://example.com/avatar.jpg')")
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 11, true, Migration1(), Migration1Down, Migration2, Migration2Down, Migration3, Migration3Down, Migration4, Migration4Down, Migration5, Migration5Down, Migration6, Migration6Down, Migration7, Migration7Down, Migration8, Migration8Down, Migration9, Migration9Down, Migration10, Migration10Down, Migration11())
+        Migration11Down.migrate(db)
+
+        val usersIndexesCursor = db.query("SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='users'")
+        val userIndexNames = mutableListOf<String>()
+        while (usersIndexesCursor.moveToNext()) {
+            userIndexNames.add(usersIndexesCursor.getString(0))
+        }
+        usersIndexesCursor.close()
+
+        val financialIndexesCursor = db.query("SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='financial_records'")
+        val financialIndexNames = mutableListOf<String>()
+        while (financialIndexesCursor.moveToNext()) {
+            financialIndexNames.add(financialIndexesCursor.getString(0))
+        }
+        financialIndexesCursor.close()
+
+        val transactionsIndexesCursor = db.query("SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='transactions'")
+        val transactionIndexNames = mutableListOf<String>()
+        while (transactionsIndexesCursor.moveToNext()) {
+            transactionIndexNames.add(transactionsIndexesCursor.getString(0))
+        }
+        transactionsIndexesCursor.close()
+
+        assertFalse("Should not have idx_users_email_active index", userIndexNames.contains("idx_users_email_active"))
+        assertFalse("Should not have idx_users_name_sort_active index", userIndexNames.contains("idx_users_name_sort_active"))
+        assertFalse("Should not have idx_users_id_active index", userIndexNames.contains("idx_users_id_active"))
+        assertFalse("Should not have idx_users_updated_at_active index", userIndexNames.contains("idx_users_updated_at_active"))
+
+        assertFalse("Should not have idx_financial_user_updated_active index", financialIndexNames.contains("idx_financial_user_updated_active"))
+        assertFalse("Should not have idx_financial_id_active index", financialIndexNames.contains("idx_financial_id_active"))
+        assertFalse("Should not have idx_financial_pemanfaatan_active index", financialIndexNames.contains("idx_financial_pemanfaatan_active"))
+
+        assertFalse("Should not have idx_transactions_user_active index", transactionIndexNames.contains("idx_transactions_user_active"))
+        assertFalse("Should not have idx_transactions_status_active index", transactionIndexNames.contains("idx_transactions_status_active"))
+        assertFalse("Should not have idx_transactions_user_status_active index", transactionIndexNames.contains("idx_transactions_user_status_active"))
+        assertFalse("Should not have idx_transactions_created_at_active index", transactionIndexNames.contains("idx_transactions_created_at_active"))
+    }
+
+    @Test
+    fun `migration11Down should preserve existing data`() {
+        var db = helper.createDatabase(TEST_DB, 10)
+        db.execSQL("INSERT INTO users (email, first_name, last_name, alamat, avatar, is_deleted) VALUES ('test@example.com', 'John', 'Doe', '123 Main St', 'https://example.com/avatar.jpg', 0)")
+        db.execSQL("INSERT INTO users (email, first_name, last_name, alamat, avatar, is_deleted) VALUES ('deleted@example.com', 'Jane', 'Smith', '456 Oak Ave', 'https://example.com/avatar2.jpg', 1)")
+        db.execSQL("INSERT INTO financial_records (user_id, iuran_perwarga, jumlah_iuran_bulanan, total_iuran_individu, pengeluaran_iuran_warga, total_iuran_rekap, pemanfaatan_iuran, is_deleted) VALUES (1, 100, 200, 300, 400, 500, 'Maintenance', 0)")
+        db.execSQL("INSERT INTO transactions (id, user_id, amount, currency, status, payment_method, description, is_deleted) VALUES ('txn_123', 1, 1000.00, 'IDR', 'PENDING', 'CREDIT_CARD', 'Test payment', 0)")
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 11, true, Migration1(), Migration1Down, Migration2, Migration2Down, Migration3, Migration3Down, Migration4, Migration4Down, Migration5, Migration5Down, Migration6, Migration6Down, Migration7, Migration7Down, Migration8, Migration8Down, Migration9, Migration9Down, Migration10, Migration10Down, Migration11())
+        Migration11Down.migrate(db)
+
+        val activeUserCount = db.query("SELECT COUNT(*) FROM users WHERE is_deleted = 0").use { cursor ->
+            cursor.moveToFirst()
+            cursor.getInt(0)
+        }
+        val deletedUserCount = db.query("SELECT COUNT(*) FROM users WHERE is_deleted = 1").use { cursor ->
+            cursor.moveToFirst()
+            cursor.getInt(0)
+        }
+
+        val activeFinancialCount = db.query("SELECT COUNT(*) FROM financial_records WHERE is_deleted = 0").use { cursor ->
+            cursor.moveToFirst()
+            cursor.getInt(0)
+        }
+
+        val activeTransactionCount = db.query("SELECT COUNT(*) FROM transactions WHERE is_deleted = 0").use { cursor ->
+            cursor.moveToFirst()
+            cursor.getInt(0)
+        }
+
+        assertEquals("Active user data should be preserved", 1, activeUserCount)
+        assertEquals("Deleted user data should be preserved", 1, deletedUserCount)
+        assertEquals("Active financial record data should be preserved", 1, activeFinancialCount)
+        assertEquals("Active transaction data should be preserved", 1, activeTransactionCount)
+    }
+
+    @Test
+    fun `migration11Down should preserve base indexes`() {
+        var db = helper.createDatabase(TEST_DB, 10)
+        db.execSQL("INSERT INTO users (email, first_name, last_name, alamat, avatar) VALUES ('test@example.com', 'John', 'Doe', '123 Main St', 'https://example.com/avatar.jpg')")
+        db.execSQL("INSERT INTO financial_records (user_id, iuran_perwarga, jumlah_iuran_bulanan, total_iuran_individu, pengeluaran_iuran_warga, total_iuran_rekap, pemanfaatan_iuran) VALUES (1, 100, 200, 300, 400, 500, 'Maintenance')")
+        db.execSQL("INSERT INTO transactions (id, user_id, amount, currency, status, payment_method, description) VALUES ('txn_123', 1, 1000.00, 'IDR', 'PENDING', 'CREDIT_CARD', 'Test payment')")
+        db.close()
+
+        db = helper.runMigrationsAndValidate(TEST_DB, 11, true, Migration1(), Migration1Down, Migration2, Migration2Down, Migration3, Migration3Down, Migration4, Migration4Down, Migration5, Migration5Down, Migration6, Migration6Down, Migration7, Migration7Down, Migration8, Migration8Down, Migration9, Migration9Down, Migration10, Migration10Down, Migration11())
+        Migration11Down.migrate(db)
+
+        val usersIndexesCursor = db.query("SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='users'")
+        val userIndexNames = mutableListOf<String>()
+        while (usersIndexesCursor.moveToNext()) {
+            userIndexNames.add(usersIndexesCursor.getString(0))
+        }
+        usersIndexesCursor.close()
+
+        val financialIndexesCursor = db.query("SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='financial_records'")
+        val financialIndexNames = mutableListOf<String>()
+        while (financialIndexesCursor.moveToNext()) {
+            financialIndexNames.add(financialIndexesCursor.getString(0))
+        }
+        financialIndexesCursor.close()
+
+        val transactionsIndexesCursor = db.query("SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='transactions'")
+        val transactionIndexNames = mutableListOf<String>()
+        while (transactionsIndexesCursor.moveToNext()) {
+            transactionIndexNames.add(transactionsIndexesCursor.getString(0))
+        }
+        transactionsIndexesCursor.close()
+
+        assertTrue("Should preserve users email index", userIndexNames.any { it.contains("email") })
+        assertTrue("Should preserve users name sort index", userIndexNames.any { it.contains("last_name") && it.contains("first_name") })
+
+        assertTrue("Should preserve financial user_updated index", financialIndexNames.any { it.contains("user_id") && it.contains("updated_at") })
+        assertTrue("Should preserve financial user_rekap index", financialIndexNames.any { it.contains("user_id") && it.contains("total_iuran_rekap") })
+
+        assertTrue("Should preserve transactions user_id index", transactionIndexNames.any { it.contains("user_id") })
+        assertTrue("Should preserve transactions status index", transactionIndexNames.any { it.contains("status") })
+        assertTrue("Should preserve transactions user_status index", transactionIndexNames.any { it.contains("user_id") && it.contains("status") })
+        assertTrue("Should preserve transactions created_at index", transactionIndexNames.any { it.contains("created_at") })
+        assertTrue("Should preserve transactions updated_at index", transactionIndexNames.any { it.contains("updated_at") })
+    }
 }
