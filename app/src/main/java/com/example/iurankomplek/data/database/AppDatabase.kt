@@ -18,7 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 
 @Database(
     entities = [UserEntity::class, FinancialRecordEntity::class, Transaction::class, WebhookEvent::class],
-    version = 14,
+    version = 15,
     exportSchema = true
 )
 @TypeConverters(DataTypeConverters::class)
@@ -39,7 +39,8 @@ abstract class AppDatabase : RoomDatabase() {
             Migration7, Migration7Down, Migration8, Migration8Down,
             Migration9, Migration9Down, Migration10, Migration10Down,
             Migration11(), Migration11Down, Migration12(), Migration12Down,
-            Migration13(), Migration13Down, Migration14(), Migration14Down
+            Migration13(), Migration13Down, Migration14(), Migration14Down,
+            Migration15(), Migration15Down
         )
 
         fun getDatabase(context: Context, scope: CoroutineScope): AppDatabase {
