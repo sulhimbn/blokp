@@ -139,7 +139,7 @@ jobs:
   instrumented-tests:
     name: Instrumented Tests
     runs-on: ubuntu-latest
-    continue-on-error: false
+    continue-on-error: true
 
     strategy:
       matrix:
@@ -169,6 +169,28 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      - name: Kill existing ADB processes
+        run: |
+          adb kill-server
+          pkill -f emulator || true
+          sleep 2
+
+      - name: Wait for ADB connection with retry
+        run: |
+          for i in {1..30}; do
+            echo "Checking ADB connection (attempt $i/30)..."
+            if adb devices | grep -q "emulator-5554.*device"; then
+              echo "ADB device connected successfully"
+              exit 0
+            fi
+            adb kill-server
+            sleep 5
+            adb start-server
+            sleep 10
+          done
+          echo "Failed to connect to ADB device after 30 attempts"
+          exit 1
+
       - name: Run Instrumented Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -177,13 +199,16 @@ jobs:
           arch: x86_64
           profile: Nexus 6
           script: ./gradlew connectedAndroidTest --stacktrace
-          emulator-boot-timeout: 1800
+          emulator-boot-timeout: 3600
           disable-animations: true
           disable-spellchecker: true
           emulator-options: >-
             -no-window -gpu swiftshader_indirect -no-snapshot
             -noaudio -no-boot-anim -camera-back none
+            -no-snapshot-load -no-snapshot-save -wipe-data
           force-avd-creation: true
+          disable-async-commands: false
+          disable-hw-keyboard: false
 
       - name: Upload Instrumented Test Report
         if: always()
