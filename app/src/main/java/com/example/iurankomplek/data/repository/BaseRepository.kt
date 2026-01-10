@@ -8,7 +8,6 @@ import com.example.iurankomplek.network.resilience.CircuitBreakerResult
 import com.example.iurankomplek.data.api.models.ApiListResponse
 import com.example.iurankomplek.data.api.models.ApiResponse
 import com.example.iurankomplek.utils.OperationResult
-import kotlin.Result
 
 abstract class BaseRepository {
 
