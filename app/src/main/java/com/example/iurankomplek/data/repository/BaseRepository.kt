@@ -94,6 +94,51 @@ abstract class BaseRepository {
             is CircuitBreakerResult.CircuitOpen -> OperationResult.Error(NetworkError.CircuitBreakerError(), "Circuit breaker open")
         }
     }
+
+    protected suspend fun <T : Any> executeWithCircuitBreakerAndFallback(
+        apiCall: suspend () -> retrofit2.Response<T>,
+        fallbackStrategy: FallbackStrategy<T>?,
+        config: FallbackConfig = FallbackConfig()
+    ): OperationResult<T> {
+        val fallbackManager = FallbackManager<T>(
+            fallbackStrategy = fallbackStrategy,
+            config = config
+        )
+
+        return fallbackManager.executeWithFallback {
+            executeWithCircuitBreaker(apiCall)
+        }
+    }
+
+    protected suspend fun <T : Any> executeWithCircuitBreakerV1AndFallback(
+        apiCall: suspend () -> retrofit2.Response<ApiResponse<T>>,
+        fallbackStrategy: FallbackStrategy<T>?,
+        config: FallbackConfig = FallbackConfig()
+    ): OperationResult<T> {
+        val fallbackManager = FallbackManager<T>(
+            fallbackStrategy = fallbackStrategy,
+            config = config
+        )
+
+        return fallbackManager.executeWithFallback {
+            executeWithCircuitBreakerV1(apiCall)
+        }
+    }
+
+    protected suspend fun <T : Any> executeWithCircuitBreakerV2AndFallback(
+        apiCall: suspend () -> retrofit2.Response<ApiListResponse<T>>,
+        fallbackStrategy: FallbackStrategy<List<T>>?,
+        config: FallbackConfig = FallbackConfig()
+    ): OperationResult<List<T>> {
+        val fallbackManager = FallbackManager<List<T>>(
+            fallbackStrategy = fallbackStrategy,
+            config = config
+        )
+
+        return fallbackManager.executeWithFallback {
+            executeWithCircuitBreakerV2(apiCall)
+        }
+    }
 }
 
 typealias BaseRepositoryLegacy = BaseRepository
