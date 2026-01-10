@@ -5550,3 +5550,88 @@ The CI/CD pipeline is configured with GitHub Actions, providing automated build,
 - [x] Documentation updated (blueprint.md, task.md)
 
 **Impact**: HIGH - Comprehensive CI/CD improvements with quality gates, security scanning, and performance optimizations
+
+### Migration 14: WebhookEvent CHECK Constraints (Module DATA-005 - 2026-01-10)
+
+**Issue Identified**:
+- WebhookEvent entity has no database-level CHECK constraints
+- retry_count can be set to negative values or exceed max_retries
+- status can be set to invalid enum values
+- idempotency_key can be empty (violates unique index intent)
+
+**Solution Implemented**:
+- Recreated webhook_events table with CHECK constraints for data integrity
+- Added 8 CHECK constraints:
+  - idempotency_key length > 0
+  - status IN (valid enum values)
+  - retry_count >= 0
+  - retry_count <= max_retries
+  - max_retries > 0 AND <= 10
+  - Timestamp validations (>= 0 or NULL)
+  - Non-empty validations for key strings
+
+**Performance Improvements**:
+- Data integrity: Invalid webhook events rejected at database level
+- Webhook state machine integrity: retry_count and max_retries relationship enforced
+- Idempotency guarantees: Empty keys prevented
+- Application-independent: Constraints enforced even if app validation bypassed
+
+**Files Created** (3 total):
+| File | Lines | Purpose |
+|------|--------|---------|
+| Migration14.kt | +152 | CHECK constraints for webhook_events |
+| Migration14Down.kt | +84 | Reversible down migration |
+| Migration14Test.kt | +329 | 10 comprehensive migration tests |
+
+**Files Modified** (1 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| AppDatabase.kt | +2 | Updated version to 14, added migrations |
+
+**Benefits**:
+- **Data Integrity**: Database-level validation prevents webhook delivery state corruption
+- **Retry Logic Safety**: retry_count and max_retries relationship enforced
+- **Idempotency Guarantees**: Empty idempotency keys prevented
+- **State Machine Consistency**: Webhook delivery states validated against enum list
+- **Audit Trail**: Invalid webhook events rejected at database level
+
+**CHECK Constraints Summary**:
+| Constraint | Purpose |
+|------------|---------|
+| idempotency_key > 0 | Prevents empty keys |
+| status IN enum | Prevents invalid delivery statuses |
+| retry_count >= 0 | Prevents negative retry counts |
+| retry_count <= max_retries | Prevents retry count overflow |
+| max_retries > 0 AND <= 10 | Positive, bounded max retries |
+| timestamps >= 0 or NULL | Validates timestamp fields |
+| payload length > 0 | Prevents empty payloads |
+| event_type length > 0 | Prevents empty event types |
+
+**Test Coverage**:
+- Valid data preservation test
+- Empty idempotency key constraint test
+- Invalid status enum constraint test
+- Negative retry count constraint test
+- Retry count overflow constraint test
+- Zero/positive max_retries constraint test
+- Max retries > 10 constraint test
+- Index recreation verification test
+- Reversible down migration test
+- Empty database migration test
+- Valid webhook event states test (all 5 statuses)
+
+**Success Criteria**:
+- [x] Migration 14 created with CHECK constraints
+- [x] Migration 14Down created (reversible)
+- [x] 8 CHECK constraints added to webhook_events
+- [x] All indexes recreated on new table
+- [x] AppDatabase version updated to 14
+- [x] 10 comprehensive migration tests created
+- [x] All constraint tests verify SQLiteException thrown
+- [x] Documentation updated (blueprint.md, task.md)
+
+**Dependencies**: None (independent constraint addition, improves data integrity)
+**Documentation**: Updated docs/blueprint.md and docs/task.md with Migration 14 completion
+**Impact**: MEDIUM - Webhook delivery state machine integrity enhancement, database-level validation prevents invalid webhook events, ensures retry logic consistency and idempotency guarantee reliability
+
+---
