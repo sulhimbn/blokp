@@ -176,7 +176,7 @@ object InputSanitizer {
 
                 // Check that the URL doesn't contain dangerous characters after validation
                 URL(input).toURI()
-                true
+                return true
             }
         } catch (e: Exception) {
             android.util.Log.d("InputSanitizer", "Invalid URL format: $input")
