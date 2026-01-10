@@ -465,6 +465,7 @@ app/
 - **NEW (Module ARCH-003)**: DependencyContainer manages dependency creation
 - **NEW (Module ARCH-004)**: ValidatePaymentUseCase handles payment validation logic
 - **NEW (REFACTOR-005)**: RecyclerViewHelper handles all RecyclerView configuration
+- **NEW (REFACTOR-008 - 2026-01-10)**: TransactionHistoryAdapter handles UI rendering only, business logic moved to TransactionViewModel
 
 ### Open/Closed Principle ✅
 - Open for extension (new adapters, repositories)

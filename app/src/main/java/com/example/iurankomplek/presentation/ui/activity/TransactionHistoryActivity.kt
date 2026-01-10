@@ -46,8 +46,11 @@ class TransactionHistoryActivity : BaseActivity() {
             context = this
         )
 
-        val transactionRepository = DependencyContainer.provideTransactionRepository()
-        transactionAdapter = TransactionHistoryAdapter(lifecycleScope, transactionRepository)
+        transactionAdapter = TransactionHistoryAdapter { transaction ->
+            lifecycleScope.launch {
+                viewModel.refundPayment(transaction.id, "User requested refund")
+            }
+        }
 
         RecyclerViewHelper.configureRecyclerView(
             recyclerView = binding.rvTransactionHistory,
@@ -71,5 +74,28 @@ class TransactionHistoryActivity : BaseActivity() {
                 Toast.LENGTH_LONG
             ).show()
         })
+
+        lifecycleScope.launch {
+            viewModel.refundState.collect { state ->
+                when (state) {
+                    is UiState.Loading -> {
+                    }
+                    is UiState.Success -> {
+                        Toast.makeText(
+                            this@TransactionHistoryActivity,
+                            getString(R.string.refund_processed_successfully),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    is UiState.Error -> {
+                        Toast.makeText(
+                            this@TransactionHistoryActivity,
+                            getString(R.string.refund_failed, state.message),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            }
+        }
     }
 }
