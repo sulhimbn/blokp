@@ -64,7 +64,7 @@ class IntegrationHealthMonitor(
                 componentHealth["api_service"] = IntegrationHealthStatus.Degraded(
                     affectedComponents = listOf("api_service"),
                     message = "Retry detected for endpoint: $endpoint",
-                    lastSuccessfulRequest = Date()
+                    lastSuccessfulRequest = System.currentTimeMillis()
                 )
             }
         }
@@ -78,7 +78,7 @@ class IntegrationHealthMonitor(
             componentHealth[service] = IntegrationHealthStatus.CircuitOpen(
                 service = service,
                 failureCount = circuitBreakerFailures.get(),
-                openSince = Date()
+                openSince = System.currentTimeMillis()
             )
         }
     }
@@ -91,7 +91,7 @@ class IntegrationHealthMonitor(
             componentHealth["rate_limiter"] = IntegrationHealthStatus.RateLimited(
                 endpoint = endpoint,
                 requestCount = requestCount,
-                limitExceededAt = Date()
+                limitExceededAt = System.currentTimeMillis()
             )
         }
     }
@@ -105,7 +105,7 @@ class IntegrationHealthMonitor(
                 componentHealth["circuit_breaker"] = IntegrationHealthStatus.CircuitOpen(
                     service = "default",
                     failureCount = circuitBreakerFailures.get(),
-                    openSince = Date()
+                    openSince = System.currentTimeMillis()
                 )
             } else if (isHealthy && componentHealth["circuit_breaker"] !is IntegrationHealthStatus.Healthy) {
                 componentHealth["circuit_breaker"] = IntegrationHealthStatus.Healthy(
@@ -124,7 +124,7 @@ class IntegrationHealthMonitor(
                 componentHealth["rate_limiter"] = IntegrationHealthStatus.RateLimited(
                     endpoint = "global",
                     requestCount = stats.values.sumOf { it.getRequestCount() },
-                    limitExceededAt = Date()
+                    limitExceededAt = System.currentTimeMillis()
                 )
             } else if (!hasViolations && componentHealth["rate_limiter"] !is IntegrationHealthStatus.Healthy) {
                 componentHealth["rate_limiter"] = IntegrationHealthStatus.Healthy(
@@ -145,14 +145,14 @@ class IntegrationHealthMonitor(
                 IntegrationHealthStatus.Unhealthy(
                     affectedComponents = unhealthyComponents,
                     message = "Integration system unhealthy: ${unhealthyComponents.size} component(s) failed",
-                    errorCause = "Health check failed at ${Date()}"
+                    errorCause = "Health check failed at ${Date(System.currentTimeMillis())}"
                 )
             }
             degradedComponents.isNotEmpty() -> {
                 IntegrationHealthStatus.Degraded(
                     affectedComponents = degradedComponents,
                     message = "Integration system degraded: ${degradedComponents.size} component(s) degraded",
-                    lastSuccessfulRequest = if (lastSuccessfulRequest.get() > 0) Date(lastSuccessfulRequest.get()) else null
+                    lastSuccessfulRequest = if (lastSuccessfulRequest.get() > 0) lastSuccessfulRequest.get() else null
                 )
             }
             else -> {
@@ -175,7 +175,7 @@ class IntegrationHealthMonitor(
         val rateLimiterStats = ApiConfig.getRateLimiterStats()
 
         return HealthReport(
-            timestamp = Date(),
+            timestamp = System.currentTimeMillis(),
             overallStatus = currentHealth,
             healthScore = metrics.getHealthScore(),
             metrics = metrics,
@@ -204,7 +204,7 @@ class IntegrationHealthMonitor(
                     componentHealth["api_service"] = IntegrationHealthStatus.Degraded(
                         affectedComponents = listOf("api_service"),
                         message = "Timeout detected for endpoint: $endpoint",
-                        lastSuccessfulRequest = if (lastSuccessfulRequest.get() > 0) Date(lastSuccessfulRequest.get()) else null
+                        lastSuccessfulRequest = if (lastSuccessfulRequest.get() > 0) lastSuccessfulRequest.get() else null
                     )
                 }
                 httpCode == 429 -> {
@@ -213,7 +213,7 @@ class IntegrationHealthMonitor(
                     componentHealth["rate_limiter"] = IntegrationHealthStatus.RateLimited(
                         endpoint = endpoint,
                         requestCount = stats.values.sumOf { it.getRequestCount() },
-                        limitExceededAt = Date()
+                        limitExceededAt = System.currentTimeMillis()
                     )
                 }
                 else -> {
@@ -277,7 +277,7 @@ class IntegrationHealthMonitor(
     }
 
     data class HealthReport(
-        val timestamp: Date,
+        val timestamp: Long,
         val overallStatus: IntegrationHealthStatus,
         val healthScore: Double,
         val metrics: IntegrationHealthMetrics,
@@ -285,7 +285,9 @@ class IntegrationHealthMonitor(
         val rateLimiterStats: Map<String, RateLimiterInterceptor.EndpointStats>,
         val componentHealth: Map<String, IntegrationHealthStatus>,
         val recommendations: List<String>
-    )
+    ) {
+        val timestampAsDate: Date get() = Date(timestamp)
+    }
 
     companion object {
         @Volatile

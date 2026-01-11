@@ -87,7 +87,7 @@ class HealthServiceTest {
             overallStatus = IntegrationHealthStatus.Degraded(
                 affectedComponents = listOf("api_service"),
                 message = "API service degraded",
-                lastSuccessfulRequest = java.util.Date()
+                lastSuccessfulRequest = System.currentTimeMillis()
             )
         )
         `when`(mockHealthMonitor.getDetailedHealthReport()).thenReturn(degradedReport)
@@ -164,7 +164,7 @@ class HealthServiceTest {
         )
         
         return IntegrationHealthMonitor.HealthReport(
-            timestamp = java.util.Date(),
+            timestamp = System.currentTimeMillis(),
             overallStatus = IntegrationHealthStatus.Healthy(),
             healthScore = 95.5,
             metrics = mockMetrics,

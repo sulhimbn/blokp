@@ -19,16 +19,16 @@ class IntegrationHealthStatusTest {
 
     @Test
     fun `Healthy status with custom message uses provided values`() {
-        val customDate = Date(1234567890000)
+        val customTimestamp = 1234567890000L
         val healthy = IntegrationHealthStatus.Healthy(
             message = "Custom message",
-            lastSuccessfulRequest = customDate
+            lastSuccessfulRequest = customTimestamp
         )
 
         assertEquals("HEALTHY", healthy.status)
         assertEquals("Custom message", healthy.message)
         assertEquals("Custom message", healthy.details)
-        assertEquals(customDate, healthy.lastSuccessfulRequest)
+        assertEquals(customTimestamp, healthy.lastSuccessfulRequest)
     }
 
     @Test
@@ -51,7 +51,7 @@ class IntegrationHealthStatusTest {
 
     @Test
     fun `Degraded status with single affected component`() {
-        val lastSuccess = Date(1234567890000)
+        val lastSuccess = 1234567890000L
         val degraded = IntegrationHealthStatus.Degraded(
             affectedComponents = listOf("PaymentService"),
             message = "Payment service slow",
@@ -127,7 +127,7 @@ class IntegrationHealthStatusTest {
 
     @Test
     fun `Degraded details include last successful request when provided`() {
-        val lastSuccess = Date(1234567890000)
+        val lastSuccess = 1234567890000L
         val degraded = IntegrationHealthStatus.Degraded(
             affectedComponents = listOf("ServiceA"),
             message = "Slow",
@@ -199,10 +199,10 @@ class IntegrationHealthStatusTest {
 
     @Test
     fun `CircuitOpen status with default message`() {
-        val openSince = Date(1234567890000)
+        val openSince = 1234567890000L
         val circuitOpen = IntegrationHealthStatus.CircuitOpen(
             service = "PaymentService",
-            failureCount = 5,
+            failureCount =5,
             openSince = openSince
         )
 
@@ -216,7 +216,7 @@ class IntegrationHealthStatusTest {
 
     @Test
     fun `CircuitOpen status with custom message`() {
-        val openSince = Date(1234567890000)
+        val openSince = 1234567890000L
         val circuitOpen = IntegrationHealthStatus.CircuitOpen(
             service = "PaymentService",
             message = "Service unavailable",
@@ -233,7 +233,7 @@ class IntegrationHealthStatusTest {
         val circuitOpen = IntegrationHealthStatus.CircuitOpen(
             service = "TestService",
             failureCount = 0,
-            openSince = Date()
+            openSince = System.currentTimeMillis()
         )
 
         assertEquals(0, circuitOpen.failureCount)
@@ -242,7 +242,7 @@ class IntegrationHealthStatusTest {
 
     @Test
     fun `CircuitOpen details contain all required information`() {
-        val openSince = Date(1234567890000)
+        val openSince = 1234567890000L
         val circuitOpen = IntegrationHealthStatus.CircuitOpen(
             service = "PaymentService",
             failureCount = 7,
@@ -259,7 +259,7 @@ class IntegrationHealthStatusTest {
         val circuitOpen = IntegrationHealthStatus.CircuitOpen(
             service = "ServiceA",
             failureCount = 3,
-            openSince = Date()
+            openSince = System.currentTimeMillis()
         )
         assertFalse(circuitOpen.isHealthy())
     }
@@ -269,7 +269,7 @@ class IntegrationHealthStatusTest {
         val circuitOpen = IntegrationHealthStatus.CircuitOpen(
             service = "ServiceA",
             failureCount = 3,
-            openSince = Date()
+            openSince = System.currentTimeMillis()
         )
         assertFalse(circuitOpen.isDegraded())
     }
@@ -279,14 +279,14 @@ class IntegrationHealthStatusTest {
         val circuitOpen = IntegrationHealthStatus.CircuitOpen(
             service = "ServiceA",
             failureCount = 3,
-            openSince = Date()
+            openSince = System.currentTimeMillis()
         )
         assertTrue(circuitOpen.isUnhealthy())
     }
 
     @Test
     fun `RateLimited status with default message`() {
-        val limitExceededAt = Date(1234567890000)
+        val limitExceededAt = 1234567890000L
         val rateLimited = IntegrationHealthStatus.RateLimited(
             endpoint = "/api/v1/payments",
             requestCount = 100,
@@ -307,7 +307,7 @@ class IntegrationHealthStatusTest {
             endpoint = "/api/v1/users",
             message = "Too many requests",
             requestCount = 200,
-            limitExceededAt = Date()
+            limitExceededAt = System.currentTimeMillis()
         )
 
         assertEquals("Too many requests", rateLimited.message)
@@ -319,7 +319,7 @@ class IntegrationHealthStatusTest {
         val rateLimited = IntegrationHealthStatus.RateLimited(
             endpoint = "/api/test",
             requestCount = 0,
-            limitExceededAt = Date()
+            limitExceededAt = System.currentTimeMillis()
         )
 
         assertEquals(0, rateLimited.requestCount)
@@ -328,7 +328,7 @@ class IntegrationHealthStatusTest {
 
     @Test
     fun `RateLimited details contain all required information`() {
-        val limitExceededAt = Date(1234567890000)
+        val limitExceededAt = 1234567890000L
         val rateLimited = IntegrationHealthStatus.RateLimited(
             endpoint = "/api/v1/payments",
             requestCount = 150,
@@ -345,7 +345,7 @@ class IntegrationHealthStatusTest {
         val rateLimited = IntegrationHealthStatus.RateLimited(
             endpoint = "/api/test",
             requestCount = 100,
-            limitExceededAt = Date()
+            limitExceededAt = System.currentTimeMillis()
         )
         assertFalse(rateLimited.isHealthy())
     }
@@ -355,7 +355,7 @@ class IntegrationHealthStatusTest {
         val rateLimited = IntegrationHealthStatus.RateLimited(
             endpoint = "/api/test",
             requestCount = 100,
-            limitExceededAt = Date()
+            limitExceededAt = System.currentTimeMillis()
         )
         assertFalse(rateLimited.isDegraded())
     }
@@ -365,7 +365,7 @@ class IntegrationHealthStatusTest {
         val rateLimited = IntegrationHealthStatus.RateLimited(
             endpoint = "/api/test",
             requestCount = 100,
-            limitExceededAt = Date()
+            limitExceededAt = System.currentTimeMillis()
         )
         assertTrue(rateLimited.isUnhealthy())
     }
@@ -375,8 +375,8 @@ class IntegrationHealthStatusTest {
         val healthy = IntegrationHealthStatus.Healthy()
         val degraded = IntegrationHealthStatus.Degraded(listOf("A"), "M", null)
         val unhealthy = IntegrationHealthStatus.Unhealthy(listOf("B"), "M", "C")
-        val circuitOpen = IntegrationHealthStatus.CircuitOpen("Service", 0, Date())
-        val rateLimited = IntegrationHealthStatus.RateLimited("/api/test", 0, Date())
+        val circuitOpen = IntegrationHealthStatus.CircuitOpen("Service", 0, System.currentTimeMillis())
+        val rateLimited = IntegrationHealthStatus.RateLimited("/api/test", 0, System.currentTimeMillis())
 
         assertFalse(healthy.status.isEmpty())
         assertFalse(degraded.status.isEmpty())
@@ -390,8 +390,8 @@ class IntegrationHealthStatusTest {
         val healthy = IntegrationHealthStatus.Healthy()
         val degraded = IntegrationHealthStatus.Degraded(listOf("A"), "M", null)
         val unhealthy = IntegrationHealthStatus.Unhealthy(listOf("B"), "M", "C")
-        val circuitOpen = IntegrationHealthStatus.CircuitOpen("Service", 0, Date())
-        val rateLimited = IntegrationHealthStatus.RateLimited("/api/test", 0, Date())
+        val circuitOpen = IntegrationHealthStatus.CircuitOpen("Service", 0, System.currentTimeMillis())
+        val rateLimited = IntegrationHealthStatus.RateLimited("/api/test", 0, System.currentTimeMillis())
 
         assertNotNull(healthy.timestamp)
         assertNotNull(degraded.timestamp)
@@ -405,8 +405,8 @@ class IntegrationHealthStatusTest {
         val healthy = IntegrationHealthStatus.Healthy()
         val degraded = IntegrationHealthStatus.Degraded(listOf("A"), "M", null)
         val unhealthy = IntegrationHealthStatus.Unhealthy(listOf("B"), "M", "C")
-        val circuitOpen = IntegrationHealthStatus.CircuitOpen("Service", 0, Date())
-        val rateLimited = IntegrationHealthStatus.RateLimited("/api/test", 0, Date())
+        val circuitOpen = IntegrationHealthStatus.CircuitOpen("Service", 0, System.currentTimeMillis())
+        val rateLimited = IntegrationHealthStatus.RateLimited("/api/test", 0, System.currentTimeMillis())
 
         assertFalse(healthy.details.isEmpty())
         assertFalse(degraded.details.isEmpty())
@@ -421,8 +421,8 @@ class IntegrationHealthStatusTest {
             IntegrationHealthStatus.Healthy(),
             IntegrationHealthStatus.Degraded(listOf("A"), "M", null),
             IntegrationHealthStatus.Unhealthy(listOf("B"), "M", "C"),
-            IntegrationHealthStatus.CircuitOpen("Service", 0, Date()),
-            IntegrationHealthStatus.RateLimited("/api/test", 0, Date())
+            IntegrationHealthStatus.CircuitOpen("Service", 0, System.currentTimeMillis()),
+            IntegrationHealthStatus.RateLimited("/api/test", 0, System.currentTimeMillis())
         )
 
         assertTrue(statuses[0].isHealthy())
@@ -437,8 +437,8 @@ class IntegrationHealthStatusTest {
             IntegrationHealthStatus.Healthy(),
             IntegrationHealthStatus.Degraded(listOf("A"), "M", null),
             IntegrationHealthStatus.Unhealthy(listOf("B"), "M", "C"),
-            IntegrationHealthStatus.CircuitOpen("Service", 0, Date()),
-            IntegrationHealthStatus.RateLimited("/api/test", 0, Date())
+            IntegrationHealthStatus.CircuitOpen("Service", 0, System.currentTimeMillis()),
+            IntegrationHealthStatus.RateLimited("/api/test", 0, System.currentTimeMillis())
         )
 
         assertTrue(statuses[1].isDegraded())
@@ -453,8 +453,8 @@ class IntegrationHealthStatusTest {
             IntegrationHealthStatus.Healthy(),
             IntegrationHealthStatus.Degraded(listOf("A"), "M", null),
             IntegrationHealthStatus.Unhealthy(listOf("B"), "M", "C"),
-            IntegrationHealthStatus.CircuitOpen("Service", 0, Date()),
-            IntegrationHealthStatus.RateLimited("/api/test", 0, Date())
+            IntegrationHealthStatus.CircuitOpen("Service", 0, System.currentTimeMillis()),
+            IntegrationHealthStatus.RateLimited("/api/test", 0, System.currentTimeMillis())
         )
 
         assertFalse(statuses[0].isUnhealthy())

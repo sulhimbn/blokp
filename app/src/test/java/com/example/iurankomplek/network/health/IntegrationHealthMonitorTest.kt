@@ -216,7 +216,7 @@ class IntegrationHealthStatusTest {
         val status = IntegrationHealthStatus.Degraded(
             affectedComponents = listOf("api_service"),
             message = "Retry detected",
-            lastSuccessfulRequest = Date()
+            lastSuccessfulRequest = System.currentTimeMillis()
         )
 
         assertFalse(status.isHealthy())
@@ -245,7 +245,7 @@ class IntegrationHealthStatusTest {
         val status = IntegrationHealthStatus.CircuitOpen(
             service = "api_service",
             failureCount = 5,
-            openSince = Date()
+            openSince = System.currentTimeMillis()
         )
 
         assertFalse(status.isHealthy())
@@ -260,7 +260,7 @@ class IntegrationHealthStatusTest {
         val status = IntegrationHealthStatus.RateLimited(
             endpoint = "/api/v1/users",
             requestCount = 65,
-            limitExceededAt = Date()
+            limitExceededAt = System.currentTimeMillis()
         )
 
         assertFalse(status.isHealthy())
@@ -408,9 +408,9 @@ class IntegrationHealthTrackerTest {
                 state = CircuitBreakerState.OPEN,
                 failureCount = 5,
                 successCount = 0,
-                lastFailureTime = Date(),
+                lastFailureTime = System.currentTimeMillis(),
                 lastSuccessTime = null,
-                lastStateChange = Date()
+                lastStateChange = System.currentTimeMillis()
             ),
             rateLimiterMetrics = IntegrationHealthMetrics.RateLimiterMetrics(
                 totalRequests = 0,
