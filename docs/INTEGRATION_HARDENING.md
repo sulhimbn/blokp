@@ -228,6 +228,48 @@ This document describes the current integration resilience patterns implemented 
 
 ---
 
+### 10. Idempotency ✅ (INT-004 - 2026-01-11)
+
+**Implementation**: `IdempotencyInterceptor.kt`, `Constants.kt`, `ApiConfig.kt`
+
+**Configuration**:
+- `IDEMPOTENCY_KEY_PREFIX = "idk_"` in `Constants.Network`
+- `IdempotencyKeyGenerator.generate()`: Creates unique idempotency keys
+- Format: `idk_{timestamp}_{randomNumber}`
+- Uses `SecureRandom` for cryptographically secure uniqueness
+
+**Behavior**:
+- `IdempotencyInterceptor` adds `X-Idempotency-Key` header to all non-GET requests
+- Applies to POST, PUT, DELETE, PATCH requests
+- Skips GET requests (idempotency not needed for reads)
+- Uses `request.tag()` to store idempotency key for tracking
+- Singleton `SecureRandom` for efficiency (reuses instance)
+
+**Usage**: Applied via `ApiConfig` interceptor chain (after `RequestIdInterceptor`)
+
+**Coverage**:
+All POST/PUT/DELETE/PATCH operations now have idempotency:
+- `POST /api/v1/messages` (sendMessage)
+- `POST /api/v1/community-posts` (createCommunityPost)
+- `POST /api/v1/payments/initiate` (initiatePayment)
+- `POST /api/v1/vendors` (createVendor)
+- `POST /api/v1/work-orders` (createWorkOrder)
+- `POST /api/v1/payments/{id}/confirm` (confirmPayment)
+- `PUT /api/v1/vendors/{id}` (updateVendor)
+- `PUT /api/v1/work-orders/{id}/assign` (assignVendorToWorkOrder)
+- `PUT /api/v1/work-orders/{id}/status` (updateWorkOrderStatus)
+- All DELETE operations
+- All PATCH operations
+
+**Benefits**:
+- Duplicate prevention on retry
+- Data integrity (no duplicate records)
+- Consistent idempotency across all write operations
+- Server can cache and return same result on retry
+- Zero breaking changes (backward compatible)
+
+---
+
 ## New Fallback Strategy Pattern 🆕
 
 ### Purpose
@@ -275,7 +317,27 @@ Provide graceful degradation when external services fail, ensuring application r
 - Server must track idempotency keys and return cached result on retry
 - Generate unique idempotency key per operation
 
-**Status**: ⚠️ PARTIALLY IMPLEMENTED
+**Status**: ✅ IMPLEMENTED (INT-004 - 2026-01-11)
+
+**Implementation**:
+- `IdempotencyInterceptor` interceptor adds `X-Idempotency-Key` header to all non-GET requests
+- `IdempotencyKeyGenerator.generate()` creates unique keys: `idk_{timestamp}_{randomNumber}`
+- `IDEMPOTENCY_KEY_PREFIX = "idk_"` constant added to `Constants.Network`
+- Integrated into `ApiConfig` interceptor chain (after `RequestIdInterceptor`)
+- Applied to both secure and non-secure HTTP clients
+- Covers all POST, PUT, DELETE, PATCH operations:
+  - `POST /api/v1/messages` (sendMessage)
+  - `POST /api/v1/community-posts` (createCommunityPost)
+  - `POST /api/v1/payments/initiate` (initiatePayment)
+  - `POST /api/v1/vendors` (createVendor)
+  - `POST /api/v1/work-orders` (createWorkOrder)
+  - `POST /api/v1/payments/{id}/confirm` (confirmPayment)
+  - `PUT /api/v1/vendors/{id}` (updateVendor)
+  - `PUT /api/v1/work-orders/{id}/assign` (assignVendorToWorkOrder)
+  - `PUT /api/v1/work-orders/{id}/status` (updateWorkOrderStatus)
+  - All DELETE operations
+  - All PATCH operations
+- GET requests exclude idempotency header (not needed for reads)
 - Payment operations use idempotency keys (WebhookQueue)
 - Other POST operations (messages, posts) lack idempotency
 
@@ -499,8 +561,8 @@ val client = OkHttpClient.Builder()
 
 ### Idempotency
 - [x] Payment idempotency
-- [ ] POST operation idempotency
-- [ ] Idempotency key generation
+- [x] POST operation idempotency (INT-004 - 2026-01-11)
+- [x] Idempotency key generation (INT-004 - 2026-01-11)
 - [ ] Idempotency conflict handling
 
 ---

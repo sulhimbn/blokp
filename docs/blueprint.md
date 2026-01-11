@@ -291,7 +291,8 @@ app/
 │       │   ├── RetryableRequestInterceptor.kt ✅ (retry marking)
 │       │   ├── RateLimiterInterceptor.kt ✅ (rate limiting)
 │       │   ├── HealthCheckInterceptor.kt ✅ (automatic health tracking)
-│       │   └── TimeoutInterceptor.kt ✅ NEW (2026-01-11 - INT-003)
+│       │   ├── TimeoutInterceptor.kt ✅ NEW (2026-01-11 - INT-003)
+│       │   └── IdempotencyInterceptor.kt ✅ NEW (2026-01-11 - INT-004)
 │       └── models/
 │           ├── DataItem.kt ✅ (legacy model)
 │           ├── ValidatedDataItem.kt ✅
