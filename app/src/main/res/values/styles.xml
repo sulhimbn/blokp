@@ -39,12 +39,8 @@
         <item name="boxCornerRadiusBottomStart">@dimen/radius_md</item>
         <item name="boxCornerRadiusTopEnd">@dimen/radius_md</item>
         <item name="boxCornerRadiusTopStart">@dimen/radius_md</item>
-        <item name="boxStrokeColor">@color/text_secondary</item>
-        <item name="boxStrokeErrorColor">@color/status_error</item>
         <item name="boxStrokeWidth">2dp</item>
         <item name="boxStrokeWidthFocused">3dp</item>
-        <item name="helperTextColor">@color/text_secondary</item>
-        <item name="hintTextColor">@color/text_secondary</item>
         <item name="hintAnimationEnabled">true</item>
     </style>
 
