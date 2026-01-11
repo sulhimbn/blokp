@@ -22,6 +22,9 @@ import java.util.Date
             onDelete = ForeignKey.RESTRICT,
             onUpdate = ForeignKey.CASCADE
         )
+    ],
+    indices = [
+        Index(value = ["user_id"])
     ]
 )
 data class Transaction(

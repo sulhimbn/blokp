@@ -63,6 +63,7 @@ abstract class BaseRepository {
             is CircuitBreakerResult.Failure -> OperationResult.Error(circuitBreakerResult.exception, circuitBreakerResult.exception.message ?: "Unknown error")
             is CircuitBreakerResult.CircuitOpen -> OperationResult.Error(NetworkError.CircuitBreakerError(), "Circuit breaker open")
         }
+    }
 }
 
 typealias BaseRepositoryLegacy = BaseRepository
