@@ -44,7 +44,7 @@ class TimeoutInterceptor : Interceptor {
         val path = request.url.encodedPath
         val profile = TimeoutProfileConfig.getTimeoutForPath(path)
         val timeoutMs = TimeoutProfileConfig.getTimeoutMs(profile)
-        val timeoutSeconds = timeoutMs / 1000L
+        val timeoutSeconds = (timeoutMs / 1000L).toInt()
 
         return chain.withReadTimeout(timeoutSeconds, TimeUnit.SECONDS)
             .withWriteTimeout(timeoutSeconds, TimeUnit.SECONDS)
