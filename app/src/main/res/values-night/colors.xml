@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Decorative Colors - Dark Mode Variants -->
+    <!-- Light Peach (#FFDAB9) -> Dark Muted Peach (#5A4035) -->
+    <color name="accent_peach">#5A4035</color>
+    
+    <!-- Light Cream (#F5F5DC) -> Dark Cream (#1F1A15) -->
+    <color name="cream">#1F1A15</color>
+</resources>
