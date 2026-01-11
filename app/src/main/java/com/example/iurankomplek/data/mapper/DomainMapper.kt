@@ -1,5 +1,6 @@
 package com.example.iurankomplek.data.mapper
 
+import androidx.annotation.JvmName
 import com.example.iurankomplek.data.entity.FinancialRecordEntity
 import com.example.iurankomplek.data.entity.UserEntity
 import com.example.iurankomplek.domain.model.FinancialRecord
@@ -28,6 +29,7 @@ object DomainMapper {
         )
     }
 
+    @JvmName("toUserDomainModelList")
     fun toDomainModelList(userEntities: List<UserEntity>): List<User> {
         return userEntities.map { toDomainModel(it) }
     }
@@ -45,6 +47,7 @@ object DomainMapper {
         )
     }
 
+    @JvmName("fromUserDomainModelList")
     fun fromDomainModelList(users: List<User>): List<UserEntity> {
         return users.map { fromDomainModel(it) }
     }
@@ -62,6 +65,7 @@ object DomainMapper {
         )
     }
 
+    @JvmName("toFinancialDomainModelList")
     fun toDomainModelList(financialRecordEntities: List<FinancialRecordEntity>): List<FinancialRecord> {
         return financialRecordEntities.map { toDomainModel(it) }
     }
@@ -81,6 +85,7 @@ object DomainMapper {
         )
     }
 
+    @JvmName("fromFinancialDomainModelList")
     fun fromDomainModelList(financialRecords: List<FinancialRecord>): List<FinancialRecordEntity> {
         return financialRecords.map { fromDomainModel(it) }
     }

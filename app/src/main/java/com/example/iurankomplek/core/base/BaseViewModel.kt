@@ -2,6 +2,7 @@ package com.example.iurankomplek.core.base
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.annotation.JvmName
 import com.example.iurankomplek.utils.OperationResult
 import com.example.iurankomplek.utils.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -78,12 +79,14 @@ abstract class BaseViewModel : ViewModel() {
         }
     }
     
-    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+    @Suppress("PLATFORM_DECLARATION_CLASH")
+    @JvmName("createMutableStateFlowOfNothing")
     protected fun createMutableStateFlow(initialValue: UiState<Nothing> = UiState.Loading): MutableStateFlow<UiState<Nothing>> {
         return MutableStateFlow(initialValue)
     }
     
-    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+    @Suppress("PLATFORM_DECLARATION_CLASH")
+    @JvmName("createMutableStateFlowGeneric")
     protected fun <T> createMutableStateFlow(initialValue: UiState<T>): MutableStateFlow<UiState<T>> {
         return MutableStateFlow(initialValue)
     }
