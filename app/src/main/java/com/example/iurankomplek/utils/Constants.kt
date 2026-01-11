@@ -33,6 +33,7 @@ object Constants {
         const val MAX_REQUESTS_PER_MINUTE = 60
         const val MILLISECONDS_PER_SECOND = 1000L
         const val ONE_MINUTE_MS = 60000L
+        const val MILLISECONDS_PER_DAY = 86400000L
     }
     
     // API Constants
@@ -60,6 +61,9 @@ object Constants {
         // Backup #2: ++MBgDH5WGvL9Bcn5Be30cRcL0f5O+NyoXuWtQdX1aI=
         // Reference: https://developer.android.com/training/articles/security-ssl#Pinning
         // Configure via local.properties or environment variable: CERTIFICATE_PINNER
+
+        const val CERTIFICATE_EXPIRATION_WARNING_DAYS = 90
+        const val MIN_CERTIFICATE_PINS = 2
     }
     
     // Financial Constants
@@ -159,5 +163,11 @@ object Constants {
     // Network Error Constants
     object NetworkError {
         const val REQUEST_ID_RANDOM_RANGE = 10000
+        const val REQUEST_ID_LENGTH = 8
+    }
+
+    // Rate Limiter Constants
+    object RateLimiter {
+        const val SINGLE_TOKEN_REQUEST = 1.0
     }
 }

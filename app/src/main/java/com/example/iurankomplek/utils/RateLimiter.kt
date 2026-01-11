@@ -90,13 +90,13 @@ class RateLimiter(
             refillTokens(now)
             
             // Check if we have tokens available
-            if (availableTokens >= 1.0) {
+            if (availableTokens >= Constants.RateLimiter.SINGLE_TOKEN_REQUEST) {
                 // Consume one token
-                availableTokens -= 1.0
+                availableTokens -= Constants.RateLimiter.SINGLE_TOKEN_REQUEST
                 Pair(true, null)
             } else {
                 // Calculate wait time for next token
-                val tokensNeeded = 1.0 - availableTokens
+                val tokensNeeded = Constants.RateLimiter.SINGLE_TOKEN_REQUEST - availableTokens
                 val timePerToken = timeWindowMs.toDouble() / maxRequests
                 val waitTimeMs = (tokensNeeded * timePerToken).toLong()
                 Pair(false, waitTimeMs)

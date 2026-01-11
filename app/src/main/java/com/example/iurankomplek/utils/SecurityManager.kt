@@ -305,12 +305,12 @@ object SecurityManager {
             Log.w(TAG, "Certificate pinning is not configured")
             return
         }
-        
+
         val currentDate = java.util.Date()
         val expirationDate = java.util.Date(176, 11, 31)
-        val daysUntilExpiration = ((expirationDate.time - currentDate.time) / (1000 * 60 * 60 * 24)).toInt()
-        
-        if (daysUntilExpiration <= 90) {
+        val daysUntilExpiration = ((expirationDate.time - currentDate.time) / Constants.Security.MILLISECONDS_PER_DAY).toInt()
+
+        if (daysUntilExpiration <= Constants.Security.CERTIFICATE_EXPIRATION_WARNING_DAYS) {
             Log.w(TAG, "Certificate pinning expires soon. Consider rotating pins before expiration.")
         }
     }
@@ -327,8 +327,8 @@ object SecurityManager {
         }
         
         val pins = BuildConfig.CERTIFICATE_PINNER.split(";")
-        if (pins.size < 2) {
-            Log.w(TAG, "Certificate pinning should have at least 2 pins for redundancy")
+        if (pins.size < Constants.Security.MIN_CERTIFICATE_PINS) {
+            Log.w(TAG, "Certificate pinning should have at least ${Constants.Security.MIN_CERTIFICATE_PINS} pins for redundancy")
             isValid = false
         }
         
