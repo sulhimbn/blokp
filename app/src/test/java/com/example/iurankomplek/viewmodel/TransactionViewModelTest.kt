@@ -283,8 +283,9 @@ class TransactionViewModelTest {
         advanceUntilIdle()
         val state = viewModel.transactionsState.value
         assertTrue(state is UiState.Success)
-        assertEquals(1, (state as UiState.Success).data.size)
-        assertEquals(PaymentStatus.FAILED, state.data[0].status)
+        val successState = state as UiState.Success
+        assertEquals(1, successState.data.size)
+        assertEquals(PaymentStatus.FAILED, successState.data[0].status)
     }
 
     @Test
