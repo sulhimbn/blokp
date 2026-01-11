@@ -57,23 +57,25 @@ class PriorityDispatcher(
     }
 
     private fun processQueues() {
-        executorScope.launch {
-            while (true) {
-                mutex.withLock {
-                    val runningRequests = requestCounter.get()
-                    val availableSlots = maxRequests - runningRequests
+        if (executorScope.isActive) {
+            executorScope.launch {
+                while (hasQueuedRequests()) {
+                    mutex.withLock {
+                        val runningRequests = requestCounter.get()
+                        val availableSlots = maxRequests - runningRequests
 
-                    if (availableSlots <= 0) return@withLock
+                        if (availableSlots <= 0) return@withLock
 
-                    val nextRequest = getNextRequest() ?: return@withLock
+                        val nextRequest = getNextRequest() ?: return@withLock
 
-                    okHttpDispatcher.executor().execute {
-                        try {
-                            okHttpDispatcher.enqueue(nextRequest.request)
-                        } catch (e: Exception) {
+                        okHttpDispatcher.executor().execute {
+                            try {
+                                okHttpDispatcher.enqueue(nextRequest.request)
+                            } catch (e: Exception) {
+                            }
                         }
+                        requestCounter.incrementAndGet()
                     }
-                    requestCounter.incrementAndGet()
                 }
             }
         }
