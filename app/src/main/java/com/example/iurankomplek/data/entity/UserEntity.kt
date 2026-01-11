@@ -10,8 +10,7 @@ import java.util.Date
 @Entity(
     tableName = "users",
     indices = [
-        Index(value = ["email"], unique = true),
-        Index(value = ["last_name", "first_name"])
+        Index(value = ["email"], unique = true)
     ]
 )
 data class UserEntity(

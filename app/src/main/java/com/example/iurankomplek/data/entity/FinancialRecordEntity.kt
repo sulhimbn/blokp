@@ -21,7 +21,6 @@ import java.util.Date
         )
     ],
     indices = [
-        Index(value = ["user_id", "updated_at"]),
         Index(value = ["user_id", "total_iuran_rekap"])
     ]
 )
