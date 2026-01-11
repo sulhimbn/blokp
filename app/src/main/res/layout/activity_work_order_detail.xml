@@ -39,7 +39,7 @@
             android:textColor="@color/text_primary"
             android:layout_marginBottom="@dimen/spacing_sm"
             android:layout_marginStart="@dimen/spacing_sm"
-            android:contentDescription="@string/work_order_detail_description_value_desc" />
+            android:contentDescription="@null" />
 
         <TextView
             android:layout_width="match_parent"
@@ -59,7 +59,7 @@
             android:textColor="@color/text_primary"
             android:layout_marginBottom="@dimen/spacing_sm"
             android:layout_marginStart="@dimen/spacing_sm"
-            android:contentDescription="@string/work_order_detail_category_value_desc" />
+            android:contentDescription="@null" />
 
         <TextView
             android:layout_width="match_parent"
@@ -79,7 +79,7 @@
             android:textColor="@color/text_primary"
             android:layout_marginBottom="@dimen/spacing_sm"
             android:layout_marginStart="@dimen/spacing_sm"
-            android:contentDescription="@string/work_order_detail_status_value_desc" />
+            android:contentDescription="@null" />
 
         <TextView
             android:layout_width="match_parent"
@@ -99,7 +99,7 @@
             android:textColor="@color/text_primary"
             android:layout_marginBottom="@dimen/spacing_sm"
             android:layout_marginStart="@dimen/spacing_sm"
-            android:contentDescription="@string/work_order_detail_priority_value_desc" />
+            android:contentDescription="@null" />
 
         <TextView
             android:layout_width="match_parent"
@@ -119,7 +119,7 @@
             android:textColor="@color/text_primary"
             android:layout_marginBottom="@dimen/spacing_sm"
             android:layout_marginStart="@dimen/spacing_sm"
-            android:contentDescription="@string/work_order_detail_vendor_value_desc" />
+            android:contentDescription="@null" />
 
         <TextView
             android:layout_width="match_parent"
@@ -139,7 +139,7 @@
             android:textColor="@color/text_primary"
             android:layout_marginBottom="@dimen/spacing_sm"
             android:layout_marginStart="@dimen/spacing_sm"
-            android:contentDescription="@string/work_order_detail_estimated_cost_value_desc" />
+            android:contentDescription="@null" />
 
         <TextView
             android:layout_width="match_parent"
@@ -159,7 +159,7 @@
             android:textColor="@color/text_primary"
             android:layout_marginBottom="@dimen/spacing_sm"
             android:layout_marginStart="@dimen/spacing_sm"
-            android:contentDescription="@string/work_order_detail_actual_cost_value_desc" />
+            android:contentDescription="@null" />
 
         <TextView
             android:layout_width="match_parent"
@@ -179,7 +179,7 @@
             android:textColor="@color/text_primary"
             android:layout_marginBottom="@dimen/spacing_sm"
             android:layout_marginStart="@dimen/spacing_sm"
-            android:contentDescription="@string/work_order_detail_property_id_value_desc" />
+            android:contentDescription="@null" />
 
         <TextView
             android:layout_width="match_parent"
@@ -198,7 +198,7 @@
             android:textSize="@dimen/text_size_medium"
             android:textColor="@color/text_primary"
             android:layout_marginStart="@dimen/spacing_sm"
-            android:contentDescription="@string/work_order_detail_created_at_value_desc" />
+            android:contentDescription="@null" />
 
     </LinearLayout>
 

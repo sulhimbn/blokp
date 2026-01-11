@@ -44,7 +44,7 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/icon_xxl"
             android:layout_marginBottom="@dimen/spacing_sm"
-            android:contentDescription="@string/profile_menu_content_description"
+            android:importantForAccessibility="no"
             app:srcCompat="@drawable/profile" />
 
         <TextView
@@ -85,7 +85,7 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/icon_xxl"
             android:layout_marginBottom="@dimen/spacing_sm"
-            android:contentDescription="@string/report_menu_content_description"
+            android:importantForAccessibility="no"
             app:srcCompat="@drawable/kas" />
 
         <TextView
@@ -127,7 +127,7 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/icon_xxl"
             android:layout_marginBottom="@dimen/spacing_sm"
-            android:contentDescription="@string/communication_menu_content_description"
+            android:importantForAccessibility="no"
             app:srcCompat="@drawable/profile" />
 
         <TextView
@@ -168,7 +168,7 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/icon_xxl"
             android:layout_marginBottom="@dimen/spacing_sm"
-            android:contentDescription="@string/payment_menu_content_description"
+            android:importantForAccessibility="no"
             app:srcCompat="@drawable/kas" />
 
         <TextView

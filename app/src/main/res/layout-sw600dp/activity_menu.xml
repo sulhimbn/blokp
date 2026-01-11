@@ -47,7 +47,7 @@
             android:layout_width="@dimen/icon_xxxl"
             android:layout_height="@dimen/icon_xxxl"
             android:layout_marginBottom="@dimen/spacing_md"
-            android:contentDescription="@string/profile_menu_content_description"
+            android:importantForAccessibility="no"
             app:srcCompat="@drawable/profile" />
 
         <TextView
@@ -88,7 +88,7 @@
             android:layout_width="@dimen/icon_xxxl"
             android:layout_height="@dimen/icon_xxxl"
             android:layout_marginBottom="@dimen/spacing_md"
-            android:contentDescription="@string/report_menu_content_description"
+            android:importantForAccessibility="no"
             app:srcCompat="@drawable/kas" />
 
         <TextView
@@ -131,7 +131,7 @@
             android:layout_width="@dimen/icon_xxxl"
             android:layout_height="@dimen/icon_xxxl"
             android:layout_marginBottom="@dimen/spacing_md"
-            android:contentDescription="@string/communication_menu_content_description"
+            android:importantForAccessibility="no"
             app:srcCompat="@drawable/profile" />
 
         <TextView
@@ -173,7 +173,7 @@
             android:layout_width="@dimen/icon_xxxl"
             android:layout_height="@dimen/icon_xxxl"
             android:layout_marginBottom="@dimen/spacing_md"
-            android:contentDescription="@string/payment_menu_content_description"
+            android:importantForAccessibility="no"
             app:srcCompat="@drawable/kas" />
 
         <TextView
