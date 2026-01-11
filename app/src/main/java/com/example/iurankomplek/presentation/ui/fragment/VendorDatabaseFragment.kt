@@ -23,7 +23,7 @@ class VendorDatabaseFragment : BaseFragment<com.example.iurankomplek.model.Vendo
         get() = binding.vendorRecyclerView
 
     override val progressBar: View
-        get() = binding.root.findViewById(com.example.iurankomplek.R.id.loadingProgressBar)
+        get() = binding.loadingProgressBar
 
     override val emptyMessageStringRes: Int
         get() = R.string.toast_vendor_info
