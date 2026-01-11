@@ -426,8 +426,9 @@ Track architectural refactoring tasks and their status.
 - ✅ SEC-003: Reduce Sensitive Logging - COMPLETED
 - ✅ SEC-004: OWASP Dependency-Check - VERIFIED
 - ✅ SEC-005: Certificate Expiration Monitoring - COMPLETED
-- 🔴 SEC-006: Migrate from Alpha Dependency - NEW TASK
-- 🟡 SEC-007: Review and Sanitize Logging - NEW TASK
+- ✅ SEC-006: Migrate from Alpha Dependency - COMPLETED
+- ✅ SEC-007: Review and Sanitize Logging - COMPLETED
+- 🟡 SEC-009: Update Chucker to Remove Deprecated Dependency - PENDING
 - 🟢 SEC-008: Configure NVD API Key - NEW TASK
 
 **Key Strengths**:
@@ -440,8 +441,7 @@ Track architectural refactoring tasks and their status.
 - ✅ All database queries use parameterized Room queries (SQL injection safe)
 
 **Action Required**:
-- 🔴 CRITICAL: Migrate from alpha version of security-crypto library (SEC-006)
-- 🟡 MEDIUM: Review logging for sensitive data leakage (SEC-007)
+- 🟡 MEDIUM: Update Chucker to remove deprecated dependency (SEC-009)
 - 🟢 LOW: Configure NVD API key for dependency scanning (SEC-008)
 
 **Comprehensive Report**: See `SECURITY_AUDIT_REPORT.md` for complete findings and recommendations.
@@ -1029,7 +1029,71 @@ security-crypto = "1.0.0"
 **Dependencies**: None (logging cleanup only)
 **Documentation**: Updated docs/task.md with SEC-007 completion
 **Impact**: MEDIUM - Reduced information leakage through logs (24.2% reduction), improved security posture in debug builds, prevents PII and financial data exposure, timing attack prevention
- 
+
+---
+
+### 🟡 SEC-009. Update Chucker to Remove Deprecated Dependency - 2026-01-11
+**Status**: Pending (Requires Android SDK for Verification)
+**Priority**: MEDIUM (Dependency Hygiene)
+**Estimated Time**: 30 minutes
+**Description**: Update Chucker from 3.3.0 to 4.3.0 to remove deprecated kotlin-android-extensions-runtime
+
+**Issue Identified**:
+- Chucker 3.3.0 pulls in deprecated kotlin-android-extensions-runtime:1.4.10
+- Kotlin android-extensions was officially deprecated by Kotlin team
+- Codebase uses ViewBinding, not synthetics (no direct usage)
+- Chucker is debug-only dependency (not in release builds)
+
+**Critical Path Analysis**:
+- Deprecated dependency in dependency tree
+- Newer Chucker version (4.3.0) available
+- Code hygiene: remove deprecated packages from dependency tree
+- Debug builds affected only, not production
+
+**Solution Required**:
+
+**1. Update Chucker Version** (gradle/libs.versions.toml):
+```toml
+# BEFORE:
+chucker = "3.3.0"
+
+# AFTER:
+chucker = "4.3.0"
+```
+
+**2. Verify Build**:
+```bash
+# Verify deprecated dependency removed
+./gradlew :app:dependencies --configuration debugRuntimeClasspath | grep "kotlin-android-extensions"
+
+# Build debug APK to verify
+./gradlew assembleDebug
+```
+
+**Files to Modify** (1 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| gradle/libs.versions.toml | -1, +1 | Change Chucker version |
+
+**Benefits**:
+- Removes deprecated kotlin-android-extensions-runtime from dependency tree
+- Gets latest security patches and bug fixes for Chucker
+- Improves dependency hygiene
+- Latest Chucker features for debugging
+
+**Success Criteria**:
+- [ ] Chucker updated to 4.3.0
+- [ ] kotlin-android-extensions-runtime no longer in dependency tree
+- [ ] Debug APK builds successfully
+- [ ] All tests pass
+- [ ] Task documented in task.md
+
+**Dependencies**: Chucker 4.3.0
+**Documentation**: Update docs/task.md with SEC-009 completion
+**Impact**: MEDIUM - Removes deprecated dependency from debug builds, improves dependency hygiene, requires Android SDK for verification
+
+**Note**: Build verification requires Android SDK environment. Change can be prepared but testing should be done in development environment with proper Android SDK setup.
+
 ---
 
 
