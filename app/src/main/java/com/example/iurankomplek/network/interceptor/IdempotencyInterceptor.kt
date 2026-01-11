@@ -23,7 +23,7 @@ class IdempotencyInterceptor : Interceptor {
             val idempotencyKey = IdempotencyKeyGenerator.generate()
             val requestWithIdempotency = request.newBuilder()
                 .header("X-Idempotency-Key", idempotencyKey)
-                .tag(IdempotencyKey::class.java, idempotencyKey)
+                .tag(String::class.java, idempotencyKey)
                 .build()
 
             return chain.proceed(requestWithIdempotency)

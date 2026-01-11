@@ -26,26 +26,22 @@ class RealPaymentGateway(
 
                 if (response.isSuccessful) {
                     val apiResponse = response.body()
-                    if (apiResponse != null && apiResponse.success) {
+                    if (apiResponse != null) {
                         val data = apiResponse.data
-                        if (data != null) {
-                            OperationResult.Success(
-                                PaymentResponse(
-                                    transactionId = data.transactionId,
-                                    status = convertApiStatus(data.status),
-                                    paymentMethod = convertApiPaymentMethod(data.paymentMethod),
-                                    amount = if (data.amount.isNotEmpty()) BigDecimal(data.amount) else request.amount,
-                                    currency = data.currency,
-                                    transactionTime = data.transactionTime,
-                                    referenceNumber = data.referenceNumber,
-                                    metadata = request.metadata
-                                )
+                        OperationResult.Success(
+                            PaymentResponse(
+                                transactionId = data.transactionId,
+                                status = convertApiStatus(data.status),
+                                paymentMethod = convertApiPaymentMethod(data.paymentMethod),
+                                amount = if (data.amount.isNotEmpty()) BigDecimal(data.amount) else request.amount,
+                                currency = data.currency,
+                                transactionTime = data.transactionTime,
+                                referenceNumber = data.referenceNumber,
+                                metadata = request.metadata
                             )
-                        } else {
-                            OperationResult.Error(Exception("Empty data in API response"), "Empty API response data")
-                        }
+                        )
                     } else {
-                        OperationResult.Error(Exception("API request failed: ${apiResponse?.message}"), "API request failed: ${apiResponse?.message}")
+                        OperationResult.Error(Exception("Empty response body"), "Empty response body")
                     }
                 } else {
                     OperationResult.Error(Exception("API request failed: ${response.code()} - ${response.message()}"), "API request failed: ${response.code()} - ${response.message()}")
@@ -90,15 +86,11 @@ class RealPaymentGateway(
 
                 if (response.isSuccessful) {
                     val apiResponse = response.body()
-                    if (apiResponse != null && apiResponse.success) {
+                    if (apiResponse != null) {
                         val data = apiResponse.data
-                        if (data != null) {
-                            OperationResult.Success(convertApiStatus(data.status))
-                        } else {
-                            OperationResult.Error(Exception("Empty data in API response"), "Empty API response data")
-                        }
+                        OperationResult.Success(convertApiStatus(data.status))
                     } else {
-                        OperationResult.Error(Exception("API request failed: ${apiResponse?.message}"), "API request failed: ${apiResponse?.message}")
+                        OperationResult.Error(Exception("Empty response body"), "Empty response body")
                     }
                 } else {
                     OperationResult.Error(Exception("API request failed: ${response.code()} - ${response.message()}"), "API request failed: ${response.code()} - ${response.message()}")
