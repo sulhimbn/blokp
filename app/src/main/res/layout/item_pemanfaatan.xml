@@ -6,6 +6,8 @@
     android:padding="@dimen/padding_md"
     android:minHeight="@dimen/list_item_min_height"
     android:importantForAccessibility="yes"
+    android:descendantFocusability="blocksDescendants"
+    android:contentDescription="@string/pemanfaatan_item_content_description"
     android:gravity="center_vertical">
 
     <TextView
@@ -21,8 +23,7 @@
         android:textColor="@color/text_primary"
         android:textSize="@dimen/text_size_large"
         android:textStyle="bold"
-        android:importantForAccessibility="yes"
-        android:contentDescription="@string/laporan_item_title_desc" />
+        android:importantForAccessibility="no" />
 
     <TextView
         android:id="@+id/itemDanaPemanfaatan"
@@ -37,7 +38,6 @@
         android:gravity="start|center_vertical"
         android:paddingStart="@dimen/spacing_md"
         android:paddingEnd="@dimen/spacing_md"
-        android:importantForAccessibility="yes"
-        android:contentDescription="@string/laporan_item_value_desc" />
+        android:importantForAccessibility="no" />
 
 </LinearLayout>

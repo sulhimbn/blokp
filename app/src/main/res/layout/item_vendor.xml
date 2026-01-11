@@ -7,7 +7,9 @@
     android:background="@drawable/bg_item_list_focused"
     android:focusable="true"
     android:clickable="true"
-    android:importantForAccessibility="yes">
+    android:importantForAccessibility="yes"
+    android:descendantFocusability="blocksDescendants"
+    android:contentDescription="@string/vendor_item_content_description">
 
     <TextView
         android:id="@+id/vendorName"
@@ -16,7 +18,7 @@
         android:textSize="@dimen/text_size_normal"
         android:textStyle="bold"
         android:textColor="@color/primary"
-        android:contentDescription="@string/vendor_name_desc" />
+        android:importantForAccessibility="no" />
 
     <TextView
         android:id="@+id/vendorSpecialty"
@@ -25,7 +27,7 @@
         android:layout_marginTop="@dimen/spacing_xs"
         android:textSize="@dimen/text_size_medium"
         android:textColor="@color/text_primary"
-        android:contentDescription="@string/vendor_specialty_desc" />
+        android:importantForAccessibility="no" />
 
     <TextView
         android:id="@+id/vendorContact"
@@ -34,7 +36,7 @@
         android:layout_marginTop="@dimen/spacing_xs"
         android:textSize="@dimen/text_size_small"
         android:textColor="@color/text_secondary"
-        android:contentDescription="@string/vendor_contact_desc" />
+        android:importantForAccessibility="no" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -50,7 +52,7 @@
             android:layout_weight="1"
             android:textSize="@dimen/text_size_small"
             android:textColor="@color/secondary_dark"
-            android:contentDescription="@string/vendor_rating_desc" />
+            android:importantForAccessibility="no" />
 
     </LinearLayout>
 

@@ -8,7 +8,9 @@
     android:minHeight="@dimen/list_item_min_height"
     android:focusable="true"
     android:clickable="true"
-    android:importantForAccessibility="yes">
+    android:importantForAccessibility="yes"
+    android:descendantFocusability="blocksDescendants"
+    android:contentDescription="@string/laporan_item_content_description">
 
     <TextView
         android:id="@+id/itemLaporanTitle"
@@ -20,7 +22,7 @@
         android:textStyle="bold"
         android:textColor="@color/text_primary"
         android:gravity="start|center_vertical"
-        android:contentDescription="@string/laporan_item_title_desc" />
+        android:importantForAccessibility="no" />
 
     <TextView
         android:id="@+id/itemLaporanValue"
@@ -32,6 +34,6 @@
         android:textStyle="bold"
         android:textColor="@color/text_primary"
         android:gravity="end|center_vertical"
-        android:contentDescription="@string/laporan_item_value_desc" />
+        android:importantForAccessibility="no" />
 
 </LinearLayout>

@@ -5,10 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/spacing_sm"
+    android:focusable="true"
+    android:clickable="true"
+    android:importantForAccessibility="yes"
+    android:descendantFocusability="blocksDescendants"
     app:cardCornerRadius="@dimen/radius_md"
     app:cardElevation="@dimen/elevation_sm"
-    app:cardBackgroundColor="@color/background_card"
-    android:contentDescription="@string/announcement_item_desc">
+    app:cardBackgroundColor="@color/background_card">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,8 +26,7 @@
             android:textSize="@dimen/text_size_normal"
             android:textStyle="bold"
             android:textColor="@color/primary"
-            android:contentDescription="@string/announcement_title_desc"
-            android:importantForAccessibility="yes"
+            android:importantForAccessibility="no"
             tools:text="Important Notice" />
 
         <TextView
@@ -36,8 +38,7 @@
             android:textColor="@color/text_primary"
             android:maxLines="3"
             android:ellipsize="end"
-            android:contentDescription="@string/announcement_content_desc"
-            android:importantForAccessibility="yes"
+            android:importantForAccessibility="no"
             tools:text="This is an important announcement about upcoming maintenance work." />
 
         <LinearLayout
@@ -45,7 +46,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_sm"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:importantForAccessibility="no">
 
             <TextView
                 android:id="@+id/announcementCategory"
@@ -55,8 +57,7 @@
                 android:textSize="@dimen/text_size_small"
                 android:textColor="@color/secondary"
                 android:textStyle="bold"
-                android:contentDescription="@string/announcement_category_desc"
-                android:importantForAccessibility="yes"
+                android:importantForAccessibility="no"
                 tools:text="General" />
 
             <TextView
@@ -65,8 +66,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/text_size_small"
                 android:textColor="@color/text_secondary"
-                android:contentDescription="@string/announcement_date_desc"
-                android:importantForAccessibility="yes"
+                android:importantForAccessibility="no"
                 tools:text="2024-01-07" />
 
         </LinearLayout>

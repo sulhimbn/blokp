@@ -240,7 +240,16 @@
      <string name="error_with_message">Error: %s</string>
      <string name="work_order_not_assigned">Not assigned</string>
 
-     <!-- Refund -->
-     <string name="refund_processed_successfully">Refund processed successfully</string>
-     <string name="refund_failed">Refund failed: %s</string>
- </resources>
+      <!-- Refund -->
+      <string name="refund_processed_successfully">Refund processed successfully</string>
+      <string name="refund_failed">Refund failed: %s</string>
+
+      <!-- Item Content Descriptions -->
+      <string name="user_item_content_description">User item card</string>
+      <string name="pemanfaatan_item_content_description">Pemanfaatan item card</string>
+      <string name="vendor_item_content_description">Vendor item card</string>
+      <string name="laporan_item_content_description">Laporan item card</string>
+      <string name="message_item_content_description">Message item card</string>
+      <string name="work_order_item_content_description">Work order item card</string>
+      <string name="post_item_content_description">Community post item card</string>
+  </resources>
