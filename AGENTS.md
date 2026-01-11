@@ -4,6 +4,67 @@ This file provides guidance to agents when working with code in this repository.
 
 ## Known Issues & Solutions
 
+### SAN-001: Remove Dead Code - BaseRepositoryV3.kt and Unused BaseRepository Methods (RESOLVED 2026-01-11)
+**Problem**: BaseRepositoryV3.kt (174 lines) and unused methods in BaseRepository.kt (71 lines) accumulated as dead code, increasing maintenance burden.
+
+**Root Cause**:
+- BaseRepositoryV3.kt was designed for new resilience patterns but never integrated into codebase
+- Fallback methods (executeWithCircuitBreaker, executeWithCircuitBreakerAndFallback, executeWithCircuitBreakerV1AndFallback, executeWithCircuitBreakerV2AndFallback) were added to BaseRepository.kt but never used
+- 6 repository implementations extend BaseRepository() and use executeWithCircuitBreakerV1/V2 exclusively
+- FallbackManager.kt has test coverage but methods using it in BaseRepository.kt are never called
+- FoundationInfrastructureTest incorrectly expected BaseRepository to be an interface (actual: abstract class)
+
+**Solution Implemented**:
+1. **Deleted BaseRepositoryV3.kt**: Removed entire file (174 lines) - no production or test references found
+2. **Removed Unused Methods from BaseRepository.kt**:
+   - executeWithCircuitBreaker (lines 18-41, 24 lines) - no usage
+   - executeWithCircuitBreakerAndFallback (14 lines) - no usage
+   - executeWithCircuitBreakerV1AndFallback (14 lines) - no usage
+   - executeWithCircuitBreakerV2AndFallback (14 lines) - no usage
+   - Kept executeWithCircuitBreakerV1 - heavily used by repositories
+   - Kept executeWithCircuitBreakerV2 - heavily used by repositories
+3. **Fixed FoundationInfrastructureTest**: Changed test expectation from isInterface to isAbstract, updated method count from 5 to 2
+
+**Files Modified** (3 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| BaseRepositoryV3.kt | -174 | Deleted (dead code) |
+| BaseRepository.kt | -71 | Removed 4 unused methods |
+| FoundationInfrastructureTest.kt | +5, -4 | Fixed test expectations |
+
+**Code Improvements**:
+- ✅ **Reduced Codebase**: 245 lines of dead code removed
+- ✅ **Simplified Repository**: BaseRepository now only has actively used methods
+- ✅ **Improved Test Accuracy**: Test expectations match actual implementation
+- ✅ **Reduced Confusion**: No more unused base class confusing developers
+- ✅ **Cleaner Architecture**: Single responsibility maintained
+
+**Anti-Patterns Eliminated**:
+- ✅ No more unused base classes
+- ✅ No more unused methods in production code
+- ✅ No more test expectations that don't match implementation
+
+**Benefits**:
+1. **Cleaner Codebase**: 245 lines of dead code removed
+2. **Reduced Maintenance**: Fewer files and methods to understand
+3. **Improved Clarity**: Only actively used code remains
+4. **Accurate Tests**: Test expectations match actual implementation
+5. **Better Architecture**: Clear separation of responsibilities
+
+**Success Criteria**:
+- [x] BaseRepositoryV3.kt deleted (no references found)
+- [x] Unused executeWithCircuitBreaker method removed
+- [x] Unused fallback methods removed (3 methods)
+- [x] FoundationInfrastructureTest fixed (abstract class, not interface)
+- [x] No broken imports or references
+- [x] Documentation updated (AGENTS.md, task.md)
+
+**Dependencies**: None (independent code cleanup)
+**Documentation**: Updated AGENTS.md and docs/task.md with SAN-001 completion
+**Impact**: HIGH - Removed 245 lines of dead code, simplified repository architecture, improved code clarity and maintainability
+
+---
+
 ### INT-001: Request Priority Queue Implementation (RESOLVED 2026-01-11)
 **Problem**: All requests have equal priority. Critical requests (e.g., payment confirmation) should have higher priority than non-critical requests (e.g., feed refresh).
 

@@ -34,12 +34,13 @@ class FoundationInfrastructureTest {
     }
 
     @Test
-    fun `test base repository interface exists`() {
-        // Verify BaseRepository interface exists and has required methods
-        assertTrue("BaseRepository should extend interface", BaseRepository::class.java.isInterface)
+    fun `test base repository abstract class exists`() {
+        // Verify BaseRepository abstract class exists and has required methods
+        assertTrue("BaseRepository should be an abstract class", BaseRepository::class.java.isAbstract)
+        assertFalse("BaseRepository should not be an interface", BaseRepository::class.java.isInterface)
         
         val methods = BaseRepository::class.java.declaredMethods
-        assertEquals("BaseRepository should have 5 required methods", 5, methods.size)
+        assertEquals("BaseRepository should have 2 required methods", 2, methods.size)
     }
 
     @Test

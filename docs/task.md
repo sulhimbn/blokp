@@ -18008,6 +18008,98 @@ val amountInCurrency = BigDecimal(transaction.amount)
 
 ---
 
+### ✅ SAN-001: Remove Dead Code - BaseRepositoryV3.kt and Unused BaseRepository Methods - 2026-01-11
+**Status**: Completed
+**Completed Date**: 2026-01-11
+**Priority**: HIGH (Code Quality)
+**Estimated Time**: 30 minutes (completed in 15 minutes)
+**Description**: Remove dead code files and unused methods from BaseRepository
+
+**Issue Identified**:
+- `BaseRepositoryV3.kt` (174 lines) exists but no repository extends it
+- `BaseRepository.kt` contains unused `executeWithCircuitBreaker` method (24 lines)
+- `BaseRepository.kt` contains 3 unused fallback methods (47 lines total)
+- No repository implementations use `BaseRepositoryV3`
+- No repository implementations use fallback methods in `BaseRepository`
+- `FallbackManager.kt` tests exist but the methods using it are never called
+
+**Critical Path Analysis**:
+- `BaseRepositoryV3.kt` was designed for new resilience patterns but never integrated
+- Fallback methods were designed for graceful degradation but never implemented
+- 6 repository implementations use `BaseRepository` directly with `executeWithCircuitBreakerV1/V2`
+- Dead code increases cognitive load and maintenance burden
+- 242 lines of dead code accumulated over time
+
+**Solution Implemented**:
+
+**1. Deleted BaseRepositoryV3.kt**:
+- Removed entire file (174 lines)
+- No references found in production code or tests
+- FallbackManager.kt retained (has test coverage)
+
+**2. Removed Unused Methods from BaseRepository.kt**:
+- Deleted `executeWithCircuitBreaker` (lines 18-41, 24 lines) - no usage
+- Deleted `executeWithCircuitBreakerAndFallback` (lines 77-90, 14 lines) - no usage
+- Deleted `executeWithCircuitBreakerV1AndFallback` (lines 92-105, 14 lines) - no usage
+- Deleted `executeWithCircuitBreakerV2AndFallback` (lines 107-120, 14 lines) - no usage
+- Kept `executeWithCircuitBreakerV1` - heavily used by repositories
+- Kept `executeWithCircuitBreakerV2` - heavily used by repositories
+
+**3. Fixed FoundationInfrastructureTest**:
+- Changed test expectation from `isInterface` to `isAbstract`
+- Updated method count from 5 to 2 (correct count)
+- Fixed assertion to verify BaseRepository is abstract class, not interface
+
+**Code Quality Improvements**:
+- ✅ **Reduced Codebase**: 245 lines of dead code removed
+- ✅ **Simplified Repository**: BaseRepository now only has actively used methods
+- ✅ **Improved Test Accuracy**: Test expectations match actual implementation
+- ✅ **Reduced Confusion**: No more unused base class confusing developers
+- ✅ **Cleaner Architecture**: Single responsibility maintained
+
+**Anti-Patterns Eliminated**:
+- ✅ No more unused base classes
+- ✅ No more unused methods in production code
+- ✅ No more test expectations that don't match implementation
+
+**Files Modified** (3 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| BaseRepositoryV3.kt | -174 | Deleted (dead code) |
+| BaseRepository.kt | -71 | Removed 4 unused methods |
+| FoundationInfrastructureTest.kt | +5, -4 | Fixed test expectations |
+
+**Code Changes Summary**:
+- Deleted 1 file: BaseRepositoryV3.kt (174 lines)
+- Removed 4 methods from BaseRepository.kt (71 lines):
+  - executeWithCircuitBreaker (24 lines)
+  - executeWithCircuitBreakerAndFallback (14 lines)
+  - executeWithCircuitBreakerV1AndFallback (14 lines)
+  - executeWithCircuitBreakerV2AndFallback (14 lines)
+- Fixed test assertion for BaseRepository (isInterface → isAbstract)
+- Updated method count expectation (5 → 2)
+
+**Benefits**:
+1. **Cleaner Codebase**: 245 lines of dead code removed
+2. **Reduced Maintenance**: Fewer files and methods to understand
+3. **Improved Clarity**: Only actively used code remains
+4. **Accurate Tests**: Test expectations match actual implementation
+5. **Better Architecture**: Clear separation of responsibilities
+
+**Success Criteria**:
+- [x] BaseRepositoryV3.kt deleted (no references found)
+- [x] Unused executeWithCircuitBreaker method removed
+- [x] Unused fallback methods removed (3 methods)
+- [x] FoundationInfrastructureTest fixed (abstract class, not interface)
+- [x] No broken imports or references
+- [x] Documentation updated (task.md, AGENTS.md)
+
+**Dependencies**: None (independent code cleanup)
+**Documentation**: Updated docs/task.md with SAN-001 completion
+**Impact**: HIGH - Removed 245 lines of dead code, simplified repository architecture, improved code clarity and maintainability
+
+---
+
 ### ✅ SANITIZE-001. Extract Magic Numbers to Constants - 2026-01-11
 **Status**: Completed
 **Completed Date**: 2026-01-11
