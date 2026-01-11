@@ -302,7 +302,8 @@ app/
 │       │   ├── RateLimiterInterceptor.kt ✅ (rate limiting)
 │       │   ├── HealthCheckInterceptor.kt ✅ (automatic health tracking)
 │       │   ├── TimeoutInterceptor.kt ✅ NEW (2026-01-11 - INT-003)
-│       │   └── IdempotencyInterceptor.kt ✅ NEW (2026-01-11 - INT-004)
+│       │   ├── IdempotencyInterceptor.kt ✅ NEW (2026-01-11 - INT-004)
+│       │   └── CompressionInterceptor.kt ✅ NEW (2026-01-11 - INT-005)
 │       └── models/
 │           ├── DataItem.kt ✅ (legacy model)
 │           ├── ValidatedDataItem.kt ✅
@@ -595,9 +596,10 @@ app/
 - ✅ Output encoding
 - ✅ Security headers (X-Frame-Options, X-XSS-Protection)
 - ✅ Debug-only network inspection (Chucker)
-- ✅ Up-to-date dependencies (Retrofit 2.11.0, androidx.core-ktx 1.13.1 - FIXED 2026-01-08)
-- ✅ Lifecycle-aware coroutines (prevents memory leaks)
-- ✅ Sanitized logging (no sensitive data exposure)
+    - ✅ Up-to-date dependencies (Retrofit 2.11.0, androidx.core-ktx 1.13.1 - FIXED 2026-01-08)
+    - ✅ Lifecycle-aware coroutines (prevents memory leaks)
+    - ✅ Sanitized logging (no sensitive data exposure)
+    - ✅ Request/Response Compression (INT-005 - 2026-01-11) - Gzip compression for 60-80% bandwidth reduction
 - ✅ Comprehensive security audit completed (2026-01-07, updated 2026-01-08, updated 2026-01-10, updated 2026-01-11)
 - ✅ ProGuard/R8 minification rules configured
 - ✅ OWASP Mobile Security compliance (excellent - 9/10 score - updated 2026-01-10, updated 2026-01-11)
