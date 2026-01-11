@@ -3,44 +3,51 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@drawable/bg_item_list">
+    android:padding="@dimen/padding_md"
+    android:background="@drawable/bg_item_list"
+    android:importantForAccessibility="yes">
 
     <TextView
         android:id="@+id/workOrderTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
+        android:textSize="@dimen/text_size_normal"
         android:textStyle="bold"
-        android:textColor="@color/teal_200" />
+        android:textColor="@color/primary"
+        android:contentDescription="@string/work_order_title_desc" />
 
     <TextView
         android:id="@+id/workOrderCategory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textSize="14sp" />
+        android:layout_marginTop="@dimen/spacing_xs"
+        android:textSize="@dimen/text_size_medium"
+        android:textColor="@color/text_primary"
+        android:contentDescription="@string/work_order_category_desc" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal">
+        android:layout_marginTop="@dimen/spacing_sm"
+        android:orientation="horizontal"
+        android:importantForAccessibility="no">
 
         <TextView
             android:id="@+id/workOrderStatus"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textSize="12sp"
-            android:textColor="@color/teal_700" />
+            android:textSize="@dimen/text_size_small"
+            android:textColor="@color/secondary_dark"
+            android:contentDescription="@string/work_order_status_desc" />
 
         <TextView
             android:id="@+id/workOrderPriority"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:textColor="@color/teal_700" />
+            android:textSize="@dimen/text_size_small"
+            android:textColor="@color/secondary_dark"
+            android:contentDescription="@string/work_order_priority_desc" />
 
     </LinearLayout>
 

@@ -1,18 +1,26 @@
 package com.example.iurankomplek
 
+import android.content.Context
 import com.example.iurankomplek.data.repository.BaseRepository
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.utils.*
-import com.example.iurankomplek.viewmodel.BaseViewModel
+import com.example.iurankomplek.core.base.BaseViewModel
 import org.junit.Test
 import org.junit.Assert.*
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import java.util.concurrent.TimeUnit
+import kotlin.reflect.full.isAbstract
 
 /**
  * Test suite to verify foundation infrastructure components are properly implemented
  * as required by issue #158: Foundation Infrastructure Setup for HOA Management
  */
+@RunWith(RobolectricTestRunner::class)
 class FoundationInfrastructureTest {
+
+    private val context: Context = RuntimeEnvironment.getApplication()
 
     @Test
     fun `test security configuration is properly implemented`() {
@@ -38,96 +46,75 @@ class FoundationInfrastructureTest {
     @Test
     fun `test base viewmodel abstract class exists`() {
         // Verify BaseViewModel abstract class exists
-        assertTrue("BaseViewModel should be an abstract class", BaseViewModel::class.java.isAbstract)
+        assertTrue("BaseViewModel should be an abstract class", BaseViewModel::class.isAbstract)
     }
 
     @Test
     fun `test error handler is implemented`() {
-        val errorHandler = ErrorHandler()
+        val errorHandler = ErrorHandler(context)
         val message = errorHandler.handleError(Exception("Test error"))
         assertNotNull("Error handler should return error message", message)
         assertTrue("Error message should not be empty", message.isNotEmpty())
     }
 
     @Test
-    fun `test custom Result class is properly defined`() {
+    fun `test custom OperationResult class is properly defined`() {
         // Test Success case
-        val successResult = Result.Success("test")
-        assertTrue("Success result should be instance of Result", successResult is Result.Success)
-        
+        val successResult = OperationResult.Success("test")
+        assertTrue("Success result should be instance of OperationResult", successResult is OperationResult.Success)
+
         // Test Error case
-        val errorResult = Result.Error(Exception("test"), "error message")
-        assertTrue("Error result should be instance of Result", errorResult is Result.Error)
-        
+        val errorResult = OperationResult.Error(Exception("test"), "test")
+        assertTrue("Error result should be instance of OperationResult", errorResult is OperationResult.Error)
+
         // Test Loading case
-        val loadingResult = Result.Loading
-        assertTrue("Loading result should be instance of Result", loadingResult is Result.Loading)
-        
-        // Test Empty case
-        val emptyResult = Result.Empty
-        assertTrue("Empty result should be instance of Result", emptyResult is Result.Empty)
+        val loadingResult = OperationResult.Loading
+        assertTrue("Loading result should be instance of OperationResult", loadingResult is OperationResult.Loading)
     }
 
     @Test
     fun `test data validator sanitizes inputs properly`() {
-        val validator = DataValidator
-        
         // Test name sanitization
-        val sanitized1 = validator.sanitizeName("<script>alert('XSS')</script>John")
+        val sanitized1 = InputSanitizer.sanitizeName("<script>alert('XSS')</script>John")
         assertNotEquals("Script should be sanitized", "<script>alert('XSS')</script>John", sanitized1)
-        
+
         // Test email sanitization
-        val sanitized2 = validator.sanitizeEmail("test@;DROP TABLE users;")
+        val sanitized2 = InputSanitizer.sanitizeEmail("test@;DROP TABLE users;")
         assertEquals("Invalid email should be sanitized", "invalid@email.com", sanitized2)
-        
+
         // Test URL validation
-        assertFalse("JavaScript URL should be rejected", validator.isValidUrl("javascript:alert('XSS')"))
-        assertTrue("HTTPS URL should be accepted", validator.isValidUrl("https://example.com"))
+        assertFalse("JavaScript URL should be rejected", InputSanitizer.isValidUrl("javascript:alert('XSS')"))
+        assertTrue("HTTPS URL should be accepted", InputSanitizer.isValidUrl("https://example.com"))
     }
 
     @Test
-    fun `test logging utils are available`() {
-        // Test that logging utils can be called without exceptions
-        LoggingUtils.d("Test debug message", "FoundationTest")
-        LoggingUtils.i("Test info message", "FoundationTest")
-        LoggingUtils.w("Test warning message", "FoundationTest")
-        LoggingUtils.e("Test error message", null, "FoundationTest")
-        LoggingUtils.logNetworkSecurityWarning("Test security warning")
-        
-        // If we reach this point, logging worked without exceptions
-        assertTrue("Logging utilities should be accessible", true)
-    }
-
-    @Test
-    fun `test UI state companion object functions`() {
-        // Test that UiState companion object functions work correctly
-        val successState = UiState.success("test data")
+    fun `test UI state sealed class instances`() {
+        // Test that UiState sealed class instances work correctly
+        val successState = UiState.Success("test data")
         assertTrue("Success state should be created", successState is UiState.Success)
-        
-        val errorState = UiState.error("test error")
+
+        val errorState = UiState.Error("test error")
         assertTrue("Error state should be created", errorState is UiState.Error)
-        
-        val loadingState = UiState.loading()
+
+        val loadingState = UiState.Loading
         assertTrue("Loading state should be created", loadingState is UiState.Loading)
     }
 
     @Test
     fun `test security manager functionality`() {
-        val securityManager = SecurityManager
-        
         // Test security environment check
-        val isSecure = securityManager.isSecureEnvironment()
+        val isSecure = SecurityManager.isSecureEnvironment(context)
         assertTrue("Security manager should return boolean", isSecure is Boolean)
-        
+
         // Test certificate monitoring
-        securityManager.monitorCertificateExpiration()
-        
+        SecurityManager.monitorCertificateExpiration()
+
         // Test security configuration validation
-        val isValid = securityManager.validateSecurityConfiguration()
+        val isValid = SecurityManager.validateSecurityConfiguration()
         assertTrue("Security configuration should be valid", isValid)
-        
+
         // Test security threat detection
-        val threats = securityManager.checkSecurityThreats()
+        val threats = SecurityManager.checkSecurityThreats(context)
         assertTrue("Threats should be returned as a list", threats is List<*>)
     }
 

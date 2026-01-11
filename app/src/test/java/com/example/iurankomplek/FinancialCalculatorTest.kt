@@ -445,8 +445,8 @@ class FinancialCalculatorTest {
 
         val totalIuranIndividu = FinancialCalculator.calculateTotalIuranIndividu(testItems)
 
-        // If the bug existed (only last item used), result would be 30 * 3 = 90
+        // If bug existed (only last item used), result would be 30 * 3 = 90
         // But with proper accumulation: (10*3) + (20*3) + (30*3) = 30 + 60 + 90 = 180
-        assertEquals(180, totalIuranIndividu, "Bug fix verification: totalIuranIndividu should accumulate all items, not just take the last item value")
+        assertEquals(180, totalIuranIndividu)
     }
 }

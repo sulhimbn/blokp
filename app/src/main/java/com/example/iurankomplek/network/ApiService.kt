@@ -1,6 +1,9 @@
 package com.example.iurankomplek.network
-import com.example.iurankomplek.model.UserResponse
-import com.example.iurankomplek.model.PemanfaatanResponse
+
+import com.example.iurankomplek.data.api.models.UserResponse
+import com.example.iurankomplek.data.api.models.PemanfaatanResponse
+import com.example.iurankomplek.data.api.models.ApiResponse
+import com.example.iurankomplek.data.api.models.ApiListResponse
 import com.example.iurankomplek.model.Announcement
 import com.example.iurankomplek.model.Message
 import com.example.iurankomplek.model.CommunityPost
@@ -11,123 +14,103 @@ import com.example.iurankomplek.model.VendorResponse
 import com.example.iurankomplek.model.SingleVendorResponse
 import com.example.iurankomplek.model.WorkOrderResponse
 import com.example.iurankomplek.model.SingleWorkOrderResponse
-import com.example.iurankomplek.model.VendorWorkOrderRequest
-import com.example.iurankomplek.model.AssignVendorRequest
-import com.example.iurankomplek.model.UpdateWorkOrderStatusRequest
-import retrofit2.Response
+import com.example.iurankomplek.network.model.CreateVendorRequest
+import com.example.iurankomplek.network.model.UpdateVendorRequest
+import com.example.iurankomplek.network.model.CreateWorkOrderRequest
+import com.example.iurankomplek.network.model.AssignVendorRequest
+import com.example.iurankomplek.network.model.UpdateWorkOrderRequest
+import com.example.iurankomplek.network.model.SendMessageRequest
+import com.example.iurankomplek.network.model.CreateCommunityPostRequest
+import com.example.iurankomplek.network.model.InitiatePaymentRequest
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.Response
 
 interface ApiService {
+
     @GET("users")
     suspend fun getUsers(): Response<UserResponse>
-    
+
     @GET("pemanfaatan")
     suspend fun getPemanfaatan(): Response<PemanfaatanResponse>
-    
-    // Communication endpoints
+
     @GET("announcements")
     suspend fun getAnnouncements(): Response<List<Announcement>>
-    
+
     @GET("messages")
     suspend fun getMessages(@Query("userId") userId: String): Response<List<Message>>
-    
+
     @GET("messages/{receiverId}")
-    suspend fun getMessagesWithUser(@Path("receiverId") receiverId: String, @Query("senderId") senderId: String): Response<List<Message>>
-    
+    suspend fun getMessagesWithUser(
+        @Path("receiverId") receiverId: String,
+        @Query("senderId") senderId: String
+    ): Response<List<Message>>
+
     @POST("messages")
-    suspend fun sendMessage(@Query("senderId") senderId: String, @Query("receiverId") receiverId: String, @Query("content") content: String): Response<Message>
-    
+    suspend fun sendMessage(
+        @Body request: SendMessageRequest
+    ): Response<Message>
+
     @GET("community-posts")
     suspend fun getCommunityPosts(): Response<List<CommunityPost>>
-    
+
     @POST("community-posts")
-    suspend fun createCommunityPost(@Query("authorId") authorId: String, @Query("title") title: String, @Query("content") content: String, @Query("category") category: String): Response<CommunityPost>
-    
-    // Payment endpoints
+    suspend fun createCommunityPost(
+        @Body request: CreateCommunityPostRequest
+    ): Response<CommunityPost>
+
     @POST("payments/initiate")
     suspend fun initiatePayment(
-        @Query("amount") amount: String,
-        @Query("description") description: String,
-        @Query("customerId") customerId: String,
-        @Query("paymentMethod") paymentMethod: String
+        @Body request: InitiatePaymentRequest
     ): Response<PaymentResponse>
-    
+
     @GET("payments/{id}/status")
     suspend fun getPaymentStatus(@Path("id") id: String): Response<PaymentStatusResponse>
-    
+
     @POST("payments/{id}/confirm")
     suspend fun confirmPayment(@Path("id") id: String): Response<PaymentConfirmationResponse>
-    
-    // Vendor Management endpoints
+
     @GET("vendors")
     suspend fun getVendors(): Response<VendorResponse>
-    
+
     @GET("vendors/{id}")
     suspend fun getVendor(@Path("id") id: String): Response<SingleVendorResponse>
-    
+
     @POST("vendors")
     suspend fun createVendor(
-        @Query("name") name: String,
-        @Query("contactPerson") contactPerson: String,
-        @Query("phoneNumber") phoneNumber: String,
-        @Query("email") email: String,
-        @Query("specialty") specialty: String,
-        @Query("address") address: String,
-        @Query("licenseNumber") licenseNumber: String,
-        @Query("insuranceInfo") insuranceInfo: String,
-        @Query("contractStart") contractStart: String,
-        @Query("contractEnd") contractEnd: String
+        @Body request: CreateVendorRequest
     ): Response<SingleVendorResponse>
-    
+
     @PUT("vendors/{id}")
     suspend fun updateVendor(
         @Path("id") id: String,
-        @Query("name") name: String,
-        @Query("contactPerson") contactPerson: String,
-        @Query("phoneNumber") phoneNumber: String,
-        @Query("email") email: String,
-        @Query("specialty") specialty: String,
-        @Query("address") address: String,
-        @Query("licenseNumber") licenseNumber: String,
-        @Query("insuranceInfo") insuranceInfo: String,
-        @Query("contractStart") contractStart: String,
-        @Query("contractEnd") contractEnd: String,
-        @Query("isActive") isActive: Boolean
+        @Body request: UpdateVendorRequest
     ): Response<SingleVendorResponse>
-    
-    // Work Order endpoints
+
     @GET("work-orders")
     suspend fun getWorkOrders(): Response<WorkOrderResponse>
-    
+
     @GET("work-orders/{id}")
     suspend fun getWorkOrder(@Path("id") id: String): Response<SingleWorkOrderResponse>
-    
+
     @POST("work-orders")
     suspend fun createWorkOrder(
-        @Query("title") title: String,
-        @Query("description") description: String,
-        @Query("category") category: String,
-        @Query("priority") priority: String,
-        @Query("propertyId") propertyId: String,
-        @Query("reporterId") reporterId: String,
-        @Query("estimatedCost") estimatedCost: Double
+        @Body request: CreateWorkOrderRequest
     ): Response<SingleWorkOrderResponse>
-    
+
     @PUT("work-orders/{id}/assign")
     suspend fun assignVendorToWorkOrder(
         @Path("id") id: String,
-        @Query("vendorId") vendorId: String,
-        @Query("scheduledDate") scheduledDate: String?
+        @Body request: AssignVendorRequest
     ): Response<SingleWorkOrderResponse>
-    
+
     @PUT("work-orders/{id}/status")
     suspend fun updateWorkOrderStatus(
         @Path("id") id: String,
-        @Query("status") status: String,
-        @Query("notes") notes: String?
+        @Body request: UpdateWorkOrderRequest
     ): Response<SingleWorkOrderResponse>
 }

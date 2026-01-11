@@ -2,8 +2,9 @@ package com.example.iurankomplek
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
-import com.example.iurankomplek.model.DataItem
-import com.example.iurankomplek.viewmodel.FinancialViewModel
+import com.example.iurankomplek.data.dto.LegacyDataItemDto
+import com.example.iurankomplek.domain.usecase.LoadFinancialDataUseCase
+import com.example.iurankomplek.presentation.viewmodel.FinancialViewModel
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import org.junit.Before
@@ -26,6 +27,9 @@ class FinancialViewModelTest {
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Mock
+    private lateinit var mockLoadFinancialDataUseCase: LoadFinancialDataUseCase
+
+    @Mock
     private lateinit var mockUserObserver: Observer<String>
 
     private lateinit var viewModel: FinancialViewModel
@@ -33,7 +37,7 @@ class FinancialViewModelTest {
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        viewModel = FinancialViewModel()
+        viewModel = FinancialViewModel(mockLoadFinancialDataUseCase)
     }
 
     @Test
@@ -48,7 +52,7 @@ class FinancialViewModelTest {
     @Test
     fun `calculateTotalIuranIndividu should return correct value`() {
         // Given: Sample data item with specific values
-        val dataItem = DataItem(
+        val dataItem = LegacyDataItemDto(
             first_name = "John",
             last_name = "Doe",
             email = "john.doe@example.com",
@@ -72,7 +76,7 @@ class FinancialViewModelTest {
     @Test
     fun `calculateTotalIuranRekap should return correct value based on formula`() {
         // Given: Sample data item
-        val dataItem = DataItem(
+        val dataItem = LegacyDataItemDto(
             first_name = "John",
             last_name = "Doe",
             email = "john.doe@example.com",

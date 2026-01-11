@@ -4,40 +4,25 @@ import com.example.iurankomplek.model.VendorResponse
 import com.example.iurankomplek.model.SingleVendorResponse
 import com.example.iurankomplek.model.WorkOrderResponse
 import com.example.iurankomplek.model.SingleWorkOrderResponse
-import com.example.iurankomplek.network.ApiService
-import retrofit2.HttpException
-import java.io.IOException
+import com.example.iurankomplek.network.model.CreateVendorRequest
+import com.example.iurankomplek.network.model.UpdateVendorRequest
+import com.example.iurankomplek.network.model.CreateWorkOrderRequest
+import com.example.iurankomplek.network.model.AssignVendorRequest
+import com.example.iurankomplek.network.model.UpdateWorkOrderRequest
+import com.example.iurankomplek.utils.OperationResult
 
 class VendorRepositoryImpl(
-    private val apiService: ApiService
-) : VendorRepository {
-    
-    override suspend fun getVendors(): Result<VendorResponse> {
-        return try {
-            val response = apiService.getVendors()
-            if (response.isSuccessful) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(HttpException(response))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    private val apiService: com.example.iurankomplek.network.ApiServiceV1
+) : VendorRepository, BaseRepository() {
+
+    override suspend fun getVendors(): OperationResult<VendorResponse> = executeWithCircuitBreakerV1 {
+        apiService.getVendors()
     }
-    
-    override suspend fun getVendor(id: String): Result<SingleVendorResponse> {
-        return try {
-            val response = apiService.getVendor(id)
-            if (response.isSuccessful) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(HttpException(response))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+
+    override suspend fun getVendor(id: String): OperationResult<SingleVendorResponse> = executeWithCircuitBreakerV1 {
+        apiService.getVendor(id)
     }
-    
+
     override suspend fun createVendor(
         name: String,
         contactPerson: String,
@@ -49,22 +34,13 @@ class VendorRepositoryImpl(
         insuranceInfo: String,
         contractStart: String,
         contractEnd: String
-    ): Result<SingleVendorResponse> {
-        return try {
-            val response = apiService.createVendor(
-                name, contactPerson, phoneNumber, email, specialty, address,
-                licenseNumber, insuranceInfo, contractStart, contractEnd
-            )
-            if (response.isSuccessful) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(HttpException(response))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    ): OperationResult<SingleVendorResponse> = executeWithCircuitBreakerV1 {
+        apiService.createVendor(
+            CreateVendorRequest(name, contactPerson, phoneNumber, email, specialty, address,
+                licenseNumber, insuranceInfo, contractStart, contractEnd)
+        )
     }
-    
+
     override suspend fun updateVendor(
         id: String,
         name: String,
@@ -78,48 +54,21 @@ class VendorRepositoryImpl(
         contractStart: String,
         contractEnd: String,
         isActive: Boolean
-    ): Result<SingleVendorResponse> {
-        return try {
-            val response = apiService.updateVendor(
-                id, name, contactPerson, phoneNumber, email, specialty, address,
-                licenseNumber, insuranceInfo, contractStart, contractEnd, isActive
-            )
-            if (response.isSuccessful) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(HttpException(response))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    ): OperationResult<SingleVendorResponse> = executeWithCircuitBreakerV1 {
+        apiService.updateVendor(
+            id, UpdateVendorRequest(name, contactPerson, phoneNumber, email, specialty, address,
+                licenseNumber, insuranceInfo, contractStart, contractEnd, isActive)
+        )
     }
-    
-    override suspend fun getWorkOrders(): Result<WorkOrderResponse> {
-        return try {
-            val response = apiService.getWorkOrders()
-            if (response.isSuccessful) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(HttpException(response))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+
+    override suspend fun getWorkOrders(): OperationResult<WorkOrderResponse> = executeWithCircuitBreakerV1 {
+        apiService.getWorkOrders()
     }
-    
-    override suspend fun getWorkOrder(id: String): Result<SingleWorkOrderResponse> {
-        return try {
-            val response = apiService.getWorkOrder(id)
-            if (response.isSuccessful) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(HttpException(response))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+
+    override suspend fun getWorkOrder(id: String): OperationResult<SingleWorkOrderResponse> = executeWithCircuitBreakerV1 {
+        apiService.getWorkOrder(id)
     }
-    
+
     override suspend fun createWorkOrder(
         title: String,
         description: String,
@@ -128,52 +77,27 @@ class VendorRepositoryImpl(
         propertyId: String,
         reporterId: String,
         estimatedCost: Double
-    ): Result<SingleWorkOrderResponse> {
-        return try {
-            val response = apiService.createWorkOrder(
-                title, description, category, priority, propertyId, reporterId, estimatedCost
+    ): OperationResult<SingleWorkOrderResponse> {
+        return executeWithCircuitBreakerV1 {
+            apiService.createWorkOrder(
+                CreateWorkOrderRequest(title, description, category, priority, propertyId, reporterId, estimatedCost)
             )
-            if (response.isSuccessful) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(HttpException(response))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
         }
     }
-    
+
     override suspend fun assignVendorToWorkOrder(
         workOrderId: String,
         vendorId: String,
         scheduledDate: String?
-    ): Result<SingleWorkOrderResponse> {
-        return try {
-            val response = apiService.assignVendorToWorkOrder(workOrderId, vendorId, scheduledDate)
-            if (response.isSuccessful) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(HttpException(response))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    ): OperationResult<SingleWorkOrderResponse> = executeWithCircuitBreakerV1 {
+        apiService.assignVendorToWorkOrder(workOrderId, AssignVendorRequest(vendorId, scheduledDate))
     }
-    
+
     override suspend fun updateWorkOrderStatus(
         workOrderId: String,
         status: String,
         notes: String?
-    ): Result<SingleWorkOrderResponse> {
-        return try {
-            val response = apiService.updateWorkOrderStatus(workOrderId, status, notes)
-            if (response.isSuccessful) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(HttpException(response))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    ): OperationResult<SingleWorkOrderResponse> = executeWithCircuitBreakerV1 {
+        apiService.updateWorkOrderStatus(workOrderId, UpdateWorkOrderRequest(status, notes))
     }
 }

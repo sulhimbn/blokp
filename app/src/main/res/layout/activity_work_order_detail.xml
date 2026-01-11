@@ -2,155 +2,203 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="@dimen/padding_md"
+    android:importantForAccessibility="yes">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/padding_md">
 
         <TextView
             android:id="@+id/workOrderTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="20sp"
+            android:textSize="@dimen/heading_h2"
             android:textStyle="bold"
-            android:textColor="@color/teal_200"
-            android:layout_marginBottom="8dp" />
+            android:textColor="@color/primary"
+            android:layout_marginBottom="@dimen/spacing_sm"
+            android:contentDescription="@string/work_order_detail_title_desc" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Description:"
-            android:textSize="16sp"
+            android:text="@string/work_order_detail_description_label"
+            android:textSize="@dimen/text_size_normal"
             android:textStyle="bold"
-            android:layout_marginTop="8dp" />
+            android:textColor="@color/text_primary"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:contentDescription="@string/work_order_detail_description_label_desc" />
 
         <TextView
             android:id="@+id/workOrderDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:layout_marginBottom="8dp" />
+            android:textSize="@dimen/text_size_medium"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="@dimen/spacing_sm"
+            android:layout_marginStart="@dimen/spacing_sm"
+            android:contentDescription="@string/work_order_detail_description_value_desc" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Category:"
-            android:textSize="16sp"
+            android:text="@string/work_order_detail_category_label"
+            android:textSize="@dimen/text_size_normal"
             android:textStyle="bold"
-            android:layout_marginTop="8dp" />
+            android:textColor="@color/text_primary"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:contentDescription="@string/work_order_detail_category_label_desc" />
 
         <TextView
             android:id="@+id/workOrderCategory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:layout_marginBottom="8dp" />
+            android:textSize="@dimen/text_size_medium"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="@dimen/spacing_sm"
+            android:layout_marginStart="@dimen/spacing_sm"
+            android:contentDescription="@string/work_order_detail_category_value_desc" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Status:"
-            android:textSize="16sp"
+            android:text="@string/work_order_detail_status_label"
+            android:textSize="@dimen/text_size_normal"
             android:textStyle="bold"
-            android:layout_marginTop="8dp" />
+            android:textColor="@color/text_primary"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:contentDescription="@string/work_order_detail_status_label_desc" />
 
         <TextView
             android:id="@+id/workOrderStatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:layout_marginBottom="8dp" />
+            android:textSize="@dimen/text_size_medium"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="@dimen/spacing_sm"
+            android:layout_marginStart="@dimen/spacing_sm"
+            android:contentDescription="@string/work_order_detail_status_value_desc" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Priority:"
-            android:textSize="16sp"
+            android:text="@string/work_order_detail_priority_label"
+            android:textSize="@dimen/text_size_normal"
             android:textStyle="bold"
-            android:layout_marginTop="8dp" />
+            android:textColor="@color/text_primary"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:contentDescription="@string/work_order_detail_priority_label_desc" />
 
         <TextView
             android:id="@+id/workOrderPriority"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:layout_marginBottom="8dp" />
+            android:textSize="@dimen/text_size_medium"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="@dimen/spacing_sm"
+            android:layout_marginStart="@dimen/spacing_sm"
+            android:contentDescription="@string/work_order_detail_priority_value_desc" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Assigned Vendor:"
-            android:textSize="16sp"
+            android:text="@string/work_order_detail_vendor_label"
+            android:textSize="@dimen/text_size_normal"
             android:textStyle="bold"
-            android:layout_marginTop="8dp" />
+            android:textColor="@color/text_primary"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:contentDescription="@string/work_order_detail_vendor_label_desc" />
 
         <TextView
             android:id="@+id/workOrderVendor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:layout_marginBottom="8dp" />
+            android:textSize="@dimen/text_size_medium"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="@dimen/spacing_sm"
+            android:layout_marginStart="@dimen/spacing_sm"
+            android:contentDescription="@string/work_order_detail_vendor_value_desc" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Estimated Cost:"
-            android:textSize="16sp"
+            android:text="@string/work_order_detail_estimated_cost_label"
+            android:textSize="@dimen/text_size_normal"
             android:textStyle="bold"
-            android:layout_marginTop="8dp" />
+            android:textColor="@color/text_primary"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:contentDescription="@string/work_order_detail_estimated_cost_label_desc" />
 
         <TextView
             android:id="@+id/workOrderEstimatedCost"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:layout_marginBottom="8dp" />
+            android:textSize="@dimen/text_size_medium"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="@dimen/spacing_sm"
+            android:layout_marginStart="@dimen/spacing_sm"
+            android:contentDescription="@string/work_order_detail_estimated_cost_value_desc" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Actual Cost:"
-            android:textSize="16sp"
+            android:text="@string/work_order_detail_actual_cost_label"
+            android:textSize="@dimen/text_size_normal"
             android:textStyle="bold"
-            android:layout_marginTop="8dp" />
+            android:textColor="@color/text_primary"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:contentDescription="@string/work_order_detail_actual_cost_label_desc" />
 
         <TextView
             android:id="@+id/workOrderActualCost"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:layout_marginBottom="8dp" />
+            android:textSize="@dimen/text_size_medium"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="@dimen/spacing_sm"
+            android:layout_marginStart="@dimen/spacing_sm"
+            android:contentDescription="@string/work_order_detail_actual_cost_value_desc" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Property ID:"
-            android:textSize="16sp"
+            android:text="@string/work_order_detail_property_id_label"
+            android:textSize="@dimen/text_size_normal"
             android:textStyle="bold"
-            android:layout_marginTop="8dp" />
+            android:textColor="@color/text_primary"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:contentDescription="@string/work_order_detail_property_id_label_desc" />
 
         <TextView
             android:id="@+id/workOrderPropertyId"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:layout_marginBottom="8dp" />
+            android:textSize="@dimen/text_size_medium"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="@dimen/spacing_sm"
+            android:layout_marginStart="@dimen/spacing_sm"
+            android:contentDescription="@string/work_order_detail_property_id_value_desc" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Created At:"
-            android:textSize="16sp"
+            android:text="@string/work_order_detail_created_at_label"
+            android:textSize="@dimen/text_size_normal"
             android:textStyle="bold"
-            android:layout_marginTop="8dp" />
+            android:textColor="@color/text_primary"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:contentDescription="@string/work_order_detail_created_at_label_desc" />
 
         <TextView
             android:id="@+id/workOrderCreatedAt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="14sp" />
+            android:textSize="@dimen/text_size_medium"
+            android:textColor="@color/text_primary"
+            android:layout_marginStart="@dimen/spacing_sm"
+            android:contentDescription="@string/work_order_detail_created_at_value_desc" />
 
     </LinearLayout>
 

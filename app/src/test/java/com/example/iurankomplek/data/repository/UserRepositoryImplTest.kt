@@ -1,7 +1,7 @@
 package com.example.iurankomplek.data.repository
 
 import com.example.iurankomplek.model.DataItem
-import com.example.iurankomplek.model.UserResponse
+import com.example.iurankomplek.data.api.models.UserResponse
 import com.example.iurankomplek.network.ApiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Widget.BlokP" parent="android:Widget" />
+    <style name="TextAppearance.BlokP" parent="android:TextAppearance" />
+    
+    <style name="Widget.BlokP.Button" parent="Widget.MaterialComponents.Button">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">@dimen/button_height_min</item>
+        <item name="android:textSize">@dimen/text_size_normal</item>
+        <item name="android:importantForAccessibility">yes</item>
+        <item name="android:foreground">@drawable/bg_button_ripple</item>
+        <item name="android:focusable">true</item>
+        <item name="android:focusableInTouchMode">true</item>
+    </style>
+
+    <style name="Widget.BlokP.Button.Primary" parent="Widget.BlokP.Button">
+        <item name="android:background">@drawable/bg_button_primary_focused</item>
+        <item name="android:textColor">@color/text_on_primary</item>
+    </style>
+
+    <style name="Widget.BlokP.Button.Secondary" parent="Widget.BlokP.Button">
+        <item name="android:background">@drawable/bg_button_secondary_focused</item>
+        <item name="android:textColor">@color/text_on_secondary</item>
+    </style>
+
+    <style name="Widget.BlokP.Button.TextButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/text_size_small</item>
+        <item name="android:importantForAccessibility">yes</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="Widget.BlokP.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/radius_md</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/radius_md</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/radius_md</item>
+        <item name="boxCornerRadiusTopStart">@dimen/radius_md</item>
+    </style>
+
+    <style name="Widget.BlokP.TextInputEditText" parent="Widget.MaterialComponents.TextInputEditText.OutlinedBox">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">@dimen/button_height_min</item>
+        <item name="android:importantForAccessibility">yes</item>
+    </style>
+
+    <style name="TextAppearance.BlokP.Heading" parent="TextAppearance.BlokP">
+        <item name="android:textStyle">bold</item>
+        <item name="android:gravity">center</item>
+        <item name="android:importantForAccessibility">yes</item>
+    </style>
+
+    <style name="TextAppearance.BlokP.Heading.H3" parent="TextAppearance.BlokP.Heading">
+        <item name="android:textSize">@dimen/heading_h3</item>
+    </style>
+
+    <style name="TextAppearance.BlokP.Heading.H4" parent="TextAppearance.BlokP.Heading">
+        <item name="android:textSize">@dimen/heading_h4</item>
+    </style>
+
+    <style name="TextAppearance.BlokP.Heading.H2" parent="TextAppearance.BlokP.Heading">
+        <item name="android:textSize">@dimen/heading_h2</item>
+    </style>
+
+    <style name="Widget.BlokP.Spinner" parent="Widget.BlokP">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">@dimen/button_height_min</item>
+        <item name="android:importantForAccessibility">yes</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="Widget.BlokP.Header" parent="TextAppearance.BlokP.Heading.H3">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@color/accent_green</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingStart">@dimen/padding_md</item>
+        <item name="android:paddingTop">@dimen/padding_md</item>
+        <item name="android:paddingEnd">@dimen/padding_md</item>
+        <item name="android:paddingBottom">@dimen/padding_md</item>
+        <item name="android:textColor">@color/text_on_primary</item>
+        <item name="android:fontFamily">@font/font</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:importantForAccessibility">yes</item>
+    </style>
+
+    <style name="Widget.BlokP.Header.Large" parent="TextAppearance.BlokP.Heading.H2">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">@dimen/margin_lg</item>
+        <item name="android:layout_marginTop">@dimen/spacing_xxl</item>
+        <item name="android:layout_marginEnd">@dimen/margin_lg</item>
+        <item name="android:fontFamily">@font/font</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:textColor">@color/accent_teal_dark</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:importantForAccessibility">yes</item>
+    </style>
+</resources>

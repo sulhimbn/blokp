@@ -1,0 +1,67 @@
+package com.example.iurankomplek.presentation.adapter
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
+import com.example.iurankomplek.R
+import com.example.iurankomplek.payment.PaymentStatus
+import com.example.iurankomplek.data.entity.Transaction
+import java.text.NumberFormat
+import java.util.Locale
+
+class TransactionHistoryAdapter(
+    private val onRefundRequested: (Transaction) -> Unit
+) : ListAdapter<Transaction, TransactionHistoryAdapter.TransactionViewHolder>(DiffCallback) {
+
+    companion object {
+        private val DiffCallback = GenericDiffUtil.byId<Transaction> { it.id }
+        private val CURRENCY_FORMATTER = NumberFormat.getCurrencyInstance(Locale("in", "ID"))
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_transaction_history, parent, false)
+        return TransactionViewHolder(view, onRefundRequested)
+    }
+
+    override fun onBindViewHolder(holder: TransactionViewHolder, position: Int) {
+        holder.bind(getItem(position))
+    }
+
+    class TransactionViewHolder(itemView: View, private val onRefundRequested: (Transaction) -> Unit) : RecyclerView.ViewHolder(itemView) {
+        private val tvAmount: TextView = itemView.findViewById(R.id.tv_amount)
+        private val tvDescription: TextView = itemView.findViewById(R.id.tv_description)
+        private val tvDate: TextView = itemView.findViewById(R.id.tv_date)
+        private val tvStatus: TextView = itemView.findViewById(R.id.tv_status)
+        private val tvPaymentMethod: TextView = itemView.findViewById(R.id.tv_payment_method)
+        private val btnRefund: Button = itemView.findViewById(R.id.btn_refund)
+        private var currentTransaction: Transaction? = null
+
+        init {
+            btnRefund.setOnClickListener {
+                currentTransaction?.let { onRefundRequested(it) }
+            }
+        }
+
+        fun bind(transaction: Transaction) {
+            currentTransaction = transaction
+            val context = itemView.context
+            val formattedAmount = CURRENCY_FORMATTER.format(transaction.amount.toDouble())
+            tvAmount.text = formattedAmount
+            tvDescription.text = transaction.description
+            tvDate.text = transaction.createdAt.toString()
+            tvStatus.text = transaction.status.name
+            tvPaymentMethod.text = transaction.paymentMethod.name
+
+            if (transaction.status == PaymentStatus.COMPLETED) {
+                btnRefund.visibility = View.VISIBLE
+            } else {
+                btnRefund.visibility = View.GONE
+            }
+        }
+    }
+}

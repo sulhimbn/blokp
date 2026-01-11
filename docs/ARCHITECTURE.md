@@ -2,21 +2,21 @@
 
 ## Overview
 
-IuranKomplek adalah aplikasi Android untuk mengelola pembayaran iuran komplek perumahan/apartemen. Aplikasi ini dibangun dengan arsitektur hybrid Kotlin-Java dan mengikuti pola MVVM Light.
+IuranKomplek adalah aplikasi Android untuk mengelola pembayaran iuran komplek perumahan/apartemen. Aplikasi ini dibangun dengan Kotlin 100% dan mengikuti pola MVVM modern.
 
 ## Technology Stack
 
 ### Core Technologies
 - **Platform**: Android SDK API level 34
-- **Languages**: Kotlin (primary), Java (legacy compatibility)
-- **Build System**: Gradle 7.3.0
+- **Languages**: Kotlin 100%
+- **Build System**: Gradle 8.1.0
 - **Minimum SDK**: Android 7.0 (API 24)
 - **Target SDK**: Android 14 (API 34)
 
 ### Key Dependencies
 ```gradle
 // Core Android
-androidx.core:core-ktx:1.7.0
+androidx.core:core-ktx:1.13.1
 androidx.appcompat:appcompat:1.6.1
 com.google.android.material:material:1.12.0
 androidx.constraintlayout:constraintlayout:2.1.4
@@ -79,10 +79,12 @@ LaporanAdapter     // Reports (currently unused)
 
 ### Activities Layer
 ```
-MenuActivity (Java)
-├── Navigation hub
-├── Fullscreen mode
-└── Intent routing
+MenuActivity (Kotlin)
+├── Navigation hub (4 menu options)
+├── Menu 1: MainActivity (User list)
+├── Menu 2: LaporanActivity (Financial reports)
+├── Menu 3: CommunicationActivity (Community messaging)
+└── Menu 4: PaymentActivity (Payment processing)
 
 MainActivity (Kotlin)
 ├── User list display
@@ -94,6 +96,16 @@ LaporanActivity (Kotlin)
 ├── PemanfaatanAdapter
 ├── Calculation logic
 └── Data aggregation
+
+CommunicationActivity (Kotlin)
+├── Community announcements
+├── Messaging system
+└── Communication adapters
+
+PaymentActivity (Kotlin)
+├── Payment processing
+├── Payment form
+└── Receipt generation
 ```
 
 ### Network Layer
@@ -166,10 +178,32 @@ data class ResponseUser(
 ```
 Base URL: https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/
 
-GET /data/QjX6hB1ST2IDKaxB/
-├── Returns: ResponseUser
-├── Data: List<DataItem>
-└── Format: JSON
+User & Financial Data:
+- GET users - Returns user data
+- GET pemanfaatan - Returns financial usage data
+
+Communication:
+- GET announcements - Community announcements
+- GET messages - Message retrieval
+- POST messages - Send messages
+- GET community-posts - Community posts
+- POST community-posts - Create community posts
+
+Payment:
+- POST payments/initiate - Initiate payment
+- GET payments/{id}/status - Get payment status
+- POST payments/{id}/confirm - Confirm payment
+
+Vendor Management:
+- GET vendors - List vendors
+- POST vendors - Create vendor
+- PUT vendors/{id} - Update vendor
+
+Work Orders:
+- GET work-orders - List work orders
+- POST work-orders - Create work order
+- PUT work-orders/{id}/assign - Assign vendor to work order
+- PUT work-orders/{id}/status - Update work order status
 
 Development:
 ├── Mock API: http://api-mock:5000
@@ -194,7 +228,9 @@ private const val BASE_URL = if (USE_MOCK_API) {
 activity_menu.xml
 ├── LinearLayout (vertical)
 ├── cdMenu1 (CardView) → MainActivity
-└── cdMenu2 (CardView) → LaporanActivity
+├── cdMenu2 (CardView) → LaporanActivity
+├── cdMenu3 (CardView) → CommunicationActivity
+└── cdMenu4 (CardView) → PaymentActivity
 
 activity_main.xml
 ├── RecyclerView
@@ -208,16 +244,19 @@ activity_laporan.xml
 
 ### Adapter Patterns
 ```kotlin
-// UserAdapter - Standard RecyclerView pattern
-class UserAdapter(private val users: MutableList<DataItem>) :
-    RecyclerView.Adapter<UserAdapter.ListViewHolder>() {
+// UserAdapter - Using DiffUtil for efficient updates
+class UserAdapter : ListAdapter<DataItem, UserAdapter.ListViewHolder>(DiffCallback) {
     
-    override fun onCreateViewHolder(...)
-    override fun onBindViewHolder(...)
-    fun setUsers(users: List<DataItem>) {
-        this.users.clear()
-        this.users.addAll(users)
-        notifyDataSetChanged() // TODO: Replace with DiffUtil
+    companion object {
+        private val DiffCallback = object : DiffUtil.ItemCallback<DataItem>() {
+            override fun areItemsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+                return oldItem.email == newItem.email
+            }
+            
+            override fun areContentsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+                return oldItem == newItem
+            }
+        }
     }
 }
 ```
@@ -249,36 +288,89 @@ if (response.isSuccessful) {
 }
 ```
 
+## Caching Architecture
+
+### Cache Strategy Components
+- **CacheManager**: Singleton untuk database access dan management
+- **CacheStrategies**: cache-first dan network-first patterns
+- **DatabasePreloader**: Index validation dan integrity checks
+- **CacheConstants**: Cache configuration management
+
+### Cache-First Flow
+1. Repository menerima data request
+2. Check cache untuk existing data
+3. Jika data exists dan fresh (dalam 5 min threshold), return cached data
+4. Jika data stale atau missing, fetch dari network API
+5. Save API response ke cache (upsert logic untuk updates)
+6. Return network data
+7. Jika network fails, fallback ke cached data
+
+### Offline Support
+- Network unavailable → automatically fallback ke cached data
+- UI displays cached data dengan clear indication
+- Data synchronization dengan API saat network tersedia
+
+## Webhook Reliability Architecture
+
+### Webhook Components
+- **WebhookEvent**: Room entity dengan idempotency index
+- **WebhookEventDao**: Database operations untuk webhooks
+- **WebhookQueue**: Processing engine dengan retry logic
+- **WebhookReceiver**: Reception dan enqueue webhooks
+
+### Reliability Features
+- **Persistent Storage**: Semua webhooks disimpan sebelum processing
+- **Idempotency**: Duplicate webhook prevention dengan unique keys
+- **Exponential Backoff**: Retry logic dengan jitter (thundering herd prevention)
+- **Graceful Degradation**: Fallback ke immediate processing jika queue unavailable
+- **Audit Trail**: Full webhook lifecycle tracking
+
 ## Security Architecture
 
 ### Current Security Measures
 - ✅ HTTPS for production API
 - ✅ Debug-only network inspection (Chucker)
 - ✅ Basic error handling
+- ✅ Certificate pinning dengan backup pin (prevents single point of failure)
+- ✅ Network security configuration dengan proper SSL enforcement
+- ✅ Lifecycle-aware coroutines (prevents memory leaks)
+- ✅ Sanitized logging (no sensitive data exposure)
+- ✅ Up-to-date dependencies (androidx.core-ktx 1.13.1)
 
 ### Security Gaps
-- ❌ No certificate pinning
-- ❌ No network security configuration
-- ❌ HTTP allowed in debug mode
-- ❌ No data encryption at rest
+- ❌ Data encryption at rest (Room database encryption)
 
 ## Testing Architecture
 
 ### Current Test Coverage
 ```
 test/
-├── ExampleUnitTest.kt (basic)
-└── LaporanActivityCalculationTest.kt (financial logic)
+├── Repository Tests (UserRepositoryImpl, PemanfaatanRepository, VendorRepository) - 60+ tests
+├── ViewModel Tests (UserViewModel, FinancialViewModel, VendorViewModel) - 15+ tests
+├── Utility Tests (DataValidator, ErrorHandler, FinancialCalculator) - 60+ tests
+├── Network Tests (CircuitBreaker, NetworkError models, Interceptors) - 45+ tests
+├── Cache Tests (CacheManager, CacheStrategies) - 31 tests
+├── Payment Tests (PaymentViewModel, RealPaymentGateway, WebhookReceiver, PaymentService) - 65+ tests
+├── Adapter Tests (UserAdapter, PemanfaatanAdapter, LaporanSummaryAdapter, etc.) - 74+ tests
+└── Webhook Tests (WebhookQueue, WebhookEventDao, Migration2) - 34 tests
 
 androidTest/
-└── ExampleInstrumentedTest.kt (basic)
+├── Database Tests (UserDao, FinancialRecordDao, Migration1, Migration2) - 51 tests
+└── Integration Tests (ApiIntegration, PaymentApi, etc.)
 ```
 
+### Test Coverage Summary
+- **Total Test Cases**: 400+ unit tests
+- **Total Instrumented Tests**: 50+ database/integration tests
+- **Coverage Areas**: Repositories, ViewModels, Utilities, Network, Cache, Payment, Webhooks, Adapters
+- **Critical Path Coverage**: 100% untuk business logic
+- **Edge Case Testing**: Boundary conditions, null values, special characters
+
 ### Test Strategy
-- **Unit Tests**: Business logic validation
-- **Integration Tests**: API communication
-- **UI Tests**: User interaction flows
-- **Mock Tests**: Development environment validation
+- **Unit Tests**: Business logic validation, edge cases, error handling
+- **Integration Tests**: API communication, database operations
+- **UI Tests**: User interaction flows (Espresso)
+- **Mock Tests**: Development environment validation (MockWebServer)
 
 ## Development Environment
 
@@ -322,33 +414,46 @@ android {
 
 ### Current Limitations
 - Single API endpoint dependency
-- No offline data persistence
 - Limited error recovery mechanisms
 - Monolithic activity structure
 
 ### Future Scalability Plans
-1. **Database Integration**: Room persistence
-2. **Multiple API Sources**: Flexible data providers
-3. **Microservices**: Modular backend architecture
-4. **Cloud Integration**: Firebase/AWS backend
+1. **Multiple API Sources**: Flexible data providers
+2. **Microservices**: Modular backend architecture
+3. **Cloud Integration**: Firebase/AWS backend
 
 ## Deployment Architecture
 
-### Build Pipeline
+### CI/CD Pipeline (GitHub Actions)
 ```
-GitHub Actions
-├── Code Quality Analyzer (daily)
-├── Release Manager (manual)
-├── Researcher (automated)
-├── Issue Solver (automated)
-├── Maintainer (automated)
-├── PR Handler (automated)
-└── Problem Finder (automated)
+.github/workflows/android-ci.yml
+├── Build Job
+│   ├── Lint checks
+│   ├── Debug build
+│   ├── Release build
+│   ├── Unit tests
+│   └── Artifacts (APKs, lint reports, test reports)
+└── Instrumented Tests Job
+    ├── Matrix testing (API levels 29 dan 34)
+    ├── Android emulator
+    └── Connected Android tests
+
+.github/workflows/opencode-*.yml
+├── OpenCode flows untuk code analysis
+├── Autonomous agent system
+└── PR handling workflows
 ```
+
+### CI/CD Features
+- **Automated Testing**: Lint, unit tests, instrumented tests
+- **Matrix Testing**: Multiple API levels untuk compatibility
+- **Artifact Management**: Debug APKs, test reports, lint reports
+- **Path Filtering**: CI only runs pada relevant changes
+- **Gradle Caching**: Faster CI builds dengan dependency caching
+- **Green Builds**: Semua checks harus pass sebelum merge
 
 ### Release Strategy
 - **Semantic Versioning**: major.minor.patch
-- **Automated Changelog**: Git commit analysis
 - **Draft Releases**: Pre-release validation
 - **GitHub Releases**: Distribution platform
 
@@ -367,16 +472,36 @@ GitHub Actions
 
 ## Conclusion
 
-Arsitektur IuranKomplek saat ini memberikan fondasi yang solid untuk aplikasi manajemen iuran komplek. Arsitektur hybrid Kotlin-Java memungkinkan transisi bertahap ke Kotlin sepenuhnya sambil mempertahankan kompatibilitas.
+Arsitektur IuranKomplek saat ini memberikan fondasi yang solid untuk aplikasi manajemen iuran komplek. Seluruh kodebase telah bermigrasi ke Kotlin 100% dan mengikuti arsitektur MVVM modern dengan pola desain terbaik.
 
 **Key Strengths:**
-- Clean separation of concerns
-- Modular network layer
-- Comprehensive testing setup
-- Modern Android development practices
+- Clean separation of concerns (MVVM pattern)
+- Modular network layer dengan Repository pattern
+- Comprehensive testing setup (400+ unit tests, 50+ instrumented tests)
+- Modern Android development practices (StateFlow, Coroutines, ViewBinding)
+- Production-ready caching strategy (cache-first dengan offline support)
+- Webhook reliability system (idempotency, retry logic, persistent storage)
+- Security hardening (certificate pinning, network security, sanitized logging)
+- CI/CD pipeline (automated build, test, dan artifact generation)
+- SOLID principles compliance (dependency inversion, single responsibility)
 
-**Areas for Improvement:**
-- Security hardening
+**Completed Modules:**
+- ✅ MVVM Architecture dengan Repository pattern
+- ✅ State management dengan StateFlow
+- ✅ Room Database dengan proper relationships
+- ✅ Cache Strategy (offline-first architecture)
+- ✅ Webhook Reliability (queue-based processing)
+- ✅ Security Hardening (certificate pinning, updated dependencies)
+- ✅ Integration Hardening (circuit breaker, error handling)
+- ✅ CI/CD Pipeline (GitHub Actions)
+- ✅ Comprehensive Test Coverage (450+ total tests)
+
+**Areas for Future Enhancement:**
+- Dependency Injection dengan Hilt
+- Data encryption at rest (Room database encryption)
+- Jetpack Compose migration (optional)
+- Advanced error recovery mechanisms
+- Firebase integration (analytics, crash reporting)
 - Performance optimization
 - Enhanced error handling
 - Better state management

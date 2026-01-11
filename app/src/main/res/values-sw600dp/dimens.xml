@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Extra Extra Large Icon for tablets -->
+    <dimen name="icon_xxxl">96dp</dimen>
+    
+    <!-- Extra Extra Large Padding for tablets -->
+    <dimen name="padding_xxxl">64dp</dimen>
+    
+    <!-- Max button height for tablets -->
+    <dimen name="button_height_max">72dp</dimen>
+</resources>

@@ -1,99 +1,71 @@
 package com.example.iurankomplek.data.repository
+import com.example.iurankomplek.utils.OperationResult
 
-import com.example.iurankomplek.model.PemanfaatanResponse
-import com.example.iurankomplek.network.ApiService
-import com.example.iurankomplek.utils.ErrorHandler
-import kotlinx.coroutines.delay
-import retrofit2.Response
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
-import javax.net.ssl.SSLException
-import kotlin.math.min
+import com.example.iurankomplek.data.cache.CacheManager
+import com.example.iurankomplek.data.cache.cacheFirstStrategy
+import com.example.iurankomplek.data.entity.FinancialRecordEntity
+import com.example.iurankomplek.data.entity.UserEntity
+import com.example.iurankomplek.data.entity.UserWithFinancialRecords
+import com.example.iurankomplek.data.mapper.EntityMapper
+import com.example.iurankomplek.data.api.models.PemanfaatanResponse
+import com.example.iurankomplek.network.ApiConfig
+import com.example.iurankomplek.network.model.NetworkError
+import com.example.iurankomplek.network.resilience.CircuitBreaker
+import com.example.iurankomplek.network.resilience.CircuitBreakerResult
+import com.example.iurankomplek.network.resilience.CircuitBreakerState
+import kotlinx.coroutines.flow.first
 import kotlin.math.pow
+import retrofit2.HttpException
 
 class PemanfaatanRepositoryImpl(
-    private val apiService: ApiService
-) : PemanfaatanRepository {
-    private val maxRetries = 3
-    private val errorHandler = ErrorHandler()
-    
-    override suspend fun getPemanfaatan(): Result<PemanfaatanResponse> {
-        var currentRetry = 0
-        var lastException: Exception? = null
-        
-        while (currentRetry <= maxRetries) {
-            try {
-                val response: Response<PemanfaatanResponse> = apiService.getPemanfaatan()
-                if (response.isSuccessful) {
-                    val responseBody = response.body()
-                    if (responseBody != null) {
-                        return Result.success(responseBody)
-                    } else {
-                        return Result.failure(Exception("Response body is null"))
-                    }
-                } else {
-                    // Check if the error is retryable
-                    val isRetryable = isRetryableError(response.code())
-                    if (currentRetry < maxRetries && isRetryable) {
-                        val delayMillis = calculateDelay(currentRetry + 1, 1000, 30000)
-                        delay(delayMillis)
-                        currentRetry++
-                        continue
-                    } else {
-                        throw Exception("API request failed with code: ${response.code()}")
-                    }
-                }
-            } catch (e: Exception) {
-                lastException = e
-                
-                // Check if the exception is retryable
-                val isRetryable = isRetryableException(e)
-                if (currentRetry < maxRetries && isRetryable) {
-                    val delayMillis = calculateDelay(currentRetry + 1, 1000, 30000)
-                    delay(delayMillis)
-                    currentRetry++
-                } else {
-                    break // Exit the loop after max retries or non-retryable error
+    private val apiService: com.example.iurankomplek.network.ApiServiceV1
+) : PemanfaatanRepository, BaseRepository() {
+
+    override suspend fun getPemanfaatan(forceRefresh: Boolean): OperationResult<PemanfaatanResponse> {
+        return try {
+            if (!forceRefresh) {
+                val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
+                if (usersWithFinancials.isNotEmpty()) {
+                    val dtoList = EntityMapper.toLegacyDtoList(usersWithFinancials)
+                    val pemanfaatanResponse = PemanfaatanResponse(dtoList)
+                    return OperationResult.Success(pemanfaatanResponse)
                 }
             }
-        }
-        
-        val errorMessage = if (lastException != null) {
-            errorHandler.handleError(lastException)
-        } else {
-            "Unknown error occurred"
-        }
-        
-        return Result.failure(Exception(errorMessage))
-    }
-    
-    /**
-     * Determines if an HTTP error code is retryable
-     */
-    private fun isRetryableError(httpCode: Int): Boolean {
-        // Retry on server errors (5xx) and some client errors (4xx)
-        // 408: Request Timeout
-        // 429: Too Many Requests
-        return httpCode in 408..429 || httpCode / 100 == 5
-    }
-    
-    /**
-     * Determines if an exception is retryable
-     */
-    private fun isRetryableException(t: Throwable): Boolean {
-        return when (t) {
-            is SocketTimeoutException,
-            is UnknownHostException,
-            is SSLException -> true
-            else -> false
+
+            val result = executeWithCircuitBreakerV1 { apiService.getPemanfaatan() }
+            if (result is OperationResult.Success) {
+                savePemanfaatanToCache(result.data)
+            }
+            result
+        } catch (e: Exception) {
+            OperationResult.Error(e, e.message ?: "Unknown error")
         }
     }
-    
-    private fun calculateDelay(currentRetry: Int, initialDelayMs: Long, maxDelayMs: Long): Long {
-        // Implement exponential backoff with jitter and max delay
-        val exponentialDelay = (initialDelayMs * Math.pow(2.0, (currentRetry - 1).toDouble())).toLong()
-        // Add jitter to prevent thundering herd problem
-        val jitter = (Math.random() * initialDelayMs).toLong()
-        return minOf(exponentialDelay + jitter, maxDelayMs)
+
+    override suspend fun getCachedPemanfaatan(): OperationResult<PemanfaatanResponse> {
+        return try {
+            val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
+            val dtoList = EntityMapper.toLegacyDtoList(usersWithFinancials)
+            val pemanfaatanResponse = PemanfaatanResponse(dtoList)
+            OperationResult.Success(pemanfaatanResponse)
+        } catch (e: Exception) {
+            OperationResult.Error(e, e.message ?: "Unknown error")
+        }
+    }
+
+    override suspend fun clearCache(): OperationResult<Unit> {
+        return try {
+            CacheManager.getFinancialRecordDao().deleteAll()
+            OperationResult.Success(Unit)
+        } catch (e: Exception) {
+            OperationResult.Error(e, e.message ?: "Unknown error")
+        }
+    }
+
+    private suspend fun savePemanfaatanToCache(response: PemanfaatanResponse) {
+        val userFinancialPairs = EntityMapper.fromLegacyDtoList(response.data)
+        com.example.iurankomplek.data.cache.CacheHelper.saveEntityWithFinancialRecords(
+            userFinancialPairs
+        )
     }
 }

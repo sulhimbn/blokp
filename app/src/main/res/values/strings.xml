@@ -1,18 +1,246 @@
 <resources>
     <string name="app_name">BlokP</string>
+    
+     <!-- Accessibility Content Descriptions -->
+    <string name="avatar_content_description">User avatar image</string>
+    <string name="menu_item_content_description">Menu item: %s</string>
+    <string name="profile_menu_content_description">Navigate to user profiles</string>
+    <string name="report_menu_content_description">Navigate to financial reports</string>
+    <string name="communication_menu_content_description">Navigate to communication</string>
+    <string name="payment_menu_content_description">Navigate to payments</string>
+    <string name="loading_content_description">Loading data</string>
+    <string name="swipe_refresh_desc">Pull down to refresh list</string>
+    <string name="swipe_refreshing">Refreshing data</string>
+    <string name="swipe_refresh_complete">Data refreshed</string>
+    <string name="item_selected">Item selected: %s</string>
+    <string name="item_focused">Item focused: %s</string>
+    <string name="screen_loaded">%s loaded</string>
+    <string name="screen_loading">Loading %s</string>
+    <string name="content_updated">Content updated</string>
+    <string name="network_connected">Network connected</string>
+    <string name="network_disconnected">Network disconnected</string>
+    <string name="error_occurred">Error occurred</string>
+    
+    <!-- User Data Messages -->
     <string name="no_users_available">No users available</string>
     <string name="invalid_response_format">Invalid response format</string>
     <string name="no_financial_data_available">No financial data available</string>
-    <string name="invalid_financial_data_detected">Invalid financial data detected</string>
-    <string name="financial_data_exceeds_maximum">Financial data exceeds maximum allowed value</string>
-    <string name="error_loading_data">Error loading data</string>
-    <string name="retry_failed">Failed to load data after multiple attempts</string>
-    <string name="jumlah_iuran_bulanan">1. Jumlah Iuran Bulanan</string>
-    <string name="total_pengeluaran">2. Total Pengeluaran</string>
-    <string name="rekap_total_iuran">3. Rekap Total Iuran</string>
+    <string name="no_data_available">No data available</string>
+    <string name="no_announcements_available">No announcements available</string>
+    <string name="no_messages_available">No messages available</string>
+    <string name="no_community_posts_available">No community posts available</string>
+     <string name="invalid_financial_data_detected">Invalid financial data detected</string>
+     <string name="financial_data_exceeds_maximum">Financial data exceeds maximum allowed value</string>
+     <string name="error_loading_data">Error loading data</string>
+     <string name="retry_failed">Failed to load data after multiple attempts</string>
+     <string name="retry_loading_data">Tap to retry</string>
+
+     <!-- Error Handler Messages -->
+     <string name="error_connection_timeout">Connection timeout</string>
+     <string name="error_service_temporarily_unavailable">Service temporarily unavailable</string>
+     <string name="error_invalid_request">Invalid request</string>
+     <string name="error_unauthorized_access">Unauthorized access</string>
+     <string name="error_forbidden">Forbidden</string>
+     <string name="error_resource_not_found">Resource not found</string>
+     <string name="error_request_timeout">Request timeout</string>
+     <string name="error_too_many_requests">Too many requests. Please slow down.</string>
+     <string name="error_server_error">Server error</string>
+     <string name="error_bad_gateway">Bad gateway</string>
+     <string name="error_service_unavailable">Service unavailable</string>
+     <string name="error_gateway_timeout">Gateway timeout</string>
+     <string name="error_network_occurred">Network error occurred</string>
+     <string name="error_an_error_occurred">An error occurred: %s</string>
+     <string name="jumlah_iuran_bulanan">1. Jumlah Iuran Bulanan</string>
+     <string name="total_pengeluaran">2. Total Pengeluaran</string>
+     <string name="rekap_total_iuran">3. Rekap Total Iuran</string>
+     <string name="laporan_item_title_desc">Laporan item title</string>
+     <string name="laporan_item_value_desc">Laporan item value</string>
      <string name="no_internet_connection">No internet connection. Please check your network settings.</string>
      <string name="failed_after_attempts">Failed after %d attempts</string>
      <string name="network_error">Network error: %s</string>
      <string name="request_failed_with_status">Request failed with status code: %d</string>
      <string name="financial_calculation_overflow_error">Financial calculation error due to data overflow</string>
-</resources>
+    
+     <!-- Payment Screen -->
+     <string name="payment_title">Payment</string>
+     <string name="payment_title_desc">Payment screen title</string>
+     <string name="payment_amount_hint">Enter amount</string>
+     <string name="payment_amount_helper">Amount to pay in your currency</string>
+     <string name="payment_amount_input_desc">Payment amount input field</string>
+     <string name="payment_method_label">Payment Method</string>
+     <string name="payment_method_spinner_desc">Select payment method dropdown</string>
+     <string name="payment_pay_now">Pay Now</string>
+     <string name="payment_pay_now_desc">Submit payment button</string>
+     <string name="payment_view_history">View Transaction History</string>
+     <string name="payment_view_history_desc">Navigate to transaction history button</string>
+     <string name="payment_processing">Processing payment</string>
+     <string name="payment_success">Payment successful</string>
+     <string name="payment_failed">Payment failed</string>
+     <string name="payment_invalid_amount">Please enter a valid amount</string>
+     <string name="payment_network_error">Network error, please try again</string>
+     <string name="total_payments_processed">Total Payments Processed</string>
+      <string name="integrated_payment_transactions" formatted="false">Integrated %d payment transactions (Total: %s)</string>
+     <string name="error_integrating_payment_data">Error integrating payment data: %s</string>
+     <string name="payment_enter_amount">Please enter an amount</string>
+     <string name="payment_amount_greater_than_zero">Amount must be greater than zero</string>
+     <string name="payment_exceeds_max_limit">Amount exceeds maximum allowed limit</string>
+     <string name="payment_max_decimal_places">Amount cannot have more than 2 decimal places</string>
+     <string name="payment_failed_with_error">Payment failed: %s</string>
+     <string name="payment_processed_successfully">Payment processed successfully!</string>
+     <string name="payment_invalid_format">Invalid amount format</string>
+     <string name="payment_invalid_value">Invalid amount value</string>
+
+    <!-- Transaction History -->
+    <string name="transaction_item_desc">Transaction history item card</string>
+    <string name="transaction_amount">Amount:</string>
+    <string name="transaction_amount_value">Transaction amount</string>
+    <string name="transaction_description_desc">Transaction description</string>
+    <string name="transaction_date">Date:</string>
+    <string name="transaction_date_value">Transaction date</string>
+    <string name="transaction_status">Status:</string>
+    <string name="transaction_status_value">Transaction status</string>
+    <string name="transaction_method">Method:</string>
+    <string name="transaction_method_value">Payment method</string>
+    <string name="transaction_refund">Refund</string>
+    <string name="transaction_refund_desc">Request refund button</string>
+    <string name="transaction_history_title">Transaction History</string>
+    <string name="transaction_history_title_desc">Transaction history screen title</string>
+    <string name="no_transactions_available">No transactions available</string>
+    <string name="loading_transactions">Loading transactions</string>
+    
+    <!-- Announcements -->
+    <string name="announcement_item_desc">Announcement item card</string>
+    <string name="announcement_title_desc">Announcement title</string>
+    <string name="announcement_content_desc">Announcement content</string>
+    <string name="announcement_category_desc">Announcement category</string>
+    <string name="announcement_date_desc">Announcement date</string>
+    
+    <!-- Communication Center -->
+    <string name="communication_center_title">COMMUNICATION CENTER</string>
+    <string name="communication_center_title_desc">Communication center screen title</string>
+    <string name="tab_announcements">Announcements</string>
+    <string name="tab_announcements_desc">View announcements tab</string>
+    <string name="tab_messages">Messages</string>
+    <string name="tab_messages_desc">View messages tab</string>
+    <string name="tab_community">Community</string>
+    <string name="tab_community_desc">View community posts tab</string>
+
+    <!-- Vendor Management -->
+    <string name="vendor_management_title">Vendor Management</string>
+    <string name="vendor_management_title_desc">Vendor management screen title</string>
+    <string name="toast_vendor_info">Vendor: %s</string>
+    <string name="toast_error">Error: %s</string>
+    <string name="toast_communicate_with_vendor">Communicate with: %s</string>
+    <string name="toast_work_order_info">Work Order: %s</string>
+
+    <!-- Vendor Performance -->
+    <string name="vendor_performance_title">Vendor Performance</string>
+    <string name="vendor_performance_analytics">Vendor performance analytics will be displayed here\n\nThis would include:\n- Response time metrics\n- Cost analysis by vendor\n- Quality ratings\n- Work completion rates\n- Budget variance tracking</string>
+    <string name="vendor_performance_analytics_desc">Vendor performance analytics information</string>
+    <string name="vendor_performance_title_desc">Vendor performance screen title</string>
+    <string name="error_loading_vendor_performance">Error loading vendor performance data</string>
+
+    <!-- Vendor Database -->
+    <string name="vendor_database_title">Vendor Database</string>
+    <string name="vendor_database_title_desc">Vendor database screen title</string>
+    <string name="vendor_list_desc">List of all vendors</string>
+    <string name="vendor_name_desc">Vendor name</string>
+    <string name="vendor_specialty_desc">Vendor specialty</string>
+    <string name="vendor_contact_desc">Vendor contact information</string>
+    <string name="vendor_rating_desc">Vendor rating</string>
+    <string name="no_vendors_available">No vendors available</string>
+    <string name="error_loading_vendor_data">Error loading vendor data</string>
+
+    <!-- Vendor Communication -->
+    <string name="vendor_communication_title">Vendor Communication</string>
+    <string name="vendor_communication_title_desc">Vendor communication screen title</string>
+    <string name="vendor_communications_list_desc">List of vendor communications</string>
+
+    <!-- Work Orders -->
+    <string name="work_order_management_title">Work Order Management</string>
+    <string name="work_order_management_title_desc">Work order management screen title</string>
+    <string name="work_orders_list_desc">List of all work orders</string>
+    <string name="work_order_title_desc">Work order title</string>
+    <string name="work_order_category_desc">Work order category</string>
+    <string name="work_order_status_desc">Work order status</string>
+    <string name="work_order_priority_desc">Work order priority</string>
+    <string name="no_work_orders_available">No work orders available</string>
+    <string name="error_loading_work_order_data">Error loading work order data</string>
+
+    <!-- Work Order Detail -->
+    <string name="work_order_detail_title_desc">Work order title</string>
+    <string name="work_order_detail_description_label">Description:</string>
+    <string name="work_order_detail_description_label_desc">Work order description label</string>
+    <string name="work_order_detail_description_value_desc">Work order description value</string>
+    <string name="work_order_detail_category_label">Category:</string>
+    <string name="work_order_detail_category_label_desc">Work order category label</string>
+    <string name="work_order_detail_category_value_desc">Work order category value</string>
+    <string name="work_order_detail_status_label">Status:</string>
+    <string name="work_order_detail_status_label_desc">Work order status label</string>
+    <string name="work_order_detail_status_value_desc">Work order status value</string>
+    <string name="work_order_detail_priority_label">Priority:</string>
+    <string name="work_order_detail_priority_label_desc">Work order priority label</string>
+    <string name="work_order_detail_priority_value_desc">Work order priority value</string>
+    <string name="work_order_detail_vendor_label">Assigned Vendor:</string>
+    <string name="work_order_detail_vendor_label_desc">Assigned vendor label</string>
+    <string name="work_order_detail_vendor_value_desc">Assigned vendor name</string>
+    <string name="work_order_detail_estimated_cost_label">Estimated Cost:</string>
+    <string name="work_order_detail_estimated_cost_label_desc">Estimated cost label</string>
+    <string name="work_order_detail_estimated_cost_value_desc">Estimated cost value</string>
+    <string name="work_order_detail_actual_cost_label">Actual Cost:</string>
+    <string name="work_order_detail_actual_cost_label_desc">Actual cost label</string>
+    <string name="work_order_detail_actual_cost_value_desc">Actual cost value</string>
+    <string name="work_order_detail_property_id_label">Property ID:</string>
+    <string name="work_order_detail_property_id_label_desc">Property ID label</string>
+    <string name="work_order_detail_property_id_value_desc">Property ID value</string>
+    <string name="work_order_detail_created_at_label">Created At:</string>
+    <string name="work_order_detail_created_at_label_desc">Created at label</string>
+    <string name="work_order_detail_created_at_value_desc">Created at date value</string>
+
+    <!-- Messages -->
+    <string name="messages_list_desc">List of all messages</string>
+    <string name="message_sender_desc">Message sender name</string>
+    <string name="message_content_desc">Message content</string>
+    <string name="message_timestamp_desc">Message timestamp</string>
+
+    <!-- Community Posts -->
+    <string name="community_posts_list_desc">List of community posts</string>
+    <string name="post_title_desc">Post title</string>
+    <string name="post_content_desc">Post content</string>
+    <string name="post_category_desc">Post category</string>
+    <string name="post_likes_desc">Post likes count</string>
+
+    <!-- Announcements -->
+    <string name="announcements_list_desc">List of all announcements</string>
+
+    <!-- Activity Titles -->
+    <string name="laporan_activity_title">Laporan</string>
+    <string name="laporan_activity_title_desc">Financial report screen title</string>
+    <string name="main_activity_title">Main</string>
+    <string name="main_activity_title_desc">Main screen title</string>
+    <string name="menu_activity_title">Menu</string>
+    <string name="menu_activity_title_desc">Menu screen title</string>
+    <string name="menu_warga">Warga</string>
+    <string name="menu_laporan">Laporan</string>
+    <string name="menu_komunikasi">Komunikasi</string>
+    <string name="menu_pembayaran">Pembayaran</string>
+
+    <!-- Item Labels -->
+    <string name="item_name">Name</string>
+    <string name="item_email">Email</string>
+    <string name="item_address">Address</string>
+    <string name="item_iuran_perwarga">Iuran Per Warga</string>
+    <string name="item_total_iuran_individu">Total Iuran Individu</string>
+    <string name="menu_item_text">Menu Item</string>
+     <string name="pemanfaatan_title">Pemanfaatan</string>
+     <string name="pemanfaatan_item_cleaning_cost">Cleaning Cost</string>
+
+     <!-- Work Order -->
+     <string name="work_order_id_not_provided">Work order ID not provided</string>
+     <string name="error_with_message">Error: %s</string>
+     <string name="work_order_not_assigned">Not assigned</string>
+
+     <!-- Refund -->
+     <string name="refund_processed_successfully">Refund processed successfully</string>
+     <string name="refund_failed">Refund failed: %s</string>
+ </resources>

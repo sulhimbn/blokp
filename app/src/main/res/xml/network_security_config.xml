@@ -1,18 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
     <!-- Production API with enhanced certificate pinning -->
+    <!-- SECURITY: Certificate pinning prevents MitM attacks by verifying server certificates -->
     <domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="true">api.apispreadsheets.com</domain>
         <pin-set expiration="2028-12-31">
-            <pin algorithm="sha256">PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=</pin>
-            <!-- Add backup certificate pin here when available for redundancy -->
-            <!-- Example format: <pin algorithm="sha256">ACTUAL_BACKUP_CERTIFICATE_PIN_HERE</pin> -->
-            <!-- To add a new pin: openssl s_client -servername api.apispreadsheets.com -connect api.apispreadsheets.com:443 2>/dev/null | openssl x509 -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | openssl enc -base64 -->
-            <!-- Add new pin before removing old one during renewal -->
+            <!-- Primary certificate pin -->
+            <pin digest="SHA-256">PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=</pin>
+
+             <!-- Backup certificate pins extracted from certificate chain -->
+             <!-- SECURITY: Having at least 2 active pins prevents single point of failure -->
+             <!-- If the primary certificate rotates, backup pins ensure app continues to work -->
+
+             <!-- Certificate pins extracted on 2026-01-08 -->
+             <!-- Pin extraction command:
+                   openssl s_client -servername api.apispreadsheets.com -connect api.apispreadsheets.com:443 -showcerts 2>/dev/null | \
+                   awk '/BEGIN CERTIFICATE/,/END CERTIFICATE/' | \
+                   csplit -f cert- -s - '/BEGIN CERTIFICATE/' '{*}' 2>/dev/null && \
+                   for f in cert-*; do [ -s "$f" ] && \
+                   openssl x509 -in "$f" -pubkey -noout 2>/dev/null | \
+                   openssl pkey -pubin -outform der 2>/dev/null | \
+                   openssl dgst -sha256 -binary 2>/dev/null | \
+                   openssl enc -base64; rm -f "$f"; done
+
+                   Best practices:
+                    - Always have at least 2 active pins (current + backup)
+                    - Add new backup pin BEFORE removing old pin during rotation
+                    - Monitor expiration dates and rotate pins before expiry
+                    - Test certificate rotation in staging before production
+                    - Set up monitoring for certificate expiration
+                    - Extract pins annually to capture certificate chain updates
+               -->
+             <pin digest="SHA-256">G9LNNAql897egYsabashkzUCTEJkWBzgoEtk8X/678c=</pin>
+             <pin digest="SHA-256">++MBgDH5WGvL9Bcn5Be30cRcL0f5O+NyoXuWtQdX1aI=</pin>
         </pin-set>
     </domain-config>
     
     <!-- Local development server configuration -->
+    <!-- SECURITY: These domains are only for development - never expose in production -->
     <domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="true">localhost</domain>
         <domain includeSubdomains="true">127.0.0.1</domain>
@@ -21,12 +46,13 @@
     </domain-config>
     
     <!-- Debug overrides to allow cleartext traffic for local development -->
+    <!-- SECURITY: These settings only apply to debug builds, not production -->
     <debug-overrides>
         <trust-anchors>
             <certificates src="system" />
             <certificates src="user" />
         </trust-anchors>
-        <!-- Allow cleartext traffic in debug builds -->
+        <!-- Allow cleartext traffic in debug builds for testing purposes -->
         <cleartextTrafficPermitted>true</cleartextTrafficPermitted>
     </debug-overrides>
 </network-security-config>

@@ -6,25 +6,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-    <!-- TextView untuk judul -->
+
+     <!-- Header Title -->
     <TextView
         android:id="@+id/textView1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/green"
-        android:fontFamily="@font/font"
-        android:gravity="center"
-        android:padding="16dp"
-        android:text="DAFTAR IURAN WARGA KONOHA"
-        android:textColor="@android:color/white"
-        android:textSize="20sp"
-        android:textStyle="bold"
+        style="@style/Widget.BlokP.Header"
+        android:text="@string/main_activity_title"
+        android:contentDescription="@string/main_activity_title_desc"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
     <!-- SwipeRefreshLayout for pull-to-refresh -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:importantForAccessibility="yes"
+        android:contentDescription="@string/swipe_refresh_desc"
+        android:accessibilityLiveRegion="polite"
         app:layout_constraintTop_toBottomOf="@id/textView1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -32,27 +32,23 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:background="@color/background_secondary">
 
-            <!-- Progress Bar for loading indicator -->
-            <ProgressBar
-                android:id="@+id/progressBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+            <!-- State Management Include -->
+            <include
+                android:id="@+id/stateManagementInclude"
+                layout="@layout/include_state_management" />
 
             <!-- RecyclerView untuk menampilkan daftar -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_users"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="8dp"
+                android:padding="@dimen/spacing_sm"
                 android:clipToPadding="false"
-                android:background="@color/cream"
+                android:background="@color/background_secondary"
+                android:importantForAccessibility="yes"
                 tools:listitem="@layout/item_list" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

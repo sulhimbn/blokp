@@ -2,3 +2,30 @@
 build/
 *.gradle
 .gradle/**
+
+# Sensitive files - NEVER COMMIT THESE
+local.properties
+*.env
+.env
+
+# Keystore files - NEVER COMMIT THESE
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Build outputs
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Signatures
+.apk
+.aab
