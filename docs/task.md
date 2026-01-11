@@ -4595,6 +4595,103 @@ healthRepository.getHealth(includeDiagnostics = true, includeMetrics = true)
 
 ---
 
+### ✅ INT-007. Missing Interceptor Implementations - RequestIdInterceptor and RetryableRequestInterceptor - 2026-01-11
+**Status**: Completed
+**Completed Date**: 2026-01-11
+**Priority**: CRITICAL (Integration Hardening)
+**Estimated Time**: 1 hour (completed in 45 minutes)
+**Description**: Implement missing interceptor classes referenced in ApiConfig.kt but not present in codebase
+
+**Issue Identified**:
+- ApiConfig.kt imports RequestIdInterceptor but implementation was missing
+- ApiConfig.kt imports RetryableRequestInterceptor but implementation was missing
+- Both interceptors have comprehensive test suites but no actual implementations
+- ApiConfig.kt lines 84, 87, 98, 101 add these interceptors to OkHttpClient
+- Build fails due to missing import errors
+- Request tracing and retry marking are critical integration features
+
+**Critical Path Analysis**:
+- RequestIdInterceptor is essential for distributed tracing and debugging
+- RetryableRequestInterceptor marks requests for retry logic in error handling
+- Without these interceptors, integration resilience is incomplete
+- Production deployment would fail due to missing class errors
+- Tests exist but cannot pass without implementations
+
+**Solution Implemented**:
+
+**1. RequestIdInterceptor.kt** (31 lines):
+- RequestIdGenerator object for centralized ID generation
+- SecureRandom singleton for thread-safe random number generation
+- Format: "timestamp-random" (e.g., "1736606400000-1234")
+- Timestamp in milliseconds for temporal ordering
+- Random number range: 0-9999
+- Adds "X-Request-ID" header to all requests
+- Adds request tag with String::class.java for internal tracking
+- Each request receives unique ID for traceability
+
+**2. RetryableRequestInterceptor.kt** (37 lines):
+- RetryableRequestTag object for marking requests
+- isRetryable() method to determine retry eligibility
+- Safe HTTP methods always retryable: GET, HEAD, OPTIONS
+- Unsafe methods require explicit marking: POST, PUT, DELETE, PATCH
+- X-Retryable: true header enables retry for unsafe methods
+- Case-insensitive header checking
+- Adds tag (RetryableRequestTag, true) to retryable requests
+- Does not modify headers, body, or response (minimal impact)
+
+**Architecture Best Practices Followed ✅**:
+- ✅ **Thread Safety**: SecureRandom singleton prevents race conditions
+- ✅ **Minimal Footprint**: Single responsibility, focused implementation
+- ✅ **HTTP Semantics**: Correctly distinguishes safe vs unsafe methods
+- ✅ **Conservative Default**: Unsafe methods NOT retryable by default
+- ✅ **Explicit Control**: X-Retryable header allows opt-in retry
+- ✅ **Traceability**: RequestId enables distributed tracing
+- ✅ **Idempotency**: Works with IdempotencyInterceptor for safe retries
+
+**Integration Patterns Applied**:
+- ✅ **Request Tracing**: X-Request-ID for observability and debugging
+- ✅ **Retry Resilience**: RetryableRequestTag enables retry logic
+- ✅ **HTTP Safety**: Proper HTTP method semantics
+- ✅ **Graceful Degradation**: Non-intrusive interceptors
+
+**Anti-Patterns Eliminated**:
+- ✅ No more missing import errors in ApiConfig
+- ✅ No more untested critical integration components
+- ✅ No more inability to trace requests in distributed systems
+- ✅ No more unsafe retry operations by default
+- ✅ No more code/test implementation gaps
+
+**Files Created** (2 total):
+| File | Lines | Purpose |
+|------|--------|---------|
+| RequestIdInterceptor.kt | +31 | Request ID generation and tracing |
+| RetryableRequestInterceptor.kt | +37 | Retry marking for safe/unsafe methods |
+
+**Integration Resilience Improvements**:
+- ✅ **Request Tracing**: X-Request-ID header enables distributed tracing
+- ✅ **Observability**: Each request has unique ID for debugging
+- ✅ **Retry Logic**: Requests marked for retry in error scenarios
+- ✅ **HTTP Semantics**: Correct handling of safe vs unsafe methods
+- ✅ **Idempotency**: Compatible with existing IdempotencyInterceptor
+
+**Success Criteria**:
+- [x] RequestIdInterceptor implemented with secure ID generation
+- [x] RetryableRequestInterceptor implemented with method safety
+- [x] X-Request-ID header added to all requests
+- [x] RetryableRequestTag added to eligible requests
+- [x] HTTP method semantics correctly implemented
+- [x] Case-insensitive X-Retryable header support
+- [x] Thread-safe SecureRandom singleton
+- [x] Tests compatible with implementations
+- [x] ApiConfig.kt imports resolve correctly
+- [x] Task documented in task.md
+
+**Dependencies**: OkHttp Interceptor interface, SecureRandom (java.security)
+**Documentation**: Updated docs/task.md with INT-007 completion
+**Impact**: CRITICAL - Essential integration hardening, enables request tracing, marks requests for retry logic, prevents build failures, completes integration resilience pattern, resolves critical code/test gaps
+
+---
+
 ### ✅ INT-003. Webhook Security - Signature Verification - 2026-01-10
 **Status**: Completed
 **Completed Date**: 2026-01-10
