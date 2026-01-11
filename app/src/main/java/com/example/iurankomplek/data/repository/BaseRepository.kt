@@ -19,28 +19,22 @@ abstract class BaseRepository {
         apiCall: suspend () -> retrofit2.Response<T>
     ): OperationResult<T> {
         val circuitBreakerResult = circuitBreaker.execute {
-            com.example.iurankomplek.utils.RetryHelper.executeWithRetry(
-                apiCall = apiCall,
-                maxRetries = maxRetries
-            )
+            try {
+                com.example.iurankomplek.utils.RetryHelper.executeWithRetry(
+                    apiCall = apiCall,
+                    maxRetries = maxRetries
+                )
+            } catch (e: retrofit2.HttpException) {
+                throw com.example.iurankomplek.network.model.NetworkError.HttpError(
+                    code = com.example.iurankomplek.network.model.ApiErrorCode.fromHttpCode(e.code()),
+                    userMessage = "API request failed",
+                    httpCode = e.code()
+                )
+            }
         }
 
         return when (circuitBreakerResult) {
-            is CircuitBreakerResult.Success -> {
-                val response = circuitBreakerResult.value
-                if (response.isSuccessful && response.body() != null) {
-                    OperationResult.Success(response.body()!!)
-                } else {
-                    OperationResult.Error(
-                        NetworkError.HttpError(
-                            code = com.example.iurankomplek.network.model.ApiErrorCode.fromHttpCode(response.code()),
-                            userMessage = "API request failed",
-                            httpCode = response.code()
-                        ),
-                        "API request failed"
-                    )
-                }
-            }
+            is CircuitBreakerResult.Success -> OperationResult.Success(circuitBreakerResult.value)
             is CircuitBreakerResult.Failure -> OperationResult.Error(circuitBreakerResult.exception, circuitBreakerResult.exception.message ?: "Unknown error")
             is CircuitBreakerResult.CircuitOpen -> OperationResult.Error(NetworkError.CircuitBreakerError(), "Circuit breaker open")
         }
