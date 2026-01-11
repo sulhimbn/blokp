@@ -66,3 +66,4 @@ abstract class BaseRepository {
 }
 
 typealias BaseRepositoryLegacy = BaseRepository
+
