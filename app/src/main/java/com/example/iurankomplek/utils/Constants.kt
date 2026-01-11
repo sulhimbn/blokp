@@ -21,6 +21,9 @@ object Constants {
         const val NORMAL_TIMEOUT_MS = 30000L
         const val SLOW_TIMEOUT_MS = 60000L
 
+        // Idempotency Constants (INT-004: Idempotency for POST Operations)
+        const val IDEMPOTENCY_KEY_PREFIX = "idk_"
+
         // Connection Pool Constants
         const val MAX_IDLE_CONNECTIONS = 5
         const val KEEP_ALIVE_DURATION_MINUTES = 5L

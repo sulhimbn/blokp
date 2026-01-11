@@ -2,6 +2,7 @@ package com.example.iurankomplek.network
 
 import com.example.iurankomplek.BuildConfig
 import com.example.iurankomplek.network.interceptor.HealthCheckInterceptor
+import com.example.iurankomplek.network.interceptor.IdempotencyInterceptor
 import com.example.iurankomplek.network.interceptor.NetworkErrorInterceptor
 import com.example.iurankomplek.network.interceptor.RequestIdInterceptor
 import com.example.iurankomplek.network.interceptor.RetryableRequestInterceptor
@@ -81,6 +82,7 @@ import java.util.concurrent.TimeUnit
                 .connectionPool(connectionPool)
                 .addInterceptor(TimeoutInterceptor())
                 .addInterceptor(RequestIdInterceptor())
+                .addInterceptor(IdempotencyInterceptor())
                 .addInterceptor(rateLimiter)
                 .addInterceptor(RetryableRequestInterceptor())
                 .addInterceptor(HealthCheckInterceptor(enableLogging = BuildConfig.DEBUG))
@@ -93,6 +95,7 @@ import java.util.concurrent.TimeUnit
                 .connectionPool(connectionPool)
                 .addInterceptor(TimeoutInterceptor())
                 .addInterceptor(RequestIdInterceptor())
+                .addInterceptor(IdempotencyInterceptor())
                 .addInterceptor(rateLimiter)
                 .addInterceptor(RetryableRequestInterceptor())
                 .addInterceptor(HealthCheckInterceptor(enableLogging = true))
