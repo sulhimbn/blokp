@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
 sealed class PaymentException(message: String, cause: Throwable? = null) : Exception(message, cause) {
-    class UnknownError(val message: String = "Unknown payment error", val cause: Throwable? = null) : PaymentException(message, cause)
+    class UnknownError(override val message: String = "Unknown payment error", override val cause: Throwable? = null) : PaymentException(message, cause)
 }
 
 class TransactionRepositoryImpl(
