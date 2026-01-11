@@ -41,7 +41,7 @@ abstract class BaseRepositoryV3(
                 if (body != null) {
                     OperationResult.Success(body)
                 } else {
-                    OperationResult.Error(NetworkError.UnknownNetworkError("Empty response body", null), "Response body is null")
+                    OperationResult.Error(NetworkError.UnknownNetworkError(userMessage = "Empty response body", originalException = null), "Response body is null")
                 }
             }
             is CircuitBreakerResult.Failure -> OperationResult.Error(circuitBreakerResult.exception, circuitBreakerResult.exception.message ?: "Unknown error")
@@ -64,7 +64,7 @@ abstract class BaseRepositoryV3(
                 if (value != null) {
                     OperationResult.Success(value)
                 } else {
-                    OperationResult.Error(NetworkError.UnknownNetworkError("Empty response data", null), "Response data is null")
+                    OperationResult.Error(NetworkError.UnknownNetworkError(userMessage = "Empty response data", originalException = null), "Response data is null")
                 }
             }
             is CircuitBreakerResult.Failure -> OperationResult.Error(circuitBreakerResult.exception, circuitBreakerResult.exception.message ?: "Unknown error")
@@ -87,7 +87,7 @@ abstract class BaseRepositoryV3(
                 if (value != null) {
                     OperationResult.Success(value)
                 } else {
-                    OperationResult.Error(NetworkError.UnknownNetworkError("Empty response data", null), "Response data is null")
+                    OperationResult.Error(NetworkError.UnknownNetworkError(userMessage = "Empty response data", originalException = null), "Response data is null")
                 }
             }
             is CircuitBreakerResult.Failure -> OperationResult.Error(circuitBreakerResult.exception, circuitBreakerResult.exception.message ?: "Unknown error")
