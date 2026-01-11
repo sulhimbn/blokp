@@ -22,7 +22,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  *   - index_users_email (unique) on email
  *   - index_users_last_name_first_name on (last_name, first_name)
  */
-class Migration18Down : Migration(18, 17) {
+object Migration18Down : Migration(18, 17) {
     override fun migrate(database: SupportSQLiteDatabase) {
         // Drop partial indexes in reverse order of creation
 
