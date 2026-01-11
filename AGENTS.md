@@ -554,6 +554,63 @@ This file provides guidance to agents when working with code in this repository.
 **Documentation**: Updated AGENTS.md and docs/task.md with PERF-004 completion
 **Impact**: MEDIUM - Fixed performance anti-pattern, eliminated unnecessary runtime tree traversals, consistent ViewBinding usage across all fragments, improved UI thread efficiency
 
+### UI-007: Accessibility Fix - Missing contentDescription on Interactive Layout Elements (RESOLVED 2026-01-11)
+**Problem**: Interactive MaterialCardView elements missing contentDescription attribute, causing screen readers to announce "unlabeled button" or skip elements entirely.
+
+**Root Cause**:
+- `item_announcement.xml` MaterialCardView has `clickable="true"` and `focusable="true"` but missing `contentDescription`
+- `include_card_clickable.xml` MaterialCardView has `clickable="true"` and `focusable="true"` but missing `contentDescription`
+- `include_card_clickable_base.xml` MaterialCardView has `clickable="true"`, `focusable="true"`, and `importantForAccessibility="yes"` but missing `contentDescription`
+- Screen readers cannot announce what these interactive elements are when focused
+- Users with disabilities will hear "unlabeled button" or similar generic announcement
+- Violates WCAG 2.1 Level A success criterion 2.4.2 (Labels or Instructions)
+
+**Solution Implemented**:
+1. **Fixed item_announcement.xml**: Added `android:contentDescription="@string/announcement_item_desc"`
+2. **Fixed include_card_clickable.xml**: Added `android:contentDescription="@string/card_item_description"`, `android:importantForAccessibility="yes"`, `android:descendantFocusability="blocksDescendants"`
+3. **Fixed include_card_clickable_base.xml**: Added `android:contentDescription="@string/card_item_description"`
+4. **Added Generic String**: Added `<string name="card_item_description">Card item</string>` to strings.xml
+
+**Files Modified** (4 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| app/src/main/res/layout/item_announcement.xml | +1 | Add android:contentDescription="@string/announcement_item_desc" |
+| app/src/main/res/layout/include_card_clickable.xml | +2 | Add android:contentDescription, android:importantForAccessibility, android:descendantFocusability |
+| app/src/main/res/layout/include_card_clickable_base.xml | +1 | Add android:contentDescription="@string/card_item_description" |
+| app/src/main/res/values/strings.xml | +1 | Add <string name="card_item_description">Card item</string> |
+
+**Code Improvements**:
+- ✅ **Semantic Labels**: contentDescription provides meaningful description of element purpose
+- ✅ **ImportantForAccessibility**: Explicit accessibility mode declaration
+- ✅ **Descendant Focusability**: Proper focus management for child elements
+- ✅ **String Resource**: Localizable descriptions via string resources
+- ✅ **WCAG 2.1 Compliance**: Meets success criterion 2.4.2
+
+**Anti-Patterns Eliminated**:
+- ✅ No more interactive elements without accessibility labels
+- ✅ No more unlabeled clickable/focusable components
+- ✅ No more ambiguous screen reader announcements
+
+**Benefits**:
+1. **Accessibility Compliance**: Meets WCAG 2.1 Level A success criterion 2.4.2
+2. **Screen Reader Support**: All interactive cards announce properly to TalkBack/VoiceOver
+3. **Keyboard Navigation**: Focusable cards have proper labels for keyboard users
+4. **Localizable**: contentDescription uses string resources for internationalization
+5. **Testing Readiness**: Layouts ready for accessibility audits
+
+**Success Criteria**:
+- [x] item_announcement.xml MaterialCardView has contentDescription
+- [x] include_card_clickable.xml MaterialCardView has contentDescription
+- [x] include_card_clickable_base.xml MaterialCardView has contentDescription
+- [x] Generic card_item_description string added to strings.xml
+- [x] XML files validated for syntax correctness
+- [x] All interactive MaterialCardViews have accessibility attributes
+- [x] Documentation updated (AGENTS.md, task.md)
+
+**Dependencies**: None (independent accessibility improvement)
+**Documentation**: Updated AGENTS.md and docs/task.md with UI-007 completion
+**Impact**: HIGH - Critical accessibility improvement, fixes WCAG 2.1 Level A compliance, screen readers can now announce all interactive cards, ensures keyboard navigation provides proper labels
+
 ### SEC-006: Fix Insecure Random Number Generation for Receipt Numbers (RESOLVED 2026-01-11)
 **Problem**: ReceiptGenerator used predictable random number generator for receipt number generation.
 

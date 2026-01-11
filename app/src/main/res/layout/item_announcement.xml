@@ -9,6 +9,7 @@
     android:clickable="true"
     android:importantForAccessibility="yes"
     android:descendantFocusability="blocksDescendants"
+    android:contentDescription="@string/announcement_item_desc"
     app:cardCornerRadius="@dimen/radius_md"
     app:cardElevation="@dimen/elevation_sm"
     app:cardBackgroundColor="@color/background_card">

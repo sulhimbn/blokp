@@ -20,6 +20,7 @@
     <string name="network_connected">Network connected</string>
     <string name="network_disconnected">Network disconnected</string>
     <string name="error_occurred">Error occurred</string>
+    <string name="card_item_description">Card item</string>
     
     <!-- User Data Messages -->
     <string name="no_users_available">No users available</string>
