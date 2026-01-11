@@ -33,7 +33,7 @@ class IdempotencyInterceptorTest {
         mockWebServer.start()
 
         val request = Request.Builder()
-            .url("${mockWebServer.url("/api/v1/messages"})")
+            .url("${mockWebServer.url("/api/v1/messages")")
             .post(okhttp3.RequestBody.create(null, "{\"message\":\"test\"}"))
             .build()
 
@@ -133,12 +133,12 @@ class IdempotencyInterceptorTest {
         mockWebServer.start()
 
         val request1 = Request.Builder()
-            .url("${mockWebServer.url("/api/v1/messages"})")
+            .url("${mockWebServer.url("/api/v1/messages")")
             .post(okhttp3.RequestBody.create(null, "{\"message\":\"test1\"}"))
             .build()
 
         val request2 = Request.Builder()
-            .url("${mockWebServer.url("/api/v1/messages"})")
+            .url("${mockWebServer.url("/api/v1/messages")")
             .post(okhttp3.RequestBody.create(null, "{\"message\":\"test2\"}"))
             .build()
 
@@ -164,7 +164,7 @@ class IdempotencyInterceptorTest {
         mockWebServer.start()
 
         val request = Request.Builder()
-            .url("${mockWebServer.url("/api/v1/messages"})")
+            .url("${mockWebServer.url("/api/v1/messages")")
             .post(okhttp3.RequestBody.create(null, "{\"message\":\"test\"}"))
             .build()
 
@@ -188,7 +188,7 @@ class IdempotencyInterceptorTest {
         mockWebServer.start()
 
         val request = Request.Builder()
-            .url("${mockWebServer.url("/api/v1/messages"})")
+            .url("${mockWebServer.url("/api/v1/messages")")
             .post(okhttp3.RequestBody.create(null, "{\"message\":\"test\"}"))
             .build()
 
