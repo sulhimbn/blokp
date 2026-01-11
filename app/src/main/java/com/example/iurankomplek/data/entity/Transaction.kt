@@ -83,9 +83,11 @@ data class Transaction(
     }
 
     companion object {
+        private val BD_HUNDRED = BigDecimal("100")
+
         fun create(request: com.example.iurankomplek.payment.PaymentRequest): Transaction {
             val now = Date()
-            val amountInCents = request.amount.multiply(BigDecimal("100"))
+            val amountInCents = request.amount.multiply(BD_HUNDRED)
                 .setScale(0, java.math.RoundingMode.HALF_UP)
                 .toLong()
             return Transaction(

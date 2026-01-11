@@ -1,5 +1,6 @@
 package com.example.iurankomplek.network.interceptor
 
+import com.example.iurankomplek.utils.Constants
 import okhttp3.Interceptor
 import okhttp3.Response
 import java.security.SecureRandom
@@ -10,7 +11,7 @@ object RequestIdGenerator {
 
     fun generate(): String {
         val timestamp = System.currentTimeMillis()
-        val random = SECURE_RANDOM.nextInt(10000)
+        val random = SECURE_RANDOM.nextInt(Constants.NetworkError.REQUEST_ID_RANDOM_RANGE)
         return "${timestamp}-${abs(random)}"
     }
 }

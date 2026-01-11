@@ -150,7 +150,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
         mainHandler.postDelayed({
             pendingRetryRunnables.remove(retryId)
-        }, delay + 1000)
+        }, delay + Constants.Network.MILLISECONDS_PER_SECOND)
     }
 
     override fun onDestroy() {

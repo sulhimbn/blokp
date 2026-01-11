@@ -10,6 +10,7 @@ import java.util.Date
 
 class DataTypeConverters {
     private val gson = Gson()
+    private val BD_HUNDRED = BigDecimal("100")
 
     @TypeConverter
     fun fromPaymentMethod(method: PaymentMethod): String {
@@ -33,7 +34,7 @@ class DataTypeConverters {
 
     @TypeConverter
     fun fromBigDecimal(value: BigDecimal?): Long {
-        return value?.multiply(BigDecimal("100"))
+        return value?.multiply(BD_HUNDRED)
             ?.setScale(0, java.math.RoundingMode.HALF_UP)
             ?.toLong() ?: 0L
     }
@@ -41,7 +42,7 @@ class DataTypeConverters {
     @TypeConverter
     fun toBigDecimal(value: Long?): BigDecimal {
         return if (value != null && value > 0L) {
-            BigDecimal(value).divide(BigDecimal("100"), 2, java.math.RoundingMode.HALF_UP)
+            BigDecimal(value).divide(BD_HUNDRED, 2, java.math.RoundingMode.HALF_UP)
         } else {
             BigDecimal.ZERO
         }

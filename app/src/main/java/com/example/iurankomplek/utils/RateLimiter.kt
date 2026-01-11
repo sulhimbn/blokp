@@ -45,7 +45,7 @@ class RateLimiter(
         fun perSecond(requestsPerSecond: Int): RateLimiter {
             return RateLimiter(
                 maxRequests = requestsPerSecond,
-                timeWindowMs = 1000L
+                timeWindowMs = Constants.Network.MILLISECONDS_PER_SECOND
             )
         }
         
