@@ -91,6 +91,7 @@
 
                     <!-- State Management Include -->
                     <include
+                        android:id="@+id/stateManagementInclude"
                         layout="@layout/include_state_management"
                         app:layout_constraintTop_toBottomOf="@id/pemanfaatanTextView" />
 

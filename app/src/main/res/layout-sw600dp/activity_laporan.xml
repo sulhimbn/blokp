@@ -40,7 +40,9 @@
                 android:layout_height="wrap_content">
 
                 <!-- State Management Include -->
-                <include layout="@layout/include_state_management" />
+                <include
+                    android:id="@+id/stateManagementInclude"
+                    layout="@layout/include_state_management" />
 
                 <!-- Summary RecyclerView (two columns on tablets) -->
                 <androidx.recyclerview.widget.RecyclerView

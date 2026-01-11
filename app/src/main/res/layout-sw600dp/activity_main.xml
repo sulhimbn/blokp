@@ -36,7 +36,9 @@
             android:background="@color/background_secondary">
 
             <!-- State Management Include -->
-            <include layout="@layout/include_state_management" />
+            <include
+                android:id="@+id/stateManagementInclude"
+                layout="@layout/include_state_management" />
 
             <!-- RecyclerView for user list with two columns on tablets -->
             <androidx.recyclerview.widget.RecyclerView
