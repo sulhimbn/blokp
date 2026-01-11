@@ -29,3 +29,7 @@ captures/
 # Signatures
 .apk
 .aab
+
+# Build artifacts
+*.class
+META-INF/*.kotlin_module

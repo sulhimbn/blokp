@@ -95,23 +95,25 @@ fun <T : ViewModel> viewModelInstance(creator: () -> T): T {
 }
 
 /**
- * Extension function to create a GenericViewModelFactory for any ViewModel.
+ * Creates a GenericViewModelFactory for ViewModels with multiple dependencies.
  *
- * This eliminates the need for nested Factory classes in ViewModels.
- *
- * Usage:
+ * Usage with multiple parameters:
  * ```
- * class MyViewModel(...) : BaseViewModel() {
+ * class MyViewModel(
+ *     private val useCase1: UseCase1,
+ *     private val useCase2: UseCase2
+ * ) : BaseViewModel() {
  *     companion object {
- *         val Factory = viewModelFactory(::MyViewModel)
+ *         fun Factory(useCase1: UseCase1, useCase2: UseCase2) = 
+ *             viewModelFactory { MyViewModel(useCase1, useCase2) }
  *     }
  * }
  * ```
  *
- * @param creator Lambda that creates the ViewModel instance
+ * @param creator Lambda that creates a ViewModel instance
  * @return GenericViewModelFactory instance
  */
-fun <T : ViewModel> viewModelFactory(creator: () -> T): ViewModelProvider.Factory {
+fun <T : ViewModel> viewModelFactoryWithDeps(creator: () -> T): ViewModelProvider.Factory {
     return GenericViewModelFactory(creator)
 }
 
