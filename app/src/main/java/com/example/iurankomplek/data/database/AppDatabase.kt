@@ -34,10 +34,10 @@ abstract class AppDatabase : RoomDatabase() {
 
         private val migrations = arrayOf(
             Migration1(), Migration1Down, Migration2, Migration2Down,
-            Migration3(), Migration3Down, Migration4(), Migration4Down,
-            Migration5(), Migration5Down, Migration6(), Migration6Down,
-            Migration7(), Migration7Down, Migration8(), Migration8Down,
-            Migration9(), Migration9Down, Migration10(), Migration10Down,
+            Migration3, Migration3Down, Migration4, Migration4Down,
+            Migration5, Migration5Down, Migration6, Migration6Down,
+            Migration7, Migration7Down, Migration8, Migration8Down,
+            Migration9, Migration9Down, Migration10, Migration10Down,
             Migration11(), Migration11Down, Migration12(), Migration12Down,
             Migration13(), Migration13Down, Migration14(), Migration14Down,
             Migration15(), Migration15Down, Migration16(), Migration16Down,
