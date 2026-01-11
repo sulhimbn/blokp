@@ -1,6 +1,6 @@
 package com.example.iurankomplek.domain.usecase
 
-import com.example.iurankomplek.data.dto.LegacyLegacyDataItemDtoDto
+import com.example.iurankomplek.data.dto.LegacyDataItemDto
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test

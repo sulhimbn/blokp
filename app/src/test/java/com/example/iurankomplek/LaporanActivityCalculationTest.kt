@@ -1,6 +1,6 @@
 package com.example.iurankomplek
 
-import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.data.dto.LegacyDataItemDto
 import org.junit.Test
 import org.junit.Assert.*
 
@@ -13,9 +13,9 @@ class LaporanActivityCalculationTest {
     fun testTotalIuranIndividuCalculation_accumulatesCorrectly() {
         // Test data with multiple items to verify accumulation
         val testItems = listOf(
-            DataItem(iuran_perwarga = 100, total_iuran_individu = 50, pengeluaran_iuran_warga = 25),
-            DataItem(iuran_perwarga = 200, total_iuran_individu = 75, pengeluaran_iuran_warga = 30),
-            DataItem(iuran_perwarga = 300, total_iuran_individu = 100, pengeluaran_iuran_warga = 45)
+            LegacyDataItemDto(iuran_perwarga = 100, total_iuran_individu = 50, pengeluaran_iuran_warga = 25),
+            LegacyDataItemDto(iuran_perwarga = 200, total_iuran_individu = 75, pengeluaran_iuran_warga = 30),
+            LegacyDataItemDto(iuran_perwarga = 300, total_iuran_individu = 100, pengeluaran_iuran_warga = 45)
         )
 
         // Simulate the calculation logic from LaporanActivity
@@ -42,7 +42,7 @@ class LaporanActivityCalculationTest {
     fun testTotalIuranIndividuCalculation_singleItem() {
         // Test with single item to ensure it doesn't just take last item but properly accumulates
         val testItems = listOf(
-            DataItem(iuran_perwarga = 100, total_iuran_individu = 50, pengeluaran_iuran_warga = 25)
+            LegacyDataItemDto(iuran_perwarga = 100, total_iuran_individu = 50, pengeluaran_iuran_warga = 25)
         )
 
         var totalIuranBulanan = 0
@@ -63,7 +63,7 @@ class LaporanActivityCalculationTest {
     @Test
     fun testTotalIuranIndividuCalculation_emptyList() {
         // Test with empty list to ensure no errors
-        val testItems = emptyList<DataItem>()
+        val testItems = emptyList<LegacyDataItemDto>()
 
         var totalIuranBulanan = 0
         var totalPengeluaran = 0
@@ -86,9 +86,9 @@ class LaporanActivityCalculationTest {
         // This test verifies that each item's total_iuran_individu is multiplied by 3
         // and then accumulated to the running total (not just assigned)
         val testItems = listOf(
-            DataItem(iuran_perwarga = 100, total_iuran_individu = 10, pengeluaran_iuran_warga = 5),
-            DataItem(iuran_perwarga = 200, total_iuran_individu = 20, pengeluaran_iuran_warga = 10),
-            DataItem(iuran_perwarga = 300, total_iuran_individu = 30, pengeluaran_iuran_warga = 15)
+            LegacyDataItemDto(iuran_perwarga = 100, total_iuran_individu = 10, pengeluaran_iuran_warga = 5),
+            LegacyDataItemDto(iuran_perwarga = 200, total_iuran_individu = 20, pengeluaran_iuran_warga = 10),
+            LegacyDataItemDto(iuran_perwarga = 300, total_iuran_individu = 30, pengeluaran_iuran_warga = 15)
         )
 
         var totalIuranBulanan = 0
@@ -117,8 +117,8 @@ class LaporanActivityCalculationTest {
         // Test to verify the bug fix in payment integration where payments were incorrectly
         // added to iuran totals, inflating the financial calculations
         val testItems = listOf(
-            DataItem(iuran_perwarga = 100, total_iuran_individu = 10, pengeluaran_iuran_warga = 5),
-            DataItem(iuran_perwarga = 200, total_iuran_individu = 20, pengeluaran_iuran_warga = 10)
+            LegacyDataItemDto(iuran_perwarga = 100, total_iuran_individu = 10, pengeluaran_iuran_warga = 5),
+            LegacyDataItemDto(iuran_perwarga = 200, total_iuran_individu = 20, pengeluaran_iuran_warga = 10)
         )
 
         // Calculate the base financial values without payment integration
