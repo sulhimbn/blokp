@@ -43,7 +43,7 @@ class ReceiptGenerator {
         }
 
         private val BD_HUNDRED = java.math.BigDecimal("100")
-        private val RANDOM = kotlin.random.Random
+        private val RANDOM = java.security.SecureRandom()
     }
 
     private fun generateQRCode(transactionId: String): String {
