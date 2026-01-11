@@ -26,7 +26,21 @@ abstract class BaseRepository {
         }
 
         return when (circuitBreakerResult) {
-            is CircuitBreakerResult.Success -> OperationResult.Success(circuitBreakerResult.value)
+            is CircuitBreakerResult.Success -> {
+                val response = circuitBreakerResult.value
+                if (response.isSuccessful && response.body() != null) {
+                    OperationResult.Success(response.body()!!)
+                } else {
+                    OperationResult.Error(
+                        NetworkError.HttpError(
+                            code = com.example.iurankomplek.network.model.ApiErrorCode.fromHttpCode(response.code()),
+                            userMessage = "API request failed",
+                            httpCode = response.code()
+                        ),
+                        "API request failed"
+                    )
+                }
+            }
             is CircuitBreakerResult.Failure -> OperationResult.Error(circuitBreakerResult.exception, circuitBreakerResult.exception.message ?: "Unknown error")
             is CircuitBreakerResult.CircuitOpen -> OperationResult.Error(NetworkError.CircuitBreakerError(), "Circuit breaker open")
         }
