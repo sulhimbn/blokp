@@ -43,7 +43,7 @@ class CommunityFragment : BaseFragment<List<CommunityPost>>() {
  
     override fun initializeViewModel(viewModelProvider: ViewModelProvider) {
         val factory = com.example.iurankomplek.di.DependencyContainer.provideCommunityPostViewModel()
-        viewModel = ViewModelProvider(factory)[CommunityPostViewModel::class.java]
+        viewModel = ViewModelProvider(this, factory)[CommunityPostViewModel::class.java]
     }
 
     override fun observeViewModelState() {

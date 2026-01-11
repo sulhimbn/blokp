@@ -51,7 +51,7 @@ class WorkOrderManagementFragment : BaseFragment<WorkOrderResponse>() {
 
     override fun initializeViewModel(viewModelProvider: ViewModelProvider) {
         val factory = com.example.iurankomplek.di.DependencyContainer.provideVendorViewModel()
-        vendorViewModel = ViewModelProvider(factory)[VendorViewModel::class.java]
+        vendorViewModel = ViewModelProvider(this, factory)[VendorViewModel::class.java]
     }
 
     override fun observeViewModelState() {

@@ -35,10 +35,10 @@ class FallbackManager<T>(
     private val fallbackStrategy: FallbackStrategy<T>?,
     private val config: FallbackConfig = FallbackConfig()
 ) {
-    suspend fun <R> executeWithFallback(
-        primaryOperation: suspend () -> OperationResult<R>,
-        fallbackOperation: suspend () -> R? = { fallbackStrategy?.getFallback() }
-    ): OperationResult<R> {
+    suspend fun executeWithFallback(
+        primaryOperation: suspend () -> OperationResult<T>,
+        fallbackOperation: suspend () -> T? = { fallbackStrategy?.getFallback() }
+    ): OperationResult<T> {
         return try {
             val result = primaryOperation()
             

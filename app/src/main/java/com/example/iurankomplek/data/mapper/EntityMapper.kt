@@ -68,7 +68,7 @@ object EntityMapper {
                 jumlah_iuran_bulanan = userWithFinancial.latestFinancialRecord?.jumlahIuranBulanan ?: 0,
                 total_iuran_individu = userWithFinancial.latestFinancialRecord?.totalIuranIndividu ?: 0,
                 pengeluaran_iuran_warga = userWithFinancial.latestFinancialRecord?.pengeluaranIuranWarga ?: 0,
-                pemanfaatan_iuran = userWithFinancial.latestFinancialRecord?.pemanfaatanIuran ?: 0,
+                pemanfaatan_iuran = userWithFinancial.latestFinancialRecord?.pemanfaatanIuran ?: "",
                 avatar = userWithFinancial.user.avatar
             )
     }

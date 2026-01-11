@@ -2,7 +2,6 @@ package com.example.iurankomplek.presentation.ui.fragment
 
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.R
@@ -45,7 +44,7 @@ class MessagesFragment : BaseFragment<List<Message>>() {
  
     override fun initializeViewModel(viewModelProvider: ViewModelProvider) {
         val factory = DependencyContainer.provideMessageViewModel()
-        viewModel = ViewModelProvider(factory)[MessageViewModel::class.java]
+        viewModel = ViewModelProvider(this, factory)[MessageViewModel::class.java]
     }
 
     override fun observeViewModelState() {

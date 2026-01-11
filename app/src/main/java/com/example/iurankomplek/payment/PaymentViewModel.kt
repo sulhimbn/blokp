@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.iurankomplek.domain.usecase.ValidatePaymentUseCase
 import com.example.iurankomplek.utils.ReceiptGenerator
 import com.example.iurankomplek.data.repository.TransactionRepository
+import com.example.iurankomplek.utils.onSuccess
+import com.example.iurankomplek.utils.onError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

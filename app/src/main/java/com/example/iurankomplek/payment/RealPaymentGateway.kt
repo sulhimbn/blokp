@@ -17,7 +17,7 @@ class RealPaymentGateway(
             try {
                 val response = apiService.initiatePayment(
                     InitiatePaymentRequest(
-                        userId = request.userId,
+                        userId = request.customerId,
                         amount = request.amount.toDouble(),
                         paymentMethod = request.paymentMethod.name,
                         description = request.description

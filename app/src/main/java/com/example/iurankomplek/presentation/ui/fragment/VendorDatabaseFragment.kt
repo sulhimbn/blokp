@@ -54,14 +54,14 @@ class VendorDatabaseFragment : BaseFragment<com.example.iurankomplek.model.Vendo
     }
 
     override fun observeViewModelState() {
-        observeUiState(vendorViewModel.vendorState, { vendors ->
-            vendorAdapter.submitList(vendors)
+        observeUiState(vendorViewModel.vendorState, { vendorResponse ->
+            vendorAdapter.submitList(vendorResponse.vendors ?: emptyList())
         }, showErrorToast = false)
     }
 
     override fun initializeViewModel(viewModelProvider: ViewModelProvider) {
         val factory = com.example.iurankomplek.di.DependencyContainer.provideVendorViewModel()
-        vendorViewModel = ViewModelProvider(factory)[VendorViewModel::class.java]
+        vendorViewModel = ViewModelProvider(this, factory)[VendorViewModel::class.java]
     }
 
     override fun loadData() {

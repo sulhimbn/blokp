@@ -9,11 +9,14 @@ import com.example.iurankomplek.payment.toApiPaymentResponse
 import com.example.iurankomplek.data.dao.TransactionDao
 import com.example.iurankomplek.data.entity.Transaction
 import com.example.iurankomplek.utils.OperationResult
+import com.example.iurankomplek.utils.onSuccess
+import com.example.iurankomplek.utils.onError
+import com.example.iurankomplek.utils.map
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
 sealed class PaymentException(message: String, cause: Throwable? = null) : Exception(message, cause) {
-    data class UnknownError(message: String = "Unknown payment error", cause: Throwable? = null) : PaymentException(message, cause)
+    data class UnknownError(val message: String = "Unknown payment error", val cause: Throwable? = null) : PaymentException(message, cause)
 }
 
 class TransactionRepositoryImpl(

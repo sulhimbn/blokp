@@ -78,6 +78,8 @@ class TransactionHistoryActivity : BaseActivity() {
         lifecycleScope.launch {
             viewModel.refundState.collect { state ->
                 when (state) {
+                    is UiState.Idle -> {
+                    }
                     is UiState.Loading -> {
                     }
                     is UiState.Success -> {
@@ -90,7 +92,7 @@ class TransactionHistoryActivity : BaseActivity() {
                     is UiState.Error -> {
                         Toast.makeText(
                             this@TransactionHistoryActivity,
-                            getString(R.string.refund_failed, state.message),
+                            getString(R.string.refund_failed, state.error),
                             Toast.LENGTH_LONG
                         ).show()
                     }
