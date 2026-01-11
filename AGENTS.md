@@ -173,7 +173,71 @@ This file provides guidance to agents when working with code in this repository.
 - Critical testing gap resolved
 - DatabaseCacheStrategy now has 100% method coverage
 - Comprehensive edge cases and thread safety verification
-- Prevents cache-related bugs in production
+ - Prevents cache-related bugs in production
+ 
+### CI-004: Fix CompressionInterceptor Compilation Errors (RESOLVED 2026-01-11)
+**Problem**: CompressionInterceptor.kt had critical Kotlin compilation errors causing CI pipeline failures.
+
+**Root Cause**:
+- CompressionInterceptor.kt:21 had `private val contentEncoding = "gzip"` (encoding value)
+- CompressionInterceptor.kt:24 had `private val contentEncoding = "Content-Encoding"` (header name)
+- Duplicate variable names caused "Conflicting declarations" compiler error
+- Line 40: `.header(contentEncoding, contentEncoding)` - Overload resolution ambiguity
+- Line 58: `encoding.contains(contentEncoding)` - Overload resolution ambiguity
+- Line 109: `buffer.readFrom(gzipOutputStream)` - Type mismatch (reading from write-only stream)
+
+**Solution Implemented**:
+1. **Fixed Duplicate Variable Declarations** (CompressionInterceptor.kt):
+   - Renamed line 21 `contentEncoding` to `gzipEncoding` (encoding value: "gzip")
+   - Kept line 24 `contentEncoding` as "Content-Encoding" (header name)
+   - Distinct names for header name vs. header value
+
+2. **Fixed Header Value Reference** (line 40):
+   - Changed `.header(contentEncoding, contentEncoding)` to `.header(contentEncoding, gzipEncoding)`
+   - Explicit reference to header value variable
+
+3. **Fixed Encoding Check** (line 58):
+   - Changed `encoding.contains(contentEncoding)` to `encoding.contains(gzipEncoding)`
+   - Explicit reference to encoding value variable
+
+4. **Fixed Type Mismatch** (line 109):
+   - Changed `buffer.readFrom(gzipOutputStream)` to `buffer.inputStream().copyTo(gzipOutputStream)`
+   - Proper I/O operation: write buffer data TO gzip output stream
+
+**Files Modified** (1 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| CompressionInterceptor.kt | +4, -4 | Rename variable, fix references, fix I/O operation |
+
+**Code Improvements**:
+- ✅ **Green Builds**: CI pipeline now compiles successfully
+- ✅ **No Compilation Errors**: All Kotlin errors resolved
+- ✅ **Variable Clarity**: Distinct names for header name vs. header value
+- ✅ **Type Safety**: Proper I/O operations prevent runtime errors
+
+**Anti-Patterns Eliminated**:
+- ✅ No more duplicate variable declarations
+- ✅ No more overload resolution ambiguity errors
+- ✅ No more type mismatches in I/O operations
+- ✅ No more confusing variable names
+
+**Benefits**:
+1. **CI Pipeline Health**: Restores green builds for PR merges
+2. **Code Clarity**: Distinct variable names improve readability
+3. **Type Safety**: Correct I/O operations prevent runtime errors
+4. **Unblocked Development**: Team can merge PRs again
+
+**Success Criteria**:
+- [x] Duplicate contentEncoding declarations fixed (renamed to gzipEncoding)
+- [x] Header value references updated (line 40, 58)
+- [x] Type mismatch fixed (line 109 - proper I/O operation)
+- [x] CI compilation errors resolved
+- [x] Changes committed and pushed to agent branch
+- [x] Documentation updated (task.md, AGENTS.md)
+
+**Dependencies**: None (independent CI fix)
+**Documentation**: Updated docs/task.md and AGENTS.md with CI-004 completion
+**Impact**: CRITICAL - Restored green CI pipeline, fixed Kotlin compilation errors, unblocked PR merges, proper I/O operations in compression logic
 
 ### CI-002: GitHub Actions Workflow Fixes (RESOLVED 2026-01-10)
 **Problem**: CI/CD workflow had issues with lint failures hiding real problems, missing APK verification, and potential build failures.
