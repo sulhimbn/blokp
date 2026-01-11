@@ -1,4 +1,5 @@
 import androidx.test.core.app.ActivityScenario
+import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -6,11 +7,13 @@ import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import com.example.iurankomplek.model.DataItem
-import com.example.iurankomplek.model.UserResponse
+import com.example.iurankomplek.data.dto.LegacyDataItemDto
+import com.example.iurankomplek.data.api.models.UserResponse
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.network.ApiService
+import com.example.iurankomplek.presentation.ui.activity.MainActivity
 import com.example.iurankomplek.utils.NetworkUtils
+import com.example.iurankomplek.R
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -19,7 +22,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -32,14 +34,14 @@ class MainActivityEspressoTest {
     @Before
     fun setup() {
         mockWebServer = MockWebServer()
-        
+
         // Setup mock responses for API calls
-        mockWebServer.setDispatcher(object : Dispatcher() {
+        mockWebServer.dispatcher = object : Dispatcher() {
             override fun dispatch(request: RecordedRequest): MockResponse {
                 return when (request.path) {
                     "/users" -> {
                         val mockUsers = listOf(
-                            DataItem(
+                            LegacyDataItemDto(
                                 first_name = "John",
                                 last_name = "Doe",
                                 email = "john.doe@example.com",
@@ -52,7 +54,7 @@ class MainActivityEspressoTest {
                                 pemanfaatan_iuran = "Maintenance",
                                 avatar = "https://example.com/avatar.jpg"
                             ),
-                            DataItem(
+                            LegacyDataItemDto(
                                 first_name = "Jane",
                                 last_name = "Smith",
                                 email = "jane.smith@example.com",
@@ -66,12 +68,8 @@ class MainActivityEspressoTest {
                                 avatar = "https://example.com/avatar2.jpg"
                             )
                         )
-                        val mockResponse = UserResponse(
-                            success = true,
-                            message = "Users fetched successfully",
-                            data = mockUsers
-                        )
-                        
+                        val mockResponse = UserResponse(data = mockUsers)
+
                         MockResponse()
                             .setResponseCode(200)
                             .setHeader("Content-Type", "application/json")
@@ -80,10 +78,10 @@ class MainActivityEspressoTest {
                     else -> MockResponse().setResponseCode(404)
                 }
             }
-        })
-        
+        }
+
         mockWebServer.start(8080)
-        
+
         // Replace ApiConfig's base URL with mock server URL
         // Note: This is a workaround since ApiConfig is an object with a fixed URL
         // In a real scenario, we would use dependency injection to make this more testable

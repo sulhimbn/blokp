@@ -1,90 +1,102 @@
 package com.example.iurankomplek.payment
 
-import com.example.iurankomplek.network.ApiService
+import com.example.iurankomplek.network.ApiServiceV1
+import com.example.iurankomplek.network.model.InitiatePaymentRequest
+import com.example.iurankomplek.utils.OperationResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 import java.util.UUID
 
 class RealPaymentGateway(
-    private val apiService: ApiService
+    private val apiService: ApiServiceV1
 ) : PaymentGateway {
-    
-    override suspend fun processPayment(request: PaymentRequest): Result<PaymentResponse> {
+
+    override suspend fun processPayment(request: PaymentRequest): OperationResult<PaymentResponse> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = apiService.initiatePayment(
-                    amount = request.amount.toString(),
-                    description = request.description,
-                    customerId = request.customerId,
-                    paymentMethod = request.paymentMethod.name
+                    InitiatePaymentRequest(
+                        userId = request.customerId,
+                        amount = request.amount.toDouble(),
+                        paymentMethod = request.paymentMethod.name,
+                        description = request.description
+                    )
                 )
-                
+
                 if (response.isSuccessful) {
                     val apiResponse = response.body()
                     if (apiResponse != null) {
-                        Result.success(
+                        val data = apiResponse.data
+                        OperationResult.Success(
                             PaymentResponse(
-                                transactionId = apiResponse.transactionId,
-                                status = convertApiStatus(apiResponse.status),
-                                paymentMethod = convertApiPaymentMethod(apiResponse.paymentMethod),
-                                amount = if (apiResponse.amount.isNotEmpty()) BigDecimal(apiResponse.amount) else request.amount,
-                                currency = apiResponse.currency,
-                                transactionTime = apiResponse.transactionTime,
-                                referenceNumber = apiResponse.referenceNumber,
+                                transactionId = data.transactionId,
+                                status = convertApiStatus(data.status),
+                                paymentMethod = convertApiPaymentMethod(data.paymentMethod),
+                                amount = if (data.amount.isNotEmpty()) BigDecimal(data.amount) else request.amount,
+                                currency = data.currency,
+                                transactionTime = data.transactionTime,
+                                referenceNumber = data.referenceNumber,
                                 metadata = request.metadata
                             )
                         )
                     } else {
-                        Result.failure(Exception("Empty response body"))
+                        OperationResult.Error(Exception("Empty response body"), "Empty response body")
                     }
                 } else {
-                    Result.failure(Exception("API request failed: ${response.code()} - ${response.message()}"))
+                    OperationResult.Error(Exception("API request failed: ${response.code()} - ${response.message()}"), "API request failed: ${response.code()} - ${response.message()}")
                 }
             } catch (e: Exception) {
-                Result.failure(e)
+                OperationResult.Error(e, e.message ?: "Payment failed")
             }
         }
     }
-    
-    override suspend fun refundPayment(transactionId: String): Result<RefundResponse> {
+
+    override suspend fun refundPayment(transactionId: String): OperationResult<RefundResponse> {
         // For now, keeping this as a mock implementation since refund API endpoint wasn't specified
         // In a real implementation, this would call an API endpoint
+        // SECURITY: Never use hardcoded refund amounts - must fetch from original transaction
         return try {
-            // In a real implementation, this would call an API endpoint for refunds
-            val refundAmount = BigDecimal("50.00") // This would come from the original transaction
+            // In a real implementation:
+            // 1. Fetch original transaction to get amount
+            // 2. Validate refund request against business rules
+            // 3. Call payment gateway API for refund
+
+            // Mock response - in production, refund amount MUST come from original transaction
+            // or be explicitly provided and validated
             val response = RefundResponse(
                 refundId = UUID.randomUUID().toString(),
                 transactionId = transactionId,
-                amount = refundAmount,
+                amount = BigDecimal.ZERO, // Placeholder - must be populated from transaction
                 status = RefundStatus.COMPLETED,
                 refundTime = System.currentTimeMillis(),
-                reason = "Refund processed"
+                reason = "Refund processed (mock implementation)"
             )
-            
-            Result.success(response)
+
+            OperationResult.Success(response)
         } catch (e: Exception) {
-            Result.failure(e)
+            OperationResult.Error(e, e.message ?: "Refund failed")
         }
     }
-    
-    override suspend fun getPaymentStatus(transactionId: String): Result<PaymentStatus> {
+
+    override suspend fun getPaymentStatus(transactionId: String): OperationResult<PaymentStatus> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = apiService.getPaymentStatus(transactionId)
-                
+
                 if (response.isSuccessful) {
                     val apiResponse = response.body()
                     if (apiResponse != null) {
-                        Result.success(convertApiStatus(apiResponse.status))
+                        val data = apiResponse.data
+                        OperationResult.Success(convertApiStatus(data.status))
                     } else {
-                        Result.failure(Exception("Empty response body"))
+                        OperationResult.Error(Exception("Empty response body"), "Empty response body")
                     }
                 } else {
-                    Result.failure(Exception("API request failed: ${response.code()} - ${response.message()}"))
+                    OperationResult.Error(Exception("API request failed: ${response.code()} - ${response.message()}"), "API request failed: ${response.code()} - ${response.message()}")
                 }
             } catch (e: Exception) {
-                Result.failure(e)
+                OperationResult.Error(e, e.message ?: "Status check failed")
             }
         }
     }

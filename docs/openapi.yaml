@@ -1,0 +1,1746 @@
+openapi: 3.0.3
+info:
+  title: IuranKomplek API
+  description: API for managing apartment complex membership dues (iuran komplek)
+  version: 1.0.0
+  contact:
+    name: IuranKomplek Development Team
+    email: dev@iurankomplek.com
+  license:
+    name: MIT
+
+servers:
+  - url: https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/
+    description: Production Server
+  - url: http://api-mock:5000/data/QjX6hB1ST2IDKaxB/
+    description: Development Server (Docker)
+
+tags:
+  - name: Users
+    description: User management operations
+  - name: Financial
+    description: Financial records operations
+  - name: Communications
+    description: Messages and announcements
+  - name: Community
+    description: Community posts and discussions
+  - name: Payments
+    description: Payment processing
+  - name: Vendors
+    description: Vendor management
+  - name: Work Orders
+    description: Work order management
+  - name: Health
+    description: Health monitoring and diagnostics
+
+paths:
+  /api/v1/users:
+    get:
+      tags:
+        - Users
+      summary: Get all users
+      description: Retrieve list of all registered users with their financial information
+      operationId: getUsers
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: page_size
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseUserResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /api/v1/pemanfaatan:
+    get:
+      tags:
+        - Financial
+      summary: Get financial records
+      description: Retrieve list of all financial records (pemanfaatan iuran)
+      operationId: getPemanfaatan
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: page_size
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponsePemanfaatanResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /api/v1/announcements:
+    get:
+      tags:
+        - Communications
+      summary: Get announcements
+      description: Retrieve list of community announcements
+      operationId: getAnnouncements
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: page_size
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiListResponseAnnouncement'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /api/v1/messages:
+    get:
+      tags:
+        - Communications
+      summary: Get messages
+      description: Retrieve messages for a specific user
+      operationId: getMessages
+      parameters:
+        - name: userId
+          in: query
+          description: User ID to retrieve messages for
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: page_size
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiListResponseMessage'
+    post:
+      tags:
+        - Communications
+      summary: Send message
+      description: Send a new message
+      operationId: sendMessage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+      responses:
+        '200':
+          description: Message sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseMessage'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /api/v1/messages/{receiverId}:
+    get:
+      tags:
+        - Communications
+      summary: Get conversation
+      description: Retrieve conversation between two users
+      operationId: getMessagesWithUser
+      parameters:
+        - name: receiverId
+          in: path
+          description: Receiver user ID
+          required: true
+          schema:
+            type: string
+        - name: senderId
+          in: query
+          description: Sender user ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiListResponseMessage'
+ 
+  /api/v1/community-posts:
+    get:
+      tags:
+        - Community
+      summary: Get community posts
+      description: Retrieve list of community posts
+      operationId: getCommunityPosts
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: page_size
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiListResponseCommunityPost'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+    post:
+      tags:
+        - Community
+      summary: Create community post
+      description: Create a new community post
+      operationId: createCommunityPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCommunityPostRequest'
+      responses:
+        '200':
+          description: Post created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseCommunityPost'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+ 
+  /api/v1/health:
+    post:
+      tags:
+        - Health
+      summary: Health check
+      description: Check system health and integration status
+      operationId: healthCheck
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthCheckRequest'
+      responses:
+        '200':
+          description: Health status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseHealthCheckResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+ 
+  /api/v1/payments/initiate:
+    post:
+      tags:
+        - Payments
+      summary: Initiate payment
+      description: Start a new payment transaction
+      operationId: initiatePayment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InitiatePaymentRequest'
+      responses:
+        '200':
+          description: Payment initiated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponsePaymentResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /api/v1/payments/{id}/status:
+    get:
+      tags:
+        - Payments
+      summary: Get payment status
+      description: Retrieve status of a specific payment
+      operationId: getPaymentStatus
+      parameters:
+        - name: id
+          in: path
+          description: Payment transaction ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponsePaymentStatusResponse'
+        '404':
+          description: Payment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /api/v1/payments/{id}/confirm:
+    post:
+      tags:
+        - Payments
+      summary: Confirm payment
+      description: Confirm a completed payment transaction
+      operationId: confirmPayment
+      parameters:
+        - name: id
+          in: path
+          description: Payment transaction ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment confirmed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponsePaymentConfirmationResponse'
+        '404':
+          description: Payment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '422':
+          description: Payment cannot be confirmed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /api/v1/vendors:
+    get:
+      tags:
+        - Vendors
+      summary: Get vendors
+      description: Retrieve list of all vendors
+      operationId: getVendors
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: page_size
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseVendorResponse'
+    post:
+      tags:
+        - Vendors
+      summary: Create vendor
+      description: Create a new vendor
+      operationId: createVendor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVendorRequest'
+      responses:
+        '200':
+          description: Vendor created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseSingleVendorResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /api/v1/vendors/{id}:
+    get:
+      tags:
+        - Vendors
+      summary: Get vendor
+      description: Retrieve details of a specific vendor
+      operationId: getVendor
+      parameters:
+        - name: id
+          in: path
+          description: Vendor ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseSingleVendorResponse'
+        '404':
+          description: Vendor not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+    put:
+      tags:
+        - Vendors
+      summary: Update vendor
+      description: Update an existing vendor
+      operationId: updateVendor
+      parameters:
+        - name: id
+          in: path
+          description: Vendor ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateVendorRequest'
+      responses:
+        '200':
+          description: Vendor updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseSingleVendorResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: Vendor not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /api/v1/work-orders:
+    get:
+      tags:
+        - Work Orders
+      summary: Get work orders
+      description: Retrieve list of all work orders
+      operationId: getWorkOrders
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: page_size
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseWorkOrderResponse'
+    post:
+      tags:
+        - Work Orders
+      summary: Create work order
+      description: Create a new work order
+      operationId: createWorkOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorkOrderRequest'
+      responses:
+        '200':
+          description: Work order created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseSingleWorkOrderResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /api/v1/work-orders/{id}:
+    get:
+      tags:
+        - Work Orders
+      summary: Get work order
+      description: Retrieve details of a specific work order
+      operationId: getWorkOrder
+      parameters:
+        - name: id
+          in: path
+          description: Work order ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseSingleWorkOrderResponse'
+        '404':
+          description: Work order not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /api/v1/work-orders/{id}/assign:
+    put:
+      tags:
+        - Work Orders
+      summary: Assign vendor to work order
+      description: Assign a vendor to an existing work order
+      operationId: assignVendorToWorkOrder
+      parameters:
+        - name: id
+          in: path
+          description: Work order ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignVendorRequest'
+      responses:
+        '200':
+          description: Vendor assigned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseSingleWorkOrderResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: Work order or vendor not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+  /api/v1/work-orders/{id}/status:
+    put:
+      tags:
+        - Work Orders
+      summary: Update work order status
+      description: Update the status of an existing work order
+      operationId: updateWorkOrderStatus
+      parameters:
+        - name: id
+          in: path
+          description: Work order ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWorkOrderRequest'
+      responses:
+        '200':
+          description: Work order status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseSingleWorkOrderResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '404':
+          description: Work order not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+
+components:
+  schemas:
+    ApiResponseUserResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/UserResponse'
+        request_id:
+          type: string
+          description: Unique request identifier
+          example: req_1234567890
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp in milliseconds
+          example: 1704672000000
+
+    ApiResponsePemanfaatanResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/PemanfaatanResponse'
+        request_id:
+          type: string
+          description: Unique request identifier
+          example: req_1234567890
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp in milliseconds
+          example: 1704672000000
+
+    ApiListResponseAnnouncement:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Announcement'
+        pagination:
+          $ref: '#/components/schemas/PaginationMetadata'
+        request_id:
+          type: string
+          description: Unique request identifier
+          example: req_1234567890
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp in milliseconds
+          example: 1704672000000
+
+    ApiListResponseMessage:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        pagination:
+          $ref: '#/components/schemas/PaginationMetadata'
+        request_id:
+          type: string
+          description: Unique request identifier
+          example: req_1234567890
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp in milliseconds
+          example: 1704672000000
+
+    ApiResponseMessage:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Message'
+        request_id:
+          type: string
+          description: Unique request identifier
+          example: req_1234567890
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp in milliseconds
+          example: 1704672000000
+
+    ApiResponsePaymentResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/PaymentResponse'
+        request_id:
+          type: string
+          description: Unique request identifier
+          example: req_1234567890
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp in milliseconds
+          example: 1704672000000
+
+    ApiResponsePaymentStatusResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/PaymentStatusResponse'
+        request_id:
+          type: string
+          description: Unique request identifier
+          example: req_1234567890
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp in milliseconds
+          example: 1704672000000
+
+    ApiResponsePaymentConfirmationResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/PaymentConfirmationResponse'
+        request_id:
+          type: string
+          description: Unique request identifier
+          example: req_1234567890
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp in milliseconds
+          example: 1704672000000
+
+    ApiResponseVendorResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/VendorResponse'
+        request_id:
+          type: string
+          description: Unique request identifier
+          example: req_1234567890
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp in milliseconds
+          example: 1704672000000
+
+    ApiResponseSingleVendorResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/SingleVendorResponse'
+        request_id:
+          type: string
+          description: Unique request identifier
+          example: req_1234567890
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp in milliseconds
+          example: 1704672000000
+
+    ApiResponseWorkOrderResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/WorkOrderResponse'
+        request_id:
+          type: string
+          description: Unique request identifier
+          example: req_1234567890
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp in milliseconds
+          example: 1704672000000
+
+    ApiResponseSingleWorkOrderResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/SingleWorkOrderResponse'
+        request_id:
+          type: string
+          description: Unique request identifier
+          example: req_1234567890
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp in milliseconds
+          example: 1704672000000
+
+    ApiErrorResponse:
+      type: object
+      properties:
+        error:
+          $ref: '#/components/schemas/ApiErrorDetail'
+        request_id:
+          type: string
+          description: Unique request identifier
+          example: req_1234567890
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp in milliseconds
+          example: 1704672000000
+
+    ApiErrorDetail:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Standard error code
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          description: Human-readable error message
+          example: Invalid request parameters
+        details:
+          type: string
+          description: Additional error details
+          example: Email field is required
+        field:
+          type: string
+          description: Field with validation error
+          example: email
+
+    PaginationMetadata:
+      type: object
+      properties:
+        page:
+          type: integer
+          description: Current page number (1-indexed)
+          example: 1
+        page_size:
+          type: integer
+          description: Number of items per page
+          example: 20
+        total_items:
+          type: integer
+          description: Total number of items across all pages
+          example: 50
+        total_pages:
+          type: integer
+          description: Total number of pages
+          example: 3
+        has_next:
+          type: boolean
+          description: Whether there is a next page
+          example: true
+        has_previous:
+          type: boolean
+          description: Whether there is a previous page
+          example: false
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: User ID
+          example: user_123
+        first_name:
+          type: string
+          description: First name
+          example: John
+        last_name:
+          type: string
+          description: Last name
+          example: Doe
+        email:
+          type: string
+          format: email
+          description: Email address
+          example: john.doe@example.com
+        alamat:
+          type: string
+          description: Address
+          example: Jl. Contoh No. 123, Jakarta
+        avatar:
+          type: string
+          format: uri
+          description: Avatar URL
+          example: https://example.com/avatar.jpg
+
+    FinancialRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Financial record ID
+          example: fin_123
+        user_id:
+          type: string
+          description: User ID
+          example: user_123
+        iuran_perwarga:
+          type: integer
+          description: Monthly dues amount
+          example: 150000
+        total_iuran_rekap:
+          type: integer
+          description: Total annual dues
+          example: 1800000
+        jumlah_iuran_bulanan:
+          type: integer
+          description: Monthly dues amount
+          example: 150000
+        total_iuran_individu:
+          type: integer
+          description: Total individual dues
+          example: 150000
+        pengeluaran_iuran_warga:
+          type: integer
+          description: Expenses amount
+          example: 50000
+        pemanfaatan_iuran:
+          type: string
+          description: Usage description
+          example: Perbaikan jalan komplek
+
+    Announcement:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Announcement ID
+          example: ann_123
+        title:
+          type: string
+          description: Announcement title
+          example: Pemberitahuan Pemeliharaan
+        content:
+          type: string
+          description: Announcement content
+          example: Akan ada pemeliharaan fasilitas kolam renang pada tanggal...
+        created_at:
+          type: integer
+          format: int64
+          description: Creation timestamp
+          example: 1704672000000
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Message ID
+          example: msg_123
+        sender_id:
+          type: string
+          description: Sender user ID
+          example: user_123
+        receiver_id:
+          type: string
+          description: Receiver user ID
+          example: user_456
+        content:
+          type: string
+          description: Message content
+          example: Halo, apa kabar?
+        timestamp:
+          type: integer
+          format: int64
+          description: Message timestamp
+          example: 1704672000000
+
+    PaymentResponse:
+      type: object
+      properties:
+        transaction_id:
+          type: string
+          description: Payment transaction ID
+          example: txn_abc123
+        status:
+          type: string
+          enum: [PENDING, COMPLETED, FAILED, CANCELLED]
+          description: Payment status
+          example: PENDING
+        amount:
+          type: number
+          format: double
+          description: Payment amount
+          example: 150000.0
+        payment_method:
+          type: string
+          enum: [CREDIT_CARD, BANK_TRANSFER, E_WALLET, VIRTUAL_ACCOUNT]
+          description: Payment method
+          example: BANK_TRANSFER
+        created_at:
+          type: integer
+          format: int64
+          description: Creation timestamp
+          example: 1704672000000
+
+    PaymentStatusResponse:
+      type: object
+      properties:
+        transaction_id:
+          type: string
+          description: Payment transaction ID
+          example: txn_abc123
+        status:
+          type: string
+          enum: [PENDING, COMPLETED, FAILED, CANCELLED]
+          description: Payment status
+          example: COMPLETED
+        amount:
+          type: number
+          format: double
+          description: Payment amount
+          example: 150000.0
+        updated_at:
+          type: integer
+          format: int64
+          description: Last update timestamp
+          example: 1704672001000
+
+    PaymentConfirmationResponse:
+      type: object
+      properties:
+        transaction_id:
+          type: string
+          description: Payment transaction ID
+          example: txn_abc123
+        status:
+          type: string
+          enum: [PENDING, COMPLETED, FAILED, CANCELLED]
+          description: Payment status
+          example: COMPLETED
+        confirmed_at:
+          type: integer
+          format: int64
+          description: Confirmation timestamp
+          example: 1704672002000
+
+    Vendor:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Vendor ID
+          example: vendor_123
+        name:
+          type: string
+          description: Vendor name
+          example: Vendor ABC
+        contact:
+          type: string
+          description: Contact information
+          example: 08123456789
+        address:
+          type: string
+          description: Vendor address
+          example: Jl. Contoh No. 123
+        services:
+          type: array
+          items:
+            type: string
+          description: List of services provided
+          example: ["Perbaikan", "Kebersihan"]
+
+    WorkOrder:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Work order ID
+          example: wo_123
+        title:
+          type: string
+          description: Work order title
+          example: Perbaikan AC Unit
+        description:
+          type: string
+          description: Work order description
+          example: AC unit di lobi tidak berfungsi dengan baik
+        status:
+          type: string
+          enum: [PENDING, ASSIGNED, IN_PROGRESS, COMPLETED, CANCELLED]
+          description: Work order status
+          example: PENDING
+        priority:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, URGENT]
+          description: Work order priority
+          example: HIGH
+        created_at:
+          type: integer
+          format: int64
+          description: Creation timestamp
+          example: 1704672000000
+        vendor_id:
+          type: string
+          description: Assigned vendor ID (if assigned)
+          example: vendor_456
+        vendor_name:
+          type: string
+          description: Assigned vendor name (if assigned)
+          example: Vendor XYZ
+
+    SendMessageRequest:
+      type: object
+      required:
+        - sender_id
+        - receiver_id
+        - content
+      properties:
+        sender_id:
+          type: string
+          description: Sender user ID
+          example: user_123
+        receiver_id:
+          type: string
+          description: Receiver user ID
+          example: user_456
+        content:
+          type: string
+          description: Message content
+          example: Halo, apa kabar?
+
+    InitiatePaymentRequest:
+      type: object
+      required:
+        - amount
+        - description
+        - customer_id
+        - payment_method
+      properties:
+        amount:
+          type: string
+          description: Payment amount
+          example: "150000"
+        description:
+          type: string
+          description: Payment description
+          example: "Pembayaran iuran bulanan"
+        customer_id:
+          type: string
+          description: Customer ID
+          example: "user_123"
+        payment_method:
+          type: string
+          enum: [CREDIT_CARD, BANK_TRANSFER, E_WALLET, VIRTUAL_ACCOUNT]
+          description: Payment method
+          example: "BANK_TRANSFER"
+
+    CreateVendorRequest:
+      type: object
+      required:
+        - name
+        - contact
+      properties:
+        name:
+          type: string
+          description: Vendor name
+          example: Vendor ABC
+        contact:
+          type: string
+          description: Contact information
+          example: 08123456789
+        address:
+          type: string
+          description: Vendor address
+          example: Jl. Contoh No. 123
+        services:
+          type: array
+          items:
+            type: string
+          description: List of services provided
+          example: ["Perbaikan", "Kebersihan"]
+
+    UpdateVendorRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Vendor name
+          example: Vendor ABC
+        contact:
+          type: string
+          description: Contact information
+          example: 08123456789
+        address:
+          type: string
+          description: Vendor address
+          example: Jl. Contoh No. 123
+        services:
+          type: array
+          items:
+            type: string
+          description: List of services provided
+          example: ["Perbaikan", "Kebersihan"]
+
+    CreateWorkOrderRequest:
+      type: object
+      required:
+        - title
+        - description
+        - priority
+      properties:
+        title:
+          type: string
+          description: Work order title
+          example: Perbaikan AC Unit
+        description:
+          type: string
+          description: Work order description
+          example: AC unit di lobi tidak berfungsi dengan baik
+        priority:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, URGENT]
+          description: Work order priority
+          example: HIGH
+
+    AssignVendorRequest:
+      type: object
+      required:
+        - vendor_id
+      properties:
+        vendor_id:
+          type: string
+          description: Vendor ID to assign
+          example: vendor_456
+
+    UpdateWorkOrderRequest:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [PENDING, ASSIGNED, IN_PROGRESS, COMPLETED, CANCELLED]
+          description: Work order status
+          example: IN_PROGRESS
+ 
+    CreateCommunityPostRequest:
+      type: object
+      required:
+        - authorId
+        - title
+        - content
+        - category
+      properties:
+        author_id:
+          type: string
+          description: Author user ID
+          example: user_123
+        title:
+          type: string
+          description: Post title
+          example: Community Garden Cleanup
+        content:
+          type: string
+          description: Post content
+          example: Let's clean up community garden this Saturday!
+        category:
+          type: string
+          enum: [SARAN, KELUHAN, INFO, DISKUSI, LAINNYA]
+          description: Post category
+          example: INFO
+ 
+    HealthCheckRequest:
+      type: object
+      properties:
+        includeDiagnostics:
+          type: boolean
+          description: Include detailed diagnostics in response
+          default: false
+          example: false
+        includeMetrics:
+          type: boolean
+          description: Include performance metrics in response
+          default: false
+          example: false
+ 
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Comment ID
+          example: comment_123
+        author_id:
+          type: string
+          description: Author user ID
+          example: user_123
+        content:
+          type: string
+          description: Comment content
+          example: Great idea!
+        timestamp:
+          type: string
+          format: date-time
+          description: Comment timestamp
+          example: 2024-01-08T10:30:00Z
+ 
+    CommunityPost:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Post ID
+          example: post_123
+        author_id:
+          type: string
+          description: Author user ID
+          example: user_123
+        title:
+          type: string
+          description: Post title
+          example: Community Garden Cleanup
+        content:
+          type: string
+          description: Post content
+          example: Let's clean up community garden this Saturday!
+        category:
+          type: string
+          enum: [SARAN, KELUHAN, INFO, DISKUSI, LAINNYA]
+          description: Post category
+          example: INFO
+        likes:
+          type: integer
+          description: Number of likes
+          example: 15
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+          description: List of comments
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+          example: 2024-01-08T10:30:00Z
+ 
+    ComponentHealth:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [HEALTHY, DEGRADED, UNHEALTHY]
+          description: Component health status
+          example: HEALTHY
+        healthy:
+          type: boolean
+          description: Whether component is healthy
+          example: true
+        message:
+          type: string
+          description: Status message
+          example: All integration systems operational
+        details:
+          type: object
+          additionalProperties: true
+          description: Additional component details
+          example:
+            uptime: 99.9
+            last_check: 1704672000000
+ 
+    HealthDiagnostics:
+      type: object
+      properties:
+        circuit_breaker_state:
+          type: string
+          enum: [CLOSED, OPEN, HALF_OPEN]
+          description: Circuit breaker state
+          example: CLOSED
+        circuit_breaker_failures:
+          type: integer
+          description: Number of circuit breaker failures
+          example: 0
+        rate_limit_stats:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/RateLimitStats'
+          description: Per-endpoint rate limit statistics
+          example:
+            "GET:/api/v1/users":
+              request_count: 50
+              last_request_time: 1704671995000
+ 
+    RateLimitStats:
+      type: object
+      properties:
+        request_count:
+          type: integer
+          description: Number of requests
+          example: 50
+        last_request_time:
+          type: integer
+          format: int64
+          description: Last request timestamp
+          example: 1704671995000
+ 
+    HealthMetrics:
+      type: object
+      properties:
+        health_score:
+          type: number
+          format: double
+          description: Overall health score (0-100)
+          minimum: 0
+          maximum: 100
+          example: 95.5
+        total_requests:
+          type: integer
+          description: Total number of requests
+          example: 100
+        success_rate:
+          type: number
+          format: double
+          description: Percentage of successful requests
+          minimum: 0
+          maximum: 100
+          example: 95.0
+        average_response_time_ms:
+          type: number
+          format: double
+          description: Average response time in milliseconds
+          example: 150.0
+        error_rate:
+          type: number
+          format: double
+          description: Percentage of failed requests
+          minimum: 0
+          maximum: 100
+          example: 5.0
+        timeout_count:
+          type: integer
+          description: Number of timeout errors
+          example: 1
+        rate_limit_violations:
+          type: integer
+          description: Number of rate limit violations
+          example: 0
+ 
+    HealthCheckResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [HEALTHY, DEGRADED, UNHEALTHY, CIRCUIT_OPEN, RATE_LIMITED]
+          description: Overall system health status
+          example: HEALTHY
+        version:
+          type: string
+          description: API version
+          example: 1.0.0
+        uptime_ms:
+          type: integer
+          format: int64
+          description: System uptime in milliseconds
+          example: 86400000
+        components:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ComponentHealth'
+          description: Component health statuses
+          example:
+            circuit_breaker:
+              status: HEALTHY
+              healthy: true
+              message: All integration systems operational
+            rate_limiter:
+              status: HEALTHY
+              healthy: true
+              message: Rate limiter within normal limits
+            api_service:
+              status: HEALTHY
+              healthy: true
+              message: API service operational
+            network:
+              status: HEALTHY
+              healthy: true
+              message: Network connectivity normal
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp in milliseconds
+          example: 1704672000000
+        diagnostics:
+          $ref: '#/components/schemas/HealthDiagnostics'
+        metrics:
+          $ref: '#/components/schemas/HealthMetrics'
+ 
+    ApiListResponseCommunityPost:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommunityPost'
+        pagination:
+          $ref: '#/components/schemas/PaginationMetadata'
+        request_id:
+          type: string
+          description: Unique request identifier
+          example: req_1234567890
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp in milliseconds
+          example: 1704672000000
+ 
+    ApiResponseCommunityPost:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/CommunityPost'
+        request_id:
+          type: string
+          description: Unique request identifier
+          example: req_1234567890
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp in milliseconds
+          example: 1704672000000
+ 
+    ApiResponseHealthCheckResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/HealthCheckResponse'
+        request_id:
+          type: string
+          description: Unique request identifier
+          example: req_1234567890
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp in milliseconds
+          example: 1704672000000
+
+    UserResponse:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+
+    PemanfaatanResponse:
+      type: object
+      properties:
+        financial_records:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinancialRecord'
+
+    VendorResponse:
+      type: object
+      properties:
+        vendors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Vendor'
+
+    SingleVendorResponse:
+      type: object
+      properties:
+        vendor:
+          $ref: '#/components/schemas/Vendor'
+
+    WorkOrderResponse:
+      type: object
+      properties:
+        work_orders:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkOrder'
+
+    SingleWorkOrderResponse:
+      type: object
+      properties:
+        work_order:
+          $ref: '#/components/schemas/WorkOrder'
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication (future implementation)
+
+security:
+  - ApiKeyAuth: []

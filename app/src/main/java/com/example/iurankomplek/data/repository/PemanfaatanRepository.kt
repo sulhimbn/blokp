@@ -1,7 +1,10 @@
 package com.example.iurankomplek.data.repository
+import com.example.iurankomplek.utils.OperationResult
 
-import com.example.iurankomplek.model.PemanfaatanResponse
+import com.example.iurankomplek.data.api.models.PemanfaatanResponse
 
 interface PemanfaatanRepository {
-    suspend fun getPemanfaatan(): Result<PemanfaatanResponse>
+    suspend fun getPemanfaatan(forceRefresh: Boolean = false): OperationResult<PemanfaatanResponse>
+    suspend fun getCachedPemanfaatan(): OperationResult<PemanfaatanResponse>
+    suspend fun clearCache(): OperationResult<Unit>
 }

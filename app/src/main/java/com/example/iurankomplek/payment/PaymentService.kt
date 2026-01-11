@@ -1,7 +1,9 @@
 package com.example.iurankomplek.payment
 
-import com.example.iurankomplek.receipt.ReceiptGenerator
-import com.example.iurankomplek.transaction.TransactionRepository
+import com.example.iurankomplek.utils.ReceiptGenerator
+import com.example.iurankomplek.data.repository.TransactionRepository
+import com.example.iurankomplek.data.dto.Receipt
+import com.example.iurankomplek.utils.OperationResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,7 +18,7 @@ class PaymentService(
         description: String,
         customerId: String,
         paymentMethod: PaymentMethod,
-        onSuccess: (com.example.iurankomplek.receipt.Receipt) -> Unit,
+        onSuccess: (Receipt) -> Unit,
         onError: (String) -> Unit
     ) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -26,20 +28,26 @@ class PaymentService(
                 customerId = customerId,
                 paymentMethod = paymentMethod
             )
-            
+
             val result = transactionRepository.processPayment(request)
-            result.fold(
-                onSuccess = { transaction ->
-                    val receipt = receiptGenerator.generateReceipt(transaction)
+            when (result) {
+                is OperationResult.Success -> {
+                    val receipt = receiptGenerator.generateReceipt(result.data)
                     onSuccess(receipt)
-                },
-                onFailure = { error ->
-                    onError(error.message ?: "Unknown error occurred")
                 }
-            )
+                is OperationResult.Error -> {
+                    onError(result.message ?: "Unknown error occurred")
+                }
+                is OperationResult.Loading -> {
+                    onError("Payment in progress")
+                }
+                is OperationResult.Empty -> {
+                    onError("No payment result")
+                }
+            }
         }
     }
-    
+
     fun refundPayment(
         transactionId: String,
         reason: String? = null,
@@ -48,14 +56,20 @@ class PaymentService(
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             val result = transactionRepository.refundPayment(transactionId, reason)
-            result.fold(
-                onSuccess = { response ->
-                    onSuccess(response)
-                },
-                onFailure = { error ->
-                    onError(error.message ?: "Unknown error occurred")
+            when (result) {
+                is OperationResult.Success -> {
+                    onSuccess(result.data)
                 }
-            )
+                is OperationResult.Error -> {
+                    onError(result.message ?: "Unknown error occurred")
+                }
+                is OperationResult.Loading -> {
+                    onError("Refund in progress")
+                }
+                is OperationResult.Empty -> {
+                    onError("No refund result")
+                }
+            }
         }
     }
 }

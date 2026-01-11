@@ -1,102 +1,127 @@
 package com.example.iurankomplek.payment
 
 import android.util.Log
-import com.example.iurankomplek.transaction.TransactionRepository
+import com.example.iurankomplek.data.repository.TransactionRepository
+import com.example.iurankomplek.utils.Constants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.*
-import java.io.IOException
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+
+@Serializable
+data class WebhookPayload(
+    val eventType: String,
+    val transactionId: String? = null,
+    val metadata: Map<String, String> = emptyMap()
+)
 
 class WebhookReceiver(
-    private val transactionRepository: TransactionRepository
+    private val transactionRepository: TransactionRepository,
+    private val webhookQueue: WebhookQueue? = null,
+    private val signatureVerifier: WebhookSignatureVerifier = WebhookSignatureVerifier()
 ) {
-    private val client = OkHttpClient()
-    private val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
+    private val json = Json { ignoreUnknownKeys = true }
 
     companion object {
         private val TAG = Constants.Tags.WEBHOOK_RECEIVER
+        private const val SIGNATURE_HEADER = "X-Webhook-Signature"
     }
 
-    suspend fun setupWebhookListener(webhookUrl: String) {
-        // In a real implementation, this would register for webhook events
-        // For now, we'll just log that we're ready to receive webhooks
-        Log.d(TAG, "Webhook listener setup for URL: $webhookUrl")
+    suspend fun setupWebhookListener(_webhookUrl: String) {
+        Log.d(TAG, "Webhook listener setup completed")
     }
 
-    fun handleWebhookEvent(payload: String) {
+    fun handleWebhookEvent(
+        payload: String,
+        headers: Map<String, String> = emptyMap()
+    ) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Parse the webhook payload (simplified for this example)
-                val event = parseWebhookPayload(payload)
-                
-                when (event.eventType) {
-                    "payment.success" -> {
-                        updateTransactionStatus(event.transactionId, PaymentStatus.COMPLETED)
+                if (payload.isBlank()) {
+                    Log.e(TAG, "Empty webhook payload received")
+                    return@launch
+                }
+
+                val signature = WebhookSignatureVerifier.extractSignature(headers)
+                val verificationResult = signatureVerifier.verifyWebhookSignature(payload, signature)
+
+                when (verificationResult) {
+                    is WebhookVerificationResult.Valid -> {
+                        processWebhook(payload)
                     }
-                    "payment.failed" -> {
-                        updateTransactionStatus(event.transactionId, PaymentStatus.FAILED)
+                    is WebhookVerificationResult.Invalid -> {
+                        Log.e(TAG, "Invalid webhook signature")
+                        return@launch
                     }
-                    "payment.refunded" -> {
-                        updateTransactionStatus(event.transactionId, PaymentStatus.REFUNDED)
-                    }
-                    else -> {
-                        Log.d(TAG, "Unknown webhook event: ${event.eventType}")
+                    is WebhookVerificationResult.Skipped -> {
+                        Log.w(TAG, "Webhook signature verification skipped")
+                        processWebhook(payload)
                     }
                 }
+            } catch (e: kotlinx.serialization.SerializationException) {
+                Log.e(TAG, "Invalid JSON payload")
             } catch (e: Exception) {
-                Log.e(TAG, "Error handling webhook: ${e.message}", e)
+                Log.e(TAG, "Error handling webhook")
             }
         }
     }
 
-    private suspend fun updateTransactionStatus(transactionId: String, status: PaymentStatus) {
+    private suspend fun processWebhook(payload: String) {
         try {
-            val transaction = transactionRepository.getTransactionById(transactionId)
-            if (transaction != null) {
-                val updatedTransaction = transaction.copy(
-                    status = status,
-                    // In a real implementation, updatedAt would be current timestamp
+            val webhookPayload = parseWebhookPayload(payload)
+
+            if (webhookPayload.eventType.isBlank()) {
+                Log.e(TAG, "Invalid webhook payload: missing event type")
+                return
+            }
+
+            if (webhookQueue != null) {
+                webhookQueue.enqueue(
+                    eventType = webhookPayload.eventType,
+                    payload = payload,
+                    transactionId = webhookPayload.transactionId,
+                    metadata = webhookPayload.metadata
                 )
-                transactionRepository.updateTransaction(updatedTransaction)
-                Log.d(TAG, "Transaction $transactionId updated to status: $status")
             } else {
-                Log.e(TAG, "Transaction not found: $transactionId")
+                processImmediately(webhookPayload)
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error updating transaction status: ${e.message}", e)
+            Log.e(TAG, "Error processing webhook")
         }
     }
 
-    private fun parseWebhookPayload(payload: String): WebhookEvent {
-        // This is a simplified parser - in a real implementation, you'd use proper JSON parsing
-        // For this demo, we'll just create a basic event based on the payload
-        return WebhookEvent(
-            eventType = extractEventType(payload),
-            transactionId = extractTransactionId(payload)
-        )
-    }
+    private suspend fun processImmediately(webhookPayload: WebhookPayload) {
+        try {
+            val sanitizedId = webhookPayload.transactionId?.trim()?.takeIf { it.isNotBlank() }
+            if (sanitizedId == null) {
+                return
+            }
 
-    private fun extractEventType(payload: String): String {
-        // Simplified extraction - in real implementation, parse JSON properly
-        return if (payload.contains("success")) {
-            "payment.success"
-        } else if (payload.contains("failed")) {
-            "payment.failed"
-        } else if (payload.contains("refunded")) {
-            "payment.refunded"
-        } else {
-            "unknown"
+            val transaction = transactionRepository.getTransactionById(sanitizedId)
+            if (transaction != null) {
+                val status = when (webhookPayload.eventType) {
+                    "payment.success" -> PaymentStatus.COMPLETED
+                    "payment.failed" -> PaymentStatus.FAILED
+                    "payment.refunded" -> PaymentStatus.REFUNDED
+                    else -> {
+                        return
+                    }
+                }
+                
+                val updatedTransaction = transaction.copy(status = status)
+                transactionRepository.updateTransaction(updatedTransaction)
+            } else {
+                Log.e(TAG, "Transaction not found")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error processing webhook immediately")
         }
     }
 
-    private fun extractTransactionId(payload: String): String {
-        // Simplified extraction - in real implementation, parse JSON properly
-        return "transaction_id_from_payload" // This would be extracted from the actual payload
+    private fun parseWebhookPayload(payload: String): WebhookPayload {
+        return json.decodeFromString<WebhookPayload>(payload)
     }
 }
 
-data class WebhookEvent(
-    val eventType: String,
-    val transactionId: String
-)
+

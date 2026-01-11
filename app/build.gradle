@@ -1,54 +1,113 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
-    id 'kotlin-kapt'
+    alias libs.plugins.kotlin.serialization
+    alias libs.plugins.ksp
+    id 'jacoco'
 }
 
-android {
-    namespace 'com.example.iurankomplek'
-    compileSdk 34
+ android {
+    namespace = 'com.example.iurankomplek'
+    compileSdk = 35
 
     defaultConfig {
-        applicationId "com.example.blokp"
-        minSdk 24
-        targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        applicationId = "com.example.blokp"
+        minSdk = 24
+        targetSdk = 35
+        versionCode = 1
+        versionName = "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        def apiSpreadsheetId = project.hasProperty('API_SPREADSHEET_ID') ? project.property('API_SPREADSHEET_ID') : System.getenv('API_SPREADSHEET_ID')
+        if (apiSpreadsheetId == null) {
+            logger.warn("API_SPREADSHEET_ID not configured. Set it in local.properties or as environment variable.")
+        }
+        buildConfigField "String", "API_SPREADSHEET_ID", "\"${apiSpreadsheetId ?: ''}\""
+
+        def productionBaseUrl = project.hasProperty('PRODUCTION_BASE_URL') ? project.property('PRODUCTION_BASE_URL') : System.getenv('PRODUCTION_BASE_URL')
+        if (productionBaseUrl == null) {
+            logger.warn("PRODUCTION_BASE_URL not configured. Using default value: https://api.apispreadsheets.com/data/")
+        }
+        buildConfigField "String", "PRODUCTION_BASE_URL", "\"${productionBaseUrl ?: 'https://api.apispreadsheets.com/data/'}\""
+
+        def mockBaseUrl = project.hasProperty('MOCK_BASE_URL') ? project.property('MOCK_BASE_URL') : System.getenv('MOCK_BASE_URL')
+        if (mockBaseUrl == null) {
+            logger.warn("MOCK_BASE_URL not configured. Using default value: https://api-mock:5000/data/")
+        }
+        buildConfigField "String", "MOCK_BASE_URL", "\"${mockBaseUrl ?: 'https://api-mock:5000/data/'}\""
+
+        def certificatePinner = project.hasProperty('CERTIFICATE_PINNER') ? project.property('CERTIFICATE_PINNER') : System.getenv('CERTIFICATE_PINNER')
+        if (certificatePinner == null) {
+            logger.warn("CERTIFICATE_PINNER not configured. Using default pins.")
+        }
+        buildConfigField "String", "CERTIFICATE_PINNER", "\"${certificatePinner ?: 'sha256/PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=;sha256/G9LNNAql897egYsabashkzUCTEJkWBzgoEtk8X/678c=;sha256/++MBgDH5WGvL9Bcn5Be30cRcL0f5O+NyoXuWtQdX1aI='}\""
+
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
+        }
     }
 
+    configurations.all {
+        resolutionStrategy {
+            force "org.jetbrains.kotlin:kotlin-stdlib:${libs.versions.kotlin.get()}"
+            force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${libs.versions.kotlin.get()}"
+            force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${libs.versions.kotlin.get()}"
+            force "org.jetbrains.kotlinx:kotlinx-coroutines-android:${libs.versions.kotlinx.coroutines.android.get()}"
+            force "org.jetbrains.kotlinx:kotlinx-coroutines-core:${libs.versions.kotlinx.coroutines.android.get()}"
+            force "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:${libs.versions.kotlinx.coroutines.android.get()}"
+            force "androidx.viewpager2:viewpager2:${libs.versions.viewpager2.get()}"
+        }
+    }
+    
     buildTypes {
         debug {
-            testCoverageEnabled true
+            testCoverageEnabled = true
         }
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            minifyEnabled = true
+            shrinkResources = true
+            proguardFiles = [getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro']
+            signingConfig = signingConfigs.debug
         }
     }
     buildFeatures {
-        viewBinding true
+        viewBinding = true
+        buildConfig = true
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    buildFeatures {
-        viewBinding true
-    }
     kotlinOptions {
         jvmTarget = '1.8'
+        freeCompilerArgs += [
+            '-opt-in=kotlin.RequiresOptIn'
+        ]
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+            returnDefaultValues = true
+        }
+    }
+
+    lint {
+        abortOnError = false
+        checkReleaseBuilds = true
+        xmlReport = true
+        htmlReport = true
+        disable 'NotificationPermission'
     }
 }
 
 dependencies {
 
-     implementation libs.androidx.core.ktx
-     implementation libs.androidx.appcompat
-     implementation libs.material
-     implementation libs.androidx.constraintlayout
-     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+      implementation libs.androidx.core.ktx
+      implementation libs.androidx.appcompat
+      implementation libs.material
+      implementation libs.androidx.constraintlayout
     
     // Testing dependencies
     testImplementation libs.junit
@@ -65,8 +124,13 @@ dependencies {
     androidTestImplementation libs.androidx.test.runner
     androidTestImplementation libs.androidx.test.rules
     androidTestImplementation libs.mockwebserver
+    androidTestImplementation libs.room.testing
+    androidTestImplementation libs.kotlinx.coroutines.test
+    androidTestImplementation libs.arch.core.testing
     
     implementation libs.androidx.recyclerview
+    implementation libs.androidx.viewpager2
+    implementation libs.swiperefreshlayout
     implementation libs.glide
 
     implementation libs.gson
@@ -80,16 +144,18 @@ dependencies {
     // Room database
     implementation libs.room.runtime
     implementation libs.room.ktx
-    kapt libs.room.compiler
-    
-    // Hilt for dependency injection (if we want to use it later)
-    implementation libs.hilt.android
-    kapt libs.hilt.android.compiler
+    ksp libs.room.compiler
     
     // Coroutines
     implementation libs.kotlinx.coroutines.android
     
     // Lifecycle
     implementation libs.lifecycle.viewmodel.ktx
-    implementation libs.lifecycle.livedata.ktx
+    implementation libs.lifecycle.runtime.ktx
+    
+    // Kotlin Serialization (needed for WebhookReceiver)
+    implementation libs.kotlinx.serialization.json
+    
+    // Security
+    implementation libs.security.crypto
 }

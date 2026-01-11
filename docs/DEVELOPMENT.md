@@ -18,9 +18,9 @@ class LaporanActivity
 private fun getUser()
 val totalIuranBulanan = 0
 
-// Constants - UPPER_SNAKE_CASE
-const val BASE_URL = "https://api.example.com"
-const val MAX_RETRY_COUNT = 3
+// Constants - UPPER_SNAKE_CASE (centralized in Constants.kt)
+import com.example.iurankomplek.utils.Constants
+const val MAX_RETRY_COUNT = Constants.Network.MAX_RETRIES
 
 // Private properties - camelCase with underscore prefix
 private val _users = mutableListOf<DataItem>()
@@ -28,72 +28,77 @@ private val _users = mutableListOf<DataItem>()
 
 #### File Structure
 ```kotlin
-package com.example.iurankomplek
+package com.example.iurankomplek.presentation.ui.activity
 
 // Imports (standard library first, then third-party, then project)
 import android.os.Bundle
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.core.base.BaseActivity
+import com.example.iurankomplek.databinding.ActivityMainBinding
+import com.example.iurankomplek.presentation.adapter.UserAdapter
 import retrofit2.Call
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
     // 1. Companion object
     companion object {
         private const val TAG = "MainActivity"
     }
-    
+
     // 2. Private properties
+    private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: UserAdapter
-    private lateinit var rv_users: RecyclerView
-    
+
     // 3. Lifecycle methods
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         setupViews()
         getUser()
     }
-    
+
     // 4. Private setup methods
     private fun setupViews() {
-        rv_users = findViewById(R.id.rv_users)
+        binding.rvUsers.layoutManager = LinearLayoutManager(this)
         adapter = UserAdapter(mutableListOf())
-        rv_users.layoutManager = LinearLayoutManager(this)
-        rv_users.adapter = adapter
+        binding.rvUsers.adapter = adapter
     }
-    
+
     // 5. Private business logic methods
     private fun getUser() {
         // Implementation
     }
+
+    // 6. Cleanup
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.unbind()
+    }
 }
 ```
 
-#### Error Handling
+#### Error Handling with Coroutines
 ```kotlin
 private fun getUser() {
-    val apiService = ApiConfig.getApiService()
-    val client = apiService.getUsers()
-    
-    client.enqueue(object : Callback<ResponseUser> {
-        override fun onResponse(call: Call<ResponseUser>, response: Response<ResponseUser>) {
+    lifecycleScope.launch {
+        try {
+            val response = apiService.getUsers()
+            
             when (response.code()) {
                 200 -> handleSuccessResponse(response)
                 404 -> showErrorMessage("Data tidak ditemukan")
                 500 -> showErrorMessage("Server error, coba lagi nanti")
                 else -> showErrorMessage("Terjadi kesalahan: ${response.code()}")
             }
+        } catch (e: Exception) {
+            Log.e(TAG, "Network error", e)
+            showErrorMessage("Error: ${e.message}")
         }
-        
-        override fun onFailure(call: Call<ResponseUser>, t: Throwable) {
-            Log.e(TAG, "Network error", t)
-            showErrorMessage("Error: ${t.message}")
-        }
-    })
+    }
 }
 
-private fun handleSuccessResponse(response: Response<ResponseUser>) {
+private fun handleSuccessResponse(response: Response<UserResponse>) {
     val dataArray = response.body()?.data
     if (dataArray != null) {
         adapter.setUsers(dataArray)
@@ -103,63 +108,63 @@ private fun handleSuccessResponse(response: Response<ResponseUser>) {
 }
 ```
 
-### Java Standards (for MenuActivity.java)
+### Kotlin Standards (for MenuActivity.kt)
 
 #### Naming Conventions
-```java
+```kotlin
 // Classes - PascalCase
-public class MenuActivity extends AppCompatActivity
+class MenuActivity : BaseActivity
 
 // Methods & Variables - camelCase
-private LinearLayout tombolSatu;
-private void setupClickListeners()
+private lateinit var binding: ActivityMenuBinding
+private fun setupClickListeners()
 
 // Constants - UPPER_SNAKE_CASE
-private static final String TAG = "MenuActivity";
+private companion object {
+    private const val TAG = "MenuActivity"
+}
 ```
 
 #### Code Style
-```java
-public class MenuActivity extends AppCompatActivity {
-    LinearLayout tombolSatu;
-    LinearLayout tombolDua;
+```kotlin
+class MenuActivity : BaseActivity() {
+    private lateinit var binding: ActivityMenuBinding
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_menu);
-        
-        setupFullscreenMode();
-        setupClickListeners();
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMenuBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        setupClickListeners()
     }
-    
-    private void setupFullscreenMode() {
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
-    }
-    
-    private void setupClickListeners() {
-        tombolSatu = findViewById(R.id.cdMenu1);
-        tombolSatu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MenuActivity.this, MainActivity.class);
-                startActivity(intent);
-            }
-        });
-        
-        // Similar implementation for tombolDua
+
+    private fun setupClickListeners() {
+        binding.cdMenu1.setOnClickListener {
+            startActivity(Intent(this, MainActivity::class.java))
+        }
+
+        binding.cdMenu2.setOnClickListener {
+            startActivity(Intent(this, LaporanActivity::class.java))
+        }
+
+        binding.cdMenu3.setOnClickListener {
+            startActivity(Intent(this, CommunicationActivity::class.java))
+        }
+
+        binding.cdMenu4.setOnClickListener {
+            startActivity(Intent(this, PaymentActivity::class.java))
+        }
     }
 }
 ```
 
 ## Architecture Guidelines
 
-### MVVM Light Pattern
+### MVVM Pattern
 ```
 Activities/Fragment (View)
     ↓
-ViewModels (Business Logic) - *Not yet implemented*
+ViewModels (Business Logic)
     ↓
 Repository/ApiConfig (Data Layer)
     ↓
@@ -168,38 +173,130 @@ API Services (Network)
 
 ### Repository Pattern
 ```kotlin
-object ApiConfig {
-    private const val USE_MOCK_API = BuildConfig.DEBUG || System.getenv("DOCKER_ENV") != null
+// Repository interface
+interface UserRepository {
+    suspend fun getUsers(): Result<List<DataItem>>
+}
+
+// Repository implementation with CircuitBreaker
+class UserRepositoryImpl(
+    private val apiService: ApiServiceV1
+) : UserRepository {
     
-    fun getApiService(): ApiService {
-        val retrofit = Retrofit.Builder()
-            .baseUrl(getBaseUrl())
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(getOkHttpClient())
-            .build()
-        return retrofit.create(ApiService::class.java)
+    override suspend fun getUsers(): Result<List<DataItem>> {
+        return try {
+            val response = apiService.getUsers()
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!.data)
+            } else {
+                Result.failure(NetworkException(response.code()))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
+}
+
+// Dependency Injection container (DependencyContainer.kt)
+object DependencyContainer {
+    @Volatile
+    private var userRepository: UserRepository? = null
     
-    private fun getBaseUrl(): String = if (USE_MOCK_API) {
-        "http://api-mock:5000/data/QjX6hB1ST2IDKaxB/\n\n"
-    } else {
-        "https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/\n\n"
+    fun provideUserRepository(): UserRepository {
+        return userRepository ?: synchronized(this) {
+            userRepository ?: UserRepositoryImpl(ApiConfig.getApiServiceV1()).also { userRepository = it }
+        }
+    }
+}
+
+// Usage in ViewModel
+class UserViewModel : ViewModel() {
+    private val repository = DependencyContainer.provideUserRepository()
+    private val _uiState = MutableStateFlow<UiState<List<DataItem>>>(UiState.Loading)
+    val uiState: StateFlow<UiState<List<DataItem>>> = _uiState.asStateFlow()
+    
+    fun loadUsers() {
+        viewModelScope.launch {
+            _uiState.value = UiState.Loading
+            repository.getUsers()
+                .onSuccess { users ->
+                    _uiState.value = UiState.Success(users)
+                }
+                .onFailure { error ->
+                    _uiState.value = UiState.Error(error.message ?: "Unknown error")
+                }
+        }
+    }
+}
+
+// Usage in Activity with DependencyContainer
+class MainActivity : BaseActivity() {
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var viewModel: UserViewModel
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        // Initialize ViewModel with use case from DI container
+        viewModel = DependencyContainer.provideUserViewModel()
+
+        setupRecyclerView()
+        observeViewModel()
+        viewModel.loadUsers()
+    }
+
+    private fun observeViewModel() {
+        lifecycleScope.launch {
+            viewModel.uiState.collect { state ->
+                when (state) {
+                    is UiState.Loading -> showLoading()
+                    is UiState.Success -> showUsers(state.data)
+                    is UiState.Error -> showError(state.message)
+                }
+            }
+        }
+    }
+
+    private fun showLoading() {
+        binding.progressBar.visibility = View.VISIBLE
+        binding.rvUsers.visibility = View.GONE
+    }
+
+    private fun showUsers(users: List<DataItem>) {
+        binding.progressBar.visibility = View.GONE
+        binding.rvUsers.visibility = View.VISIBLE
+        adapter.submitList(users)
+    }
+
+    private fun showError(message: String) {
+        binding.progressBar.visibility = View.GONE
+        Toast.makeText(this, "Error: $message", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.unbind()
     }
 }
 ```
 
-### Adapter Pattern
+### Adapter Pattern with DiffUtil
 ```kotlin
-class UserAdapter(private val users: MutableList<DataItem>) :
-    RecyclerView.Adapter<UserAdapter.ListViewHolder>() {
+class UserAdapter : ListAdapter<DataItem, UserAdapter.ListViewHolder>(DiffCallback) {
     
-    fun setUsers(users: List<DataItem>) {
-        this.users.clear()
-        this.users.addAll(users)
-        notifyDataSetChanged() // TODO: Replace with DiffUtil
+    companion object {
+        private val DiffCallback = object : DiffUtil.ItemCallback<DataItem>() {
+            override fun areItemsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+                return oldItem.email == newItem.email
+            }
+            
+            override fun areContentsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+                return oldItem == newItem
+            }
+        }
     }
-    
-    // TODO: Implement DiffUtil for better performance
 }
 ```
 
@@ -207,7 +304,63 @@ class UserAdapter(private val users: MutableList<DataItem>) :
 
 ### Unit Tests
 ```kotlin
-class LaporanActivityCalculationTest {
+class UserRepositoryImplTest {
+    
+    private lateinit var mockApiService: ApiService
+    private lateinit var repository: UserRepositoryImpl
+    
+    @Before
+    fun setup() {
+        mockApiService = mock()
+        repository = UserRepositoryImpl(mockApiService)
+    }
+    
+    @Test
+    fun `getUsers returns success with valid data`() = runTest {
+        // Given
+        val expectedData = listOf(
+            DataItem(
+                first_name = "Test",
+                last_name = "User",
+                email = "test@example.com",
+                alamat = "Test Address",
+                iuran_perwarga = 100,
+                total_iuran_rekap = 1200,
+                jumlah_iuran_bulanan = 100,
+                total_iuran_individu = 100,
+                pengeluaran_iuran_warga = 25,
+                pemanfaatan_iuran = "Test usage",
+                avatar = "https://example.com/avatar.jpg"
+            )
+        )
+        val response = Response.success(UserResponse(expectedData))
+        
+        coEvery { mockApiService.getUsers() } returns response
+        
+        // When
+        val result = repository.getUsers()
+        
+        // Then
+        assertTrue(result.isSuccess)
+        assertEquals(expectedData, result.getOrNull())
+    }
+    
+    @Test
+    fun `getUsers returns failure on network error`() = runTest {
+        // Given
+        val exception = IOException("Network error")
+        coEvery { mockApiService.getUsers() } throws exception
+        
+        // When
+        val result = repository.getUsers()
+        
+        // Then
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is IOException)
+    }
+}
+
+class FinancialCalculatorTest {
     
     @Test
     fun testTotalIuranIndividuCalculation_accumulatesCorrectly() {
@@ -225,6 +378,41 @@ class LaporanActivityCalculationTest {
         
         // Then
         assertEquals(375, totalIuranIndividu) // (50*3) + (75*3)
+    }
+}
+
+class UserViewModelTest {
+    
+    private lateinit var mockRepository: UserRepository
+    private lateinit var viewModel: UserViewModel
+    
+    @Before
+    fun setup() {
+        mockRepository = mock()
+        viewModel = UserViewModel(mockRepository)
+    }
+    
+    @Test
+    fun `loadUsers updates state to Success when repository returns data`() = runTest {
+        // Given
+        val expectedData = listOf(DataItem(
+            first_name = "Test", last_name = "User", 
+            email = "test@example.com", alamat = "Test Address",
+            iuran_perwarga = 100, total_iuran_rekap = 1200,
+            jumlah_iuran_bulanan = 100, total_iuran_individu = 100,
+            pengeluaran_iuran_warga = 25, pemanfaatan_iuran = "Test",
+            avatar = "https://example.com/avatar.jpg"
+        ))
+        coEvery { mockRepository.getUsers() } returns Result.success(expectedData)
+        
+        // When
+        viewModel.loadUsers()
+        advanceUntilIdle()
+        
+        // Then
+        val state = viewModel.uiState.value
+        assertTrue(state is UiState.Success)
+        assertEquals(expectedData, (state as UiState.Success).data)
     }
 }
 ```
@@ -370,13 +558,36 @@ Closes #issue-number
 ### Environment Configuration
 ```kotlin
 // BuildConfig.DEBUG automatically set by Gradle
-private const val USE_MOCK_API = BuildConfig.DEBUG || System.getenv("DOCKER_ENV") != null
+import com.example.iurankomplek.utils.Constants
 
-// Environment-specific configurations
+// Use centralized constants from Constants.kt
 object Config {
-    const val API_TIMEOUT = 30_000L
-    const val RETRY_COUNT = 3
+    const val API_TIMEOUT = Constants.Network.CONNECT_TIMEOUT
+    const val RETRY_COUNT = Constants.Network.MAX_RETRIES
     const val CACHE_SIZE = 10 * 1024 * 1024L // 10MB
+}
+
+// Constants.kt structure:
+object Constants {
+    object Api {
+        const val PRODUCTION_BASE_URL = "https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/"
+        const val MOCK_BASE_URL = "http://api-mock:5000/data/QjX6hB1ST2IDKaxB/"
+        const val DOCKER_ENV_KEY = "DOCKER_ENV"
+    }
+    
+    object Network {
+        const val MAX_RETRIES = 3
+        const val MAX_RETRY_DELAY_MS = 30000L
+        const val CONNECT_TIMEOUT = 30L
+        const val READ_TIMEOUT = 30L
+        const val MAX_IDLE_CONNECTIONS = 5
+        const val KEEP_ALIVE_DURATION_MINUTES = 5L
+    }
+    
+    object UI {
+        const val ANIMATION_DURATION = 300L
+        const val CLICK_DELAY = 500L
+    }
 }
 ```
 
