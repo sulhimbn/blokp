@@ -8,6 +8,8 @@ import com.example.iurankomplek.R
 import com.example.iurankomplek.core.base.BaseFragment
 import com.example.iurankomplek.di.DependencyContainer
 import com.example.iurankomplek.databinding.FragmentCommunityBinding
+import com.example.iurankomplek.core.base.BaseFragment
+import com.example.iurankomplek.di.DependencyContainer
 import com.example.iurankomplek.presentation.adapter.CommunityPostAdapter
 import com.example.iurankomplek.presentation.viewmodel.CommunityPostViewModel
 import com.example.iurankomplek.utils.UiState
@@ -41,7 +43,7 @@ class CommunityFragment : BaseFragment<List<CommunityPost>>() {
     override fun createAdapter(): RecyclerView.Adapter<*> = CommunityPostAdapter().also { adapter = it }
  
     override fun initializeViewModel(viewModelProvider: ViewModelProvider) {
-        viewModel = DependencyContainer.provideCommunityPostViewModel()
+        viewModel = com.example.iurankomplek.di.DependencyContainer.provideCommunityPostViewModel()
     }
 
     override fun observeViewModelState() {
