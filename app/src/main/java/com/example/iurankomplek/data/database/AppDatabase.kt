@@ -44,7 +44,7 @@ abstract class AppDatabase : RoomDatabase() {
             Migration17(), Migration17Down, Migration18(), Migration18Down,
             Migration19(), Migration19Down, Migration20(), Migration20Down,
             Migration21(), Migration21Down, Migration22(), Migration22Down,
-            Migration23(), Migration23Down, Migration24(), Migration24Down
+            Migration23(), Migration23Down, Migration24(), Migration24Down()
         )
 
         fun getDatabase(context: Context, scope: CoroutineScope): AppDatabase {
