@@ -1,6 +1,6 @@
 package com.example.iurankomplek.core.base
 
-import androidx.annotation.JvmName
+import kotlin.jvm.JvmName
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.iurankomplek.utils.OperationResult
