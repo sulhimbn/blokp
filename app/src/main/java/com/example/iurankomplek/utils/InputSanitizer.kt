@@ -3,8 +3,13 @@ package com.example.iurankomplek.utils
 import java.net.URL
 import java.util.regex.Pattern
 
-object InputSanitizer {
+ object InputSanitizer {
     
+    private val CURRENCY_FORMATTER = java.text.NumberFormat.getNumberInstance(java.util.Locale("id", "ID")).apply {
+        isGroupingUsed = true
+        minimumIntegerDigits = 1
+    }
+
     // SECURITY: Improved email validation following RFC 5322 recommendations
     // Prevents email injection attacks and limits input to reasonable patterns
     private val EMAIL_PATTERN = Pattern.compile(
@@ -63,7 +68,7 @@ object InputSanitizer {
     
     fun formatCurrency(amount: Int?): String {
         return if (amount != null && amount >= 0) {
-            "Rp.${String.format("%,d", amount)}"
+            "Rp.${CURRENCY_FORMATTER.format(amount.toLong())}"
         } else "Rp.0"
     }
 

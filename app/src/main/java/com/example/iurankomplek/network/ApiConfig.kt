@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit
     
     @Volatile
     private var apiServiceV1Instance: ApiServiceV1? = null
-    
+
     // Circuit breaker for service resilience
     val circuitBreaker: CircuitBreaker = CircuitBreaker(
         failureThreshold = Constants.Network.MAX_RETRIES,
@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit
         timeout = Constants.Network.MAX_RETRY_DELAY_MS,
         halfOpenMaxCalls = 3
     )
-    
+
     // Rate limiter for preventing API overload
     val rateLimiter: RateLimiterInterceptor = RateLimiterInterceptor(
         maxRequestsPerSecond = Constants.Network.MAX_REQUESTS_PER_SECOND,
