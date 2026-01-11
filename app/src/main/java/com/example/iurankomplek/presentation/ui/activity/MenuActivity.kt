@@ -16,7 +16,11 @@ class MenuActivity : BaseActivity() {
         setupClickListeners()
     }
 
-    private fun setupClickListeners() {
+    protected open fun setupFullscreenMode() {
+        // No-op: MenuActivity doesn't use fullscreen mode
+    }
+
+    protected fun setupClickListeners() {
         binding.cdMenu1.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
         }
