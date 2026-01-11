@@ -4,7 +4,10 @@ import com.example.iurankomplek.data.entity.FinancialRecordEntity
 import com.example.iurankomplek.data.entity.UserEntity
 import com.example.iurankomplek.data.entity.UserWithFinancialRecords
 
-object EntityValidator {
+ object EntityValidator {
+    
+    private val EMAIL_PATTERN = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+    private val URL_PATTERN = Regex("^https?://[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)+.*$")
     
     /**
      * Validates a UserEntity
@@ -92,16 +95,14 @@ object EntityValidator {
      * Validates email format using regex
      */
     private fun isValidEmail(email: String): Boolean {
-        val emailPattern = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
-        return emailPattern.matches(email)
+        return EMAIL_PATTERN.matches(email)
     }
     
     /**
      * Validates URL format
      */
     private fun isValidUrl(url: String): Boolean {
-        val urlPattern = Regex("^https?://[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)+.*$")
-        return urlPattern.matches(url)
+        return URL_PATTERN.matches(url)
     }
     
     /**
