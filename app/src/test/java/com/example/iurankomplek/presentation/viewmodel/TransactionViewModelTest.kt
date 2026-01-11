@@ -53,7 +53,7 @@ class TransactionViewModelTest {
         )
         whenever(mockTransactionRepository.getAllTransactions()).thenReturn(flowOf(transactions))
 
-        val states = mutableListOf<UiState<List<Transaction>>>()
+        val states = mutableListOf<UiState<List<Transaction>> >()
         val job = launch {
             viewModel.transactionsState.collect { states.add(it) }
         }
@@ -74,7 +74,7 @@ class TransactionViewModelTest {
             flow { throw RuntimeException("Database error") }
         )
 
-        val states = mutableListOf<UiState<List<Transaction>>>()
+        val states = mutableListOf<UiState<List<Transaction>> >()
         val job = launch {
             viewModel.transactionsState.collect { states.add(it) }
         }
@@ -93,7 +93,7 @@ class TransactionViewModelTest {
     fun `loadAllTransactions should set Error state for empty flow`() = runTest {
         whenever(mockTransactionRepository.getAllTransactions()).thenReturn(emptyFlow())
 
-        val states = mutableListOf<UiState<List<Transaction>>>()
+        val states = mutableListOf<UiState<List<Transaction>> >()
         val job = launch {
             viewModel.transactionsState.collect { states.add(it) }
         }
@@ -117,7 +117,7 @@ class TransactionViewModelTest {
         whenever(mockTransactionRepository.getTransactionsByStatus(PaymentStatus.COMPLETED))
             .thenReturn(flowOf(completedTransactions))
 
-        val states = mutableListOf<UiState<List<Transaction>>>()
+        val states = mutableListOf<UiState<List<Transaction>> >()
         val job = launch {
             viewModel.transactionsState.collect { states.add(it) }
         }
@@ -141,7 +141,7 @@ class TransactionViewModelTest {
         whenever(mockTransactionRepository.getTransactionsByStatus(PaymentStatus.PENDING))
             .thenReturn(flowOf(pendingTransactions))
 
-        val states = mutableListOf<UiState<List<Transaction>>>()
+        val states = mutableListOf<UiState<List<Transaction>> >()
         val job = launch {
             viewModel.transactionsState.collect { states.add(it) }
         }
@@ -165,7 +165,7 @@ class TransactionViewModelTest {
         whenever(mockTransactionRepository.getTransactionsByStatus(PaymentStatus.FAILED))
             .thenReturn(flowOf(failedTransactions))
 
-        val states = mutableListOf<UiState<List<Transaction>>>()
+        val states = mutableListOf<UiState<List<Transaction>> >()
         val job = launch {
             viewModel.transactionsState.collect { states.add(it) }
         }
@@ -188,7 +188,7 @@ class TransactionViewModelTest {
         whenever(mockTransactionRepository.getTransactionsByStatus(PaymentStatus.REFUNDED))
             .thenReturn(flowOf(refundedTransactions))
 
-        val states = mutableListOf<UiState<List<Transaction>>>()
+        val states = mutableListOf<UiState<List<Transaction>> >()
         val job = launch {
             viewModel.transactionsState.collect { states.add(it) }
         }
@@ -208,7 +208,7 @@ class TransactionViewModelTest {
         whenever(mockTransactionRepository.getTransactionsByStatus(PaymentStatus.COMPLETED))
             .thenReturn(emptyFlow())
 
-        val states = mutableListOf<UiState<List<Transaction>>>()
+        val states = mutableListOf<UiState<List<Transaction>> >()
         val job = launch {
             viewModel.transactionsState.collect { states.add(it) }
         }
@@ -232,12 +232,12 @@ class TransactionViewModelTest {
         whenever(mockTransactionRepository.refundPayment(transactionId, reason)).thenReturn(Unit)
         whenever(mockTransactionRepository.getAllTransactions()).thenReturn(flowOf(transactions))
 
-        val refundStates = mutableListOf<UiState<Unit>>()
+        val refundStates = mutableListOf<UiState<Unit>> >()
         val refundJob = launch {
             viewModel.refundState.collect { refundStates.add(it) }
         }
 
-        val transactionStates = mutableListOf<UiState<List<Transaction>>>()
+        val transactionStates = mutableListOf<UiState<List<Transaction>> >()
         val transactionJob = launch {
             viewModel.transactionsState.collect { transactionStates.add(it) }
         }
@@ -245,7 +245,7 @@ class TransactionViewModelTest {
         viewModel.refundPayment(transactionId, reason)
         advanceUntilIdle()
 
-        val successRefundState = refundStates.filterIsInstance<UiState.Success<Unit>>().firstOrNull()
+        val successRefundState = refundStates.filterIsInstance<UiState.Success<Unit>>()  .firstOrNull()
         assertNotNull("Refund should be Success", successRefundState)
         verify(mockTransactionRepository).refundPayment(transactionId, reason)
         verify(mockTransactionRepository).getAllTransactions()
@@ -260,7 +260,7 @@ class TransactionViewModelTest {
         whenever(mockTransactionRepository.refundPayment(transactionId, reason))
             .thenThrow(RuntimeException("Refund failed"))
 
-        val refundStates = mutableListOf<UiState<Unit>>()
+        val refundStates = mutableListOf<UiState<Unit>> >()
         val job = launch {
             viewModel.refundState.collect { refundStates.add(it) }
         }
@@ -269,7 +269,7 @@ class TransactionViewModelTest {
         advanceUntilIdle()
 
         assertTrue("Should have Error state", refundStates.any { it is UiState.Error })
-        val errorState = refundStates.filterIsInstance<UiState.Error<Unit>>().last()
+        val errorState = refundStates.filterIsInstance<UiState.Error<Unit>>()  .last()
         assertTrue("Error message should contain error", errorState.message.contains("error"))
         job.cancel()
     }
@@ -279,7 +279,7 @@ class TransactionViewModelTest {
         whenever(mockTransactionRepository.refundPayment(null, any()))
             .thenThrow(IllegalArgumentException("Transaction ID cannot be null"))
 
-        val refundStates = mutableListOf<UiState<Unit>>>()
+        val refundStates = mutableListOf<UiState<Unit>> >()
         val job = launch {
             viewModel.refundState.collect { refundStates.add(it) }
         }
@@ -297,7 +297,7 @@ class TransactionViewModelTest {
         whenever(mockTransactionRepository.refundPayment(transactionId, ""))
             .thenThrow(IllegalArgumentException("Reason cannot be empty"))
 
-        val refundStates = mutableListOf<UiState<Unit>>()
+        val refundStates = mutableListOf<UiState<Unit>> >()
         val job = launch {
             viewModel.refundState.collect { refundStates.add(it) }
         }
@@ -341,7 +341,7 @@ class TransactionViewModelTest {
         )
         whenever(mockTransactionRepository.getAllTransactions()).thenReturn(flowOf(transactions))
 
-        val states = mutableListOf<UiState<List<Transaction>>>()
+        val states = mutableListOf<UiState<List<Transaction>> >()
         val job = launch {
             viewModel.transactionsState.collect { states.add(it) }
         }
@@ -361,7 +361,7 @@ class TransactionViewModelTest {
         whenever(mockTransactionRepository.refundPayment(transactionId, any())).thenReturn(Unit)
         whenever(mockTransactionRepository.getAllTransactions()).thenReturn(flowOf(emptyList()))
 
-        val states = mutableListOf<UiState<Unit>>()
+        val states = mutableListOf<UiState<Unit>> >()
         val job = launch {
             viewModel.refundState.collect { states.add(it) }
         }
@@ -381,7 +381,7 @@ class TransactionViewModelTest {
         )
         whenever(mockTransactionRepository.getAllTransactions()).thenReturn(flowOf(transactions))
 
-        val states = mutableListOf<UiState<List<Transaction>>>()
+        val states = mutableListOf<UiState<List<Transaction>> >()
         val job = launch {
             viewModel.transactionsState.collect { states.add(it) }
         }
@@ -407,7 +407,7 @@ class TransactionViewModelTest {
         testCases.forEach { (status, transactions) ->
             whenever(mockTransactionRepository.getTransactionsByStatus(status)).thenReturn(flowOf(transactions))
 
-            val states = mutableListOf<UiState<List<Transaction>>>()
+            val states = mutableListOf<UiState<List<Transaction>> >()
             val job = launch {
                 viewModel.transactionsState.collect { states.add(it) }
             }
