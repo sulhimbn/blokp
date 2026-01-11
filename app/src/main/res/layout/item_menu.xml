@@ -32,6 +32,6 @@
         android:textColor="@color/accent_teal_dark"
         android:textSize="@dimen/text_size_normal"
         android:textStyle="bold"
-        android:importantForAccessibility="yes" />
+        android:importantForAccessibility="no" />
 
 </LinearLayout>

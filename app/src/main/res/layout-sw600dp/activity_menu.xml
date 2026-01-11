@@ -58,7 +58,8 @@
             android:text="@string/menu_warga"
             android:textColor="@color/accent_teal_dark"
             android:textSize="@dimen/text_size_large"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:importantForAccessibility="no" />
     </LinearLayout>
 
     <!-- Laporan Menu Item -->
@@ -98,7 +99,8 @@
             android:text="@string/menu_laporan"
             android:textColor="@color/accent_teal_dark"
             android:textSize="@dimen/text_size_large"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:importantForAccessibility="no" />
     </LinearLayout>
 
      <!-- Row 2 Menu Items -->
@@ -140,7 +142,8 @@
             android:text="@string/menu_komunikasi"
             android:textColor="@color/accent_teal_dark"
             android:textSize="@dimen/text_size_large"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:importantForAccessibility="no" />
     </LinearLayout>
 
     <!-- Pembayaran Menu Item -->
@@ -181,7 +184,8 @@
             android:text="@string/menu_pembayaran"
             android:textColor="@color/accent_teal_dark"
             android:textSize="@dimen/text_size_large"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:importantForAccessibility="no" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

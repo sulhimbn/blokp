@@ -3,6 +3,83 @@
 ## Overview
 Track architectural refactoring tasks and their status.
 
+## UI/UX Engineer Tasks - 2026-01-11
+
+---
+
+### ✅ A11Y-001. Redundant Screen Reader Announcements - 2026-01-11
+**Status**: Completed
+**Completed Date**: 2026-01-11
+**Priority**: HIGH (Accessibility)
+**Estimated Time**: 30 minutes (completed in 15 minutes)
+**Description**: Fix redundant screen reader announcements in menu layouts
+
+**Issue Identified**:
+- Child TextViews inside clickable LinearLayouts in activity_menu.xml had `importantForAccessibility="yes"`
+- Parent LinearLayouts already have `importantForAccessibility="yes"` and contentDescription
+- Screen readers announced content twice: parent LinearLayout description + child TextView text
+- Impact: Poor screen reader user experience, verbose navigation
+
+**Critical Path Analysis**:
+- Menu items are primary navigation elements
+- Screen reader users rely on concise, non-redundant announcements
+- Double announcements increase navigation time and cognitive load
+- MenuActivity is first screen after MainActivity (high-traffic area)
+
+**Solution Implemented**:
+
+**1. Updated activity_menu.xml (Portrait)**:
+- Changed `android:importantForAccessibility="yes"` to `android:importantForAccessibility="no"` on all 4 child TextViews
+- TextView IDs: textView3, textView2, textView4, textView5
+- Parent LinearLayouts retain `importantForAccessibility="yes"` with proper contentDescription
+
+**2. Updated layout-sw600dp/activity_menu.xml (Tablet)**:
+- Changed `android:importantForAccessibility="yes"` to `android:importantForAccessibility="no"` on all 4 child TextViews
+- Same TextView IDs as portrait version for consistency
+- Ensures accessibility fix across all screen sizes
+
+**3. Updated item_menu.xml (Reused Card Layout)**:
+- Changed `android:importantForAccessibility="yes"` to `android:importantForAccessibility="no"` on menuItemText TextView
+- Parent LinearLayout retains `importantForAccessibility="yes"` with contentDescription
+
+**Accessibility Best Practices Followed ✅**:
+- ✅ **Single Announcement**: Screen reader now announces menu item once
+- ✅ **Parent Description**: Parent LinearLayout provides complete context
+- ✅ **Consistent Pattern**: All menu items follow same accessibility pattern
+- ✅ **Cross-Breakpoint Fix**: Portrait and tablet layouts both fixed
+
+**Files Modified** (3 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| app/src/main/res/layout/activity_menu.xml | +8, -4 | Fix 4 TextViews importantForAccessibility |
+| app/src/main/res/layout-sw600dp/activity_menu.xml | +8, -4 | Fix 4 TextViews importantForAccessibility (tablet) |
+| app/src/main/res/layout/item_menu.xml | +1, -1 | Fix menuItemText importantForAccessibility |
+
+**Accessibility Improvements**:
+- ✅ **Redundant Announcements Eliminated**: Screen reader announces each menu item once
+- ✅ **Better Navigation Experience**: Users no longer hear duplicate content
+- ✅ **Consistent Across Breakpoints**: Fix applied to portrait and tablet layouts
+- ✅ **Follows Android Guidelines**: `importantForAccessibility="no"` for decorative child text
+
+**Anti-Patterns Eliminated**:
+- ✅ No more double announcements from parent + child elements
+- ✅ No more redundant accessibility information
+- ✅ No more verbose screen reader navigation in menu
+
+**Success Criteria**:
+- [x] activity_menu.xml TextViews updated with importantForAccessibility="no"
+- [x] layout-sw600dp/activity_menu.xml TextViews updated with importantForAccessibility="no"
+- [x] item_menu.xml menuItemText updated with importantForAccessibility="no"
+- [x] All menu items now announced once by screen readers
+- [x] Parent LinearLayouts retain proper contentDescription
+- [x] Task documented in task.md
+
+**Dependencies**: None (independent accessibility fix)
+**Documentation**: Updated docs/task.md with A11Y-001 completion
+**Impact**: HIGH - Critical accessibility improvement, eliminates redundant screen reader announcements, improves navigation experience for screen reader users
+
+---
+
 ## Security Specialist Tasks - 2026-01-11
 
 ---
