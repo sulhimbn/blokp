@@ -5,7 +5,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
 import com.example.iurankomplek.presentation.ui.activity.TransactionHistoryActivity
-import com.example.iurankomplek.transaction.Transaction
+import com.example.iurankomplek.data.entity.Transaction
 import com.example.iurankomplek.presentation.viewmodel.TransactionViewModel
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.payment.PaymentStatus
@@ -147,9 +147,9 @@ class TransactionHistoryActivityTest {
     fun `should verify Transaction data structure`() {
         val testTransaction = Transaction(
             id = "TXN-12345",
-            userId = "USER-001",
-            amount = 50000.0,
-            paymentMethod = "BANK_TRANSFER",
+            userId = 1L,
+            amount = 50000L,
+            paymentMethod = com.example.iurankomplek.payment.PaymentMethod.BANK_TRANSFER,
             status = PaymentStatus.COMPLETED,
             createdAt = Date(),
             updatedAt = Date()
@@ -169,18 +169,18 @@ class TransactionHistoryActivityTest {
         val testDate = Date()
         val testTransaction = Transaction(
             id = "TXN-67890",
-            userId = "USER-002",
-            amount = 150000.0,
-            paymentMethod = "E_WALLET",
+            userId = 2L,
+            amount = 150000L,
+            paymentMethod = com.example.iurankomplek.payment.PaymentMethod.E_WALLET,
             status = PaymentStatus.COMPLETED,
             createdAt = testDate,
             updatedAt = testDate
         )
 
         assertEquals("TXN-67890", testTransaction.id)
-        assertEquals("USER-002", testTransaction.userId)
-        assertEquals(150000.0, testTransaction.amount, 0.001)
-        assertEquals("E_WALLET", testTransaction.paymentMethod)
+        assertEquals(2L, testTransaction.userId)
+        assertEquals(150000L, testTransaction.amount)
+        assertEquals(com.example.iurankomplek.payment.PaymentMethod.E_WALLET, testTransaction.paymentMethod)
         assertEquals(PaymentStatus.COMPLETED, testTransaction.status)
         assertEquals(testDate, testTransaction.createdAt)
         assertEquals(testDate, testTransaction.updatedAt)

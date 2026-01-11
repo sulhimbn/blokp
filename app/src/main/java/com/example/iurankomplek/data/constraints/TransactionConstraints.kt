@@ -37,7 +37,7 @@ object TransactionConstraints {
         CREATE TABLE ${TABLE_NAME} (
             ${Columns.ID} TEXT PRIMARY KEY NOT NULL,
             ${Columns.USER_ID} INTEGER NOT NULL,
-            ${Columns.AMOUNT} NUMERIC NOT NULL,
+            ${Columns.AMOUNT} INTEGER NOT NULL,
             ${Columns.CURRENCY} TEXT NOT NULL DEFAULT 'IDR',
             ${Columns.STATUS} TEXT NOT NULL,
             ${Columns.PAYMENT_METHOD} TEXT NOT NULL,

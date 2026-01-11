@@ -11,12 +11,13 @@ class ReceiptGenerator {
     fun generateReceipt(transaction: Transaction): Receipt {
         val receiptNumber = generateReceiptNumber()
         val qrCode = generateQRCode(transaction.id)
+        val amountInCurrency = java.math.BigDecimal(transaction.amount).divide(java.math.BigDecimal("100"), 2, java.math.RoundingMode.HALF_UP)
 
         return Receipt(
             id = UUID.randomUUID().toString(),
             transactionId = transaction.id,
             userId = transaction.userId.toString(),
-            amount = transaction.amount,
+            amount = amountInCurrency,
             description = transaction.description,
             paymentMethod = transaction.paymentMethod.name,
             transactionDate = transaction.createdAt,

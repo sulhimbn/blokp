@@ -40,7 +40,8 @@ class TransactionHistoryAdapter(
 
         fun bind(transaction: Transaction) {
             currentTransaction = transaction
-            val formattedAmount = CURRENCY_FORMATTER.format(transaction.amount.toDouble())
+            val amountInCurrency = java.math.BigDecimal(transaction.amount).divide(java.math.BigDecimal("100"), 2, java.math.RoundingMode.HALF_UP)
+            val formattedAmount = CURRENCY_FORMATTER.format(amountInCurrency)
             binding.tvAmount.text = formattedAmount
             binding.tvDescription.text = transaction.description
             binding.tvDate.text = transaction.createdAt.toString()

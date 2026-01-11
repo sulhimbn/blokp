@@ -32,13 +32,19 @@ class DataTypeConverters {
     }
 
     @TypeConverter
-    fun fromBigDecimal(value: BigDecimal?): String {
-        return value?.toPlainString() ?: "0"
+    fun fromBigDecimal(value: BigDecimal?): Long {
+        return value?.multiply(BigDecimal("100"))
+            ?.setScale(0, java.math.RoundingMode.HALF_UP)
+            ?.toLong() ?: 0L
     }
 
     @TypeConverter
-    fun toBigDecimal(value: String?): BigDecimal {
-        return if (value != null) BigDecimal(value) else BigDecimal.ZERO
+    fun toBigDecimal(value: Long?): BigDecimal {
+        return if (value != null && value > 0L) {
+            BigDecimal(value).divide(BigDecimal("100"), 2, java.math.RoundingMode.HALF_UP)
+        } else {
+            BigDecimal.ZERO
+        }
     }
 
     @TypeConverter

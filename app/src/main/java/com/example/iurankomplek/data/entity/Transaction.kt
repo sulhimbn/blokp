@@ -40,7 +40,7 @@ data class Transaction(
     val userId: Long,
 
     @ColumnInfo(name = "amount")
-    val amount: BigDecimal,
+    val amount: Long,
 
     @ColumnInfo(name = "currency", defaultValue = "'IDR'")
     val currency: String = "IDR",
@@ -73,8 +73,8 @@ data class Transaction(
     private fun validate() {
         require(id.isNotBlank()) { "Transaction ID cannot be blank" }
         require(userId > 0) { "User ID must be positive" }
-        require(amount > BigDecimal.ZERO) { "Amount must be positive" }
-        require(amount <= TransactionConstraints.Constraints.MAX_AMOUNT) { "Amount exceeds max value" }
+        require(amount > 0) { "Amount must be positive (stored as cents, minimum 1 cent)" }
+        require(amount <= 99999999999L) { "Amount exceeds max value (stored as cents, max 99999999999 = 999999999.99)" }
         require(currency.isNotBlank()) { "Currency cannot be blank" }
         require(currency.length <= TransactionConstraints.Constraints.MAX_CURRENCY_LENGTH) { "Currency too long" }
         require(description.isNotBlank()) { "Description cannot be blank" }
@@ -85,10 +85,13 @@ data class Transaction(
     companion object {
         fun create(request: com.example.iurankomplek.payment.PaymentRequest): Transaction {
             val now = Date()
+            val amountInCents = request.amount.multiply(BigDecimal("100"))
+                .setScale(0, java.math.RoundingMode.HALF_UP)
+                .toLong()
             return Transaction(
                 id = java.util.UUID.randomUUID().toString(),
                 userId = request.customerId.toLongOrNull() ?: 0L,
-                amount = request.amount,
+                amount = amountInCents,
                 currency = request.currency,
                 status = PaymentStatus.PENDING,
                 paymentMethod = request.paymentMethod,
