@@ -1,6 +1,7 @@
 package com.example.iurankomplek.presentation.adapter
 
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 
@@ -23,7 +24,7 @@ abstract class BaseListAdapter<T, VH : RecyclerView.ViewHolder>(
     }
 
     companion object {
-        fun <T : Any> diffById(idSelector: (T) -> Any): DiffUtil.ItemCallback<T> {
+        fun <T : Any> diffById(idSelector: (T) -> Any): androidx.recyclerview.widget.DiffUtil.ItemCallback<T> {
             return GenericDiffUtil.byId(idSelector)
         }
     }

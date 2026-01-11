@@ -8,6 +8,8 @@ import com.example.iurankomplek.network.interceptor.RequestIdInterceptor
 import com.example.iurankomplek.network.interceptor.RetryableRequestInterceptor
 import com.example.iurankomplek.network.interceptor.RateLimiterInterceptor
 import com.example.iurankomplek.network.interceptor.TimeoutInterceptor
+import com.example.iurankomplek.network.interceptor.RequestPriorityInterceptor
+import com.example.iurankomplek.network.interceptor.PriorityDispatcher
 import com.example.iurankomplek.network.resilience.CircuitBreaker
 import com.example.iurankomplek.network.resilience.CircuitBreakerState
 import com.example.iurankomplek.utils.Constants
@@ -51,6 +53,12 @@ import java.util.concurrent.TimeUnit
         maxRequestsPerMinute = Constants.Network.MAX_REQUESTS_PER_MINUTE,
         enableLogging = BuildConfig.DEBUG
     )
+
+    // Priority dispatcher for request prioritization (INT-001)
+    val priorityDispatcher: PriorityDispatcher = PriorityDispatcher(
+        maxRequestsPerHost = 5,
+        maxRequests = 64
+    )
     
     fun getApiServiceV1(): ApiServiceV1 {
         return apiServiceV1Instance ?: synchronized(this) {
@@ -66,9 +74,11 @@ import java.util.concurrent.TimeUnit
         val okHttpClient = if (!USE_MOCK_API) {
             SecurityConfig.getSecureOkHttpClient()
                 .newBuilder()
+                .dispatcher(priorityDispatcher)
                 .connectionPool(connectionPool)
                 .addInterceptor(TimeoutInterceptor())
                 .addInterceptor(RequestIdInterceptor())
+                .addInterceptor(RequestPriorityInterceptor())
                 .addInterceptor(IdempotencyInterceptor())
                 .addInterceptor(rateLimiter)
                 .addInterceptor(RetryableRequestInterceptor())
@@ -80,9 +90,11 @@ import java.util.concurrent.TimeUnit
                 .connectTimeout(Constants.Network.CONNECT_TIMEOUT, TimeUnit.SECONDS)
                 .readTimeout(Constants.Network.READ_TIMEOUT, TimeUnit.SECONDS)
                 .writeTimeout(Constants.Network.WRITE_TIMEOUT, TimeUnit.SECONDS)
+                .dispatcher(priorityDispatcher)
                 .connectionPool(connectionPool)
                 .addInterceptor(TimeoutInterceptor())
                 .addInterceptor(RequestIdInterceptor())
+                .addInterceptor(RequestPriorityInterceptor())
                 .addInterceptor(IdempotencyInterceptor())
                 .addInterceptor(rateLimiter)
                 .addInterceptor(RetryableRequestInterceptor())
@@ -118,8 +130,17 @@ import java.util.concurrent.TimeUnit
     fun getRateLimiterStats(): Map<String, RateLimiterInterceptor.EndpointStats> {
         return rateLimiter.getAllStats()
     }
-    
+
     fun resetRateLimiter() {
         rateLimiter.reset()
+    }
+
+    fun getPriorityQueueStats(): Map<String, Int> {
+        return priorityDispatcher.getQueueStats()
+            .mapKeys { it.name }
+    }
+
+    fun resetPriorityQueue() {
+        priorityDispatcher.reset()
     }
 }
