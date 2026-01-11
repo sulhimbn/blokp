@@ -308,7 +308,7 @@ object SecurityManager {
 
         val currentDate = java.util.Date()
         val expirationDate = java.util.Date(176, 11, 31)
-        val daysUntilExpiration = ((expirationDate.time - currentDate.time) / Constants.Security.MILLISECONDS_PER_DAY).toInt()
+        val daysUntilExpiration = ((expirationDate.time - currentDate.time) / Constants.Network.MILLISECONDS_PER_DAY).toInt()
 
         if (daysUntilExpiration <= Constants.Security.CERTIFICATE_EXPIRATION_WARNING_DAYS) {
             Log.w(TAG, "Certificate pinning expires soon. Consider rotating pins before expiration.")
