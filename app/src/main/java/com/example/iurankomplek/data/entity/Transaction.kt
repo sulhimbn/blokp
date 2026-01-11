@@ -24,7 +24,10 @@ import java.util.Date
         )
     ],
     indices = [
-        Index(value = ["user_id"])
+        Index(value = ["user_id"]),
+        Index(value = ["user_id", "is_deleted"]),
+        Index(value = ["status", "is_deleted"]),
+        Index(value = ["is_deleted", "updated_at"])
     ]
 )
 data class Transaction(
