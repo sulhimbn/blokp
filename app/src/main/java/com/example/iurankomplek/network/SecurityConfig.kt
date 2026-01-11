@@ -19,6 +19,7 @@ object SecurityConfig {
             )
             .connectTimeout(Constants.Network.CONNECT_TIMEOUT, TimeUnit.SECONDS)
             .readTimeout(Constants.Network.READ_TIMEOUT, TimeUnit.SECONDS)
+            .writeTimeout(Constants.Network.WRITE_TIMEOUT, TimeUnit.SECONDS)
             .addInterceptor(getSecurityInterceptor())
         
         // Add logging interceptor only for debug builds
