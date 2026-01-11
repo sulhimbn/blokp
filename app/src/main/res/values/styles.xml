@@ -43,10 +43,7 @@
         <item name="boxStrokeErrorColor">@color/status_error</item>
         <item name="boxStrokeWidth">2dp</item>
         <item name="boxStrokeWidthFocused">3dp</item>
-        <item name="errorIconEnabled">true</item>
-        <item name="errorIconTint">@color/status_error</item>
-        <item name="helperTextEnabled">true</item>
-        <item name="helperTextTextColor">@color/text_secondary</item>
+        <item name="helperTextColor">@color/text_secondary</item>
         <item name="hintTextColor">@color/text_secondary</item>
         <item name="hintAnimationEnabled">true</item>
     </style>
