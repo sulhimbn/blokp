@@ -21,7 +21,8 @@ import java.util.Date
         )
     ],
     indices = [
-        Index(value = ["user_id", "total_iuran_rekap"])
+        Index(value = ["user_id", "is_deleted", "updated_at"]),
+        Index(value = ["is_deleted", "updated_at"])
     ]
 )
 data class FinancialRecordEntity(
