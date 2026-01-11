@@ -202,6 +202,110 @@ Track architectural refactoring tasks and their status.
 
 ---
 
+### ✅ UI-001. Component Extraction - Consistent Card Component for Item Layouts - 2026-01-11
+**Status**: Completed
+**Completed Date**: 2026-01-11
+**Priority**: HIGH (Design System Alignment)
+**Estimated Time**: 1.5 hours (completed in 45 minutes)
+**Description**: Refactor item layouts to use consistent MaterialCardView component
+
+**Issue Identified**:
+- Inconsistent card/item layouts across app
+- Some items use `LinearLayout` with background drawables (item_message.xml, item_vendor.xml, item_work_order.xml, item_community_post.xml)
+- Some use `MaterialCardView` (item_announcement.xml)
+- Inconsistent backgrounds: `bg_item_list` vs `bg_item_list_focused` vs `@color/background_card`
+- Include layouts (`include_card_base.xml`, `include_card_clickable.xml`) exist but are not used
+- Duplicate card styling code across multiple item layouts
+
+**Critical Path Analysis**:
+- Item layouts are core UI components used in all list screens
+- Visual inconsistency creates unprofessional user experience
+- Multiple card patterns increase maintenance burden and risk of inconsistencies
+- MaterialCardView provides modern Material Design with proper elevation and ripple effects
+- Standardized card component ensures consistent touch feedback and accessibility
+
+**Solution Implemented**:
+
+**1. Created include_card_clickable_base.xml**:
+- Standardized MaterialCardView with consistent attributes
+- `cardBackgroundColor="@color/background_card"`
+- `cardCornerRadius="@dimen/radius_md"`
+- `cardElevation="@dimen/elevation_sm"`
+- `rippleColor="@color/secondary"` for touch feedback
+- `clickable="true"` and `focusable="true"` for accessibility
+- `descendantFocusability="blocksDescendants"` for proper focus management
+- `layout_marginBottom="@dimen/spacing_sm"` for consistent spacing
+- Inner LinearLayout wrapper for content padding (`@dimen/padding_md`)
+
+**2. Refactored item_message.xml**:
+- Replaced LinearLayout + `bg_item_list` with MaterialCardView
+- Maintained all child TextViews and their IDs
+- Added consistent ripple effect for touch feedback
+- Improved elevation for visual hierarchy
+- Maintained accessibility attributes
+
+**3. Refactored item_vendor.xml**:
+- Replaced LinearLayout + `bg_item_list_focused` with MaterialCardView
+- Maintained all child TextViews and their IDs
+- Added consistent ripple effect for touch feedback
+- Improved elevation for visual hierarchy
+- Maintained accessibility attributes
+
+**4. Refactored item_work_order.xml**:
+- Replaced LinearLayout + `bg_item_list` with MaterialCardView
+- Maintained all child TextViews and their IDs
+- Added consistent ripple effect for touch feedback
+- Improved elevation for visual hierarchy
+- Maintained accessibility attributes
+
+**5. Refactored item_community_post.xml**:
+- Replaced LinearLayout + `bg_item_list` with MaterialCardView
+- Maintained all child TextViews and their IDs
+- Added consistent ripple effect for touch feedback
+- Improved elevation for visual hierarchy
+- Maintained accessibility attributes
+
+**Design System Improvements ✅**:
+- ✅ **Consistent Card Component**: All items now use MaterialCardView with standardized attributes
+- ✅ **Modern Material Design**: MaterialCardView provides elevation, shadows, and ripple effects
+- ✅ **Visual Hierarchy**: Consistent card elevation improves depth perception
+- ✅ **Touch Feedback**: Ripple effect provides visual feedback for all interactions
+- ✅ **Accessibility Maintained**: All accessibility attributes preserved during refactor
+- ✅ **Maintainability**: Single source of truth for card styling
+
+**Anti-Patterns Eliminated**:
+- ✅ No more inconsistent background drawables across item layouts
+- ✅ No more duplicate card styling code
+- ✅ No more mixed MaterialCardView and LinearLayout patterns
+- ✅ No more missing ripple effects on touch
+- ✅ No more inconsistent elevation and spacing
+
+**Files Modified** (5 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| app/src/main/res/layout/include_card_clickable_base.xml | +19 | New reusable card component |
+| app/src/main/res/layout/item_message.xml | +22, -20 | Refactor to MaterialCardView |
+| app/src/main/res/layout/item_vendor.xml | +27, -23 | Refactor to MaterialCardView |
+| app/src/main/res/layout/item_work_order.xml | +24, -21 | Refactor to MaterialCardView |
+| app/src/main/res/layout/item_community_post.xml | +23, -20 | Refactor to MaterialCardView |
+
+**Success Criteria**:
+- [x] include_card_clickable_base.xml created with standardized card component
+- [x] item_message.xml refactored to use MaterialCardView
+- [x] item_vendor.xml refactored to use MaterialCardView
+- [x] item_work_order.xml refactored to use MaterialCardView
+- [x] item_community_post.xml refactored to use MaterialCardView
+- [x] All items have consistent card styling (elevation, corner radius, background)
+- [x] All items have ripple effect for touch feedback
+- [x] All accessibility attributes preserved
+- [x] Task documented in task.md
+
+**Dependencies**: None (independent UI refactoring)
+**Documentation**: Updated docs/task.md with UI-001 completion
+**Impact**: MEDIUM - Improved design system consistency, modern Material Design implementation, better visual hierarchy, consistent touch feedback, reduced code duplication
+
+---
+
 ## Security Specialist Tasks - 2026-01-11
 
 ---
