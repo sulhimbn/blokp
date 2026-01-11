@@ -1,14 +1,14 @@
 package com.example.iurankomplek.payment
 
 import java.math.BigDecimal
-import java.util.Date
 import java.util.UUID
+import kotlinx.coroutines.delay
 import com.example.iurankomplek.utils.OperationResult
 
 class MockPaymentGateway : PaymentGateway {
     override suspend fun processPayment(request: PaymentRequest): OperationResult<PaymentResponse> {
         return try {
-            Thread.sleep(500)
+            delay(500)
 
             val response = PaymentResponse(
                 transactionId = UUID.randomUUID().toString(),
