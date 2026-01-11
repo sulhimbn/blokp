@@ -32,7 +32,7 @@ class PemanfaatanRepositoryImpl(
                 }
             }
 
-            val result = executeWithCircuitBreaker { apiService.getPemanfaatan() }
+            val result = executeWithCircuitBreakerV1 { apiService.getPemanfaatan() }
             if (result is OperationResult.Success) {
                 savePemanfaatanToCache(result.data)
             }

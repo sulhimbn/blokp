@@ -89,31 +89,15 @@ class VendorRepositoryImpl(
         workOrderId: String,
         vendorId: String,
         scheduledDate: String?
-    ): OperationResult<SingleWorkOrderResponse> {
-        val result = executeWithCircuitBreaker {
-            apiService.assignVendorToWorkOrder(workOrderId, AssignVendorRequest(vendorId, scheduledDate))
-        }
-        return when (result) {
-            is OperationResult.Success -> OperationResult.Success(result.data.data)
-            is OperationResult.Error -> result
-            is OperationResult.Loading -> OperationResult.Error(IllegalStateException("Assignment in progress"), "Assignment in progress")
-            is OperationResult.Empty -> OperationResult.Error(IllegalStateException("No assignment result"), "No assignment result")
-        }
+    ): OperationResult<SingleWorkOrderResponse> = executeWithCircuitBreakerV1 {
+        apiService.assignVendorToWorkOrder(workOrderId, AssignVendorRequest(vendorId, scheduledDate))
     }
 
     override suspend fun updateWorkOrderStatus(
         workOrderId: String,
         status: String,
         notes: String?
-    ): OperationResult<SingleWorkOrderResponse> {
-        val result = executeWithCircuitBreaker {
-            apiService.updateWorkOrderStatus(workOrderId, UpdateWorkOrderRequest(status, notes))
-        }
-        return when (result) {
-            is OperationResult.Success -> OperationResult.Success(result.data.data)
-            is OperationResult.Error -> result
-            is OperationResult.Loading -> OperationResult.Error(IllegalStateException("Update in progress"), "Update in progress")
-            is OperationResult.Empty -> OperationResult.Error(IllegalStateException("No update result"), "No update result")
-        }
+    ): OperationResult<SingleWorkOrderResponse> = executeWithCircuitBreakerV1 {
+        apiService.updateWorkOrderStatus(workOrderId, UpdateWorkOrderRequest(status, notes))
     }
 }
