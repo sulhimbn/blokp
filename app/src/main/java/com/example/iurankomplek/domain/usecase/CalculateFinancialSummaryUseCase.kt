@@ -1,18 +1,18 @@
 package com.example.iurankomplek.domain.usecase
 
-import com.example.iurankomplek.data.dto.LegacyDataItemDto
+import com.example.iurankomplek.domain.model.FinancialItem
 
 /**
  * Use case for calculating financial summary with totals
  * Encapsulates business logic for financial report summaries
- * 
+ *
  * Optimized: Single-pass validation + calculation (eliminates 4 redundant iterations)
  */
 class CalculateFinancialSummaryUseCase(
     private val validateFinancialDataUseCase: ValidateFinancialDataUseCase = ValidateFinancialDataUseCase(),
     private val calculateFinancialTotalsUseCase: CalculateFinancialTotalsUseCase = CalculateFinancialTotalsUseCase()
 ) {
-    
+
     /**
      * Result class for financial summary
      */
@@ -23,15 +23,15 @@ class CalculateFinancialSummaryUseCase(
         val isValid: Boolean,
         val validationError: String? = null
     )
-    
+
     /**
-     * Calculates financial summary from a list of LegacyDataItemDto
+     * Calculates financial summary from a list of FinancialItem
      * Optimized to single-pass validation + calculation (80% faster for large datasets)
      *
-     * @param items List of LegacyDataItemDto to calculate summary for
+     * @param items List of FinancialItem to calculate summary for
      * @return FinancialSummary with calculated values and validation status
      */
-    operator fun invoke(items: List<LegacyDataItemDto>): FinancialSummary {
+    operator fun invoke(items: List<FinancialItem>): FinancialSummary {
         if (items.isEmpty()) {
             return FinancialSummary(
                 totalIuranBulanan = 0,
@@ -76,18 +76,18 @@ class CalculateFinancialSummaryUseCase(
      * After (1 iteration):
      * 1. validateAndCalculateInSinglePass(items) - single iteration for validation + calculation
      *
-     * @param items List of LegacyDataItemDto to validate and calculate
+     * @param items List of FinancialItem to validate and calculate
      * @return FinancialSummary with validated calculated values
      */
-    private fun validateAndCalculateInSinglePass(items: List<LegacyDataItemDto>): FinancialSummary {
+    private fun validateAndCalculateInSinglePass(items: List<FinancialItem>): FinancialSummary {
         var totalIuranBulanan = 0
         var totalPengeluaran = 0
         var totalIuranIndividu = 0
-        
+
         for (item in items) {
-            val iuranPerwarga = item.iuran_perwarga
-            val pengeluaranIuranWarga = item.pengeluaran_iuran_warga
-            val totalIuranIndividuValue = item.total_iuran_individu
+            val iuranPerwarga = item.iuranPerwarga
+            val pengeluaranIuranWarga = item.pengeluaranIuranWarga
+            val totalIuranIndividuValue = item.totalIuranIndividu
             
             if (iuranPerwarga < 0) {
                 throw IllegalArgumentException("Invalid financial data detected")

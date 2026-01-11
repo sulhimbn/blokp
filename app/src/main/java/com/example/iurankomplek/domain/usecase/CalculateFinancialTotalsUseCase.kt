@@ -1,13 +1,13 @@
 package com.example.iurankomplek.domain.usecase
 
-import com.example.iurankomplek.data.dto.LegacyDataItemDto
+import com.example.iurankomplek.domain.model.FinancialItem
 
 /**
- * Use case for calculating financial totals from LegacyDataItemDto list
+ * Use case for calculating financial totals from FinancialItem list
  * Encapsulates business logic for financial calculations
  */
 class CalculateFinancialTotalsUseCase {
-    
+
     /**
      * Result class for financial calculations
      */
@@ -17,16 +17,16 @@ class CalculateFinancialTotalsUseCase {
         val totalIuranIndividu: Int,
         val rekapIuran: Int
     )
-    
+
     /**
-     * Executes financial calculations for a list of LegacyDataItemDto
+     * Executes financial calculations for a list of FinancialItem
      *
-     * @param items List of LegacyDataItemDto to calculate totals for
+     * @param items List of FinancialItem to calculate totals for
      * @return FinancialTotals with calculated values
      * @throws IllegalArgumentException if validation fails
      * @throws ArithmeticException if calculation would cause overflow/underflow
      */
-    operator fun invoke(items: List<LegacyDataItemDto>): FinancialTotals {
+    operator fun invoke(items: List<FinancialItem>): FinancialTotals {
         if (items.isEmpty()) {
             return FinancialTotals(0, 0, 0, 0)
         }
@@ -37,47 +37,47 @@ class CalculateFinancialTotalsUseCase {
     }
     
     /**
-     * Validates a list of LegacyDataItemDto for financial calculation
+     * Validates a list of FinancialItem for financial calculation
      */
-    private fun validateDataItems(items: List<LegacyDataItemDto>) {
+    private fun validateDataItems(items: List<FinancialItem>) {
         for (item in items) {
-            require(item.iuran_perwarga >= 0) { "iuran_perwarga must be >= 0" }
-            require(item.pengeluaran_iuran_warga >= 0) { "pengeluaran_iuran_warga must be >= 0" }
-            require(item.total_iuran_individu >= 0) { "total_iuran_individu must be >= 0" }
-            require(item.iuran_perwarga <= Int.MAX_VALUE / 2) { "iuran_perwarga too large, may cause overflow" }
-            require(item.pengeluaran_iuran_warga <= Int.MAX_VALUE / 2) { "pengeluaran_iuran_warga too large, may cause overflow" }
-            require(item.total_iuran_individu <= Int.MAX_VALUE / 3) { "total_iuran_individu too large, may cause overflow" }
+            require(item.iuranPerwarga >= 0) { "iuranPerwarga must be >= 0" }
+            require(item.pengeluaranIuranWarga >= 0) { "pengeluaranIuranWarga must be >= 0" }
+            require(item.totalIuranIndividu >= 0) { "totalIuranIndividu must be >= 0" }
+            require(item.iuranPerwarga <= Int.MAX_VALUE / 2) { "iuranPerwarga too large, may cause overflow" }
+            require(item.pengeluaranIuranWarga <= Int.MAX_VALUE / 2) { "pengeluaranIuranWarga too large, may cause overflow" }
+            require(item.totalIuranIndividu <= Int.MAX_VALUE / 3) { "totalIuranIndividu too large, may cause overflow" }
         }
     }
     
     /**
-     * Calculates all financial totals in a single pass through the data
+     * Calculates all financial totals in a single pass through data
      * Optimized from 3 separate iterations to 1 iteration (~66% faster)
      *
-     * @param items List of LegacyDataItemDto to calculate totals for
+     * @param items List of FinancialItem to calculate totals for
      * @return FinancialTotals with calculated values
      */
-    private fun calculateAllTotalsInSinglePass(items: List<LegacyDataItemDto>): FinancialTotals {
+    private fun calculateAllTotalsInSinglePass(items: List<FinancialItem>): FinancialTotals {
         var totalIuranBulanan = 0
         var totalPengeluaran = 0
         var totalIuranIndividu = 0
 
         for (item in items) {
-            val iuranPerwarga = item.iuran_perwarga
+            val iuranPerwarga = item.iuranPerwarga
 
             if (iuranPerwarga > Int.MAX_VALUE - totalIuranBulanan) {
                 throw ArithmeticException("Total iuran bulanan calculation would cause overflow")
             }
             totalIuranBulanan += iuranPerwarga
 
-            val pengeluaranIuranWarga = item.pengeluaran_iuran_warga
+            val pengeluaranIuranWarga = item.pengeluaranIuranWarga
 
             if (pengeluaranIuranWarga > Int.MAX_VALUE - totalPengeluaran) {
                 throw ArithmeticException("Total pengeluaran calculation would cause overflow")
             }
             totalPengeluaran += pengeluaranIuranWarga
 
-            var totalIuranIndividuValue = item.total_iuran_individu
+            var totalIuranIndividuValue = item.totalIuranIndividu
 
             if (totalIuranIndividuValue > Int.MAX_VALUE / 3) {
                 throw ArithmeticException("Individual iuran calculation would cause overflow")

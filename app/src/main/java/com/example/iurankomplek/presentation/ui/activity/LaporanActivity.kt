@@ -15,6 +15,7 @@ import com.example.iurankomplek.di.DependencyContainer
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.data.api.models.PemanfaatanResponse
 import com.example.iurankomplek.data.dto.LegacyDataItemDto
+import com.example.iurankomplek.domain.model.FinancialItem
 import com.example.iurankomplek.presentation.viewmodel.FinancialViewModel
 import com.example.iurankomplek.presentation.ui.helper.RecyclerViewHelper
 import com.example.iurankomplek.presentation.ui.helper.SwipeRefreshHelper
@@ -107,7 +108,8 @@ class LaporanActivity : BaseActivity() {
     }
     
     private fun calculateAndSetSummary(dataArray: List<LegacyDataItemDto>) {
-        val summary = viewModel.calculateFinancialSummary(dataArray)
+        val financialItems = FinancialItem.fromLegacyDataItemDtoList(dataArray)
+        val summary = viewModel.calculateFinancialSummary(financialItems)
         
         if (!summary.isValid) {
             val errorMessage = summary.validationError ?: getString(R.string.invalid_financial_data_detected)

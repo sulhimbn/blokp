@@ -1,6 +1,6 @@
 package com.example.iurankomplek.domain.usecase
 
-import com.example.iurankomplek.data.dto.LegacyDataItemDto
+import com.example.iurankomplek.domain.model.FinancialItem
 
 /**
  * Use case for validating financial data
@@ -9,14 +9,14 @@ import com.example.iurankomplek.data.dto.LegacyDataItemDto
 class ValidateFinancialDataUseCase(
     private val calculateFinancialTotalsUseCase: CalculateFinancialTotalsUseCase = CalculateFinancialTotalsUseCase()
 ) {
-    
+
     /**
-     * Validates a single LegacyDataItemDto for financial calculation
+     * Validates a single FinancialItem for financial calculation
      *
-     * @param item LegacyDataItemDto to validate
+     * @param item FinancialItem to validate
      * @return true if valid, false otherwise
      */
-    operator fun invoke(item: LegacyDataItemDto): Boolean {
+    operator fun invoke(item: FinancialItem): Boolean {
         return try {
             validateDataItem(item)
             true
@@ -24,52 +24,52 @@ class ValidateFinancialDataUseCase(
             false
         }
     }
-    
+
     /**
-     * Validates a list of LegacyDataItemDto for financial calculation
+     * Validates a list of FinancialItem for financial calculation
      *
-     * @param items List of LegacyDataItemDto to validate
+     * @param items List of FinancialItem to validate
      * @return true if all items are valid, false otherwise
      */
-    fun validateAll(items: List<LegacyDataItemDto>): Boolean {
+    fun validateAll(items: List<FinancialItem>): Boolean {
         return items.all { invoke(it) }
     }
-    
+
     /**
-     * Validates a single LegacyDataItemDto for financial calculation
+     * Validates a single FinancialItem for financial calculation
      *
-     * @param item LegacyDataItemDto to validate
+     * @param item FinancialItem to validate
      * @throws IllegalArgumentException if validation fails
      */
-    private fun validateDataItem(item: LegacyDataItemDto) {
-        require(item.iuran_perwarga >= 0) { 
-            "iuran_perwarga must be >= 0, got ${item.iuran_perwarga}" 
+    private fun validateDataItem(item: FinancialItem) {
+        require(item.iuranPerwarga >= 0) {
+            "iuranPerwarga must be >= 0, got ${item.iuranPerwarga}"
         }
-        require(item.pengeluaran_iuran_warga >= 0) { 
-            "pengeluaran_iuran_warga must be >= 0, got ${item.pengeluaran_iuran_warga}" 
+        require(item.pengeluaranIuranWarga >= 0) {
+            "pengeluaranIuranWarga must be >= 0, got ${item.pengeluaranIuranWarga}"
         }
-        require(item.total_iuran_individu >= 0) { 
-            "total_iuran_individu must be >= 0, got ${item.total_iuran_individu}" 
+        require(item.totalIuranIndividu >= 0) {
+            "totalIuranIndividu must be >= 0, got ${item.totalIuranIndividu}"
         }
-        require(item.iuran_perwarga <= Int.MAX_VALUE / 2) { 
-            "iuran_perwarga too large, may cause overflow: ${item.iuran_perwarga}" 
+        require(item.iuranPerwarga <= Int.MAX_VALUE / 2) {
+            "iuranPerwarga too large, may cause overflow: ${item.iuranPerwarga}"
         }
-        require(item.pengeluaran_iuran_warga <= Int.MAX_VALUE / 2) { 
-            "pengeluaran_iuran_warga too large, may cause overflow: ${item.pengeluaran_iuran_warga}" 
+        require(item.pengeluaranIuranWarga <= Int.MAX_VALUE / 2) {
+            "pengeluaranIuranWarga too large, may cause overflow: ${item.pengeluaranIuranWarga}"
         }
-        require(item.total_iuran_individu <= Int.MAX_VALUE / 3) { 
-            "total_iuran_individu too large, may cause overflow: ${item.total_iuran_individu}" 
+        require(item.totalIuranIndividu <= Int.MAX_VALUE / 3) {
+            "totalIuranIndividu too large, may cause overflow: ${item.totalIuranIndividu}"
         }
     }
-    
+
     /**
-     * Validates all financial calculations for a list of LegacyDataItemDto
+     * Validates all financial calculations for a list of FinancialItem
      * Performs test calculations to ensure no overflow/underflow
      *
-     * @param items List of LegacyDataItemDto to validate
+     * @param items List of FinancialItem to validate
      * @return true if all calculations succeed, false otherwise
      */
-    fun validateCalculations(items: List<LegacyDataItemDto>): Boolean {
+    fun validateCalculations(items: List<FinancialItem>): Boolean {
         return try {
             if (!validateAll(items)) {
                 return false
