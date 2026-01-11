@@ -22,7 +22,7 @@ import org.robolectric.annotation.Config
 class CommunicationActivityTest {
 
     private lateinit var activity: CommunicationActivity
-    private lateinit var controller: Robolectric.BuildActivity<CommunicationActivity>
+    private lateinit var controller: RobolectricTestRunner.ActivityController<CommunicationActivity>
 
     @Before
     fun setup() {
@@ -38,37 +38,37 @@ class CommunicationActivityTest {
 
     @Test
     fun `should initialize ViewPager2 correctly`() {
-        val viewPager = activity.findViewById<ViewPager2>(R.id.view_pager)
+        val viewPager = activity.findViewById<ViewPager2>(R.id.viewPager)
         assertNotNull("ViewPager2 should be initialized", viewPager)
     }
 
     @Test
     fun `should set adapter on ViewPager2`() {
-        val viewPager = activity.findViewById<ViewPager2>(R.id.view_pager)
+        val viewPager = activity.findViewById<ViewPager2>(R.id.viewPager)
         assertNotNull("ViewPager2 should have an adapter", viewPager.adapter)
     }
 
     @Test
     fun `should initialize TabLayout correctly`() {
-        val tabLayout = activity.findViewById<TabLayout>(R.id.tab_layout)
+        val tabLayout = activity.findViewById<TabLayout>(R.id.tabLayout)
         assertNotNull("TabLayout should be initialized", tabLayout)
     }
 
     @Test
     fun `should have exactly 3 tabs`() {
-        val tabLayout = activity.findViewById<TabLayout>(R.id.tab_layout)
+        val tabLayout = activity.findViewById<TabLayout>(R.id.tabLayout)
         assertEquals("TabLayout should have exactly 3 tabs", 3, tabLayout.tabCount)
     }
 
     @Test
     fun `should have 3 fragments in adapter`() {
-        val viewPager = activity.findViewById<ViewPager2>(R.id.view_pager)
+        val viewPager = activity.findViewById<ViewPager2>(R.id.viewPager)
         assertEquals("Adapter should have exactly 3 fragments", 3, viewPager.adapter?.itemCount)
     }
 
     @Test
     fun `should verify first tab text is Announcements`() {
-        val tabLayout = activity.findViewById<TabLayout>(R.id.tab_layout)
+        val tabLayout = activity.findViewById<TabLayout>(R.id.tabLayout)
         val firstTab = tabLayout.getTabAt(0)
         assertNotNull("First tab should exist", firstTab)
         assertEquals("First tab text should be 'Announcements'", 
@@ -77,7 +77,7 @@ class CommunicationActivityTest {
 
     @Test
     fun `should verify second tab text is Messages`() {
-        val tabLayout = activity.findViewById<TabLayout>(R.id.tab_layout)
+        val tabLayout = activity.findViewById<TabLayout>(R.id.tabLayout)
         val secondTab = tabLayout.getTabAt(1)
         assertNotNull("Second tab should exist", secondTab)
         assertEquals("Second tab text should be 'Messages'", 
@@ -86,7 +86,7 @@ class CommunicationActivityTest {
 
     @Test
     fun `should verify third tab text is Community`() {
-        val tabLayout = activity.findViewById<TabLayout>(R.id.tab_layout)
+        val tabLayout = activity.findViewById<TabLayout>(R.id.tabLayout)
         val thirdTab = tabLayout.getTabAt(2)
         assertNotNull("Third tab should exist", thirdTab)
         assertEquals("Third tab text should be 'Community'", 
@@ -95,7 +95,7 @@ class CommunicationActivityTest {
 
     @Test
     fun `should create AnnouncementsFragment at position 0`() {
-        val viewPager = activity.findViewById<ViewPager2>(R.id.view_pager)
+        val viewPager = activity.findViewById<ViewPager2>(R.id.viewPager)
         val adapter = viewPager.adapter
         
         if (adapter is CommunicationActivity.CommunicationPagerAdapter) {
@@ -107,7 +107,7 @@ class CommunicationActivityTest {
 
     @Test
     fun `should create MessagesFragment at position 1`() {
-        val viewPager = activity.findViewById<ViewPager2>(R.id.view_pager)
+        val viewPager = activity.findViewById<ViewPager2>(R.id.viewPager)
         val adapter = viewPager.adapter
         
         if (adapter is CommunicationActivity.CommunicationPagerAdapter) {
@@ -119,7 +119,7 @@ class CommunicationActivityTest {
 
     @Test
     fun `should create CommunityFragment at position 2`() {
-        val viewPager = activity.findViewById<ViewPager2>(R.id.view_pager)
+        val viewPager = activity.findViewById<ViewPager2>(R.id.viewPager)
         val adapter = viewPager.adapter
         
         if (adapter is CommunicationActivity.CommunicationPagerAdapter) {
@@ -131,7 +131,7 @@ class CommunicationActivityTest {
 
     @Test
     fun `should default to AnnouncementsFragment for invalid position`() {
-        val viewPager = activity.findViewById<ViewPager2>(R.id.view_pager)
+        val viewPager = activity.findViewById<ViewPager2>(R.id.viewPager)
         val adapter = viewPager.adapter
         
         if (adapter is CommunicationActivity.CommunicationPagerAdapter) {
@@ -143,13 +143,13 @@ class CommunicationActivityTest {
 
     @Test
     fun `should verify adapter extends FragmentStateAdapter`() {
-        val viewPager = activity.findViewById<ViewPager2>(R.id.view_pager)
+        val viewPager = activity.findViewById<ViewPager2>(R.id.viewPager)
         assertNotNull("Adapter should extend FragmentStateAdapter", viewPager.adapter)
     }
 
     @Test
     fun `should handle ViewPager2 scrolling`() {
-        val viewPager = activity.findViewById<ViewPager2>(R.id.view_pager)
+        val viewPager = activity.findViewById<ViewPager2>(R.id.viewPager)
         assertNotNull("ViewPager2 should support scrolling", viewPager)
 
         viewPager.setCurrentItem(1, false)
@@ -158,8 +158,8 @@ class CommunicationActivityTest {
 
     @Test
     fun `should handle tab switching`() {
-        val tabLayout = activity.findViewById<TabLayout>(R.id.tab_layout)
-        val viewPager = activity.findViewById<ViewPager2>(R.id.view_pager)
+        val tabLayout = activity.findViewById<TabLayout>(R.id.tabLayout)
+        val viewPager = activity.findViewById<ViewPager2>(R.id.viewPager)
         
         assertNotNull("TabLayout should support tab switching", tabLayout)
         assertNotNull("ViewPager2 should sync with tab layout", viewPager)
@@ -178,7 +178,7 @@ class CommunicationActivityTest {
 
     @Test
     fun `should verify all tabs are accessible`() {
-        val tabLayout = activity.findViewById<TabLayout>(R.id.tab_layout)
+        val tabLayout = activity.findViewById<TabLayout>(R.id.tabLayout)
         
         for (i in 0 until tabLayout.tabCount) {
             val tab = tabLayout.getTabAt(i)
@@ -188,19 +188,19 @@ class CommunicationActivityTest {
 
     @Test
     fun `should verify ViewPager2 orientation`() {
-        val viewPager = activity.findViewById<ViewPager2>(R.id.view_pager)
+        val viewPager = activity.findViewById<ViewPager2>(R.id.viewPager)
         assertNotNull("ViewPager2 should be horizontal by default", viewPager.orientation)
     }
 
     @Test
     fun `should handle fragment recreation on configuration change`() {
-        val viewPager = activity.findViewById<ViewPager2>(R.id.view_pager)
+        val viewPager = activity.findViewById<ViewPager2>(R.id.viewPager)
         assertNotNull("ViewPager2 should handle fragment recreation", viewPager.adapter)
     }
 
     @Test
     fun `should verify all fragment types are distinct`() {
-        val viewPager = activity.findViewById<ViewPager2>(R.id.view_pager)
+        val viewPager = activity.findViewById<ViewPager2>(R.id.viewPager)
         val adapter = viewPager.adapter
         
         if (adapter is CommunicationActivity.CommunicationPagerAdapter) {
@@ -217,8 +217,8 @@ class CommunicationActivityTest {
 
     @Test
     fun `should initialize TabLayoutMediator correctly`() {
-        val tabLayout = activity.findViewById<TabLayout>(R.id.tab_layout)
-        val viewPager = activity.findViewById<ViewPager2>(R.id.view_pager)
+        val tabLayout = activity.findViewById<TabLayout>(R.id.tabLayout)
+        val viewPager = activity.findViewById<ViewPager2>(R.id.viewPager)
         
         assertNotNull("TabLayout should be initialized", tabLayout)
         assertNotNull("ViewPager2 should be initialized", viewPager)
@@ -228,7 +228,7 @@ class CommunicationActivityTest {
 
     @Test
     fun `should handle ViewPager2 setCurrentItem with smooth scroll`() {
-        val viewPager = activity.findViewById<ViewPager2>(R.id.view_pager)
+        val viewPager = activity.findViewById<ViewPager2>(R.id.viewPager)
         
         viewPager.setCurrentItem(2, true)
         assertEquals("ViewPager2 should scroll to position 2 with smooth scroll", 2, viewPager.currentItem)
@@ -236,7 +236,7 @@ class CommunicationActivityTest {
 
     @Test
     fun `should verify ViewPager2 current item defaults to 0`() {
-        val viewPager = activity.findViewById<ViewPager2>(R.id.view_pager)
+        val viewPager = activity.findViewById<ViewPager2>(R.id.viewPager)
         assertEquals("ViewPager2 current item should default to 0", 0, viewPager.currentItem)
     }
 }
