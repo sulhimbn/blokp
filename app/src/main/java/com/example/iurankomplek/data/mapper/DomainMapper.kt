@@ -65,7 +65,7 @@ object DomainMapper {
         )
     }
 
-    @JvmName("toFinancialDomainModelList")
+    @JvmName("toFinancialRecordDomainModelList")
     fun toDomainModelList(financialRecordEntities: List<FinancialRecordEntity>): List<FinancialRecord> {
         return financialRecordEntities.map { toDomainModel(it) }
     }
@@ -85,7 +85,7 @@ object DomainMapper {
         )
     }
 
-    @JvmName("fromFinancialDomainModelList")
+    @JvmName("fromFinancialRecordDomainModelList")
     fun fromDomainModelList(financialRecords: List<FinancialRecord>): List<FinancialRecordEntity> {
         return financialRecords.map { fromDomainModel(it) }
     }
