@@ -66,7 +66,7 @@ class CompressionInterceptor(
                 val decompressedBody = decompress(responseBody)
                 return response.newBuilder()
                     .body(decompressedBody)
-                    .header(contentEncoding, null)
+                    .removeHeader(contentEncoding)
                     .build()
             }
         }
@@ -106,7 +106,7 @@ class CompressionInterceptor(
                 body.writeTo(buffer)
                 val gzippedBuffer = Buffer()
                 val gzipOutputStream = GZIPOutputStream(gzippedBuffer.outputStream())
-                buffer.inputStream().copyTo(gzipOutputStream)
+                buffer.writeTo(gzipOutputStream)
                 gzipOutputStream.close()
                 return gzippedBuffer.size
             }
