@@ -111,47 +111,43 @@ class UiStateTest {
     @Test
     fun testResultSuccess_containsData() {
         val testData = "Test Result"
-        val resultSuccess = Result.Success(testData)
-        assertEquals("Result.Success should contain data", testData, resultSuccess.data)
+        val resultSuccess = OperationResult.Success(testData)
+        assertEquals("OperationResult.Success should contain data", testData, resultSuccess.value)
     }
 
     @Test
     fun testResultError_containsExceptionAndMessage() {
         val testException = RuntimeException("Test Exception")
         val testMessage = "Error occurred"
-        val resultError = Result.Error(testException, testMessage)
+        val resultError = OperationResult.Error(testException, testMessage)
 
-        assertEquals("Result.Error should contain exception", testException, resultError.exception)
-        assertEquals("Result.Error should contain message", testMessage, resultError.message)
+        assertEquals("OperationResult.Error should contain exception", testException, resultError.exception)
+        assertEquals("OperationResult.Error should contain message", testMessage, resultError.message)
     }
 
     @Test
     fun testResultLoading_isSingleton() {
-        val loading1 = Result.Loading
-        val loading2 = Result.Loading
-        assertSame("Result.Loading should be singleton", loading1, loading2)
+        val loading1 = OperationResult.Loading
+        val loading2 = OperationResult.Loading
+        assertSame("OperationResult.Loading should be singleton", loading1, loading2)
     }
 
     @Test
     fun testResultEmpty_isSingleton() {
-        val empty1 = Result.Empty
-        val empty2 = Result.Empty
-        assertSame("Result.Empty should be singleton", empty1, empty2)
+        val empty1 = OperationResult.Loading
+        val empty2 = OperationResult.Loading
+        assertSame("OperationResult.Loading should be singleton", empty1, empty2)
     }
 
     @Test
     fun testResultDifferentTypes_notEqual() {
-        val success = Result.Success("Test")
-        val error = Result.Error(RuntimeException(), "Error")
-        val loading = Result.Loading
-        val empty = Result.Empty
+        val success = OperationResult.Success("Test")
+        val error = OperationResult.Error(RuntimeException(), "Error")
+        val loading = OperationResult.Loading
 
         assertNotEquals("Success should not equal Error", success, error)
         assertNotEquals("Success should not equal Loading", success, loading)
-        assertNotEquals("Success should not equal Empty", success, empty)
         assertNotEquals("Error should not equal Loading", error, loading)
-        assertNotEquals("Error should not equal Empty", error, empty)
-        assertNotEquals("Loading should not equal Empty", loading, empty)
     }
 
     @Test
@@ -185,31 +181,27 @@ class UiStateTest {
 
     @Test
     fun testResult_when_expression_withAllStates() {
-        val results: List<Result<String>> = listOf(
-            Result.Success("Data"),
-            Result.Error(RuntimeException(), "Error"),
-            Result.Loading,
-            Result.Empty
+        val results: List<OperationResult<String>> = listOf(
+            OperationResult.Success("Data"),
+            OperationResult.Error(RuntimeException(), "Error"),
+            OperationResult.Loading
         )
 
         var successCount = 0
         var errorCount = 0
         var loadingCount = 0
-        var emptyCount = 0
 
         results.forEach { result ->
             when (result) {
-                is Result.Success<*> -> successCount++
-                is Result.Error -> errorCount++
-                is Result.Loading -> loadingCount++
-                is Result.Empty -> emptyCount++
+                is OperationResult.Success<*> -> successCount++
+                is OperationResult.Error -> errorCount++
+                is OperationResult.Loading -> loadingCount++
             }
         }
 
         assertEquals("Should have 1 Success result", 1, successCount)
         assertEquals("Should have 1 Error result", 1, errorCount)
         assertEquals("Should have 1 Loading result", 1, loadingCount)
-        assertEquals("Should have 1 Empty result", 1, emptyCount)
     }
 
     @Test

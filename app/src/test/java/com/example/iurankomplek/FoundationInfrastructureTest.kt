@@ -57,22 +57,18 @@ class FoundationInfrastructureTest {
     }
 
     @Test
-    fun `test custom Result class is properly defined`() {
+    fun `test custom OperationResult class is properly defined`() {
         // Test Success case
-        val successResult = Result.Success("test")
-        assertTrue("Success result should be instance of Result", successResult is Result.Success)
+        val successResult = OperationResult.Success("test")
+        assertTrue("Success result should be instance of OperationResult", successResult is OperationResult.Success)
         
         // Test Error case
-        val errorResult = Result.Error(Exception("test"), "error message")
-        assertTrue("Error result should be instance of Result", errorResult is Result.Error)
+        val errorResult = OperationResult.Error(Exception("test"))
+        assertTrue("Error result should be instance of OperationResult", errorResult is OperationResult.Error)
         
         // Test Loading case
-        val loadingResult = Result.Loading
-        assertTrue("Loading result should be instance of Result", loadingResult is Result.Loading)
-        
-        // Test Empty case
-        val emptyResult = Result.Empty
-        assertTrue("Empty result should be instance of Result", emptyResult is Result.Empty)
+        val loadingResult = OperationResult.Loading
+        assertTrue("Loading result should be instance of OperationResult", loadingResult is OperationResult.Loading)
     }
 
     @Test
