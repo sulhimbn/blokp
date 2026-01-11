@@ -2,7 +2,7 @@ package com.example.iurankomplek.network.interceptor
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -12,7 +12,6 @@ import okhttp3.Request
 import java.util.PriorityQueue
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 
 class PriorityDispatcher(
     private val maxRequestsPerHost: Int = 5,
@@ -28,13 +27,24 @@ class PriorityDispatcher(
     private val lowQueue = PriorityQueue<PriorityRequest>(compareBy { it.timestamp })
     private val backgroundQueue = PriorityQueue<PriorityRequest>(compareBy { it.timestamp })
 
-    private val executorScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val dispatcherJob = Job()
+    private val executorScope = CoroutineScope(dispatcherJob + Dispatchers.IO)
+
+    private val executor: ExecutorService = Executors.newCachedThreadPool { r ->
+        Thread(r).apply { isDaemon = true }
+    }
 
     private data class PriorityRequest(
         val request: Request,
         val priority: RequestPriority,
         val timestamp: Long = System.currentTimeMillis()
     )
+
+    init {
+        okHttpDispatcher.maxRequests = maxRequests
+        okHttpDispatcher.maxRequestsPerHost = maxRequestsPerHost
+        okHttpDispatcher.executorService(executor)
+    }
 
     private fun getQueueForPriority(priority: RequestPriority): PriorityQueue<PriorityRequest> {
         return when (priority) {
@@ -53,28 +63,34 @@ class PriorityDispatcher(
         val queue = getQueueForPriority(priority)
         queue.add(priorityRequest)
 
-        processQueues()
+        if (dispatcherJob.isActive) {
+            processQueues()
+        }
     }
 
     private fun processQueues() {
-        if (executorScope.isActive) {
-            executorScope.launch {
-                while (hasQueuedRequests()) {
-                    mutex.withLock {
-                        val runningRequests = requestCounter.get()
-                        val availableSlots = maxRequests - runningRequests
+        if (!dispatcherJob.isActive) return
 
-                        if (availableSlots <= 0) return@withLock
+        executorScope.launch {
+            while (hasQueuedRequests() && dispatcherJob.isActive) {
+                val nextRequest = mutex.withLock {
+                    val runningRequests = requestCounter.get()
+                    val availableSlots = maxRequests - runningRequests
 
-                        val nextRequest = getNextRequest() ?: return@withLock
+                    if (availableSlots <= 0) return@withLock null
 
-                        okHttpDispatcher.executor().execute {
-                            try {
-                                okHttpDispatcher.enqueue(nextRequest.request)
-                            } catch (e: Exception) {
-                            }
+                    val request = getNextRequest() ?: return@withLock null
+                    requestCounter.incrementAndGet()
+                    request
+                }
+
+                nextRequest?.let { req ->
+                    executor.execute {
+                        try {
+                            okHttpDispatcher.enqueue(req)
+                        } catch (e: Exception) {
+                            requestCounter.decrementAndGet()
                         }
-                        requestCounter.incrementAndGet()
                     }
                 }
             }
@@ -102,7 +118,9 @@ class PriorityDispatcher(
 
     fun onRequestComplete() {
         requestCounter.decrementAndGet()
-        processQueues()
+        if (dispatcherJob.isActive) {
+            processQueues()
+        }
     }
 
     fun getQueueStats(): Map<RequestPriority, Int> {
@@ -135,5 +153,10 @@ class PriorityDispatcher(
 
     fun getMaxRequests(): Int {
         return maxRequests
+    }
+
+    fun shutdown() {
+        dispatcherJob.cancel()
+        executor.shutdown()
     }
 }
