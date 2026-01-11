@@ -156,8 +156,81 @@ The domain layer represents business entities and use cases, independent of any 
      - Returns PaymentIntegrationResult with payment data
      - **Benefit**: Removed payment integration logic from Activity (better separation of concerns)
  
- 7. **ValidatePaymentUseCase.kt** - Validates payment input data (NEW - Module ARCH-004 - 2026-01-10)
-     - Encapsulates payment validation business logic
+  7. **ValidatePaymentUseCase.kt** - Validates payment input data (NEW - Module ARCH-004 - 2026-01-10)
+      - Encapsulates payment validation business logic
+      - Validates: empty amount, numeric format, positive amount, maximum limit, decimal places
+      - Maps spinner position to PaymentMethod enum
+      - Returns Result<ValidatedPayment> with validated amount and payment method
+      - **Benefit**: Extracted 40+ lines of validation logic from PaymentActivity (Layer Separation fix)
+
+  8. **LoadAnnouncementsUseCase.kt** - Loads announcements (NEW - Module ARCH-008 - 2026-01-11)
+      - Encapsulates announcement loading business logic
+      - Wrapper around AnnouncementRepository with business rules
+      - Supports forceRefresh parameter for cache bypass
+      - Returns OperationResult<List<Announcement>> for error handling
+
+  9. **LoadMessagesUseCase.kt** - Loads messages (NEW - Module ARCH-008 - 2026-01-11)
+      - Encapsulates message loading business logic
+      - Supports loading by userId or senderId/receiverId pair
+      - Wrapper around MessageRepository with business rules
+      - Returns Flow<OperationResult<List<Message>>> for real-time updates
+
+  10. **SendMessageUseCase.kt** - Sends message (NEW - Module ARCH-008 - 2026-01-11)
+      - Encapsulates message sending business logic
+      - Wrapper around MessageRepository with business rules
+      - Returns OperationResult<Message> for error handling
+
+  11. **LoadCommunityPostsUseCase.kt** - Loads community posts (NEW - Module ARCH-008 - 2026-01-11)
+      - Encapsulates community post loading business logic
+      - Supports forceRefresh parameter for cache bypass
+      - Wrapper around CommunityPostRepository with business rules
+      - Returns Flow<OperationResult<List<CommunityPost>>> for real-time updates
+
+  12. **CreateCommunityPostUseCase.kt** - Creates community post (NEW - Module ARCH-008 - 2026-01-11)
+      - Encapsulates community post creation business logic
+      - Wrapper around CommunityPostRepository with business rules
+      - Returns OperationResult<CommunityPost> for error handling
+
+  13. **LoadVendorsUseCase.kt** - Loads vendors (NEW - Module ARCH-008 - 2026-01-11)
+      - Encapsulates vendor loading business logic
+      - Wrapper around VendorRepository with business rules
+      - Returns OperationResult<VendorResponse> for error handling
+
+  14. **LoadWorkOrdersUseCase.kt** - Loads work orders (NEW - Module ARCH-008 - 2026-01-11)
+      - Encapsulates work order loading business logic
+      - Wrapper around VendorRepository with business rules
+      - Returns OperationResult<WorkOrderResponse> for error handling
+
+  15. **LoadVendorDetailUseCase.kt** - Loads vendor details (NEW - Module ARCH-008 - 2026-01-11)
+      - Encapsulates vendor detail loading business logic
+      - Wrapper around VendorRepository with business rules
+      - Returns OperationResult<SingleVendorResponse> for error handling
+
+  16. **LoadWorkOrderDetailUseCase.kt** - Loads work order details (NEW - Module ARCH-008 - 2026-01-11)
+      - Encapsulates work order detail loading business logic
+      - Wrapper around VendorRepository with business rules
+      - Returns OperationResult<SingleWorkOrderResponse> for error handling
+
+  17. **CreateVendorUseCase.kt** - Creates vendor (NEW - Module ARCH-008 - 2026-01-11)
+      - Encapsulates vendor creation business logic
+      - Wrapper around VendorRepository with business rules
+      - Returns OperationResult<Unit> for error handling
+
+  18. **CreateWorkOrderUseCase.kt** - Creates work order (NEW - Module ARCH-008 - 2026-01-11)
+      - Encapsulates work order creation business logic
+      - Wrapper around VendorRepository with business rules
+      - Returns OperationResult<Unit> for error handling
+
+  19. **LoadTransactionsUseCase.kt** - Loads transactions (NEW - Module ARCH-008 - 2026-01-11)
+      - Encapsulates transaction loading business logic
+      - Supports loading all transactions or by status
+      - Wrapper around TransactionRepository with business rules
+      - Returns OperationResult<List<Transaction>> for error handling
+
+  20. **RefundPaymentUseCase.kt** - Refunds payment (NEW - Module ARCH-008 - 2026-01-11)
+      - Encapsulates payment refund business logic
+      - Wrapper around TransactionRepository with business rules
+      - Returns OperationResult<Unit> for error handling
      - Validates: empty amount, numeric format, positive amount, maximum limit, decimal places
      - Maps spinner position to PaymentMethod enum
      - Returns Result<ValidatedPayment> with validated amount and payment method

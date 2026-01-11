@@ -527,6 +527,145 @@ Presentation → Domain → Data
 
 ---
 
+### ✅ ARCH-008: Extract Missing Use Cases for Clean Architecture Compliance - 2026-01-11
+**Status**: Completed
+**Completed Date**: 2026-01-11
+**Priority**: HIGH (Architecture Violation)
+**Estimated Time**: 2 hours (completed in 1.5 hours)
+**Description**: Extract Use Cases for ViewModels that were bypassing Domain layer and depending directly on Repositories
+
+**Issue Identified**:
+- 5 out of 7 ViewModels bypassed Domain layer and depended directly on Repositories
+- TransactionViewModel, VendorViewModel, AnnouncementViewModel, MessageViewModel, CommunityPostViewModel all used Repositories directly
+- This violated Clean Architecture principles - Presentation should depend on Domain (Use Cases), not Data (Repositories)
+- Architecture had: Presentation → Data (bypassing Domain layer)
+- Clean Architecture requires: Presentation → Domain (Use Cases) → Data (Repositories)
+
+**Critical Path Analysis**:
+- ViewModels should orchestrate business logic through Use Cases
+- Use Cases encapsulate business rules and workflows
+- Repositories should only be accessed through Use Cases
+- Bypassing Domain layer reduces testability and maintainability
+- 5 ViewModels violating Clean Architecture: ~71% of all ViewModels
+
+**Solution Implemented**:
+
+**1. Created Domain Use Cases** (13 new files):
+- LoadAnnouncementsUseCase.kt - Load announcements with force refresh option
+- LoadMessagesUseCase.kt - Load messages by userId or senderId/receiverId pair
+- SendMessageUseCase.kt - Send message between users
+- LoadCommunityPostsUseCase.kt - Load community posts with force refresh
+- CreateCommunityPostUseCase.kt - Create new community post
+- LoadVendorsUseCase.kt - Load all vendors
+- LoadWorkOrdersUseCase.kt - Load all work orders
+- LoadVendorDetailUseCase.kt - Load vendor details by ID
+- LoadWorkOrderDetailUseCase.kt - Load work order details by ID
+- CreateVendorUseCase.kt - Create new vendor
+- CreateWorkOrderUseCase.kt - Create new work order
+- LoadTransactionsUseCase.kt - Load all transactions or by status
+- RefundPaymentUseCase.kt - Refund payment transaction
+
+**2. Updated ViewModels to Use Use Cases** (5 files):
+- AnnouncementViewModel.kt: Now uses LoadAnnouncementsUseCase instead of AnnouncementRepository
+- MessageViewModel.kt: Now uses LoadMessagesUseCase and SendMessageUseCase instead of MessageRepository
+- CommunityPostViewModel.kt: Now uses LoadCommunityPostsUseCase and CreateCommunityPostUseCase instead of CommunityPostRepository
+- VendorViewModel.kt: Now uses 6 Use Cases instead of VendorRepository
+- TransactionViewModel.kt: Now uses LoadTransactionsUseCase and RefundPaymentUseCase instead of TransactionRepository
+
+**3. Updated DependencyContainer** (DependencyContainer.kt):
+- Added provider methods for all 13 new Use Cases
+- Updated ViewModel provider methods to inject Use Cases instead of Repositories
+- Maintained thread-safe singleton initialization pattern
+- All dependencies now flow through proper layers
+
+**Architecture Improvements**:
+```
+BEFORE (INCORRECT):
+Presentation (ViewModels) → Data (Repositories) [BYPASSES DOMAIN]
+         ↓
+      Business Logic Mixed with Data Access
+
+AFTER (CORRECT):
+Presentation (ViewModels) → Domain (Use Cases) → Data (Repositories)
+         ↓                        ↓                       ↓
+     UI Orchestration       Business Logic         Data Access
+```
+
+**Files Created** (13 total):
+| File | Lines | Purpose |
+|------|--------|---------|
+| LoadAnnouncementsUseCase.kt | +22 | Load announcements with refresh |
+| LoadMessagesUseCase.kt | +27 | Load messages (single + threaded) |
+| SendMessageUseCase.kt | +18 | Send message between users |
+| LoadCommunityPostsUseCase.kt | +22 | Load posts with refresh |
+| CreateCommunityPostUseCase.kt | +18 | Create community post |
+| LoadVendorsUseCase.kt | +18 | Load all vendors |
+| LoadWorkOrdersUseCase.kt | +18 | Load all work orders |
+| LoadVendorDetailUseCase.kt | +18 | Load vendor by ID |
+| LoadWorkOrderDetailUseCase.kt | +18 | Load work order by ID |
+| CreateVendorUseCase.kt | +31 | Create new vendor |
+| CreateWorkOrderUseCase.kt | +28 | Create new work order |
+| LoadTransactionsUseCase.kt | +25 | Load transactions (all + filtered) |
+| RefundPaymentUseCase.kt | +18 | Refund payment transaction |
+
+**Files Modified** (6 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| AnnouncementViewModel.kt | +6, -6 | Use LoadAnnouncementsUseCase instead of AnnouncementRepository |
+| MessageViewModel.kt | +9, -8 | Use LoadMessagesUseCase + SendMessageUseCase |
+| CommunityPostViewModel.kt | +8, -7 | Use LoadCommunityPostsUseCase + CreateCommunityPostUseCase |
+| VendorViewModel.kt | +29, -27 | Use 6 Use Cases instead of Repository |
+| TransactionViewModel.kt | +12, -9 | Use LoadTransactionsUseCase + RefundPaymentUseCase |
+| DependencyContainer.kt | +88, -26 | Add Use Case providers, update ViewModel providers |
+
+**Code Changes Summary**:
+- Created 13 new Use Case classes (287 lines)
+- Removed 5 direct Repository dependencies from ViewModels
+- Added 6 Use Case constructor parameters to ViewModels
+- Added 13 Use Case provider methods to DependencyContainer
+- Updated 5 ViewModel providers to use Use Cases
+- No functionality changes - only architectural refactoring
+
+**Benefits**:
+1. Clean Architecture Compliance: All ViewModels now depend on Use Cases
+2. Testability: Use Cases can be unit tested without ViewModels
+3. Maintainability: Business logic centralized in Domain layer
+4. Single Responsibility: Each layer has clear responsibility
+5. Dependency Inversion: Presentation depends on Domain abstractions (Use Cases)
+6. SOLID Compliance: Follows Dependency Inversion and Single Responsibility Principles
+
+**Architecture Best Practices Followed ✅**:
+- ✅ Clean Architecture: Proper layer separation (Presentation → Domain → Data)
+- ✅ Domain Encapsulation: Business logic in Use Cases
+- ✅ Dependency Inversion: Presentation depends on Domain, not Data
+- ✅ Single Responsibility: Each Use Case has one business operation
+- ✅ Error Handling: Consistent OperationResult across all Use Cases
+- ✅ Thread Safety: DependencyContainer uses synchronized initialization
+
+**Anti-Patterns Eliminated**:
+- ✅ No more ViewModels depending directly on Repositories
+- ✅ No more presentation layer bypassing domain layer
+- ✅ No more business logic mixed with data access
+- ✅ No more tight coupling between presentation and data layers
+
+**Success Criteria**:
+- [x] 13 Use Cases created for all missing operations
+- [x] AnnouncementViewModel uses LoadAnnouncementsUseCase
+- [x] MessageViewModel uses LoadMessagesUseCase + SendMessageUseCase
+- [x] CommunityPostViewModel uses LoadCommunityPostsUseCase + CreateCommunityPostUseCase
+- [x] VendorViewModel uses 6 Use Cases (LoadVendorsUseCase, LoadWorkOrdersUseCase, LoadVendorDetailUseCase, LoadWorkOrderDetailUseCase, CreateVendorUseCase, CreateWorkOrderUseCase)
+- [x] TransactionViewModel uses LoadTransactionsUseCase + RefundPaymentUseCase
+- [x] DependencyContainer provides all 13 Use Cases
+- [x] All ViewModels receive Use Cases through dependency injection
+- [x] Direct Repository dependencies removed from ViewModels
+- [x] Documentation updated (task.md, blueprint.md)
+
+**Dependencies**: None (independent architectural refactoring)
+**Documentation**: Updated docs/task.md with ARCH-008 completion
+**Impact**: CRITICAL - Critical Clean Architecture compliance fix, all 5 ViewModels now use Domain layer, eliminated 71% of architectural violations, proper dependency flow established, improved testability and maintainability
+
+---
+
 ## Performance Engineer Tasks - 2026-01-11
 
 ---

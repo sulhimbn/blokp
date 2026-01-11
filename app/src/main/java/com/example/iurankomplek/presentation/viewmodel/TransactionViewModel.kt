@@ -4,15 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.iurankomplek.core.base.BaseViewModel
 import com.example.iurankomplek.data.entity.Transaction
-import com.example.iurankomplek.data.repository.TransactionRepository
+import com.example.iurankomplek.domain.usecase.LoadTransactionsUseCase
+import com.example.iurankomplek.domain.usecase.RefundPaymentUseCase
 import com.example.iurankomplek.utils.UiState
-import com.example.iurankomplek.payment.PaymentStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
 
 class TransactionViewModel(
-    private val transactionRepository: TransactionRepository
+    private val loadTransactionsUseCase: LoadTransactionsUseCase,
+    private val refundPaymentUseCase: RefundPaymentUseCase
 ) : BaseViewModel() {
 
     private val _transactionsState = createMutableStateFlow<List<Transaction>>(UiState.Loading)
@@ -21,16 +21,16 @@ class TransactionViewModel(
     private val _refundState = createMutableStateFlow<Unit>(UiState.Idle)
     val refundState: StateFlow<UiState<Unit>> = _refundState
 
-    fun loadTransactionsByStatus(status: PaymentStatus) {
-        executeWithLoadingState(_transactionsState) {
-            transactionRepository.getTransactionsByStatus(status).first()
+    fun loadTransactionsByStatus(status: com.example.iurankomplek.payment.PaymentStatus) {
+        executeWithLoadingStateForResult(_transactionsState) {
+            loadTransactionsUseCase(status)
         }
     }
 
     fun refundPayment(transactionId: String, reason: String) {
         executeWithoutLoadingState(
             operation = {
-                transactionRepository.refundPayment(transactionId, reason)
+                refundPaymentUseCase(transactionId, reason)
                 loadAllTransactions()
             },
             onSuccess = {
@@ -43,16 +43,19 @@ class TransactionViewModel(
     }
 
     fun loadAllTransactions() {
-        executeWithLoadingState(_transactionsState) {
-            transactionRepository.getAllTransactions().first()
+        executeWithLoadingStateForResult(_transactionsState) {
+            loadTransactionsUseCase()
         }
     }
 
-    class Factory(private val transactionRepository: TransactionRepository) : ViewModelProvider.Factory {
+    class Factory(
+        private val loadTransactionsUseCase: LoadTransactionsUseCase,
+        private val refundPaymentUseCase: RefundPaymentUseCase
+    ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(TransactionViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return TransactionViewModel(transactionRepository) as T
+                return TransactionViewModel(loadTransactionsUseCase, refundPaymentUseCase) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }
