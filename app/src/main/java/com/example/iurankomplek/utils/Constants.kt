@@ -34,6 +34,9 @@ object Constants {
         const val MILLISECONDS_PER_SECOND = 1000L
         const val ONE_MINUTE_MS = 60000L
         const val MILLISECONDS_PER_DAY = 86400000L
+
+        // Compression Constants (INT-005: Request/Response Compression)
+        const val MIN_SIZE_TO_COMPRESS = 1024
     }
     
     // API Constants

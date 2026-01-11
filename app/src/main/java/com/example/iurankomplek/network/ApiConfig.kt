@@ -10,6 +10,7 @@ import com.example.iurankomplek.network.interceptor.RateLimiterInterceptor
 import com.example.iurankomplek.network.interceptor.TimeoutInterceptor
 import com.example.iurankomplek.network.interceptor.RequestPriorityInterceptor
 import com.example.iurankomplek.network.interceptor.PriorityDispatcher
+import com.example.iurankomplek.network.interceptor.CompressionInterceptor
 import com.example.iurankomplek.network.resilience.CircuitBreaker
 import com.example.iurankomplek.network.resilience.CircuitBreakerState
 import com.example.iurankomplek.utils.Constants
@@ -54,6 +55,13 @@ import java.util.concurrent.TimeUnit
         enableLogging = BuildConfig.DEBUG
     )
 
+    // Compression interceptor for reducing bandwidth usage (INT-005 - 2026-01-11)
+    val compressionInterceptor: CompressionInterceptor = CompressionInterceptor(
+        enableCompression = true,
+        minSizeToCompress = Constants.Network.MIN_SIZE_TO_COMPRESS,
+        enableLogging = BuildConfig.DEBUG
+    )
+
     // Priority dispatcher for request prioritization (INT-001)
     val priorityDispatcher: PriorityDispatcher = PriorityDispatcher(
         maxRequestsPerHost = 5,
@@ -80,6 +88,7 @@ import java.util.concurrent.TimeUnit
                 .addInterceptor(RequestIdInterceptor())
                 .addInterceptor(RequestPriorityInterceptor())
                 .addInterceptor(IdempotencyInterceptor())
+                .addInterceptor(compressionInterceptor)
                 .addInterceptor(rateLimiter)
                 .addInterceptor(RetryableRequestInterceptor())
                 .addInterceptor(HealthCheckInterceptor(enableLogging = BuildConfig.DEBUG))
@@ -96,6 +105,7 @@ import java.util.concurrent.TimeUnit
                 .addInterceptor(RequestIdInterceptor())
                 .addInterceptor(RequestPriorityInterceptor())
                 .addInterceptor(IdempotencyInterceptor())
+                .addInterceptor(compressionInterceptor)
                 .addInterceptor(rateLimiter)
                 .addInterceptor(RetryableRequestInterceptor())
                 .addInterceptor(HealthCheckInterceptor(enableLogging = true))
