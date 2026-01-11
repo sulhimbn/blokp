@@ -74,7 +74,7 @@ import java.util.concurrent.TimeUnit
         val okHttpClient = if (!USE_MOCK_API) {
             SecurityConfig.getSecureOkHttpClient()
                 .newBuilder()
-                .dispatcher(priorityDispatcher)
+                .dispatcher(priorityDispatcher.getDispatcher())
                 .connectionPool(connectionPool)
                 .addInterceptor(TimeoutInterceptor())
                 .addInterceptor(RequestIdInterceptor())
@@ -90,7 +90,7 @@ import java.util.concurrent.TimeUnit
                 .connectTimeout(Constants.Network.CONNECT_TIMEOUT, TimeUnit.SECONDS)
                 .readTimeout(Constants.Network.READ_TIMEOUT, TimeUnit.SECONDS)
                 .writeTimeout(Constants.Network.WRITE_TIMEOUT, TimeUnit.SECONDS)
-                .dispatcher(priorityDispatcher)
+                .dispatcher(priorityDispatcher.getDispatcher())
                 .connectionPool(connectionPool)
                 .addInterceptor(TimeoutInterceptor())
                 .addInterceptor(RequestIdInterceptor())
@@ -136,8 +136,12 @@ import java.util.concurrent.TimeUnit
     }
 
     fun getPriorityQueueStats(): Map<String, Int> {
-        return priorityDispatcher.getQueueStats()
-            .mapKeys { it.name }
+        val stats = priorityDispatcher.getQueueStats()
+        val mutableMap = mutableMapOf<String, Int>()
+        stats.forEach { (priority, count) ->
+            mutableMap[priority.name] = count
+        }
+        return mutableMap.toMap()
     }
 
     fun resetPriorityQueue() {

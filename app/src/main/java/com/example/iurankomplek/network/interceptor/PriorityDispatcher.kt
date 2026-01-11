@@ -1,28 +1,34 @@
 package com.example.iurankomplek.network.interceptor
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.internal.immutableListOf
 import java.util.PriorityQueue
-import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 class PriorityDispatcher(
     private val maxRequestsPerHost: Int = 5,
     private val maxRequests: Int = 64
-) : Dispatcher() {
-
+) {
     private val mutex = Mutex()
     private val requestCounter = AtomicInteger(0)
+    private val okHttpDispatcher = Dispatcher()
 
     private val criticalQueue = PriorityQueue<PriorityRequest>(compareBy { it.timestamp })
     private val highQueue = PriorityQueue<PriorityRequest>(compareBy { it.timestamp })
     private val normalQueue = PriorityQueue<PriorityRequest>(compareBy { it.timestamp })
     private val lowQueue = PriorityQueue<PriorityRequest>(compareBy { it.timestamp })
     private val backgroundQueue = PriorityQueue<PriorityRequest>(compareBy { it.timestamp })
+
+    private val executorScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private data class PriorityRequest(
         val request: Request,
@@ -51,18 +57,26 @@ class PriorityDispatcher(
     }
 
     private fun processQueues() {
-        mutex.withLock {
-            val runningRequests = requestCounter.get()
-            val availableSlots = maxRequests - runningRequests
+        executorScope.launch {
+            mutex.withLock {
+                val runningRequests = requestCounter.get()
+                val availableSlots = maxRequests - runningRequests
 
-            if (availableSlots <= 0) return
+                if (availableSlots <= 0) return@launch
 
-            var processed = 0
-            while (processed < availableSlots && hasQueuedRequests()) {
-                val nextRequest = getNextRequest() ?: break
-                super.enqueue(nextRequest.request)
-                requestCounter.incrementAndGet()
-                processed++
+                var processed = 0
+                while (processed < availableSlots && hasQueuedRequests()) {
+                    val nextRequest = getNextRequest() ?: break
+                    okHttpDispatcher.executor().execute {
+                        nextRequest.request.tag(RequestPriority::class.java, nextRequest.priority)
+                        try {
+                            okHttpDispatcher.enqueue(nextRequest.request)
+                        } catch (e: Exception) {
+                        }
+                    }
+                    requestCounter.incrementAndGet()
+                    processed++
+                }
             }
         }
     }
@@ -102,18 +116,24 @@ class PriorityDispatcher(
     }
 
     fun reset() {
-        mutex.withLock {
-            criticalQueue.clear()
-            highQueue.clear()
-            normalQueue.clear()
-            lowQueue.clear()
-            backgroundQueue.clear()
-            requestCounter.set(0)
-        }
+        criticalQueue.clear()
+        highQueue.clear()
+        normalQueue.clear()
+        lowQueue.clear()
+        backgroundQueue.clear()
+        requestCounter.set(0)
+        okHttpDispatcher.cancelAll()
     }
 
-    override fun cancelAll() {
-        super.cancelAll()
-        reset()
+    fun getDispatcher(): Dispatcher {
+        return okHttpDispatcher
+    }
+
+    fun getMaxRequestsPerHost(): Int {
+        return maxRequestsPerHost
+    }
+
+    fun getMaxRequests(): Int {
+        return maxRequests
     }
 }
