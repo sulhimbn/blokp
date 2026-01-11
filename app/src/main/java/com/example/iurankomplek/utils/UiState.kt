@@ -42,3 +42,6 @@ val <T> OperationResult<T>.isSuccess: Boolean
 
 val <T> OperationResult<T>.isFailure: Boolean
     get() = this is OperationResult.Error
+
+fun <T> OperationResult<T>.exceptionOrNull(): Throwable? = 
+    (this as? OperationResult.Error)?.exception
