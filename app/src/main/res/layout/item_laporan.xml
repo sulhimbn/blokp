@@ -1,39 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="@dimen/padding_md"
-    android:background="@drawable/bg_item_list_focused"
-    android:minHeight="@dimen/list_item_min_height"
+    android:layout_marginBottom="@dimen/spacing_sm"
     android:focusable="true"
     android:clickable="true"
     android:importantForAccessibility="yes"
     android:descendantFocusability="blocksDescendants"
-    android:contentDescription="@string/laporan_item_content_description">
+    android:contentDescription="@string/laporan_item_content_description"
+    app:cardBackgroundColor="@color/background_card"
+    app:cardCornerRadius="@dimen/radius_md"
+    app:cardElevation="@dimen/elevation_sm"
+    app:rippleColor="@color/secondary">
 
-    <TextView
-        android:id="@+id/itemLaporanTitle"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:fontFamily="@font/font"
-        android:textSize="@dimen/text_size_normal"
-        android:textStyle="bold"
-        android:textColor="@color/text_primary"
-        android:gravity="start|center_vertical"
-        android:importantForAccessibility="no" />
+        android:orientation="horizontal"
+        android:padding="@dimen/padding_md"
+        android:minHeight="@dimen/list_item_min_height"
+        android:gravity="center_vertical"
+        android:importantForAccessibility="yes">
 
-    <TextView
-        android:id="@+id/itemLaporanValue"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:fontFamily="@font/font"
-        android:textSize="@dimen/text_size_normal"
-        android:textStyle="bold"
-        android:textColor="@color/text_primary"
-        android:gravity="end|center_vertical"
-        android:importantForAccessibility="no" />
+        <TextView
+            android:id="@+id/itemLaporanTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/font"
+            android:textSize="@dimen/text_size_normal"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:importantForAccessibility="no" />
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/itemLaporanValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/font"
+            android:textSize="@dimen/text_size_normal"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:textAlignment="textEnd"
+            android:importantForAccessibility="no" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

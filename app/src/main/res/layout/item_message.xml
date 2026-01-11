@@ -18,7 +18,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="@dimen/padding_md">
+        android:padding="@dimen/padding_md"
+        android:minHeight="@dimen/list_item_min_height"
+        android:importantForAccessibility="yes">
 
         <TextView
             android:id="@+id/messageSender"

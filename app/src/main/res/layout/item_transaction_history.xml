@@ -5,16 +5,23 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/spacing_sm"
+    android:focusable="true"
+    android:clickable="true"
+    android:importantForAccessibility="yes"
+    android:descendantFocusability="blocksDescendants"
+    android:contentDescription="@string/transaction_item_desc"
     app:cardCornerRadius="@dimen/radius_md"
     app:cardElevation="@dimen/elevation_sm"
     app:cardBackgroundColor="@color/background_card"
-    android:contentDescription="@string/transaction_item_desc">
+    app:rippleColor="@color/secondary">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="@dimen/padding_md">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/padding_md"
+            android:minHeight="@dimen/list_item_min_height"
+            android:importantForAccessibility="yes">
 
         <LinearLayout
             android:layout_width="match_parent"
