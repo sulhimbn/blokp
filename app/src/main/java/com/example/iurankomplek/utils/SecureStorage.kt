@@ -15,7 +15,7 @@ object SecureStorage {
     private const val PREFS_NAME = "secure_prefs"
     private const val KEY_ALIAS = "master_key"
 
-    private var encryptedPrefs: EncryptedSharedPreferences? = null
+    private var encryptedPrefs: SharedPreferences? = null
 
     fun getSharedPreferences(context: Context): SharedPreferences {
         if (encryptedPrefs == null) {

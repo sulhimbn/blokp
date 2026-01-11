@@ -41,8 +41,7 @@ class AnnouncementsFragment : BaseFragment<List<Announcement>>() {
     override fun createAdapter(): RecyclerView.Adapter<*> = AnnouncementAdapter().also { adapter = it }
 
     override fun initializeViewModel(viewModelProvider: ViewModelProvider) {
-        val factory = com.example.iurankomplek.di.DependencyContainer.provideAnnouncementViewModel()
-        viewModel = ViewModelProvider(this, factory)[AnnouncementViewModel::class.java]
+        viewModel = DependencyContainer.provideAnnouncementViewModel()
     }
 
     override fun observeViewModelState() {

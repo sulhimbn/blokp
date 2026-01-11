@@ -84,9 +84,9 @@ abstract class BaseRepository {
             config = config
         )
 
-        return fallbackManager.executeWithFallback {
+        return fallbackManager.executeWithFallback(primaryOperation = {
             executeWithCircuitBreaker(apiCall)
-        }
+        })
     }
 
     protected suspend fun <T : Any> executeWithCircuitBreakerV1AndFallback(
@@ -99,9 +99,9 @@ abstract class BaseRepository {
             config = config
         )
 
-        return fallbackManager.executeWithFallback {
+        return fallbackManager.executeWithFallback(primaryOperation = {
             executeWithCircuitBreakerV1(apiCall)
-        }
+        })
     }
 
     protected suspend fun <T : Any> executeWithCircuitBreakerV2AndFallback(
@@ -114,9 +114,9 @@ abstract class BaseRepository {
             config = config
         )
 
-        return fallbackManager.executeWithFallback {
+        return fallbackManager.executeWithFallback(primaryOperation = {
             executeWithCircuitBreakerV2(apiCall)
-        }
+        })
     }
 }
 
