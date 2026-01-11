@@ -1717,6 +1717,86 @@ chucker = "4.2.0"
 ---
 
 
+### ✅ REFACTOR-016: Legacy API Service Cleanup - 2026-01-11
+**Status**: Completed
+**Completed Date**: 2026-01-11
+**Priority**: HIGH (Code Quality & Maintainability)
+**Estimated Time**: 30 minutes (completed in 15 minutes)
+**Description**: Remove legacy ApiService and standardize on ApiServiceV1 to eliminate API version confusion
+
+**Issue Identified**:
+- Legacy ApiService.kt and ApiServiceV1.kt co-existed
+- No code actually used legacy ApiService (all repos migrated to ApiServiceV1)
+- Dual API service versions caused confusion
+- getApiService() method in ApiConfig served no purpose
+- 137 lines of unnecessary code (ApiService.kt + ApiConfig legacy methods)
+
+**Critical Path Analysis**:
+- Legacy ApiService used old path format (no `/api/v1/` prefix)
+- Legacy ApiService returned raw Response<T> instead of standardized ApiResponse<T> wrapper
+- Consistent API versioning improves codebase clarity
+- Single API service eliminates developer confusion
+
+**Solution Implemented**:
+
+**1. Deleted Legacy ApiService.kt** (117 lines removed):
+- Removed entire legacy API interface
+- Eliminated old path format endpoints
+- No external code references existed
+
+**2. Cleaned ApiConfig.kt** (20 lines removed):
+- Removed `apiServiceInstance: ApiService?` field
+- Removed `getApiService(): ApiService` method
+- Removed `createApiService(): ApiService` method
+- Retained only `getApiServiceV1(): ApiServiceV1` method
+- Retained only `createApiServiceV1(): ApiServiceV1` method
+
+**3. Verified No External References**:
+- Confirmed no imports of legacy ApiService in codebase
+- All repositories use ApiServiceV1 via DependencyContainer
+- DependencyContainer unchanged (already using ApiServiceV1)
+
+**Files Modified** (2 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| app/src/main/java/com/example/iurankomplek/network/ApiService.kt | -117 | Deleted legacy API interface |
+| app/src/main/java/com/example/iurankomplek/network/ApiConfig.kt | -20 | Removed legacy ApiService fields and methods |
+
+**Code Improvements**:
+- ✅ **Single Source of Truth**: Only ApiServiceV1 used across codebase
+- ✅ **Consistent Paths**: All API endpoints use `/api/v1/` prefix
+- ✅ **Standardized Responses**: All endpoints return ApiResponse<T> wrapper
+- ✅ **Reduced Confusion**: No more dual API service versions
+- ✅ **Code Reduction**: 137 lines removed (ApiService.kt + ApiConfig cleanup)
+- ✅ **No Breaking Changes**: All code already using ApiServiceV1
+
+**Benefits**:
+1. **Simplified Architecture**: Single API service eliminates version confusion
+2. **Consistent Error Handling**: ApiResponse wrapper standardized across all endpoints
+3. **Path Standardization**: All API calls use `/api/v1/` paths
+4. **Reduced Code**: 137 lines removed with zero functional impact
+5. **Better Maintainability**: Developers only need to understand one API service
+
+**Anti-Patterns Eliminated**:
+- ✅ No more duplicate API service interfaces
+- ✅ No more inconsistent path formats across API calls
+- ✅ No more unused code serving no purpose
+- ✅ No more API version confusion for developers
+
+**Success Criteria**:
+- [x] Legacy ApiService.kt file deleted
+- [x] ApiConfig.kt cleaned (removed apiServiceInstance, getApiService, createApiService)
+- [x] No external references to legacy ApiService found
+- [x] All repositories use ApiServiceV1 consistently
+- [x] DependencyContainer unchanged (already using ApiServiceV1)
+- [x] Documentation updated (AGENTS.md, task.md)
+
+**Dependencies**: None (independent cleanup, all code already using ApiServiceV1)
+**Documentation**: Updated AGENTS.md and docs/task.md with REFACTOR-016 completion
+**Impact**: HIGH - Eliminated API version confusion, standardized on ApiServiceV1, removed 137 lines of legacy code, improved codebase maintainability
+
+---
+
 ### 🟢 SEC-008. Configure NVD API Key - 2026-01-11
 **Status**: New Task - Not Started
 **Priority**: LOW (Dependency Scanning)

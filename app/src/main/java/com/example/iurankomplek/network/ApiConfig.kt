@@ -35,9 +35,6 @@ import java.util.concurrent.TimeUnit
     
     // Cache Retrofit instances to avoid recreation
     @Volatile
-    private var apiServiceInstance: ApiService? = null
-    
-    @Volatile
     private var apiServiceV1Instance: ApiServiceV1? = null
 
     // Circuit breaker for service resilience
@@ -55,20 +52,10 @@ import java.util.concurrent.TimeUnit
         enableLogging = BuildConfig.DEBUG
     )
     
-    fun getApiService(): ApiService {
-        return apiServiceInstance ?: synchronized(this) {
-            apiServiceInstance ?: createApiService().also { apiServiceInstance = it }
-        }
-    }
-    
     fun getApiServiceV1(): ApiServiceV1 {
         return apiServiceV1Instance ?: synchronized(this) {
             apiServiceV1Instance ?: createApiServiceV1().also { apiServiceV1Instance = it }
         }
-    }
-    
-    private fun createApiService(): ApiService {
-        return createRetrofitService(ApiService::class.java)
     }
 
     private fun createApiServiceV1(): ApiServiceV1 {
