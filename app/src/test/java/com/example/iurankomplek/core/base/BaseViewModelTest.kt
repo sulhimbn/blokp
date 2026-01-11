@@ -192,7 +192,7 @@ class Result<T> private constructor(val type: Type, val data: T?, val message: S
     }
 }
 
-class TestViewModel : BaseViewModel() {
+class SampleBaseViewModel : BaseViewModel() {
     fun <T> getTestStateFlow(): kotlinx.coroutines.flow.MutableStateFlow<UiState<T>> {
         return createMutableStateFlow(UiState.Idle)
     }

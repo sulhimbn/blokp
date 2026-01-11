@@ -16,7 +16,7 @@ import java.net.UnknownHostException
 import java.io.IOException
 
 @RunWith(RobolectricTestRunner::class)
-class ErrorHandlerTest {
+class ErrorHandlerEnhancedTest {
 
     private val context: Context = RuntimeEnvironment.getApplication()
     private val errorHandler = ErrorHandler(context)

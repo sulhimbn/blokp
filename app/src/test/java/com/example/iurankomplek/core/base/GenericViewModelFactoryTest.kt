@@ -8,7 +8,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-class TestViewModel : ViewModel() {
+class SampleViewModel : ViewModel() {
     var value: String = "initial"
 }
 
@@ -17,18 +17,18 @@ class GenericViewModelFactoryTest {
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    private lateinit var factory: GenericViewModelFactory<TestViewModel>
-    private lateinit var testViewModel: TestViewModel
+    private lateinit var factory: GenericViewModelFactory<SampleViewModel>
+    private lateinit var testViewModel: SampleViewModel
 
     @Before
     fun setup() {
-        testViewModel = TestViewModel()
-        factory = GenericViewModelFactory(TestViewModel::class.java) { testViewModel }
+        testViewModel = SampleViewModel()
+        factory = GenericViewModelFactory(SampleViewModel::class.java) { testViewModel }
     }
 
     @Test
     fun `create returns correct ViewModel instance`() {
-        val createdViewModel = factory.create(TestViewModel::class.java)
+        val createdViewModel = factory.create(SampleViewModel::class.java)
 
         assertNotNull("Created ViewModel should not be null", createdViewModel)
         assertSame("Created ViewModel should be the same instance", testViewModel, createdViewModel)
@@ -36,20 +36,20 @@ class GenericViewModelFactoryTest {
 
     @Test
     fun `create returns ViewModel of correct type`() {
-        val createdViewModel = factory.create(TestViewModel::class.java)
+        val createdViewModel = factory.create(SampleViewModel::class.java)
 
-        assertTrue("Created ViewModel should be of correct type", createdViewModel is TestViewModel)
+        assertTrue("Created ViewModel should be of correct type", createdViewModel is SampleViewModel)
     }
 
     @Test
     fun `create uses provided creator function`() {
-        val expectedViewModel = TestViewModel()
+        val expectedViewModel = SampleViewModel()
         expectedViewModel.value = "created"
 
-        val customFactory = GenericViewModelFactory(TestViewModel::class.java) { expectedViewModel }
-        val createdViewModel = customFactory.create(TestViewModel::class.java)
+        val customFactory = GenericViewModelFactory(SampleViewModel::class.java) { expectedViewModel }
+        val createdViewModel = customFactory.create(SampleViewModel::class.java)
 
-        assertEquals("Creator function should be used", "created", (createdViewModel as TestViewModel).value)
+        assertEquals("Creator function should be used", "created", (createdViewModel as SampleViewModel).value)
     }
 
     @Test
@@ -69,7 +69,7 @@ class GenericViewModelFactoryTest {
 
     @Test
     fun `create with subclass ViewModel class returns correct instance`() {
-        class SubclassViewModel : TestViewModel() {
+        class SubclassViewModel : SampleViewModel() {
             var subValue: String = "subclass"
         }
 
@@ -82,8 +82,8 @@ class GenericViewModelFactoryTest {
 
     @Test
     fun `create with same class multiple times returns same instance`() {
-        val viewModel1 = factory.create(TestViewModel::class.java)
-        val viewModel2 = factory.create(TestViewModel::class.java)
+        val viewModel1 = factory.create(SampleViewModel::class.java)
+        val viewModel2 = factory.create(SampleViewModel::class.java)
 
         assertSame("Multiple create calls should return same instance", viewModel1, viewModel2)
     }
@@ -92,9 +92,9 @@ class GenericViewModelFactoryTest {
     fun `create returns ViewModel with initialized properties`() {
         testViewModel.value = "test_value"
 
-        val createdViewModel = factory.create(TestViewModel::class.java)
+        val createdViewModel = factory.create(SampleViewModel::class.java)
 
-        assertEquals("ViewModel should have initialized properties", "test_value", (createdViewModel as TestViewModel).value)
+        assertEquals("ViewModel should have initialized properties", "test_value", (createdViewModel as SampleViewModel).value)
     }
 
     @Test
@@ -209,12 +209,12 @@ class GenericViewModelFactoryTest {
     fun `create maintains ViewModel state across multiple creations`() {
         testViewModel.value = "state1"
 
-        val viewModel1 = factory.create(TestViewModel::class.java)
-        (viewModel1 as TestViewModel).value = "state2"
+        val viewModel1 = factory.create(SampleViewModel::class.java)
+        (viewModel1 as SampleViewModel).value = "state2"
 
-        val viewModel2 = factory.create(TestViewModel::class.java)
+        val viewModel2 = factory.create(SampleViewModel::class.java)
 
-        assertEquals("ViewModel state should be maintained across creations", "state2", (viewModel2 as TestViewModel).value)
+        assertEquals("ViewModel state should be maintained across creations", "state2", (viewModel2 as SampleViewModel).value)
     }
 
     @Test
@@ -265,7 +265,7 @@ class GenericViewModelFactoryTest {
     @Test
     fun `create throws exception for null creator`() {
         try {
-            GenericViewModelFactory(TestViewModel::class.java, null)
+            GenericViewModelFactory(SampleViewModel::class.java, null)
             fail("Expected IllegalArgumentException for null creator")
         } catch (e: Exception) {
             assertTrue("Should throw exception for null creator", e is IllegalArgumentException || e is NullPointerException)
@@ -276,13 +276,13 @@ class GenericViewModelFactoryTest {
     fun `create returns ViewModel that survives configuration changes`() {
         testViewModel.value = "persistent"
 
-        val viewModel1 = factory.create(TestViewModel::class.java)
+        val viewModel1 = factory.create(SampleViewModel::class.java)
 
         testViewModel.value = "modified"
 
-        val viewModel2 = factory.create(TestViewModel::class.java)
+        val viewModel2 = factory.create(SampleViewModel::class.java)
 
         assertSame("Same instance should be returned", viewModel1, viewModel2)
-        assertEquals("ViewModel should maintain state", "modified", (viewModel2 as TestViewModel).value)
+        assertEquals("ViewModel should maintain state", "modified", (viewModel2 as SampleViewModel).value)
     }
 }
