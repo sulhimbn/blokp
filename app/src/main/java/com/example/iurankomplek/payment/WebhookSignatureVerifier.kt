@@ -46,7 +46,7 @@ class WebhookSignatureVerifier(
         
         val secretKey = securityConfig.getWebhookSecret()
         if (secretKey.isNullOrBlank()) {
-            Log.w(Constants.Tags.WEBHOOK_RECEIVER, "Webhook secret not configured, skipping verification")
+            Log.e(Constants.Tags.WEBHOOK_RECEIVER, "Webhook signature verification disabled")
             return WebhookVerificationResult.Skipped("Secret key not configured")
         }
         

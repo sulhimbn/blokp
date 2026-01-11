@@ -12,9 +12,9 @@ object WebhookSecurityConfig {
     fun initializeSecret(secret: String?) {
         webhookSecret = secret
         if (secret.isNullOrBlank()) {
-            Log.w(TAG, "Webhook secret is null or blank, signature verification will be skipped")
+            Log.e(TAG, "Webhook signature verification disabled")
         } else {
-            Log.d(TAG, "Webhook secret configured successfully (length: ${secret.length})")
+            Log.d(TAG, "Webhook secret configured")
         }
     }
     
@@ -32,6 +32,5 @@ object WebhookSecurityConfig {
     
     fun clearSecret() {
         webhookSecret = null
-        Log.d(TAG, "Webhook secret cleared")
     }
 }
