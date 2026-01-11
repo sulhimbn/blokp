@@ -12695,4 +12695,467 @@ CREATE TABLE users_new (
 **Documentation**: Updated docs/blueprint.md with security and accessibility architecture improvements
 **Impact**: MEDIUM - Architecture documentation updated with comprehensive security and accessibility improvements, maintains developer reference accuracy
 
+---
+
+## Refactoring Tasks - 2026-01-11
+
+---
+
+### 🔄 REFACTOR-014. ViewBinding Migration for Adapters - 2026-01-11
+**Status**: Ready to Start
+**Priority**: MEDIUM (Code Quality)
+**Estimated Time**: 2-3 hours
+**Description**: Migrate all RecyclerView adapters from findViewById to ViewBinding for type safety
+
+**Issue Identified**:
+- 9 adapters still use `findViewById` in ViewHolder constructors
+- `VendorAdapter.kt`: 4 findViewById calls (lines 33-36)
+- `TransactionHistoryAdapter.kt`: 6 findViewById calls (lines 36-41)
+- `AnnouncementAdapter.kt`: 4 findViewById calls (lines 19-22)
+- `MessageAdapter.kt`, `CommunityPostAdapter.kt`, `PemanfaatanAdapter.kt`: Similar patterns
+- Other adapters: `WorkOrderAdapter`, `LaporanSummaryAdapter`, `UserAdapter`
+- No compile-time type safety for view references
+- Potential runtime errors from incorrect view IDs
+
+**Critical Path Analysis**:
+- Adapters are hot path code (frequently called during scrolling)
+- findViewById is less performant than ViewBinding
+- Type safety prevents runtime crashes from typos
+- Codebase already uses ViewBinding in Activities and Fragments
+- Inconsistent pattern: Activities/fragments use ViewBinding, adapters use findViewById
+
+**Suggested Solution**:
+
+**1. Create Adapter Binding Classes**:
+```kotlin
+// Example: VendorItemBinding
+class VendorItemBinding(private val binding: ItemVendorBinding) {
+    val nameTextView: TextView = binding.vendorName
+    val specialtyTextView: TextView = binding.vendorSpecialty
+    val contactTextView: TextView = binding.vendorContact
+    val ratingTextView: TextView = binding.vendorRating
+}
+```
+
+**2. Update ViewHolders**:
+```kotlin
+class VendorViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    private val binding = ItemVendorBinding.bind(itemView)
+
+    fun bind(vendor: Vendor) {
+        binding.nameTextView.text = vendor.name
+        binding.specialtyTextView.text = vendor.specialty
+        binding.contactTextView.text = vendor.phoneNumber
+        binding.ratingTextView.text = "$RATING_PREFIX${vendor.rating}$RATING_SUFFIX"
+    }
+}
+```
+
+**3. Adapters to Migrate** (9 total):
+- VendorAdapter.kt (54 lines, 4 findViewById calls)
+- TransactionHistoryAdapter.kt (67 lines, 6 findViewById calls)
+- AnnouncementAdapter.kt (41 lines, 4 findViewById calls)
+- MessageAdapter.kt (similar pattern)
+- CommunityPostAdapter.kt (similar pattern)
+- PemanfaatanAdapter.kt (similar pattern)
+- WorkOrderAdapter.kt (similar pattern)
+- LaporanSummaryAdapter.kt (similar pattern)
+- UserAdapter.kt (similar pattern)
+
+**Files to Modify** (9 total):
+- All adapter files in `app/src/main/java/com/example/iurankomplek/presentation/adapter/`
+
+**Expected Improvements**:
+- ✅ **Type Safety**: Compile-time checking of view references
+- ✅ **Performance**: ViewBinding is more performant than findViewById
+- ✅ **Consistency**: All codebase uses same ViewBinding pattern
+- ✅ **Null Safety**: No more potential null pointer exceptions
+- ✅ **Code Quality**: Cleaner, more maintainable adapter code
+
+**Anti-Patterns Eliminated**:
+- ✅ No more runtime type errors from incorrect view IDs
+- ✅ No more inconsistent view access patterns
+- ✅ No more performance overhead from repeated findViewById calls
+
+**Success Criteria**:
+- [ ] All 9 adapters migrated to ViewBinding
+- [ ] No findViewById calls remain in adapter ViewHolders
+- [ ] All existing tests pass after migration
+- [ ] ViewBinding pattern consistent across all adapters
+- [ ] Performance verified (no regression)
+
+**Dependencies**: None (independent refactoring)
+**Testing Impact**: All adapter tests should pass with binding updates
+**Impact**: MEDIUM - Improved type safety, consistency, and maintainability across all RecyclerView adapters
+
+---
+
+### 🔄 REFACTOR-015. Non-Null Assertion Elimination - 2026-01-11
+**Status**: Ready to Start
+**Priority**: MEDIUM (Null Safety)
+**Estimated Time**: 1-2 hours
+**Description**: Eliminate non-null assertion operators (!!) in presentation layer for safer code
+
+**Issue Identified**:
+- 11 instances of non-null assertion operator (!!) found in presentation layer
+- !! operator throws NullPointerException if value is null
+- Violates Kotlin null safety principles
+- Can cause runtime crashes in production
+- Located in UI code (fragments, activities)
+
+**Critical Path Analysis**:
+- UI code handles user interactions and data display
+- Runtime crashes from !! operator affect user experience
+- Kotlin null safety should be preserved, not circumvented
+- Alternative safer patterns exist (?:, let, requireNotNull)
+
+**Suggested Solution**:
+
+**1. Identify All !! Usages**:
+```bash
+grep -rn "!!" app/src/main/java/com/example/iurankomplek/presentation --include="*.kt"
+```
+
+**2. Replace with Safer Alternatives**:
+
+**Option A: Elvis Operator (?:)**
+```kotlin
+// BEFORE (unsafe):
+binding.root.findViewById(R.id.progressBar)
+
+// AFTER (safer):
+binding.root.findViewById(R.id.progressBar) ?: throw IllegalStateException("ProgressBar not found")
+```
+
+**Option B: Safe Call with Default**
+```kotlin
+// BEFORE (unsafe):
+viewModel.someProperty!!
+
+// AFTER (safer):
+viewModel.someProperty ?: defaultValue
+```
+
+**Option C: Require Not Null**
+```kotlin
+// BEFORE (unsafe):
+binding!!.someProperty
+
+// AFTER (safer):
+requireNotNull(binding) { "Binding must be initialized" }
+```
+
+**Option D: Lazy Initialization**
+```kotlin
+// BEFORE (unsafe with lateinit):
+private lateinit var binding: ActivityMainBinding
+
+// AFTER (safer with lazy):
+private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+```
+
+**3. Categories of !! Usage**:
+- Fragment binding access (most common)
+- ViewModel property access
+- Adapter property access
+- State manager references
+
+**Files to Audit**:
+- All files in `app/src/main/java/com/example/iurankomplek/presentation/`
+- Especially check fragments, activities, adapters
+
+**Expected Improvements**:
+- ✅ **Null Safety**: No runtime NPEs from !! operator
+- ✅ **Clear Intent**: Error messages explain null expectations
+- ✅ **Kotlin Idioms**: Use of safe call operators
+- ✅ **Error Prevention**: Early failures with clear error messages
+- ✅ **Production Stability**: Reduced crash rate from null pointer exceptions
+
+**Anti-Patterns Eliminated**:
+- ✅ No more silent failures from null values
+- ✅ No more NPEs in production from !! operator
+- ✅ No more circumvention of Kotlin null safety
+
+**Success Criteria**:
+- [ ] All !! operators replaced with safer alternatives
+- [ ] 0 occurrences of !! operator in presentation layer
+- [ ] All existing tests pass
+- [ ] Code compiles without null safety warnings
+- [ ] Error messages clear for null expectations
+
+**Dependencies**: None (independent null safety improvement)
+**Testing Impact**: All UI tests should continue to pass
+**Impact**: MEDIUM - Improved null safety, fewer runtime crashes, better Kotlin idioms
+
+---
+
+### 🔄 REFACTOR-016. Legacy API Service Cleanup - 2026-01-11
+**Status**: Ready to Start
+**Priority**: MEDIUM (API Consistency)
+**Estimated Time**: 1-2 hours
+**Description**: Remove legacy ApiService usage and migrate to ApiServiceV1 for consistency
+
+**Issue Identified**:
+- DependencyContainer.kt has both ApiService (legacy) and ApiServiceV1
+- `getApiService()` returns legacy ApiService (line 99-101)
+- `getApiServiceV1()` returns standardized ApiServiceV1 (line 95-97)
+- PaymentGateway uses legacy ApiService via getApiService()
+- Creates confusion and potential API version mismatch
+- Blueprint states API standardization was completed (INT-001), but legacy code remains
+
+**Critical Path Analysis**:
+- Legacy ApiService may have different response models
+- PaymentGateway is critical component (transactions, payments)
+- API version mismatch could cause serialization errors
+- Inconsistent API usage across codebase is maintenance burden
+- Most repositories already use ApiServiceV1 (UserRepositoryImpl, PemanfaatanRepositoryImpl, etc.)
+
+**Current DependencyContainer.kt** (lines 95-116):
+```kotlin
+private fun getApiServiceV1(): ApiServiceV1 {
+    return ApiConfig.getApiServiceV1()
+}
+
+private fun getApiService(): ApiService {  // LEGACY
+    return ApiConfig.getApiService()      // Should be removed
+}
+
+private fun getPaymentGateway(): PaymentGateway {
+    return paymentGateway ?: synchronized(this) {
+        paymentGateway ?: RealPaymentGateway(getApiService()).also { paymentGateway = it }
+    }
+}
+```
+
+**Suggested Solution**:
+
+**1. Migrate PaymentGateway to ApiServiceV1**:
+```kotlin
+// BEFORE:
+class RealPaymentGateway(private val apiService: ApiService) : PaymentGateway
+
+// AFTER:
+class RealPaymentGateway(private val apiService: ApiServiceV1) : PaymentGateway
+```
+
+**2. Update PaymentGateway Interface** (if needed):
+```kotlin
+interface PaymentGateway {
+    suspend fun initiatePayment(request: PaymentRequest): PaymentResponse
+    // Ensure all methods use v1 API response models
+}
+```
+
+**3. Update DependencyContainer**:
+```kotlin
+// REMOVE:
+private fun getApiService(): ApiService { ... }
+
+// UPDATE:
+private fun getPaymentGateway(): PaymentGateway {
+    return paymentGateway ?: synchronized(this) {
+        paymentGateway ?: RealPaymentGateway(getApiServiceV1()).also { paymentGateway = it }
+    }
+}
+```
+
+**4. Update PaymentGateway Implementation**:
+- Change import: `ApiService` → `ApiServiceV1`
+- Update method calls to use v1 API structure
+- Update response model conversions if needed
+
+**Files to Modify** (2-3 total):
+- `app/src/main/java/com/example/iurankomplek/di/DependencyContainer.kt`
+- `app/src/main/java/com/example/iurankomplek/payment/RealPaymentGateway.kt`
+- Possibly `app/src/main/java/com/example/iurankomplek/payment/PaymentGateway.kt` (interface)
+
+**Expected Improvements**:
+- ✅ **API Consistency**: All code uses standardized ApiServiceV1
+- ✅ **Reduced Confusion**: Single API version throughout codebase
+- ✅ **Maintainability**: One API contract to maintain
+- ✅ **Type Safety**: Consistent response models (ApiResponse<T>)
+- ✅ **Error Handling**: Unified error handling with v1 API
+
+**Anti-Patterns Eliminated**:
+- ✅ No more API version confusion
+- ✅ No more duplicate API service instances
+- ✅ No more inconsistent response models
+
+**Success Criteria**:
+- [ ] getApiService() method removed from DependencyContainer
+- [ ] PaymentGateway migrated to ApiServiceV1
+- [ ] All payment tests pass with v1 API
+- [ ] No ApiService imports remain in payment module
+- [ ] Blueprint.md updated to reflect API v1 complete migration
+
+**Dependencies**: None (independent API cleanup)
+**Testing Impact**: PaymentGateway tests and integration tests must be updated
+**Impact**: MEDIUM - Improved API consistency, reduced confusion, single source of truth for API layer
+
+---
+
+### 🔄 REFACTOR-017. Adapter Code Duplication Reduction - 2026-01-11
+**Status**: Ready to Start
+**Priority**: LOW (Code Duplication)
+**Estimated Time**: 3-4 hours
+**Description**: Reduce code duplication across 9 adapters by creating base adapter or common patterns
+
+**Issue Identified**:
+- 9 adapters have nearly identical patterns
+- All extend `ListAdapter<T, VH>(DiffCallback)`
+- All have `companion object` with `DiffCallback = GenericDiffUtil.byId`
+- All have identical `onCreateViewHolder` pattern
+- All have identical `onBindViewHolder` pattern
+- ViewHolders follow similar structure with bind() method
+- Code duplication ~60-70 lines per adapter (mostly boilerplate)
+
+**Current Adapter Pattern** (example from VendorAdapter):
+```kotlin
+class VendorAdapter(...) : ListAdapter<Vendor, VendorViewHolder>(DiffCallback) {
+    companion object {
+        private val DiffCallback = GenericDiffUtil.byId<Vendor> { it.id }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VendorViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_vendor, parent, false)
+        return VendorViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: VendorViewHolder, position: Int) {
+        holder.bind(getItem(position))
+    }
+
+    inner class VendorViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val nameTextView: TextView = itemView.findViewById(R.id.vendorName)
+        // ... more views
+        fun bind(vendor: Vendor) {
+            nameTextView.text = vendor.name
+            // ... more bindings
+        }
+    }
+}
+```
+
+**Duplication Across Adapters**:
+- VendorAdapter.kt (54 lines)
+- TransactionHistoryAdapter.kt (67 lines)
+- AnnouncementAdapter.kt (41 lines)
+- MessageAdapter.kt (~50 lines)
+- CommunityPostAdapter.kt (~50 lines)
+- PemanfaatanAdapter.kt (~50 lines)
+- WorkOrderAdapter.kt (~50 lines)
+- LaporanSummaryAdapter.kt (~50 lines)
+- UserAdapter.kt (~50 lines)
+- **Total boilerplate**: ~400-500 lines duplicated
+
+**Suggested Solutions**:
+
+**Option A: Create Base Adapter** (Recommended)
+```kotlin
+abstract class BaseListAdapter<T, VH : RecyclerView.ViewHolder>(
+    private val itemLayoutRes: Int,
+    diffCallback: DiffUtil.ItemCallback<T>
+) : ListAdapter<T, VH>(diffCallback) {
+
+    abstract fun createViewHolder(itemView: View): VH
+
+    final override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        val view = LayoutInflater.from(parent.context).inflate(itemLayoutRes, parent, false)
+        return createViewHolder(view)
+    }
+
+    final override fun onBindViewHolder(holder: VH, position: Int) {
+        bindViewHolder(holder, getItem(position))
+    }
+
+    abstract fun bindViewHolder(holder: VH, item: T)
+}
+```
+
+**Usage Example**:
+```kotlin
+class VendorAdapter(...) : BaseListAdapter<Vendor, VendorViewHolder>(
+    itemLayoutRes = R.layout.item_vendor,
+    diffCallback = GenericDiffUtil.byId { it.id }
+) {
+    override fun createViewHolder(itemView: View) = VendorViewHolder(itemView)
+    override fun bindViewHolder(holder: VendorViewHolder, vendor: Vendor) = holder.bind(vendor)
+}
+```
+
+**Option B: Create Generic ViewHolder Factory**
+```kotlin
+class GenericViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    fun <T> bind(item: T, binder: (T, View) -> Unit) {
+        binder(item, itemView)
+    }
+}
+```
+
+**Option C: Extract Adapter Utility Functions**
+```kotlin
+object AdapterUtils {
+    fun <T, VH : RecyclerView.ViewHolder> createViewHolder(
+        parent: ViewGroup,
+        layoutRes: Int,
+        viewHolderFactory: (View) -> VH
+    ): VH {
+        val view = LayoutInflater.from(parent.context).inflate(layoutRes, parent, false)
+        return viewHolderFactory(view)
+    }
+
+    fun <T, VH : RecyclerView.ViewHolder> bindViewHolder(
+        holder: VH,
+        item: T,
+        binder: (VH, T) -> Unit
+    ) {
+        binder(holder, item)
+    }
+}
+```
+
+**Files to Create** (1-2 total):
+- `app/src/main/java/com/example/iurankomplek/presentation/adapter/BaseListAdapter.kt`
+- Optionally: `app/src/main/java/com/example/iurankomplek/presentation/adapter/AdapterUtils.kt`
+
+**Files to Refactor** (9 total):
+- All adapter files in `app/src/main/java/com/example/iurankomplek/presentation/adapter/`
+
+**Expected Improvements**:
+- ✅ **Code Reduction**: ~300-400 lines of boilerplate eliminated
+- ✅ **Consistency**: All adapters follow same pattern
+- ✅ **Maintainability**: Changes to adapter pattern in one place
+- ✅ **Testability**: Base adapter easily testable
+- ✅ **Readability**: Adapter logic clearer with reduced noise
+
+**Anti-Patterns Eliminated**:
+- ✅ No more duplicated adapter boilerplate
+- ✅ No more inconsistent adapter patterns
+- ✅ No more repetitive onCreateViewHolder/onBindViewHolder code
+
+**Success Criteria**:
+- [ ] BaseListAdapter created with common adapter logic
+- [ ] All 9 adapters refactored to use base adapter
+- [ ] Code reduction of 300+ lines achieved
+- [ ] All adapter tests pass after refactoring
+- [ ] Adapter behavior unchanged (no regression)
+
+**Dependencies**: REFACTOR-014 (ViewBinding migration) - should complete after base adapter refactoring
+**Testing Impact**: All adapter tests updated to work with base adapter
+**Impact**: LOW - Improved code maintainability and reduced duplication, no functional changes
+
+---
+
+## Summary of New Refactoring Tasks
+
+| Task | Priority | Effort | Impact |
+|------|----------|---------|--------|
+| REFACTOR-014: ViewBinding Migration | MEDIUM | 2-3h | Type safety, consistency |
+| REFACTOR-015: Non-Null Assertion Elimination | MEDIUM | 1-2h | Null safety, stability |
+| REFACTOR-016: Legacy API Service Cleanup | MEDIUM | 1-2h | API consistency |
+| REFACTOR-017: Adapter Code Duplication Reduction | LOW | 3-4h | Code reduction |
+
+**Total Effort**: 7-11 hours
+**Total Impact**: HIGH (across multiple quality metrics)
+
 
