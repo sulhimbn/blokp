@@ -16283,3 +16283,100 @@ val isDeleted: Boolean = false  // New field with default false
 **Impact**: HIGH - Architectural consistency achieved, soft-delete pattern unified across all tables, audit trail enabled for webhook events, reduced data loss risk, improved query performance with partial indexes
 
 ---
+
+---
+
+## Code Sanitizer Task - Dead Code Cleanup
+
+### 🟢 DEADCODE-001. Legacy API Service Removal - 2026-01-11
+**Status**: Ready to Start
+**Completed Date**: Not Started
+**Priority**: MEDIUM (Code Cleanup)
+**Estimated Time**: 2-3 hours
+**Description**: Remove legacy ApiService interface and related code - dead code not used in production
+
+**Issue Identified**:
+- Legacy `ApiService` interface (ApiService.kt) still exists in codebase
+- Legacy `getApiService()` method in ApiConfig.kt still present
+- These are dead code - not used in production code
+- Only used in test files (ApiConfigTest, FoundationInfrastructureTest, etc.)
+- Production code uses `ApiServiceV1` exclusively
+- Creates confusion about which API service to use
+
+**Analysis**:
+1. **Production Code**: Uses `ApiServiceV1` via `getApiServiceV1()`
+2. **Legacy Code**: `ApiService` interface and `getApiService()` method
+3. **Test Files**: 6 test files still reference legacy `getApiService()`
+4. **Impact**: Dead code increases maintenance burden and creates confusion
+
+**Test Files Using Legacy API**:
+- `app/src/test/java/com/example/iurankomplek/ApiConfigTest.kt` - Tests getApiService() method itself
+- `app/src/test/java/com/example/iurankomplek/FoundationInfrastructureTest.kt` - Uses getApiService()
+- `app/src/test/java/com/example/iurankomplek/ApiIntegrationTest.kt` - Uses ApiService directly
+- `app/src/test/java/com/example/iurankomplek/BaseActivityTest.kt` - Uses getApiService()
+- `app/src/test/java/com/example/iurankomplek/NetworkIntegrationTest.kt` - Uses getApiService()
+
+**Solution Required**:
+
+**Phase 1: Update Test Files**
+1. Update `ApiConfigTest.kt` to test `getApiServiceV1()` instead of `getApiService()`
+2. Update `FoundationInfrastructureTest.kt` to use `getApiServiceV1()`
+3. Update `BaseActivityTest.kt` to use `getApiServiceV1()`
+4. Update `NetworkIntegrationTest.kt` to use `getApiServiceV1()`
+5. Update `ApiIntegrationTest.kt` to use `ApiServiceV1` with `ApiResponse<T>` wrapper pattern
+
+**Phase 2: Remove Dead Code**
+1. Remove `ApiService.kt` interface file (117 lines of dead code)
+2. Remove `apiServiceInstance` variable from `ApiConfig.kt` (line 38)
+3. Remove `getApiService()` method from `ApiConfig.kt` (lines 58-62)
+4. Remove `createApiService()` method from `ApiConfig.kt` (lines 70-72)
+
+**Files to Modify** (6 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| ApiConfigTest.kt | ~10 | Update to test ApiServiceV1 |
+| FoundationInfrastructureTest.kt | ~2 | Use getApiServiceV1() |
+| BaseActivityTest.kt | ~2 | Use getApiServiceV1() |
+| NetworkIntegrationTest.kt | ~2 | Use getApiServiceV1() |
+| ApiIntegrationTest.kt | ~50 | Use ApiServiceV1 with ApiResponse wrapper |
+| ApiConfig.kt | -14 | Remove apiServiceInstance, getApiService(), createApiService() |
+
+**Files to Delete** (1 total):
+| File | Lines | Purpose |
+|------|--------|---------|
+| ApiService.kt | 117 | Legacy API interface - dead code |
+
+**Expected Improvements**:
+- ✅ **Dead Code Removal**: 131 lines of unused code eliminated
+- ✅ **Reduced Confusion**: Clear distinction between legacy and current API service
+- ✅ **Maintainability**: Single API service version to maintain
+- ✅ **Test Clarity**: Tests use modern API service with proper response wrapping
+
+**Anti-Patterns Eliminated**:
+- ✅ No more legacy API interface in production codebase
+- ✅ No more confusion about which API service to use
+- ✅ No more dead code accumulating in repository
+
+**Prerequisites**:
+- All test files updated before removing legacy code
+- All tests pass with ApiServiceV1 changes
+
+**Success Criteria**:
+- [ ] ApiConfigTest.kt updated to test getApiServiceV1()
+- [ ] FoundationInfrastructureTest.kt updated to use getApiServiceV1()
+- [ ] BaseActivityTest.kt updated to use getApiServiceV1()
+- [ ] NetworkIntegrationTest.kt updated to use getApiServiceV1()
+- [ ] ApiIntegrationTest.kt updated to use ApiServiceV1
+- [ ] ApiService.kt deleted from codebase
+- [ ] apiServiceInstance removed from ApiConfig.kt
+- [ ] getApiService() removed from ApiConfig.kt
+- [ ] createApiService() removed from ApiConfig.kt
+- [ ] All updated tests pass
+- [ ] No production code broken
+
+**Dependencies**: None (independent code cleanup, no build/test environment required for planning)
+**Documentation**: Add new task entry to docs/task.md with DEADCODE-001 details
+**Impact**: MEDIUM - Removes 131 lines of dead code, reduces confusion, improves maintainability, single API service version in codebase
+
+---
+
