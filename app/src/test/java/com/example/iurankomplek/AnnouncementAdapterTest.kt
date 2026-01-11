@@ -65,10 +65,10 @@ class AnnouncementAdapterTest {
 
         viewHolder.bind(announcement)
 
-        assertEquals("Important Announcement", viewHolder.titleTextView.text.toString())
-        assertEquals("This is the content", viewHolder.contentTextView.text.toString())
-        assertEquals("General", viewHolder.categoryTextView.text.toString())
-        assertEquals("2024-01-07T10:00:00Z", viewHolder.createdAtTextView.text.toString())
+        assertEquals("Important Announcement", viewHolder.binding.announcementTitle.text.toString())
+        assertEquals("This is the content", viewHolder.binding.announcementContent.text.toString())
+        assertEquals("General", viewHolder.binding.announcementCategory.text.toString())
+        assertEquals("2024-01-07T10:00:00Z", viewHolder.binding.announcementCreatedAt.text.toString())
     }
 
     @Test
@@ -115,10 +115,10 @@ class AnnouncementAdapterTest {
 
         viewHolder.bind(announcement)
 
-        assertEquals("", viewHolder.titleTextView.text.toString())
-        assertEquals("", viewHolder.contentTextView.text.toString())
-        assertEquals("", viewHolder.categoryTextView.text.toString())
-        assertEquals("", viewHolder.createdAtTextView.text.toString())
+        assertEquals("", viewHolder.binding.announcementTitle.text.toString())
+        assertEquals("", viewHolder.binding.announcementContent.text.toString())
+        assertEquals("", viewHolder.binding.announcementCategory.text.toString())
+        assertEquals("", viewHolder.binding.announcementCreatedAt.text.toString())
     }
 
     @Test
@@ -154,8 +154,8 @@ class AnnouncementAdapterTest {
 
         viewHolder.bind(announcement)
 
-        assertEquals("📢 Maintenance Scheduled", viewHolder.titleTextView.text.toString())
-        assertTrue(viewHolder.contentTextView.text.toString().contains("🗓️"))
+        assertEquals("📢 Maintenance Scheduled", viewHolder.binding.announcementTitle.text.toString())
+        assertTrue(viewHolder.binding.announcementContent.text.toString().contains("🗓️"))
     }
 
     @Test
@@ -177,8 +177,8 @@ class AnnouncementAdapterTest {
 
         viewHolder.bind(announcement)
 
-        assertEquals(longTitle, viewHolder.titleTextView.text.toString())
-        assertEquals(longContent, viewHolder.contentTextView.text.toString())
+        assertEquals(longTitle, viewHolder.binding.announcementTitle.text.toString())
+        assertEquals(longContent, viewHolder.binding.announcementContent.text.toString())
     }
 
     @Test
@@ -233,7 +233,7 @@ class AnnouncementAdapterTest {
         for (i in announcements.indices) {
             val viewHolder = adapter.onCreateViewHolder(parent, 0)
             viewHolder.bind(announcements[i])
-            assertEquals(categories[i], viewHolder.categoryTextView.text.toString())
+            assertEquals(categories[i], viewHolder.binding.announcementCategory.text.toString())
         }
     }
 
@@ -316,7 +316,7 @@ class AnnouncementAdapterTest {
 
         viewHolder.bind(announcement)
 
-        assertEquals("<p>This is a paragraph</p><strong>Important</strong>", viewHolder.contentTextView.text.toString())
+        assertEquals("<p>This is a paragraph</p><strong>Important</strong>", viewHolder.binding.announcementContent.text.toString())
     }
 
     @Test
@@ -341,7 +341,7 @@ class AnnouncementAdapterTest {
 
         viewHolder.bind(announcement)
 
-        assertEquals(multilineContent, viewHolder.contentTextView.text.toString())
+        assertEquals(multilineContent, viewHolder.binding.announcementContent.text.toString())
     }
 
     @Test
@@ -360,7 +360,7 @@ class AnnouncementAdapterTest {
 
         viewHolder.bind(announcement)
 
-        assertEquals("Line 1\nLine 2\nLine 3", viewHolder.titleTextView.text.toString())
+        assertEquals("Line 1\nLine 2\nLine 3", viewHolder.binding.announcementTitle.text.toString())
     }
 
     @Test
@@ -375,10 +375,10 @@ class AnnouncementAdapterTest {
 
         viewHolder.bind(announcement)
 
-        assertNotNull(viewHolder.titleTextView)
-        assertNotNull(viewHolder.contentTextView)
-        assertNotNull(viewHolder.categoryTextView)
-        assertNotNull(viewHolder.createdAtTextView)
+        assertNotNull(viewHolder.binding.announcementTitle)
+        assertNotNull(viewHolder.binding.announcementContent)
+        assertNotNull(viewHolder.binding.announcementCategory)
+        assertNotNull(viewHolder.binding.announcementCreatedAt)
     }
 
     @Test
@@ -397,7 +397,7 @@ class AnnouncementAdapterTest {
 
         viewHolder.bind(announcement)
 
-        assertEquals("2024-01-07T10:00:00.000Z", viewHolder.createdAtTextView.text.toString())
+        assertEquals("2024-01-07T10:00:00.000Z", viewHolder.binding.announcementCreatedAt.text.toString())
     }
 
     @Test
@@ -427,7 +427,7 @@ class AnnouncementAdapterTest {
         for (i in announcements.indices) {
             val viewHolder = adapter.onCreateViewHolder(parent, 0)
             viewHolder.bind(announcements[i])
-            assertEquals(dateFormats[i], viewHolder.createdAtTextView.text.toString())
+            assertEquals(dateFormats[i], viewHolder.binding.announcementCreatedAt.text.toString())
         }
     }
 
