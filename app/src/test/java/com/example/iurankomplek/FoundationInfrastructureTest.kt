@@ -4,7 +4,7 @@ import android.content.Context
 import com.example.iurankomplek.data.repository.BaseRepository
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.utils.*
-import com.example.iurankomplek.viewmodel.BaseViewModel
+import com.example.iurankomplek.core.base.BaseViewModel
 import org.junit.Test
 import org.junit.Assert.*
 import org.junit.runner.RunWith

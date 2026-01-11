@@ -7,10 +7,10 @@ import android.widget.Toast
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
-import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.data.dto.LegacyDataItemDto
 import com.example.iurankomplek.data.api.models.UserResponse
 import com.example.iurankomplek.utils.UiState
-import com.example.iurankomplek.viewmodel.UserViewModel
+import com.example.iurankomplek.presentation.viewmodel.UserViewModel
 import com.example.iurankomplek.data.repository.UserRepository
 import org.junit.Before
 import org.junit.Test
@@ -104,7 +104,7 @@ class MainActivityTest {
     fun `MainActivity should handle success state correctly`() {
         // Create test data
         val testData = listOf(
-            DataItem(
+            LegacyDataItemDto(
                 first_name = "John",
                 last_name = "Doe",
                 email = "john.doe@example.com",
