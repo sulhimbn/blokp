@@ -13,7 +13,7 @@ Welcome to the IuranKomplek API Documentation Hub. This hub provides comprehensi
 
 | Document | Description | Status |
 |----------|-------------|--------|
-| **[OpenAPI Specification](openapi.yaml)** | Complete API contract with all endpoints, schemas, and examples | ✅ Up-to-date |
+| **[OpenAPI Specification](openapi.yaml)** | Complete API contract with all endpoints, schemas, and examples | ✅ Complete (21/21 endpoints documented - INT-005 - 2026-01-11) |
 | **[API Documentation](API.md)** | Comprehensive API documentation with implementation examples | ✅ Complete |
 | **[API Standardization Guide](API_STANDARDIZATION.md)** | API design patterns, naming conventions, and best practices | ✅ Version 1.1.0 |
 | **[API Migration Guide](API_MIGRATION_GUIDE.md)** | Migration plan from legacy API to API v1 | 🔄 In Progress |

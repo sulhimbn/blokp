@@ -3,7 +3,7 @@ package com.example.iurankomplek.utils
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
+import androidx.security.crypto.MasterKeys
 import java.security.KeyStore
 import java.security.NoSuchAlgorithmException
 import java.security.spec.InvalidKeySpecException
@@ -21,14 +21,12 @@ object SecureStorage {
         if (encryptedPrefs == null) {
             synchronized(this) {
                 if (encryptedPrefs == null) {
-                    val masterKey = MasterKey.Builder(context)
-                        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-                        .build()
+                    val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
 
                     encryptedPrefs = EncryptedSharedPreferences.create(
-                        context,
                         PREFS_NAME,
-                        masterKey,
+                        masterKeyAlias,
+                        context,
                         EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
                         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
                     )
