@@ -19,7 +19,6 @@ class TransactionHistoryAdapter(
 
     companion object {
         private val CURRENCY_FORMATTER = NumberFormat.getCurrencyInstance(Locale("in", "ID"))
-        private val BD_HUNDRED = java.math.BigDecimal("100")
         private val DATE_FORMATTER = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.US)
     }
 
@@ -43,7 +42,7 @@ class TransactionHistoryAdapter(
 
         fun bind(transaction: Transaction) {
             currentTransaction = transaction
-            val amountInCurrency = java.math.BigDecimal(transaction.amount).divide(BD_HUNDRED, 2, java.math.RoundingMode.HALF_UP)
+            val amountInCurrency = transaction.amount / 100.0
             val formattedAmount = CURRENCY_FORMATTER.format(amountInCurrency)
             binding.tvAmount.text = formattedAmount
             binding.tvDescription.text = transaction.description
