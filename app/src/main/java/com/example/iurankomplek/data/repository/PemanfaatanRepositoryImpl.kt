@@ -26,8 +26,8 @@ class PemanfaatanRepositoryImpl(
             if (!forceRefresh) {
                 val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
                 if (usersWithFinancials.isNotEmpty()) {
-                    val dtoListResult = EntityMapper.toLegacyDtoList(usersWithFinancials)
-                    val pemanfaatanResponse = PemanfaatanResponse(dtoListResult.getOrThrow())
+                    val dtoList = EntityMapper.toLegacyDtoList(usersWithFinancials)
+                    val pemanfaatanResponse = PemanfaatanResponse(dtoList)
                     return OperationResult.Success(pemanfaatanResponse)
                 }
             }
@@ -45,8 +45,8 @@ class PemanfaatanRepositoryImpl(
     override suspend fun getCachedPemanfaatan(): OperationResult<PemanfaatanResponse> {
         return try {
             val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
-            val dtoListResult = EntityMapper.toLegacyDtoList(usersWithFinancials)
-            val pemanfaatanResponse = PemanfaatanResponse(dtoListResult.getOrThrow())
+            val dtoList = EntityMapper.toLegacyDtoList(usersWithFinancials)
+            val pemanfaatanResponse = PemanfaatanResponse(dtoList)
             OperationResult.Success(pemanfaatanResponse)
         } catch (e: Exception) {
             OperationResult.Error(e, e.message ?: "Unknown error")

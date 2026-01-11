@@ -24,7 +24,8 @@ class UserRepositoryImpl(
             if (!forceRefresh) {
                 val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
                 if (usersWithFinancials.isNotEmpty()) {
-                    val userResponse = UserResponse(EntityMapper.toLegacyDtoList(usersWithFinancials).getOrThrow())
+                    val dtoList = EntityMapper.toLegacyDtoList(usersWithFinancials)
+                    val userResponse = UserResponse(dtoList)
                     return OperationResult.Success(userResponse)
                 }
             }
@@ -42,7 +43,8 @@ class UserRepositoryImpl(
     override suspend fun getCachedUsers(): OperationResult<UserResponse> {
         return try {
             val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
-            val userResponse = UserResponse(EntityMapper.toLegacyDtoList(usersWithFinancials).getOrThrow())
+            val dtoList = EntityMapper.toLegacyDtoList(usersWithFinancials)
+            val userResponse = UserResponse(dtoList)
             OperationResult.Success(userResponse)
         } catch (e: Exception) {
             OperationResult.Error(e, e.message ?: "Unknown error")
