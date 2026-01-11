@@ -22,12 +22,16 @@ tags:
     description: Financial records operations
   - name: Communications
     description: Messages and announcements
+  - name: Community
+    description: Community posts and discussions
   - name: Payments
     description: Payment processing
   - name: Vendors
     description: Vendor management
   - name: Work Orders
     description: Work order management
+  - name: Health
+    description: Health monitoring and diagnostics
 
 paths:
   /api/v1/users:
@@ -271,7 +275,104 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiListResponseMessage'
-
+ 
+  /api/v1/community-posts:
+    get:
+      tags:
+        - Community
+      summary: Get community posts
+      description: Retrieve list of community posts
+      operationId: getCommunityPosts
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: page_size
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiListResponseCommunityPost'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+    post:
+      tags:
+        - Community
+      summary: Create community post
+      description: Create a new community post
+      operationId: createCommunityPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCommunityPostRequest'
+      responses:
+        '200':
+          description: Post created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseCommunityPost'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+ 
+  /api/v1/health:
+    post:
+      tags:
+        - Health
+      summary: Health check
+      description: Check system health and integration status
+      operationId: healthCheck
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthCheckRequest'
+      responses:
+        '200':
+          description: Health status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseHealthCheckResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiErrorResponse'
+ 
   /api/v1/payments/initiate:
     post:
       tags:
@@ -1290,6 +1391,305 @@ components:
           enum: [PENDING, ASSIGNED, IN_PROGRESS, COMPLETED, CANCELLED]
           description: Work order status
           example: IN_PROGRESS
+ 
+    CreateCommunityPostRequest:
+      type: object
+      required:
+        - authorId
+        - title
+        - content
+        - category
+      properties:
+        author_id:
+          type: string
+          description: Author user ID
+          example: user_123
+        title:
+          type: string
+          description: Post title
+          example: Community Garden Cleanup
+        content:
+          type: string
+          description: Post content
+          example: Let's clean up community garden this Saturday!
+        category:
+          type: string
+          enum: [SARAN, KELUHAN, INFO, DISKUSI, LAINNYA]
+          description: Post category
+          example: INFO
+ 
+    HealthCheckRequest:
+      type: object
+      properties:
+        includeDiagnostics:
+          type: boolean
+          description: Include detailed diagnostics in response
+          default: false
+          example: false
+        includeMetrics:
+          type: boolean
+          description: Include performance metrics in response
+          default: false
+          example: false
+ 
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Comment ID
+          example: comment_123
+        author_id:
+          type: string
+          description: Author user ID
+          example: user_123
+        content:
+          type: string
+          description: Comment content
+          example: Great idea!
+        timestamp:
+          type: string
+          format: date-time
+          description: Comment timestamp
+          example: 2024-01-08T10:30:00Z
+ 
+    CommunityPost:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Post ID
+          example: post_123
+        author_id:
+          type: string
+          description: Author user ID
+          example: user_123
+        title:
+          type: string
+          description: Post title
+          example: Community Garden Cleanup
+        content:
+          type: string
+          description: Post content
+          example: Let's clean up community garden this Saturday!
+        category:
+          type: string
+          enum: [SARAN, KELUHAN, INFO, DISKUSI, LAINNYA]
+          description: Post category
+          example: INFO
+        likes:
+          type: integer
+          description: Number of likes
+          example: 15
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+          description: List of comments
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+          example: 2024-01-08T10:30:00Z
+ 
+    ComponentHealth:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [HEALTHY, DEGRADED, UNHEALTHY]
+          description: Component health status
+          example: HEALTHY
+        healthy:
+          type: boolean
+          description: Whether component is healthy
+          example: true
+        message:
+          type: string
+          description: Status message
+          example: All integration systems operational
+        details:
+          type: object
+          additionalProperties: true
+          description: Additional component details
+          example:
+            uptime: 99.9
+            last_check: 1704672000000
+ 
+    HealthDiagnostics:
+      type: object
+      properties:
+        circuit_breaker_state:
+          type: string
+          enum: [CLOSED, OPEN, HALF_OPEN]
+          description: Circuit breaker state
+          example: CLOSED
+        circuit_breaker_failures:
+          type: integer
+          description: Number of circuit breaker failures
+          example: 0
+        rate_limit_stats:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/RateLimitStats'
+          description: Per-endpoint rate limit statistics
+          example:
+            "GET:/api/v1/users":
+              request_count: 50
+              last_request_time: 1704671995000
+ 
+    RateLimitStats:
+      type: object
+      properties:
+        request_count:
+          type: integer
+          description: Number of requests
+          example: 50
+        last_request_time:
+          type: integer
+          format: int64
+          description: Last request timestamp
+          example: 1704671995000
+ 
+    HealthMetrics:
+      type: object
+      properties:
+        health_score:
+          type: number
+          format: double
+          description: Overall health score (0-100)
+          minimum: 0
+          maximum: 100
+          example: 95.5
+        total_requests:
+          type: integer
+          description: Total number of requests
+          example: 100
+        success_rate:
+          type: number
+          format: double
+          description: Percentage of successful requests
+          minimum: 0
+          maximum: 100
+          example: 95.0
+        average_response_time_ms:
+          type: number
+          format: double
+          description: Average response time in milliseconds
+          example: 150.0
+        error_rate:
+          type: number
+          format: double
+          description: Percentage of failed requests
+          minimum: 0
+          maximum: 100
+          example: 5.0
+        timeout_count:
+          type: integer
+          description: Number of timeout errors
+          example: 1
+        rate_limit_violations:
+          type: integer
+          description: Number of rate limit violations
+          example: 0
+ 
+    HealthCheckResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [HEALTHY, DEGRADED, UNHEALTHY, CIRCUIT_OPEN, RATE_LIMITED]
+          description: Overall system health status
+          example: HEALTHY
+        version:
+          type: string
+          description: API version
+          example: 1.0.0
+        uptime_ms:
+          type: integer
+          format: int64
+          description: System uptime in milliseconds
+          example: 86400000
+        components:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ComponentHealth'
+          description: Component health statuses
+          example:
+            circuit_breaker:
+              status: HEALTHY
+              healthy: true
+              message: All integration systems operational
+            rate_limiter:
+              status: HEALTHY
+              healthy: true
+              message: Rate limiter within normal limits
+            api_service:
+              status: HEALTHY
+              healthy: true
+              message: API service operational
+            network:
+              status: HEALTHY
+              healthy: true
+              message: Network connectivity normal
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp in milliseconds
+          example: 1704672000000
+        diagnostics:
+          $ref: '#/components/schemas/HealthDiagnostics'
+        metrics:
+          $ref: '#/components/schemas/HealthMetrics'
+ 
+    ApiListResponseCommunityPost:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommunityPost'
+        pagination:
+          $ref: '#/components/schemas/PaginationMetadata'
+        request_id:
+          type: string
+          description: Unique request identifier
+          example: req_1234567890
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp in milliseconds
+          example: 1704672000000
+ 
+    ApiResponseCommunityPost:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/CommunityPost'
+        request_id:
+          type: string
+          description: Unique request identifier
+          example: req_1234567890
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp in milliseconds
+          example: 1704672000000
+ 
+    ApiResponseHealthCheckResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/HealthCheckResponse'
+        request_id:
+          type: string
+          description: Unique request identifier
+          example: req_1234567890
+        timestamp:
+          type: integer
+          format: int64
+          description: Response timestamp in milliseconds
+          example: 1704672000000
 
     UserResponse:
       type: object
