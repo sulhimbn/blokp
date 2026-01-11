@@ -1,8 +1,8 @@
 package com.example.iurankomplek
 
-import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.data.dto.LegacyDataItemDto
 import com.example.iurankomplek.data.api.models.UserResponse
-import com.example.iurankomplek.model.PemanfaatanResponse
+import com.example.iurankomplek.data.api.models.PemanfaatanResponse
 import org.junit.Test
 import org.junit.Assert.*
 
@@ -10,7 +10,7 @@ class DataModelTest {
 
     @Test
     fun `DataItem should be created with correct values`() {
-        val dataItem = DataItem(
+        val dataItem = LegacyDataItemDto(
             first_name = "John",
             last_name = "Doe",
             email = "john.doe@example.com",
@@ -39,7 +39,7 @@ class DataModelTest {
 
     @Test
     fun `DataItem should support equality comparison`() {
-        val dataItem1 = DataItem(
+        val dataItem1 = LegacyDataItemDto(
             first_name = "John",
             last_name = "Doe",
             email = "john.doe@example.com",
@@ -53,7 +53,7 @@ class DataModelTest {
             avatar = "https://example.com/avatar.jpg"
         )
 
-        val dataItem2 = DataItem(
+        val dataItem2 = LegacyDataItemDto(
             first_name = "John",
             last_name = "Doe",
             email = "john.doe@example.com",
@@ -73,7 +73,7 @@ class DataModelTest {
 
     @Test
     fun `DataItem should have different hash codes for different values`() {
-        val dataItem1 = DataItem(
+        val dataItem1 = LegacyDataItemDto(
             first_name = "John",
             last_name = "Doe",
             email = "john.doe@example.com",
@@ -87,7 +87,7 @@ class DataModelTest {
             avatar = "https://example.com/avatar.jpg"
         )
 
-        val dataItem2 = DataItem(
+        val dataItem2 = LegacyDataItemDto(
             first_name = "Jane", // Different first name
             last_name = "Doe",
             email = "john.doe@example.com",
@@ -106,7 +106,7 @@ class DataModelTest {
 
     @Test
     fun `UserResponse should be created with correct values`() {
-        val dataItem = DataItem(
+        val dataItem = LegacyDataItemDto(
             first_name = "John",
             last_name = "Doe",
             email = "john.doe@example.com",
@@ -127,7 +127,7 @@ class DataModelTest {
 
     @Test
     fun `PemanfaatanResponse should be created with correct values`() {
-        val dataItem = DataItem(
+        val dataItem = LegacyDataItemDto(
             first_name = "John",
             last_name = "Doe",
             email = "john.doe@example.com",
@@ -164,7 +164,7 @@ class DataModelTest {
 
     @Test
     fun `DataItem should handle zero and negative values correctly`() {
-        val dataItemWithZero = DataItem(
+        val dataItemWithZero = LegacyDataItemDto(
             first_name = "John",
             last_name = "Doe",
             email = "john.doe@example.com",
@@ -184,7 +184,7 @@ class DataModelTest {
 
     @Test
     fun `DataItem should handle empty string values correctly`() {
-        val dataItemWithEmptyStrings = DataItem(
+        val dataItemWithEmptyStrings = LegacyDataItemDto(
             first_name = "",
             last_name = "",
             email = "",
