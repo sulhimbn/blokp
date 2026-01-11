@@ -55,7 +55,14 @@
 
     <!-- Button Dimensions -->
     <dimen name="button_height_min">48dp</dimen>
+    <dimen name="button_height_max">72dp</dimen>
     <dimen name="button_corner_radius">8dp</dimen>
+
+    <!-- Extra Extra Large Icon -->
+    <dimen name="icon_xxxl">96dp</dimen>
+
+    <!-- Extra Extra Large Padding -->
+    <dimen name="padding_xxxl">64dp</dimen>
 
     <!-- Text Sizes (using sp for accessibility) -->
     <dimen name="text_size_small">12sp</dimen>
