@@ -26,7 +26,7 @@ object EntityMapper {
     }
     
     fun toDataItemList(dtoList: List<LegacyDataItemDto>): List<DataItem> {
-        return dtoList.map { toDataItem(it) }
+        return dtoList.asSequence().map { toDataItem(it) }.toList()
     }
     
     fun fromLegacyDto(dto: LegacyDataItemDto, userId: Long = 0): Pair<UserEntity, FinancialRecordEntity> {
@@ -74,12 +74,12 @@ object EntityMapper {
     }
     
     fun fromLegacyDtoList(dtoList: List<LegacyDataItemDto>): List<Pair<UserEntity, FinancialRecordEntity>> {
-        return dtoList.mapIndexed { index, dto ->
+        return dtoList.asSequence().mapIndexed { index, dto ->
             fromLegacyDto(dto, userId = (index + 1).toLong())
-        }
+        }.toList()
     }
     
     fun toLegacyDtoList(usersWithFinancials: List<UserWithFinancialRecords>): List<LegacyDataItemDto> {
-        return usersWithFinancials.map { toLegacyDto(it) }
+        return usersWithFinancials.asSequence().map { toLegacyDto(it) }.toList()
     }
 }

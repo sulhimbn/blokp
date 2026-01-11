@@ -12,8 +12,7 @@ class PemanfaatanAdapter : BaseListAdapter<LegacyDataItemDto, PemanfaatanAdapter
 ) {
 
     companion object {
-        private const val PEMANFAATAN_PREFIX = "-"
-        private const val PEMANFAATAN_SUFFIX = ":"
+        private const val PEMANFAATAN_FORMAT = "-%s:"
     }
 
     override fun createViewHolderInternal(parent: ViewGroup): ListViewHolder {
@@ -26,9 +25,10 @@ class PemanfaatanAdapter : BaseListAdapter<LegacyDataItemDto, PemanfaatanAdapter
     }
 
     class ListViewHolder(val binding: ItemPemanfaatanBinding) : RecyclerView.ViewHolder(binding.root) {
-
+        
         fun bind(item: LegacyDataItemDto) {
-            binding.itemPemanfaatan.text = "$PEMANFAATAN_PREFIX${InputSanitizer.sanitizePemanfaatan(item.pemanfaatan_iuran)}$PEMANFAATAN_SUFFIX"
+            val sanitizedPemanfaatan = InputSanitizer.sanitizePemanfaatan(item.pemanfaatan_iuran)
+            binding.itemPemanfaatan.text = String.format(PEMANFAATAN_FORMAT, sanitizedPemanfaatan)
             binding.itemDanaPemanfaatan.text = InputSanitizer.formatCurrency(if (item.pengeluaran_iuran_warga >= 0) item.pengeluaran_iuran_warga else 0)
         }
     }
