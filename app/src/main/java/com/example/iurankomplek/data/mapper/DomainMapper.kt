@@ -1,6 +1,6 @@
 package com.example.iurankomplek.data.mapper
 
-import androidx.annotation.JvmName
+import kotlin.jvm.JvmName
 import com.example.iurankomplek.data.entity.FinancialRecordEntity
 import com.example.iurankomplek.data.entity.UserEntity
 import com.example.iurankomplek.domain.model.FinancialRecord
