@@ -36,3 +36,9 @@ inline fun <T, R> OperationResult<T>.map(transform: (T) -> R): OperationResult<R
         is OperationResult.Empty -> this
     }
 }
+
+val <T> OperationResult<T>.isSuccess: Boolean
+    get() = this is OperationResult.Success
+
+val <T> OperationResult<T>.isFailure: Boolean
+    get() = this is OperationResult.Error
