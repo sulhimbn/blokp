@@ -21,7 +21,7 @@ class CommunityFragment : BaseFragment<List<CommunityPost>>() {
     private lateinit var viewModel: CommunityPostViewModel
 
     override val recyclerView: RecyclerView
-        get() = binding.rvCommunity!!
+        get() = binding.rvCommunity
 
     override val progressBar: View
         get() = binding.progressBar

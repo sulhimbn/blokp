@@ -6,7 +6,7 @@
     android:importantForAccessibility="yes">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/communityRecyclerView"
+        android:id="@+id/rv_community"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:contentDescription="@string/community_posts_list_desc"

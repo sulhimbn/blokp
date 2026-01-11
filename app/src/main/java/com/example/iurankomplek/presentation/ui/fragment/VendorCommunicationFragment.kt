@@ -23,7 +23,7 @@ class VendorCommunicationFragment : BaseFragment<com.example.iurankomplek.model.
         get() = binding.vendorRecyclerView
 
     override val progressBar: View
-        get() = binding.root.findViewById(com.example.iurankomplek.R.id.progressBar)
+        get() = binding.progressBar
 
     override val emptyMessageStringRes: Int
         get() = R.string.toast_communicate_with_vendor

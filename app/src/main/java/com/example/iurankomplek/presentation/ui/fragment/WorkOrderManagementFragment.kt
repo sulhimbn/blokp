@@ -24,7 +24,7 @@ class WorkOrderManagementFragment : BaseFragment<WorkOrderResponse>() {
         get() = binding.workOrderRecyclerView
 
     override val progressBar: View
-        get() = binding.root.findViewById(com.example.iurankomplek.R.id.progressBar)
+        get() = binding.progressBar
 
     override val emptyMessageStringRes: Int
         get() = R.string.toast_work_order_info
