@@ -56,6 +56,7 @@ plugins {
             force "org.jetbrains.kotlinx:kotlinx-coroutines-android:${libs.versions.kotlinx.coroutines.android.get()}"
             force "org.jetbrains.kotlinx:kotlinx-coroutines-core:${libs.versions.kotlinx.coroutines.android.get()}"
             force "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:${libs.versions.kotlinx.coroutines.android.get()}"
+            force "androidx.viewpager2:viewpager2:${libs.versions.viewpager2.get()}"
         }
     }
     
@@ -128,6 +129,7 @@ dependencies {
     androidTestImplementation libs.arch.core.testing
     
     implementation libs.androidx.recyclerview
+    implementation libs.androidx.viewpager2
     implementation libs.swiperefreshlayout
     implementation libs.glide
 

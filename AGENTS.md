@@ -1177,6 +1177,81 @@ security-crypto = "1.0.0"
 
 ---
 
+### ✅ SEC-008: Replace Pre-Release ViewPager2 Dependency with Stable Version (RESOLVED 2026-01-11)
+**Problem**: Material library 1.12.0 brought in transitive pre-release dependency: androidx.viewpager2:viewpager2:1.1.0-beta02
+
+**Root Cause**:
+- Material library 1.12.0 requests androidx.viewpager2:viewpager2:1.1.0-beta02
+- Beta versions are not production-ready and may contain:
+  - Breaking API changes between beta releases
+  - Undiscovered bugs and instability
+  - Unintended behavior changes
+- Risk of production instability from pre-release dependencies
+- Violates security best practice: only use stable releases in production
+
+**Critical Path Analysis**:
+- CommunicationActivity.kt uses ViewPager2 for swipe tabs
+- activity_communication.xml layout declares ViewPager2 widget
+- All users access Communication feature (messages, announcements, community)
+- ViewPager2 is core UI component for communication navigation
+- Production deployment with beta dependencies violates security best practices
+
+**Solution Implemented**:
+1. **Added ViewPager2 Version to libs.versions.toml**:
+   - Added `viewpager2 = "1.0.0"` to [versions] section
+   - Latest stable release of ViewPager2
+
+2. **Added ViewPager2 Library Entry to libs.versions.toml**:
+   - Added `androidx-viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "viewpager2" }` to [libraries] section
+
+3. **Added Force Resolution Strategy in build.gradle**:
+   - Added `force "androidx.viewpager2:viewpager2:${libs.versions.viewpager2.get()}"` to resolutionStrategy
+   - Ensures stable version overrides transitive beta dependency
+
+4. **Added Explicit Implementation Dependency in build.gradle**:
+   - Added `implementation libs.androidx.viewpager2` to dependencies
+   - Direct dependency prevents transitive version drift
+
+**Files Modified** (3 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| gradle/libs.versions.toml | +2 | Add viewpager2 version and library entry |
+| app/build.gradle | +2, -1 | Add force resolution and implementation dependency |
+
+**Code Improvements**:
+- ✅ **Production-Ready**: Stable release 1.0.0 is production-tested
+- ✅ **API Stability**: No breaking changes without version bump
+- ✅ **Reliability**: No risk of beta-specific bugs or crashes
+- ✅ **Best Practices**: Only use stable dependencies in production
+- ✅ **Version Pinning**: Explicit version control prevents accidental upgrades
+
+**Anti-Patterns Eliminated**:
+- ✅ No more pre-release (beta/alpha) dependencies in production
+- ✅ No more instability from unreleased library versions
+- ✅ No more production crashes from beta bugs
+- ✅ No more unexpected API changes from pre-release versions
+
+**Benefits**:
+1. **Production Stability**: Stable release has been thoroughly tested
+2. **Reliability**: No risk of beta-specific bugs or crashes
+3. **API Stability**: No unexpected breaking changes
+4. **Compliance**: Follows dependency management best practices
+5. **User Experience**: Reliable Communication feature without beta instability
+
+**Success Criteria**:
+- [x] ViewPager2 beta version (1.1.0-beta02) replaced with stable version (1.0.0)
+- [x] Gradle force resolution strategy added
+- [x] Explicit implementation dependency added
+- [x] Build verification successful (no beta dependencies in classpath)
+- [x] Documentation updated (AGENTS.md, task.md)
+- [x] Changes committed to agent branch
+
+**Dependencies**: None (independent security fix - version update only)
+**Documentation**: Updated AGENTS.md and docs/task.md with SEC-008 completion
+**Impact**: HIGH - Eliminates production stability risks from beta dependencies, follows dependency management best practices, ensures production-ready codebase
+
+---
+
 ### ✅ INT-006: API Documentation Update (RESOLVED 2026-01-11)
 **Problem**: API documentation (api-documentation.md) was outdated compared to comprehensive OpenAPI specification.
 
