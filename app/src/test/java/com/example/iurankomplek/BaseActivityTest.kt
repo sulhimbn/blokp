@@ -56,8 +56,8 @@ class BaseActivityTest {
         var successCalled = false
 
         activity.executeWithRetry(
-            operation = { Response.success("Success") },
-            onSuccess = { 
+            operation = { Response.success<String>("Success") },
+            onSuccess = {
                 successCalled = true
                 latch.countDown()
             },
@@ -77,7 +77,7 @@ class BaseActivityTest {
         var errorMessage = ""
 
         activity.executeWithRetry(
-            operation = { Response.success(null) },
+            operation = { Response.success<String>(null) },
             onSuccess = { fail("onSuccess should not be called") },
             onError = { 
                 errorCalled = true
@@ -104,9 +104,9 @@ class BaseActivityTest {
             operation = {
                 retryCount++
                 if (retryCount < 2) {
-                    Response.error(408, okhttp3.ResponseBody.create(null, "Timeout"))
+                    Response.error<String>(408, okhttp3.ResponseBody.create(null, "Timeout"))
                 } else {
-                    Response.success("Success")
+                    Response.success<String>("Success")
                 }
             },
             onSuccess = { 
@@ -134,9 +134,9 @@ class BaseActivityTest {
             operation = {
                 retryCount++
                 if (retryCount < 2) {
-                    Response.error(429, okhttp3.ResponseBody.create(null, "Too Many Requests"))
+                    Response.error<String>(429, okhttp3.ResponseBody.create(null, "Too Many Requests"))
                 } else {
-                    Response.success("Success")
+                    Response.success<String>("Success")
                 }
             },
             onSuccess = { 
@@ -164,9 +164,9 @@ class BaseActivityTest {
             operation = {
                 retryCount++
                 if (retryCount < 2) {
-                    Response.error(500, okhttp3.ResponseBody.create(null, "Internal Server Error"))
+                    Response.error<String>(500, okhttp3.ResponseBody.create(null, "Internal Server Error"))
                 } else {
-                    Response.success("Success")
+                    Response.success<String>("Success")
                 }
             },
             onSuccess = { 
@@ -194,9 +194,9 @@ class BaseActivityTest {
             operation = {
                 retryCount++
                 if (retryCount < 2) {
-                    Response.error(503, okhttp3.ResponseBody.create(null, "Service Unavailable"))
+                    Response.error<String>(503, okhttp3.ResponseBody.create(null, "Service Unavailable"))
                 } else {
-                    Response.success("Success")
+                    Response.success<String>("Success")
                 }
             },
             onSuccess = { 
@@ -223,7 +223,7 @@ class BaseActivityTest {
             maxRetries = 3,
             operation = {
                 callCount++
-                Response.error(400, okhttp3.ResponseBody.create(null, "Bad Request"))
+                Response.error<String>(400, okhttp3.ResponseBody.create(null, "Bad Request"))
             },
             onSuccess = { fail("onSuccess should not be called") },
             onError = { 
@@ -249,7 +249,7 @@ class BaseActivityTest {
             maxRetries = 3,
             operation = {
                 callCount++
-                Response.error(404, okhttp3.ResponseBody.create(null, "Not Found"))
+                Response.error<String>(404, okhttp3.ResponseBody.create(null, "Not Found"))
             },
             onSuccess = { fail("onSuccess should not be called") },
             onError = { 
@@ -278,7 +278,7 @@ class BaseActivityTest {
                 if (retryCount < 2) {
                     throw SocketTimeoutException()
                 } else {
-                    Response.success("Success")
+                    Response.success<String>("Success")
                 }
             },
             onSuccess = { 
@@ -308,7 +308,7 @@ class BaseActivityTest {
                 if (retryCount < 2) {
                     throw UnknownHostException()
                 } else {
-                    Response.success("Success")
+                    Response.success<String>("Success")
                 }
             },
             onSuccess = { 
@@ -338,7 +338,7 @@ class BaseActivityTest {
                 if (retryCount < 2) {
                     throw SSLException("SSL Error")
                 } else {
-                    Response.success("Success")
+                    Response.success<String>("Success")
                 }
             },
             onSuccess = { 
@@ -445,7 +445,7 @@ class BaseActivityTest {
                 if (callCount < 2) {
                     throw SocketTimeoutException()
                 } else {
-                    Response.success("Success")
+                    Response.success<String>("Success")
                 }
             },
             onSuccess = { 
@@ -476,7 +476,7 @@ class BaseActivityTest {
                 if (callCount < 3) {
                     throw SocketTimeoutException()
                 } else {
-                    Response.success("Success")
+                    Response.success<String>("Success")
                 }
             },
             onSuccess = { 
@@ -503,8 +503,8 @@ class BaseActivityTest {
                 retryCount++
                 when (retryCount) {
                     1 -> throw SocketTimeoutException()
-                    2 -> Response.error(500, okhttp3.ResponseBody.create(null, "Error"))
-                    else -> Response.success("Success")
+                    2 -> Response.error<String>(500, okhttp3.ResponseBody.create(null, "Error"))
+                    else -> Response.success<String>("Success")
                 }
             },
             onSuccess = { 
@@ -562,7 +562,7 @@ class BaseActivityTest {
                 if (callCount < 2) {
                     throw SocketTimeoutException()
                 } else {
-                    Response.success("Success")
+                    Response.success<String>("Success")
                 }
             },
             onSuccess = { 
@@ -591,7 +591,7 @@ class BaseActivityTest {
             maxRetries = 5,
             operation = {
                 callCount++
-                Response.success("Immediate Success")
+                Response.success<String>("Immediate Success")
             },
             onSuccess = { 
                 successCalled = true
@@ -619,8 +619,8 @@ class BaseActivityTest {
                 callCount++
                 when (callCount) {
                     1, 3, 5 -> throw SocketTimeoutException()
-                    2, 4 -> Response.error(503, okhttp3.ResponseBody.create(null, "Service Unavailable"))
-                    else -> Response.success("Success")
+                    2, 4 -> Response.error<String>(503, okhttp3.ResponseBody.create(null, "Service Unavailable"))
+                    else -> Response.success<String>("Success")
                 }
             },
             onSuccess = { 
@@ -651,7 +651,7 @@ class BaseActivityTest {
                 if (callCount < 2) {
                     throw SocketTimeoutException()
                 } else {
-                    Response.success("Success")
+                    Response.success<String>("Success")
                 }
             },
             onSuccess = { 
@@ -683,7 +683,7 @@ class BaseActivityTest {
                 if (callCount < 2) {
                     throw SocketTimeoutException()
                 } else {
-                    Response.success("Success")
+                    Response.success<String>("Success")
                 }
             },
             onSuccess = { 
@@ -713,7 +713,7 @@ class BaseActivityTest {
                 if (callCount < 5) {
                     throw SocketTimeoutException()
                 } else {
-                    Response.success("Success")
+                    Response.success<String>("Success")
                 }
             },
             onSuccess = { 
@@ -745,7 +745,7 @@ class BaseActivityTest {
                 if (callCount < 3) {
                     throw SocketTimeoutException()
                 } else {
-                    Response.success("Success")
+                    Response.success<String>("Success")
                 }
             },
             onSuccess = { 
@@ -773,9 +773,9 @@ class BaseActivityTest {
             operation = {
                 callCount++
                 if (callCount < 2) {
-                    Response.error(429, okhttp3.ResponseBody.create(null, "Rate Limit Exceeded"))
+                    Response.error<String>(429, okhttp3.ResponseBody.create(null, "Rate Limit Exceeded"))
                 } else {
-                    Response.success("Success")
+                    Response.success<String>("Success")
                 }
             },
             onSuccess = { 
@@ -864,7 +864,7 @@ class BaseActivityTest {
         activity.executeWithRetry(
             maxRetries = 0,
             operation = {
-                Response.success("Success")
+                Response.success<String>("Success")
             },
             onSuccess = {
                 successCalled = true
