@@ -6,6 +6,7 @@ import com.example.iurankomplek.network.interceptor.NetworkErrorInterceptor
 import com.example.iurankomplek.network.interceptor.RequestIdInterceptor
 import com.example.iurankomplek.network.interceptor.RetryableRequestInterceptor
 import com.example.iurankomplek.network.interceptor.RateLimiterInterceptor
+import com.example.iurankomplek.network.interceptor.TimeoutInterceptor
 import com.example.iurankomplek.network.resilience.CircuitBreaker
 import com.example.iurankomplek.network.resilience.CircuitBreakerState
 import com.example.iurankomplek.utils.Constants
@@ -78,6 +79,7 @@ import java.util.concurrent.TimeUnit
             SecurityConfig.getSecureOkHttpClient()
                 .newBuilder()
                 .connectionPool(connectionPool)
+                .addInterceptor(TimeoutInterceptor())
                 .addInterceptor(RequestIdInterceptor())
                 .addInterceptor(rateLimiter)
                 .addInterceptor(RetryableRequestInterceptor())
@@ -89,6 +91,7 @@ import java.util.concurrent.TimeUnit
                 .connectTimeout(Constants.Network.CONNECT_TIMEOUT, TimeUnit.SECONDS)
                 .readTimeout(Constants.Network.READ_TIMEOUT, TimeUnit.SECONDS)
                 .connectionPool(connectionPool)
+                .addInterceptor(TimeoutInterceptor())
                 .addInterceptor(RequestIdInterceptor())
                 .addInterceptor(rateLimiter)
                 .addInterceptor(RetryableRequestInterceptor())

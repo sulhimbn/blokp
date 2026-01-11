@@ -288,7 +288,10 @@ app/
 │       ├── interceptor/ ✅ NEW
 │       │   ├── NetworkErrorInterceptor.kt ✅ (error handling)
 │       │   ├── RequestIdInterceptor.kt ✅ (request tracking)
-│       │   └── RetryableRequestInterceptor.kt ✅ (retry marking)
+│       │   ├── RetryableRequestInterceptor.kt ✅ (retry marking)
+│       │   ├── RateLimiterInterceptor.kt ✅ (rate limiting)
+│       │   ├── HealthCheckInterceptor.kt ✅ (automatic health tracking)
+│       │   └── TimeoutInterceptor.kt ✅ NEW (2026-01-11 - INT-003)
 │       └── models/
 │           ├── DataItem.kt ✅ (legacy model)
 │           ├── ValidatedDataItem.kt ✅

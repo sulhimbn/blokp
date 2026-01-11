@@ -16,6 +16,11 @@ object Constants {
         const val INITIAL_RETRY_DELAY_MS = 1000L
         const val MAX_RETRY_DELAY_MS = 30000L
 
+        // Timeout Profile Constants (INT-003: Per-Operation Timeout Configuration)
+        const val FAST_TIMEOUT_MS = 5000L
+        const val NORMAL_TIMEOUT_MS = 30000L
+        const val SLOW_TIMEOUT_MS = 60000L
+
         // Connection Pool Constants
         const val MAX_IDLE_CONNECTIONS = 5
         const val KEEP_ALIVE_DURATION_MINUTES = 5L

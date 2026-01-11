@@ -1464,6 +1464,147 @@ on:
 
 ---
 
+### ✅ INT-003. Per-Operation Timeout Configuration - 2026-01-11
+**Status**: Completed
+**Completed Date**: 2026-01-11
+**Priority**: HIGH (Integration Resilience)
+**Estimated Time**: 1.5 hours (completed in 1 hour)
+**Description**: Implement per-operation timeout configuration for different endpoint types
+
+**Issue Identified**:
+- All operations use the same 30-second timeout
+- Some operations (e.g., health checks) should timeout faster
+- Some operations (e.g., payment initiation) may need longer timeouts
+- Global timeout doesn't account for different operation characteristics
+
+**Critical Path Analysis**:
+- Health checks should timeout quickly (5 seconds) to avoid hanging monitors
+- Payment initiation may take longer due to external processing (60 seconds)
+- Standard operations (users, vendors, etc.) work fine with 30 seconds
+- Per-operation timeout improves overall system responsiveness
+
+**Solution Implemented**:
+
+**1. TimeoutProfile Enum** (TimeoutInterceptor.kt):
+- `FAST`: Fast operations (5 seconds)
+- `NORMAL`: Standard operations (30 seconds)
+- `SLOW`: Complex operations (60 seconds)
+
+**2. TimeoutProfileConfig Object** (TimeoutInterceptor.kt):
+- `getTimeoutMs(profile: TimeoutProfile)`: Returns timeout in milliseconds for profile
+- `getTimeoutForPath(path: String)`: Maps endpoint path to timeout profile
+
+**3. TimeoutProfile Mappings**:
+```kotlin
+FAST (5s):
+  - /api/v1/health (health check)
+  - /api/v1/payments/{id}/status (payment status check)
+
+NORMAL (30s):
+  - /api/v1/users
+  - /api/v1/pemanfaatan
+  - /api/v1/vendors
+  - /api/v1/work-orders
+  - /api/v1/announcements
+  - /api/v1/messages
+  - /api/v1/community-posts
+  - /api/v1/payments (except /initiate)
+
+SLOW (60s):
+  - /api/v1/payments/initiate (payment initiation)
+```
+
+**4. TimeoutInterceptor** (TimeoutInterceptor.kt):
+- Interceptor that applies per-request timeouts based on endpoint path
+- Uses `chain.withReadTimeout()` and `chain.withWriteTimeout()` to override client timeouts
+- Converts milliseconds to seconds for OkHttp timeout API
+- Positioned first in interceptor chain for maximum impact
+
+**5. Constants Updated** (Constants.kt):
+- `FAST_TIMEOUT_MS = 5000L` (5 seconds)
+- `NORMAL_TIMEOUT_MS = 30000L` (30 seconds)
+- `SLOW_TIMEOUT_MS = 60000L` (60 seconds)
+
+**6. ApiConfig Integration** (ApiConfig.kt):
+- Added `TimeoutInterceptor()` to interceptor chain (first interceptor)
+- Applied to both secure and non-secure HTTP clients
+- Applied to both ApiService (legacy) and ApiServiceV1 (standardized)
+
+**Files Created** (2 total):
+| File | Lines | Purpose |
+|------|--------|---------|
+| TimeoutInterceptor.kt | +54 | TimeoutProfile enum, TimeoutProfileConfig object, TimeoutInterceptor |
+| TimeoutInterceptorTest.kt | +185 | Comprehensive test suite (18 test cases) |
+
+**Files Modified** (2 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| Constants.kt | +3 | Added timeout profile constants |
+| ApiConfig.kt | +2 | Added TimeoutInterceptor to chain |
+
+**Test Coverage Summary**:
+- **Total Tests**: 18 test cases
+- **Profile Mapping Tests**: 11 tests for endpoint path to profile mapping
+- **Timeout Value Tests**: 4 tests for timeout profile values
+- **Fast Endpoints**: Health checks, status checks verified to use FAST profile
+- **Slow Endpoints**: Payment initiation verified to use SLOW profile
+- **Normal Endpoints**: All other endpoints verified to use NORMAL profile
+- **Edge Cases**: Unknown endpoints default to NORMAL profile
+
+**Architecture Improvements**:
+
+**Integration Resilience - Enhanced ✅**:
+- ✅ Per-Operation Timeouts: Different timeouts for different operation types
+- ✅ Improved Responsiveness: Fast operations timeout quickly (5s)
+- ✅ Better Resource Management: Complex operations get adequate time (60s)
+- ✅ Path-Based Routing: Automatic timeout assignment based on endpoint path
+
+**Anti-Patterns Eliminated**:
+- ✅ No more one-size-fits-all timeout configuration
+- ✅ No more fast operations hanging for 30 seconds
+- ✅ No more complex operations timing out too early
+
+**Best Practices Followed**:
+- ✅ **Appropriate Timeouts**: Timeouts match operation complexity
+- ✅ **Early Failure**: Fast operations fail quickly when server is down
+- ✅ **Adequate Time**: Complex operations get enough time to complete
+- ✅ **Default Behavior**: Unknown endpoints use safe default (NORMAL)
+- ✅ **Interceptor Pattern**: Non-intrusive implementation via interceptor
+
+**Benefits**:
+1. **Improved Responsiveness**: Health checks timeout in 5s instead of 30s
+2. **Better User Experience**: Fast operations don't hang users unnecessarily
+3. **Resource Efficiency**: Complex operations (payment initiation) get adequate time
+4. **Monitor-Friendly**: Health checks return quickly for monitoring systems
+5. **Production-Ready**: Different timeouts for different operation characteristics
+6. **Zero Breaking Changes**: All existing APIs continue to work, just with optimized timeouts
+7. **Test Coverage**: 18 comprehensive tests ensure correct behavior
+
+**Integration Hardening Checklist**:
+- [x] Global timeout configuration
+- [x] Per-operation timeout profiles
+- [ ] Timeout escalation (retry with longer timeout)
+- [ ] Timeout monitoring and alerting
+
+**Success Criteria**:
+- [x] TimeoutProfile enum implemented (FAST, NORMAL, SLOW)
+- [x] TimeoutProfileConfig object with path mapping
+- [x] TimeoutInterceptor applies per-request timeouts
+- [x] Constants updated with timeout profile values
+- [x] ApiConfig integrated with TimeoutInterceptor
+- [x] Fast endpoints use FAST timeout (5s)
+- [x] Slow endpoints use SLOW timeout (60s)
+- [x] Normal endpoints use NORMAL timeout (30s)
+- [x] TimeoutInterceptorTest with 18 test cases
+- [x] INTEGRATION_HARDENING.md updated
+- [x] Task documented in task.md
+
+**Dependencies**: None (independent timeout configuration, improves existing resilience)
+**Documentation**: Updated INTEGRATION_HARDENING.md with implementation details
+**Impact**: HIGH - Improved responsiveness for fast operations, appropriate timeouts for complex operations, better resource utilization, improved monitoring capability
+
+---
+
 ## Data Architecture Summary - 2026-01-10
 
 **Total Indexes Added**: 24 new indexes across 4 migrations

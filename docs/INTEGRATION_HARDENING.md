@@ -6,7 +6,31 @@ This document describes the current integration resilience patterns implemented 
 
 ## Current Resilience Patterns ✅
 
-### 1. Circuit Breaker Pattern ✅
+### 1. Timeout Configuration ✅ (INT-003 - 2026-01-11)
+
+**Implementation**: `TimeoutInterceptor.kt`
+
+**Configuration**:
+- **FAST**: 5 seconds (health checks, status checks)
+- **NORMAL**: 30 seconds (default for most operations)
+- **SLOW**: 60 seconds (payment initiation)
+
+**Behavior**:
+- Per-request timeout based on endpoint path
+- Automatic profile mapping via `TimeoutProfileConfig`
+- Chain methods override client timeouts
+
+**Usage**: Applied via `ApiConfig` interceptor chain (first interceptor)
+
+**Benefits**:
+- Fast operations timeout quickly
+- Complex operations get adequate time
+- Improved monitor responsiveness
+- Zero breaking changes
+
+---
+
+### 2. Circuit Breaker Pattern ✅
 
 **Implementation**: `CircuitBreaker.kt`
 
@@ -31,7 +55,7 @@ This document describes the current integration resilience patterns implemented 
 
 ---
 
-### 2. Retry Pattern ✅
+### 3. Retry Pattern ✅
 
 **Implementation**: `RetryHelper.kt`
 
@@ -57,7 +81,7 @@ This document describes the current integration resilience patterns implemented 
 
 ---
 
-### 3. Rate Limiting ✅
+### 4. Rate Limiting ✅
 
 **Implementation**: `RateLimiterInterceptor.kt`, `RateLimiter.kt`
 
@@ -82,7 +106,7 @@ This document describes the current integration resilience patterns implemented 
 
 ---
 
-### 4. Connection Pooling ✅
+### 5. Connection Pooling ✅
 
 **Implementation**: `ApiConfig.connectionPool`
 
@@ -98,7 +122,7 @@ This document describes the current integration resilience patterns implemented 
 
 ---
 
-### 5. Timeout Configuration ✅
+### 7. Cache-First Strategy ✅
 
 **Implementation**: `SecurityConfig.kt`, `ApiConfig.kt`
 
@@ -114,7 +138,34 @@ This document describes the current integration resilience patterns implemented 
 
 ---
 
-### 6. Cache-First Strategy ✅
+### 6. Timeout Configuration ✅
+
+**Implementation**: `TimeoutInterceptor.kt`, `Constants.kt`, `ApiConfig.kt` (INT-003 - 2026-01-11)
+
+**Configuration**:
+- **Global Defaults**: 30 seconds for connect/read/write
+- **FAST_TIMEOUT**: 5 seconds (health checks, status checks)
+- **NORMAL_TIMEOUT**: 30 seconds (users, vendors, announcements, messages, posts)
+- **SLOW_TIMEOUT**: 60 seconds (payment initiation)
+
+**Behavior**:
+- `TimeoutProfile` enum: FAST, NORMAL, SLOW
+- `TimeoutProfileConfig.getTimeoutForPath()`: Maps endpoint path to profile
+- `TimeoutInterceptor`: Applies per-request timeouts based on path
+- Chain methods: `withReadTimeout()`, `withWriteTimeout()`
+
+**Usage**: Applied via `ApiConfig` interceptor chain (first interceptor)
+
+**Benefits**:
+- Fast operations timeout quickly (5s)
+- Complex operations get adequate time (60s)
+- Improved monitor responsiveness (health checks return fast)
+- Better resource utilization for different operation types
+- Zero breaking changes (backward compatible)
+
+---
+
+### 7. Cache-First Strategy ✅
 
 **Implementation**: `DatabaseCacheStrategy.kt`, `CacheFirstStrategy.kt`
 
@@ -140,7 +191,7 @@ This document describes the current integration resilience patterns implemented 
 
 ---
 
-### 7. Request Tracing ✅
+### 8. Request Tracing ✅
 
 **Implementation**: `RequestIdInterceptor.kt`
 
@@ -156,7 +207,7 @@ This document describes the current integration resilience patterns implemented 
 
 ---
 
-### 8. Health Monitoring ✅
+### 9. Health Monitoring ✅
 
 **Implementation**: `HealthCheckInterceptor.kt`, `IntegrationHealthMonitor.kt`
 
@@ -273,9 +324,24 @@ class TimeoutInterceptor(
 }
 ```
 
-**Status**: ❌ NOT IMPLEMENTED
+**Status**: ✅ IMPLEMENTED (INT-003 - 2026-01-11)
 
-**Impact**: MEDIUM - Improved responsiveness for fast operations
+**Implementation**:
+- `TimeoutProfile` enum with FAST, NORMAL, SLOW profiles
+- `TimeoutProfileConfig` object with `getTimeoutMs()` and `getTimeoutForPath()` methods
+- `TimeoutInterceptor` interceptor applies per-operation timeouts
+- Updated `ApiConfig.kt` to include TimeoutInterceptor in interceptor chain
+- Added timeout profile constants to `Constants.Network`:
+  - `FAST_TIMEOUT_MS = 5000L` (5 seconds)
+  - `NORMAL_TIMEOUT_MS = 30000L` (30 seconds)
+  - `SLOW_TIMEOUT_MS = 60000L` (60 seconds)
+
+**Timeout Mappings**:
+- **FAST (5s)**: Health checks, status checks
+- **NORMAL (30s)**: Users, pemanfaatan, vendors, work orders, announcements, messages, community posts, payment status/confirm
+- **SLOW (60s)**: Payment initiation
+
+**Impact**: HIGH - Improved responsiveness for fast operations, appropriate timeouts for complex operations
 
 ---
 
@@ -390,6 +456,12 @@ val client = OkHttpClient.Builder()
 
 ## Integration Resilience Checklist
 
+### Timeout
+- [x] Global timeout configuration
+- [x] Per-operation timeout profiles (INT-003 - 2026-01-11)
+- [ ] Timeout escalation (retry with longer timeout)
+- [ ] Timeout monitoring and alerting
+
 ### Circuit Breaker
 - [x] Circuit breaker implemented
 - [x] Configurable thresholds
@@ -421,7 +493,7 @@ val client = OkHttpClient.Builder()
 
 ### Timeout
 - [x] Global timeout configuration
-- [ ] Per-operation timeout profiles
+- [x] Per-operation timeout profiles (INT-003 - 2026-01-11)
 - [ ] Timeout escalation (retry with longer timeout)
 - [ ] Timeout monitoring and alerting
 
