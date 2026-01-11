@@ -6,7 +6,7 @@
         <domain includeSubdomains="true">api.apispreadsheets.com</domain>
         <pin-set expiration="2028-12-31">
             <!-- Primary certificate pin -->
-            <pin digest="sha256">PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=</pin>
+            <pin digest="SHA-256">PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=</pin>
 
              <!-- Backup certificate pins extracted from certificate chain -->
              <!-- SECURITY: Having at least 2 active pins prevents single point of failure -->
@@ -31,8 +31,8 @@
                     - Set up monitoring for certificate expiration
                     - Extract pins annually to capture certificate chain updates
                -->
-             <pin digest="sha256">G9LNNAql897egYsabashkzUCTEJkWBzgoEtk8X/678c=</pin>
-             <pin digest="sha256">++MBgDH5WGvL9Bcn5Be30cRcL0f5O+NyoXuWtQdX1aI=</pin>
+             <pin digest="SHA-256">G9LNNAql897egYsabashkzUCTEJkWBzgoEtk8X/678c=</pin>
+             <pin digest="SHA-256">++MBgDH5WGvL9Bcn5Be30cRcL0f5O+NyoXuWtQdX1aI=</pin>
         </pin-set>
     </domain-config>
     
