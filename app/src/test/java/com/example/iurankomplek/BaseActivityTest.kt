@@ -4,6 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.iurankomplek.core.base.BaseActivity
 import com.example.iurankomplek.network.ApiService
 import com.example.iurankomplek.network.ApiConfig
+import com.example.iurankomplek.utils.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
