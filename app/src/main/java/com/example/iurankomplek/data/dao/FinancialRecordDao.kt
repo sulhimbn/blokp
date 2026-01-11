@@ -76,4 +76,7 @@ interface FinancialRecordDao {
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateAll(records: List<FinancialRecordEntity>)
+
+    @Query("SELECT MAX(updated_at) FROM financial_records WHERE is_deleted = 0")
+    suspend fun getLatestFinancialRecordUpdatedAt(): java.util.Date?
 }

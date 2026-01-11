@@ -22,11 +22,13 @@ class UserRepositoryImpl(
     override suspend fun getUsers(forceRefresh: Boolean): OperationResult<UserResponse> {
         return try {
             if (!forceRefresh) {
-                val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
-                if (usersWithFinancials.isNotEmpty()) {
-                    val dtoList = EntityMapper.toLegacyDtoList(usersWithFinancials)
-                    val userResponse = UserResponse(dtoList)
-                    return OperationResult.Success(userResponse)
+                if (CacheManager.isUserCacheFresh()) {
+                    val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
+                    if (usersWithFinancials.isNotEmpty()) {
+                        val dtoList = EntityMapper.toLegacyDtoList(usersWithFinancials)
+                        val userResponse = UserResponse(dtoList)
+                        return OperationResult.Success(userResponse)
+                    }
                 }
             }
 

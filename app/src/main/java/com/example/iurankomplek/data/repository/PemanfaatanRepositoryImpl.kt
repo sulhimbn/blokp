@@ -24,11 +24,13 @@ class PemanfaatanRepositoryImpl(
     override suspend fun getPemanfaatan(forceRefresh: Boolean): OperationResult<PemanfaatanResponse> {
         return try {
             if (!forceRefresh) {
-                val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
-                if (usersWithFinancials.isNotEmpty()) {
-                    val dtoList = EntityMapper.toLegacyDtoList(usersWithFinancials)
-                    val pemanfaatanResponse = PemanfaatanResponse(dtoList)
-                    return OperationResult.Success(pemanfaatanResponse)
+                if (CacheManager.isFinancialCacheFresh()) {
+                    val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
+                    if (usersWithFinancials.isNotEmpty()) {
+                        val dtoList = EntityMapper.toLegacyDtoList(usersWithFinancials)
+                        val pemanfaatanResponse = PemanfaatanResponse(dtoList)
+                        return OperationResult.Success(pemanfaatanResponse)
+                    }
                 }
             }
 
