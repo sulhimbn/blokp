@@ -1,12 +1,10 @@
 package com.example.iurankomplek.presentation.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.iurankomplek.R
+import com.example.iurankomplek.databinding.ItemLaporanBinding
 
 data class LaporanSummaryItem(
     val title: String,
@@ -20,25 +18,21 @@ class LaporanSummaryAdapter : ListAdapter<LaporanSummaryItem, LaporanSummaryAdap
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
-        val view: View =
-            LayoutInflater.from(parent.context).inflate(R.layout.item_laporan, parent, false)
-        return ListViewHolder(view)
+        val binding = ItemLaporanBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ListViewHolder(binding)
     }
 
     override fun getItemCount(): Int = currentList.size
 
     override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
         val item = getItem(position)
-        holder.tvTitle.text = item.title
-        holder.tvValue.text = item.value
+        holder.binding.itemLaporanTitle.text = item.title
+        holder.binding.itemLaporanValue.text = item.value
     }
 
     fun setItems(newItems: List<LaporanSummaryItem>) {
         submitList(newItems)
     }
 
-    class ListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var tvTitle: TextView = itemView.findViewById(R.id.itemLaporanTitle)
-        var tvValue: TextView = itemView.findViewById(R.id.itemLaporanValue)
-    }
+    class ListViewHolder(val binding: ItemLaporanBinding) : RecyclerView.ViewHolder(binding.root)
 }

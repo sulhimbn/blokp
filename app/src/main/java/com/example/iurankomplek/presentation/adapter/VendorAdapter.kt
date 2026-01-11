@@ -1,12 +1,10 @@
 package com.example.iurankomplek.presentation.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.iurankomplek.R
+import com.example.iurankomplek.databinding.ItemVendorBinding
 import com.example.iurankomplek.model.Vendor
 
 class VendorAdapter(
@@ -20,23 +18,18 @@ class VendorAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VendorViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_vendor, parent, false)
-        return VendorViewHolder(view)
+        val binding = ItemVendorBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return VendorViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: VendorViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
 
-    inner class VendorViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val nameTextView: TextView = itemView.findViewById(R.id.vendorName)
-        private val specialtyTextView: TextView = itemView.findViewById(R.id.vendorSpecialty)
-        private val contactTextView: TextView = itemView.findViewById(R.id.vendorContact)
-        private val ratingTextView: TextView = itemView.findViewById(R.id.vendorRating)
+    inner class VendorViewHolder(val binding: ItemVendorBinding) : RecyclerView.ViewHolder(binding.root) {
 
         init {
-            itemView.setOnClickListener {
+            binding.root.setOnClickListener {
                 val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onVendorClick(getItem(position))
@@ -45,10 +38,10 @@ class VendorAdapter(
         }
 
         fun bind(vendor: Vendor) {
-            nameTextView.text = vendor.name
-            specialtyTextView.text = vendor.specialty
-            contactTextView.text = vendor.phoneNumber
-            ratingTextView.text = "$RATING_PREFIX${vendor.rating}$RATING_SUFFIX"
+            binding.vendorName.text = vendor.name
+            binding.vendorSpecialty.text = vendor.specialty
+            binding.vendorContact.text = vendor.phoneNumber
+            binding.vendorRating.text = "$RATING_PREFIX${vendor.rating}$RATING_SUFFIX"
         }
     }
 }

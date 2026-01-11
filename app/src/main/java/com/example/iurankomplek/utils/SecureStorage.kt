@@ -35,7 +35,7 @@ object SecureStorage {
                 }
             }
         }
-        return encryptedPrefs!!
+        return requireNotNull(encryptedPrefs) { "EncryptedSharedPreferences not initialized" }
     }
 
     fun storeString(context: Context, key: String, value: String?) {

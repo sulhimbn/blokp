@@ -88,7 +88,7 @@ class WebhookSignatureVerifier(
                 throw SecurityException("Invalid webhook secret key", e)
             }
         }
-        return macInstance!!
+        return requireNotNull(macInstance) { "Mac instance not initialized" }
     }
     
     private fun constantTimeCompare(a: String, b: String): Boolean {

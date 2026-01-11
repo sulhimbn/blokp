@@ -1,12 +1,10 @@
 package com.example.iurankomplek.presentation.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.iurankomplek.R
+import com.example.iurankomplek.databinding.ItemMessageBinding
 import com.example.iurankomplek.model.Message
 
 class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageViewHolder>(DiffCallback) {
@@ -16,22 +14,18 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageViewHolder>(Di
         private const val SENDER_PREFIX = "From: "
     }
 
-    class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val contentTextView: TextView = itemView.findViewById(R.id.messageContent)
-        private val timestampTextView: TextView = itemView.findViewById(R.id.messageTimestamp)
-        private val senderTextView: TextView = itemView.findViewById(R.id.messageSender)
+    class MessageViewHolder(val binding: ItemMessageBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(message: Message) {
-            contentTextView.text = message.content
-            timestampTextView.text = message.timestamp
-            senderTextView.text = "$SENDER_PREFIX${message.senderId}"
+            binding.messageContent.text = message.content
+            binding.messageTimestamp.text = message.timestamp
+            binding.messageSender.text = "$SENDER_PREFIX${message.senderId}"
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_message, parent, false)
-        return MessageViewHolder(view)
+        val binding = ItemMessageBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return MessageViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
