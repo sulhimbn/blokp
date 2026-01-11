@@ -3,7 +3,7 @@ package com.example.iurankomplek.domain.usecase
 import com.example.iurankomplek.data.entity.Transaction
 import com.example.iurankomplek.data.repository.TransactionRepository
 import com.example.iurankomplek.utils.OperationResult
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
 class LoadTransactionsUseCase(
     private val transactionRepository: TransactionRepository

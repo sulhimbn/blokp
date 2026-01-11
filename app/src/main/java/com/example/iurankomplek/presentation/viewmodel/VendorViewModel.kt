@@ -3,6 +3,7 @@ package com.example.iurankomplek.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.launch
 import com.example.iurankomplek.core.base.BaseViewModel
 import com.example.iurankomplek.domain.usecase.LoadVendorsUseCase
 import com.example.iurankomplek.domain.usecase.LoadWorkOrdersUseCase
@@ -80,10 +81,10 @@ class VendorViewModel(
                 name, contactPerson, phoneNumber, email, specialty, address,
                 licenseNumber, insuranceInfo, contractStart, contractEnd
             )) {
-                is com.example.iurankomplek.utils.Result.Success -> {
+                is com.example.iurankomplek.utils.OperationResult.Success -> {
                     loadVendors()
                 }
-                is com.example.iurankomplek.utils.Result.Error -> {
+                is com.example.iurankomplek.utils.OperationResult.Error -> {
                 }
             }
         }
@@ -102,10 +103,10 @@ class VendorViewModel(
             when (val result = createWorkOrderUseCase(
                 title, description, category, priority, propertyId, reporterId, estimatedCost
             )) {
-                is com.example.iurankomplek.utils.Result.Success -> {
+                is com.example.iurankomplek.utils.OperationResult.Success -> {
                     loadWorkOrders()
                 }
-                is com.example.iurankomplek.utils.Result.Error -> {
+                is com.example.iurankomplek.utils.OperationResult.Error -> {
                 }
             }
         }

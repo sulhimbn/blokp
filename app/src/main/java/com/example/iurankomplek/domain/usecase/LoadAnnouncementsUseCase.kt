@@ -7,7 +7,7 @@ import com.example.iurankomplek.utils.OperationResult
 class LoadAnnouncementsUseCase(
     private val announcementRepository: AnnouncementRepository
 ) {
-    operator fun invoke(forceRefresh: Boolean = false): OperationResult<List<Announcement>> {
+    suspend operator fun invoke(forceRefresh: Boolean = false): OperationResult<List<Announcement>> {
         return try {
             announcementRepository.getAnnouncements(forceRefresh)
         } catch (e: Exception) {
