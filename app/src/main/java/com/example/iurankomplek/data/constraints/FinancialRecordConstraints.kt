@@ -35,21 +35,21 @@ object FinancialRecordConstraints {
         CREATE TABLE ${TABLE_NAME} (
             ${Columns.ID} INTEGER PRIMARY KEY AUTOINCREMENT,
             ${Columns.USER_ID} INTEGER NOT NULL,
-            ${Columns.IURAN_PERWARGA} INTEGER NOT NULL DEFAULT 0 CHECK(${Columns.IURAN_PERWARGA} >= 0),
-            ${Columns.JUMLAH_IURAN_BULANAN} INTEGER NOT NULL DEFAULT 0 CHECK(${Columns.JUMLAH_IURAN_BULANAN} >= 0),
-            ${Columns.TOTAL_IURAN_INDIVIDU} INTEGER NOT NULL DEFAULT 0 CHECK(${Columns.TOTAL_IURAN_INDIVIDU} >= 0),
-            ${Columns.PENGELUARAN_IURAN_WARGA} INTEGER NOT NULL DEFAULT 0 CHECK(${Columns.PENGELUARAN_IURAN_WARGA} >= 0),
-            ${Columns.TOTAL_IURAN_REKAP} INTEGER NOT NULL DEFAULT 0 CHECK(${Columns.TOTAL_IURAN_REKAP} >= 0),
-            ${Columns.PEMANFAATAN_IURAN} TEXT NOT NULL CHECK(length(${Columns.PEMANFAATAN_IURAN}) > 0),
-            ${Columns.IS_DELETED} INTEGER NOT NULL DEFAULT 0 CHECK(${Columns.IS_DELETED} IN (0, 1)),
+            ${Columns.IURAN_PERWARGA} INTEGER NOT NULL DEFAULT 0,
+            ${Columns.JUMLAH_IURAN_BULANAN} INTEGER NOT NULL DEFAULT 0,
+            ${Columns.TOTAL_IURAN_INDIVIDU} INTEGER NOT NULL DEFAULT 0,
+            ${Columns.PENGELUARAN_IURAN_WARGA} INTEGER NOT NULL DEFAULT 0,
+            ${Columns.TOTAL_IURAN_REKAP} INTEGER NOT NULL DEFAULT 0,
+            ${Columns.PEMANFAATAN_IURAN} TEXT NOT NULL,
+            ${Columns.IS_DELETED} INTEGER NOT NULL DEFAULT 0,
             ${Columns.CREATED_AT} INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
             ${Columns.UPDATED_AT} INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
-            FOREIGN KEY(${Columns.USER_ID}) REFERENCES ${UserConstraints.TABLE_NAME}(${UserConstraints.Columns.ID}) 
-                ON DELETE CASCADE 
+            FOREIGN KEY(${Columns.USER_ID}) REFERENCES ${UserConstraints.TABLE_NAME}(${UserConstraints.Columns.ID})
+                ON DELETE CASCADE
                 ON UPDATE CASCADE
         )
     """.trimIndent()
-    
+
     val INDEX_USER_ID_SQL = "CREATE INDEX ${Indexes.IDX_USER_ID} ON ${TABLE_NAME}(${Columns.USER_ID})"
     val INDEX_UPDATED_AT_SQL = "CREATE INDEX ${Indexes.IDX_UPDATED_AT} ON ${TABLE_NAME}(${Columns.UPDATED_AT} DESC)"
     val INDEX_USER_REKAP_SQL = "CREATE INDEX ${Indexes.IDX_USER_REKAP} ON ${TABLE_NAME}(${Columns.USER_ID}, ${Columns.TOTAL_IURAN_REKAP})"

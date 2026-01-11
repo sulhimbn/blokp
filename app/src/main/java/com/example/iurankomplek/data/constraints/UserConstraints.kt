@@ -31,16 +31,16 @@ object UserConstraints {
     val TABLE_SQL = """
         CREATE TABLE ${TABLE_NAME} (
             ${Columns.ID} INTEGER PRIMARY KEY AUTOINCREMENT,
-            ${Columns.EMAIL} TEXT NOT NULL UNIQUE CHECK(length(${Columns.EMAIL}) > 0 AND length(${Columns.EMAIL}) <= ${Constraints.MAX_EMAIL_LENGTH} AND ${Columns.EMAIL} LIKE '%@%'),
-            ${Columns.FIRST_NAME} TEXT NOT NULL CHECK(length(${Columns.FIRST_NAME}) > 0 AND length(${Columns.FIRST_NAME}) <= ${Constraints.MAX_NAME_LENGTH}),
-            ${Columns.LAST_NAME} TEXT NOT NULL CHECK(length(${Columns.LAST_NAME}) > 0 AND length(${Columns.LAST_NAME}) <= ${Constraints.MAX_NAME_LENGTH}),
-            ${Columns.ALAMAT} TEXT NOT NULL CHECK(length(${Columns.ALAMAT}) > 0 AND length(${Columns.ALAMAT}) <= ${Constraints.MAX_ALAMAT_LENGTH}),
-            ${Columns.AVATAR} TEXT NOT NULL CHECK(length(${Columns.AVATAR}) <= ${Constraints.MAX_AVATAR_LENGTH}),
-            ${Columns.IS_DELETED} INTEGER NOT NULL DEFAULT 0 CHECK(${Columns.IS_DELETED} IN (0, 1)),
+            ${Columns.EMAIL} TEXT NOT NULL UNIQUE,
+            ${Columns.FIRST_NAME} TEXT NOT NULL,
+            ${Columns.LAST_NAME} TEXT NOT NULL,
+            ${Columns.ALAMAT} TEXT NOT NULL,
+            ${Columns.AVATAR} TEXT NOT NULL,
+            ${Columns.IS_DELETED} INTEGER NOT NULL DEFAULT 0,
             ${Columns.CREATED_AT} INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
             ${Columns.UPDATED_AT} INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
         )
     """.trimIndent()
-    
+
     val INDEX_EMAIL_SQL = "CREATE INDEX ${Indexes.IDX_EMAIL} ON ${TABLE_NAME}(${Columns.EMAIL})"
 }

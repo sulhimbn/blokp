@@ -35,17 +35,17 @@ object TransactionConstraints {
 
     val TABLE_SQL = """
         CREATE TABLE ${TABLE_NAME} (
-            ${Columns.ID} TEXT PRIMARY KEY NOT NULL CHECK(length(${Columns.ID}) > 0),
+            ${Columns.ID} TEXT PRIMARY KEY NOT NULL,
             ${Columns.USER_ID} INTEGER NOT NULL,
-            ${Columns.AMOUNT} NUMERIC NOT NULL CHECK(${Columns.AMOUNT} > 0 AND ${Columns.AMOUNT} <= ${Constraints.MAX_AMOUNT}),
-            ${Columns.CURRENCY} TEXT NOT NULL DEFAULT 'IDR' CHECK(length(${Columns.CURRENCY}) <= ${Constraints.MAX_CURRENCY_LENGTH}),
-            ${Columns.STATUS} TEXT NOT NULL CHECK(${Columns.STATUS} IN ('PENDING', 'PROCESSING', 'COMPLETED', 'FAILED', 'REFUNDED', 'CANCELLED')),
-            ${Columns.PAYMENT_METHOD} TEXT NOT NULL CHECK(${Columns.PAYMENT_METHOD} IN ('CREDIT_CARD', 'BANK_TRANSFER', 'E_WALLET', 'VIRTUAL_ACCOUNT')),
-            ${Columns.DESCRIPTION} TEXT NOT NULL CHECK(length(${Columns.DESCRIPTION}) > 0 AND length(${Columns.DESCRIPTION}) <= ${Constraints.MAX_DESCRIPTION_LENGTH}),
-            ${Columns.IS_DELETED} INTEGER NOT NULL DEFAULT 0 CHECK(${Columns.IS_DELETED} IN (0, 1)),
+            ${Columns.AMOUNT} NUMERIC NOT NULL,
+            ${Columns.CURRENCY} TEXT NOT NULL DEFAULT 'IDR',
+            ${Columns.STATUS} TEXT NOT NULL,
+            ${Columns.PAYMENT_METHOD} TEXT NOT NULL,
+            ${Columns.DESCRIPTION} TEXT NOT NULL,
+            ${Columns.IS_DELETED} INTEGER NOT NULL DEFAULT 0,
             ${Columns.CREATED_AT} INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
             ${Columns.UPDATED_AT} INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
-            ${Columns.METADATA} TEXT NOT NULL DEFAULT '' CHECK(length(${Columns.METADATA}) <= ${Constraints.MAX_METADATA_LENGTH}),
+            ${Columns.METADATA} TEXT NOT NULL DEFAULT '',
             FOREIGN KEY(${Columns.USER_ID}) REFERENCES ${UserConstraints.TABLE_NAME}(${UserConstraints.Columns.ID})
                 ON DELETE RESTRICT
                 ON UPDATE CASCADE
