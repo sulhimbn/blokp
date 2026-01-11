@@ -33,11 +33,28 @@ class WebhookEventCleaner(
     }
 
     suspend fun cleanupOldEvents(): Int {
-        val cutoffTime = System.currentTimeMillis() - 
+        val cutoffTime = System.currentTimeMillis() -
             (Constants.Webhook.MAX_EVENT_RETENTION_DAYS * 24L * 60L * 60L * 1000L)
-        
-        val deletedCount = webhookEventDao.deleteEventsOlderThan(cutoffTime)
-        Log.d(TAG, "Cleaned up old webhook events")
+
+        val deliveredEvents = webhookEventDao.getDeliveredEventsOlderThan(cutoffTime)
+        val failedEvents = webhookEventDao.getFailedEventsOlderThan(cutoffTime)
+
+        var softDeletedCount = 0
+        for (event in deliveredEvents + failedEvents) {
+            webhookEventDao.softDeleteById(event.id)
+            softDeletedCount++
+        }
+
+        Log.d(TAG, "Soft deleted old webhook events")
+        return softDeletedCount
+    }
+
+    suspend fun hardDeleteSoftDeletedOldEvents(): Int {
+        val cutoffTime = System.currentTimeMillis() -
+            (Constants.Webhook.MAX_EVENT_RETENTION_DAYS * 24L * 60L * 60L * 1000L)
+
+        val deletedCount = webhookEventDao.hardDeleteSoftDeletedOlderThan(cutoffTime)
+        Log.d(TAG, "Hard deleted old soft-deleted webhook events")
         return deletedCount
     }
 }

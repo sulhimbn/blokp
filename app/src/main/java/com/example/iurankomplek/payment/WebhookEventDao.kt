@@ -19,22 +19,22 @@ interface WebhookEventDao {
     @Update
     suspend fun update(webhookEvent: WebhookEvent)
 
-    @Query("SELECT * FROM webhook_events WHERE id = :id")
+    @Query("SELECT * FROM webhook_events WHERE id = :id AND is_deleted = 0")
     suspend fun getEventById(id: Long): WebhookEvent?
 
-    @Query("SELECT * FROM webhook_events WHERE idempotency_key = :idempotencyKey")
+    @Query("SELECT * FROM webhook_events WHERE idempotency_key = :idempotencyKey AND is_deleted = 0")
     suspend fun getEventByIdempotencyKey(idempotencyKey: String): WebhookEvent?
 
-    @Query("SELECT * FROM webhook_events WHERE status = :status AND (next_retry_at IS NULL OR next_retry_at <= :currentTime) ORDER BY created_at ASC LIMIT :limit")
+    @Query("SELECT * FROM webhook_events WHERE status = :status AND is_deleted = 0 AND (next_retry_at IS NULL OR next_retry_at <= :currentTime) ORDER BY created_at ASC LIMIT :limit")
     suspend fun getPendingEventsByStatus(status: WebhookDeliveryStatus, currentTime: Long, limit: Int = 10): List<WebhookEvent>
 
-    @Query("SELECT * FROM webhook_events WHERE status = 'PENDING' ORDER BY created_at ASC")
+    @Query("SELECT * FROM webhook_events WHERE status = 'PENDING' AND is_deleted = 0 ORDER BY created_at ASC")
     fun getPendingEvents(): Flow<List<WebhookEvent>>
 
-    @Query("SELECT * FROM webhook_events WHERE transaction_id = :transactionId ORDER BY created_at DESC")
+    @Query("SELECT * FROM webhook_events WHERE transaction_id = :transactionId AND is_deleted = 0 ORDER BY created_at DESC")
     fun getEventsByTransactionId(transactionId: String): Flow<List<WebhookEvent>>
 
-    @Query("SELECT * FROM webhook_events WHERE event_type = :eventType ORDER BY created_at DESC")
+    @Query("SELECT * FROM webhook_events WHERE event_type = :eventType AND is_deleted = 0 ORDER BY created_at DESC")
     fun getEventsByType(eventType: String): Flow<List<WebhookEvent>>
 
     @Query("UPDATE webhook_events SET status = :status, updated_at = :updatedAt WHERE id = :id")
@@ -59,10 +59,10 @@ interface WebhookEventDao {
     @Query("UPDATE webhook_events SET status = 'FAILED', updated_at = :updatedAt WHERE id = :id")
     suspend fun markAsFailed(id: Long, updatedAt: Long = System.currentTimeMillis())
 
-    @Query("SELECT * FROM webhook_events WHERE status = 'FAILED' AND created_at < :cutoffTime")
+    @Query("SELECT * FROM webhook_events WHERE status = 'FAILED' AND is_deleted = 0 AND created_at < :cutoffTime")
     suspend fun getFailedEventsOlderThan(cutoffTime: Long): List<WebhookEvent>
 
-    @Query("SELECT * FROM webhook_events WHERE status = 'DELIVERED' AND delivered_at < :cutoffTime")
+    @Query("SELECT * FROM webhook_events WHERE status = 'DELIVERED' AND is_deleted = 0 AND delivered_at < :cutoffTime")
     suspend fun getDeliveredEventsOlderThan(cutoffTime: Long): List<WebhookEvent>
 
     @Query("DELETE FROM webhook_events WHERE id = :id")
@@ -71,17 +71,33 @@ interface WebhookEventDao {
     @Query("DELETE FROM webhook_events WHERE created_at < :cutoffTime")
     suspend fun deleteEventsOlderThan(cutoffTime: Long): Int
 
-    @Query("SELECT COUNT(*) FROM webhook_events WHERE status = :status")
+    @Query("UPDATE webhook_events SET is_deleted = 1, updated_at = :updatedAt WHERE id = :id")
+    suspend fun softDeleteById(id: Long, updatedAt: Long = System.currentTimeMillis())
+
+    @Query("UPDATE webhook_events SET is_deleted = 0, updated_at = :updatedAt WHERE id = :id")
+    suspend fun restoreById(id: Long, updatedAt: Long = System.currentTimeMillis())
+
+    @Query("SELECT * FROM webhook_events WHERE is_deleted = 1 ORDER BY created_at DESC")
+    fun getDeletedEvents(): Flow<List<WebhookEvent>>
+
+    @Query("DELETE FROM webhook_events WHERE is_deleted = 1 AND created_at < :cutoffTime")
+    suspend fun hardDeleteSoftDeletedOlderThan(cutoffTime: Long): Int
+
+    @Query("SELECT COUNT(*) FROM webhook_events WHERE status = :status AND is_deleted = 0")
     suspend fun countByStatus(status: WebhookDeliveryStatus): Int
 
-    @Query("SELECT * FROM webhook_events ORDER BY created_at DESC LIMIT :limit")
+    @Query("SELECT * FROM webhook_events WHERE is_deleted = 0 ORDER BY created_at DESC LIMIT :limit")
     fun getAllEvents(limit: Int = 100): Flow<List<WebhookEvent>>
 
     @Transaction
     suspend fun insertOrUpdate(webhookEvent: WebhookEvent): Long {
         val existing = getEventByIdempotencyKey(webhookEvent.idempotencyKey)
-        return if (existing != null) {
+        return if (existing != null && !existing.isDeleted) {
             update(webhookEvent.copy(id = existing.id))
+            existing.id
+        } else if (existing != null && existing.isDeleted) {
+            restoreById(existing.id)
+            update(webhookEvent.copy(id = existing.id, isDeleted = false))
             existing.id
         } else {
             insert(webhookEvent)

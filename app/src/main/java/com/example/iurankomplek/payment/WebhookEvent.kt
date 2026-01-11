@@ -54,7 +54,10 @@ data class WebhookEvent(
     val updatedAt: Long = System.currentTimeMillis(),
 
     @ColumnInfo(name = "last_error")
-    val lastError: String? = null
+    val lastError: String? = null,
+
+    @ColumnInfo(name = "is_deleted")
+    val isDeleted: Boolean = false
 )
 
 enum class WebhookDeliveryStatus {
