@@ -134,17 +134,4 @@ import java.util.concurrent.TimeUnit
     fun resetRateLimiter() {
         rateLimiter.reset()
     }
-
-    fun getPriorityQueueStats(): Map<String, Int> {
-        val stats = priorityDispatcher.getQueueStats()
-        val mutableMap = mutableMapOf<String, Int>()
-        stats.forEach { (priority, count) ->
-            mutableMap[priority.name] = count
-        }
-        return mutableMap.toMap()
-    }
-
-    fun resetPriorityQueue() {
-        priorityDispatcher.reset()
-    }
 }
