@@ -13,6 +13,7 @@ kotlinx-coroutines-test = "1.7.3"
 robolectric = "4.10.3"
 androidx-test-ext-junit = "1.1.5"
 espresso-core = "3.5.1"
+security-crypto = "1.1.0-alpha06"
 espresso-intents = "3.5.1"
 androidx-test-runner = "1.5.2"
 androidx-test-rules = "1.5.0"
@@ -32,6 +33,7 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "security-crypto" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito-core" }
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
