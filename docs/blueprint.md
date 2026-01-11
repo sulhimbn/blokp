@@ -565,6 +565,13 @@ app/
 - ✅ Certificate pinning for production API (with 2 backup pins - RESOLVED 2026-01-08)
 - ✅ Network security configuration
 - ✅ HTTPS enforcement (production)
+- ✅ Encrypted storage (SecureStorage.kt - SEC-001: AES-256-GCM encryption - 2026-01-11)
+- ✅ Root detection (8 comprehensive methods - SecurityManager.kt - SEC-002: 2026-01-11)
+- ✅ Emulator detection (7 comprehensive methods - SecurityManager.kt - SEC-002: 2026-01-11)
+- ✅ Environment validation (SecurityManager.isSecureEnvironment() - SEC-002: 2026-01-11)
+- ✅ Certificate expiration monitoring (90-day advance warning - SEC-005: 2026-01-11)
+- ✅ Reduced sensitive logging (SEC-003: WebhookSecurityConfig, WebhookSignatureVerifier - 2026-01-11)
+- ✅ Dependency vulnerability scanning (OWASP dependency-check v12.1.0 - SEC-004: CVSS threshold 7.0)
 - ✅ Input validation and sanitization
 - ✅ Output encoding
 - ✅ Security headers (X-Frame-Options, X-XSS-Protection)
@@ -572,9 +579,9 @@ app/
 - ✅ Up-to-date dependencies (Retrofit 2.11.0, androidx.core-ktx 1.13.1 - FIXED 2026-01-08)
 - ✅ Lifecycle-aware coroutines (prevents memory leaks)
 - ✅ Sanitized logging (no sensitive data exposure)
-- ✅ Comprehensive security audit completed (2026-01-07, updated 2026-01-08, updated 2026-01-10)
+- ✅ Comprehensive security audit completed (2026-01-07, updated 2026-01-08, updated 2026-01-10, updated 2026-01-11)
 - ✅ ProGuard/R8 minification rules configured
-- ✅ OWASP Mobile Security compliance (excellent - 9/10 score - updated 2026-01-10)
+- ✅ OWASP Mobile Security compliance (excellent - 9/10 score - updated 2026-01-10, updated 2026-01-11)
 - ✅ CWE Top 25 mitigations implemented
 - ✅ CWE-295 vulnerability mitigated (Retrofit update)
 - ✅ Dependency vulnerability scan completed (2026-01-10 - no CVEs found)
@@ -588,11 +595,16 @@ app/
 - ✅ SQL injection prevention
 - ✅ XSS protection for web views
 - ✅ No hardcoded secrets
-- ✅ Secure storage practices
+- ✅ Encrypted storage for sensitive data (AES-256-GCM)
+- ✅ Defense in depth (multiple security layers)
+- ✅ Secure by default (SecureStorage provides encrypted operations only)
+- ✅ Fail secure (initialization throws SecurityException on failure)
+- ✅ Zero trust (assume environment is compromised until proven otherwise)
 - ✅ Network timeout configurations
-- ✅ Certificate rotation with backup pin
+- ✅ Certificate rotation with backup pin and expiration monitoring
 - ✅ Proper error logging without stack traces
-- ✅ Minimal log verbosity in production
+- ✅ Minimal log verbosity in production (no secret-related information)
+- ✅ Least information principle in security logging
 
 ## Performance Architecture ✅
 
@@ -4700,6 +4712,15 @@ API inconsistencies found in ApiService.kt:
   - PaymentActivity: Fixed ProgressBar accessibility (changed from "no" to "yes")
   - Added contentDescription to PaymentActivity ProgressBar
   - All state views have proper accessibility attributes
+
+- **A11Y-001 Accessibility Improvements** (2026-01-11) ✅ NEW
+  - Eliminated redundant screen reader announcements in menu layouts
+  - Fixed activity_menu.xml (portrait): Changed `importantForAccessibility="yes"` to `"no"` on child TextViews
+  - Fixed layout-sw600dp/activity_menu.xml (tablet): Same fix applied for consistency
+  - Fixed item_menu.xml: Changed `importantForAccessibility` on menuItemText TextView
+  - Parent LinearLayouts provide complete context with `importantForAccessibility="yes"` and contentDescription
+  - Screen reader now announces each menu item once (no double-speak)
+  - Consistent accessibility pattern across all screen sizes
 
 ### UI/UX Best Practices ✅
 
