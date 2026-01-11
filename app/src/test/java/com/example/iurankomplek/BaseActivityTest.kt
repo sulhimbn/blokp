@@ -881,4 +881,20 @@ class BaseActivityTest {
     }
 }
 
-class TestBaseActivity : BaseActivity()
+class TestBaseActivity : BaseActivity() {
+    public override fun <T> executeWithRetry(
+        maxRetries: Int = Constants.Network.MAX_RETRIES,
+        initialDelayMs: Long = Constants.Network.INITIAL_RETRY_DELAY_MS,
+        maxDelayMs: Long = Constants.Network.MAX_RETRY_DELAY_MS,
+        operation: suspend () -> retrofit2.Response<T>,
+        onSuccess: (T) -> Unit,
+        onError: (String) -> Unit,
+        currentRetry: Int = 0
+    ) {
+        super.executeWithRetry(maxRetries, initialDelayMs, maxDelayMs, operation, onSuccess, onError, currentRetry)
+    }
+
+    public override fun onDestroy() {
+        super.onDestroy()
+    }
+}
