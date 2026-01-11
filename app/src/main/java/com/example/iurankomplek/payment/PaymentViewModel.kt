@@ -55,7 +55,7 @@ class PaymentViewModel(
             setAmount(validatedPayment.amount)
             selectPaymentMethod(validatedPayment.paymentMethod)
             processPayment()
-        }.onFailure { error ->
+        }.onError { error ->
             _paymentEvent.value = PaymentEvent.ValidationError(error.message ?: "Invalid payment data")
         }
     }
@@ -80,7 +80,7 @@ class PaymentViewModel(
                     errorMessage = null
                 )
                 _paymentEvent.value = PaymentEvent.Success("Payment processed successfully")
-            }.onFailure { error ->
+            }.onError { error ->
                 _uiState.value = _uiState.value.copy(
                     isProcessing = false,
                     errorMessage = error.message

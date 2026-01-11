@@ -77,7 +77,7 @@ class VendorViewModel(
                     // Optionally refresh vendor list after creation
                     loadVendors()
                 }
-                .onFailure { _ ->
+                .onError { _ ->
                     // Handle error - could emit to a separate error state flow
                 }
         }
@@ -100,7 +100,7 @@ class VendorViewModel(
                     // Optionally refresh work order list after creation
                     loadWorkOrders()
                 }
-                .onFailure { _ ->
+                .onError { _ ->
                     // Handle error - could emit to a separate error state flow
                 }
         }
