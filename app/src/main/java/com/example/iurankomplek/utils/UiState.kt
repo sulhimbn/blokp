@@ -14,11 +14,9 @@ sealed class OperationResult<out T> {
     object Empty : OperationResult<Nothing>()
 }
 
-inline fun <T> OperationResult<T>.onSuccess(action: suspend (T) -> Unit): OperationResult<T> {
+fun <T> OperationResult<T>.onSuccess(action: (T) -> Unit): OperationResult<T> {
     if (this is OperationResult.Success) {
-        kotlinx.coroutines.runBlocking {
-            action(data)
-        }
+        action(data)
     }
     return this
 }
