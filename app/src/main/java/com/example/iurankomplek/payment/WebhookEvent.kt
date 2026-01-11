@@ -2,12 +2,23 @@ package com.example.iurankomplek.payment
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.example.iurankomplek.data.entity.Transaction
 import com.example.iurankomplek.utils.Constants
 
 @Entity(
     tableName = "webhook_events",
+    foreignKeys = [
+        ForeignKey(
+            entity = Transaction::class,
+            parentColumns = ["id"],
+            childColumns = ["transaction_id"],
+            onDelete = ForeignKey.SET_NULL,
+            onUpdate = ForeignKey.CASCADE
+        )
+    ],
     indices = [
         Index(value = ["idempotency_key"], unique = true),
         Index(value = ["status"]),

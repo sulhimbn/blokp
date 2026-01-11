@@ -227,3 +227,79 @@ This file provides guidance to agents when working with code in this repository.
 **Dependencies**: None (independent cleanup, all code already using ApiServiceV1)
 **Documentation**: Updated AGENTS.md and docs/task.md with REFACTOR-016 completion
 **Impact**: HIGH - Eliminated API version confusion, standardized on ApiServiceV1, removed 137 lines of legacy code, improved codebase maintainability
+
+### DATA-008: Add Foreign Key Constraint - WebhookEvent.transaction_id → Transaction.id (RESOLVED 2026-01-11)
+**Problem**: WebhookEvent.transaction_id references Transaction.id without FK constraint, causing potential orphaned records.
+
+**Root Cause**:
+- WebhookEvent entity missing @ForeignKey annotation
+- Only index exists: Index(value = ["transaction_id"])
+- No CASCADE/RESTRICT action defined
+- Database cannot enforce referential integrity
+
+**Solution Implemented**:
+1. **Created Migration 23** (Migration23.kt):
+   - Added FOREIGN KEY constraint from webhook_events.transaction_id to transactions.id
+   - ON DELETE SET NULL (preserve webhook events, NULL indicates deleted transaction)
+   - ON UPDATE CASCADE (keep references in sync if transaction.id changes)
+   - DEFERRABLE INITIALLY DEFERRED (allows transaction-level integrity checks)
+
+2. **Updated WebhookEvent Entity**:
+   - Added @ForeignKey annotation with Transaction reference
+   - onDelete = ForeignKey.SET_NULL (preserves audit trail)
+   - onUpdate = ForeignKey.CASCADE (syncs transaction ID changes)
+
+3. **Created Migration 23 Test** (Migration23Test.kt):
+   - Test 1: migrate22To23_success - verifies data preservation
+   - Test 2: foreignKeyConstraint_insertInvalidTransactionId_fails - FK violation caught
+   - Test 3: foreignKeyConstraint_deleteTransaction_setsNull - ON DELETE SET NULL behavior
+   - Test 4: migrate23To22_success - rollback preserves data
+   - Test 5: indexesCreated_correctly - all indexes recreated properly
+
+4. **Updated AppDatabase.kt**:
+   - Added Migration 23 to migrations array
+   - Added Migration 23 Down to migrations array
+   - Incremented database version from 22 to 23
+
+**Files Created** (2 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| Migration23.kt | +320 | Create migration to add FK constraint |
+| Migration23Test.kt | +300 | Comprehensive test suite (5 test cases) |
+
+**Files Modified** (2 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| AppDatabase.kt | +2, -1 | Add Migration 23 and Migration 23 Down, increment version to 23 |
+| WebhookEvent.kt | +8, -0 | Add @ForeignKey annotation |
+
+**Code Improvements**:
+- ✅ **Referential Integrity**: FK constraint enforces valid transaction references
+- ✅ **Audit Trail**: Webhook events preserved even if transaction deleted (NULL)
+- ✅ **Consistency**: All tables now have proper FK constraints
+- ✅ **Data Safety**: Prevents orphaned webhook events
+- ✅ **Rollback Support**: Migration23Down restores previous state
+
+**Benefits**:
+1. **Referential Integrity**: Database enforces valid transaction references
+2. **Audit Trail**: Webhook events preserved for troubleshooting
+3. **Consistency**: All tables use proper FK constraints
+4. **Data Safety**: Prevents orphaned webhook events
+5. **Migration Safety**: Reversible with Migration23Down
+
+**Success Criteria**:
+- [x] Foreign Key constraint added from webhook_events.transaction_id to transactions.id
+- [x] ON DELETE SET NULL behavior implemented
+- [x] ON UPDATE CASCADE behavior implemented
+- [x] WebhookEvent entity updated with @ForeignKey annotation
+- [x] Migration 23 created with comprehensive documentation
+- [x] Migration 23 Down created for rollback support
+- [x] Migration 23 Test created with 5 test cases
+- [x] AppDatabase.kt updated with Migration 23
+- [x] Database version incremented to 23
+- [x] Changes committed and pushed to agent branch
+- [x] Documentation updated (AGENTS.md, task.md, blueprint.md)
+
+**Dependencies**: Database version 22 → 23, Migrations 1-22 must be applied before Migration 23
+**Documentation**: Updated AGENTS.md, docs/task.md, and docs/blueprint.md with DATA-008 completion
+**Impact**: HIGH - Critical referential integrity improvement, prevents orphaned webhook events, preserves audit trail, consistent FK constraints across all tables, proper referential integrity enforcement
