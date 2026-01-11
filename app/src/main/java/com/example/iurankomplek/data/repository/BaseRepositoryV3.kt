@@ -23,7 +23,7 @@ abstract class BaseRepositoryV3(
 ) {
     
     protected val circuitBreakerRegistry = CircuitBreakerRegistry()
-    protected val timeoutManager = TimeoutManager()
+    protected val timeoutManager = TimeoutManager
     
     protected fun getRetryBudget(): RetryBudget = RetryBudget()
     
@@ -36,7 +36,14 @@ abstract class BaseRepositoryV3(
         }
         
         return when (circuitBreakerResult) {
-            is CircuitBreakerResult.Success -> OperationResult.Success(circuitBreakerResult.value)
+            is CircuitBreakerResult.Success -> {
+                val body = circuitBreakerResult.value.body()
+                if (body != null) {
+                    OperationResult.Success(body)
+                } else {
+                    OperationResult.Error(NetworkError.UnknownNetworkError("Empty response body", null), "Response body is null")
+                }
+            }
             is CircuitBreakerResult.Failure -> OperationResult.Error(circuitBreakerResult.exception, circuitBreakerResult.exception.message ?: "Unknown error")
             is CircuitBreakerResult.CircuitOpen -> OperationResult.Error(NetworkError.CircuitBreakerError(), "Circuit breaker open for $endpoint")
         }
@@ -48,11 +55,18 @@ abstract class BaseRepositoryV3(
     ): OperationResult<T> {
         val circuitBreakerResult = circuitBreakerRegistry.execute(endpoint) {
             val response = executeWithTimeoutAndRetry(endpoint, apiCall)
-            response.data
+            response.body()?.data
         }
         
         return when (circuitBreakerResult) {
-            is CircuitBreakerResult.Success -> OperationResult.Success(circuitBreakerResult.value)
+            is CircuitBreakerResult.Success -> {
+                val value = circuitBreakerResult.value
+                if (value != null) {
+                    OperationResult.Success(value)
+                } else {
+                    OperationResult.Error(NetworkError.UnknownNetworkError("Empty response data", null), "Response data is null")
+                }
+            }
             is CircuitBreakerResult.Failure -> OperationResult.Error(circuitBreakerResult.exception, circuitBreakerResult.exception.message ?: "Unknown error")
             is CircuitBreakerResult.CircuitOpen -> OperationResult.Error(NetworkError.CircuitBreakerError(), "Circuit breaker open for $endpoint")
         }
@@ -64,11 +78,18 @@ abstract class BaseRepositoryV3(
     ): OperationResult<List<T>> {
         val circuitBreakerResult = circuitBreakerRegistry.execute(endpoint) {
             val response = executeWithTimeoutAndRetry(endpoint, apiCall)
-            response.data
+            response.body()?.data
         }
         
         return when (circuitBreakerResult) {
-            is CircuitBreakerResult.Success -> OperationResult.Success(circuitBreakerResult.value)
+            is CircuitBreakerResult.Success -> {
+                val value = circuitBreakerResult.value
+                if (value != null) {
+                    OperationResult.Success(value)
+                } else {
+                    OperationResult.Error(NetworkError.UnknownNetworkError("Empty response data", null), "Response data is null")
+                }
+            }
             is CircuitBreakerResult.Failure -> OperationResult.Error(circuitBreakerResult.exception, circuitBreakerResult.exception.message ?: "Unknown error")
             is CircuitBreakerResult.CircuitOpen -> OperationResult.Error(NetworkError.CircuitBreakerError(), "Circuit breaker open for $endpoint")
         }
