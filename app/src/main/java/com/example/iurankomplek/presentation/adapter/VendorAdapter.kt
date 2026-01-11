@@ -48,7 +48,7 @@ class VendorAdapter(
             nameTextView.text = vendor.name
             specialtyTextView.text = vendor.specialty
             contactTextView.text = vendor.phoneNumber
-            ratingTextView.text = RATING_PREFIX + vendor.rating + RATING_SUFFIX
+            ratingTextView.text = "$RATING_PREFIX${vendor.rating}$RATING_SUFFIX"
         }
     }
 }
