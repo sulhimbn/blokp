@@ -4,6 +4,148 @@ This file provides guidance to agents when working with code in this repository.
 
 ## Known Issues & Solutions
 
+### INT-001: Request Priority Queue Implementation (RESOLVED 2026-01-11)
+**Problem**: All requests have equal priority. Critical requests (e.g., payment confirmation) should have higher priority than non-critical requests (e.g., feed refresh).
+
+**Root Cause**:
+- OkHttp Dispatcher processes requests in FIFO order
+- No mechanism to prioritize critical operations
+- Background operations can block critical requests during high load
+- Poor user experience for time-sensitive operations
+
+**Solution Implemented**:
+1. **Created RequestPriority.kt**: Enum with 5 priority levels (CRITICAL, HIGH, NORMAL, LOW, BACKGROUND) and Priority annotation
+2. **Created RequestPriorityInterceptor.kt**: Automatically assigns priority based on endpoint path and HTTP method
+3. **Created PriorityDispatcher.kt**: Custom OkHttp Dispatcher extending base Dispatcher with priority-based queuing
+4. **Integrated into ApiConfig.kt**: PriorityDispatcher and RequestPriorityInterceptor added to HTTP clients
+5. **Created Comprehensive Tests**: 16 test cases covering priority determination, queue operations, and edge cases
+
+**Files Created** (5 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| RequestPriority.kt | +13 | RequestPriority enum and Priority annotation |
+| RequestPriorityInterceptor.kt | +64 | Adds priority tags and headers to requests |
+| PriorityDispatcher.kt | +100 | Custom OkHttp Dispatcher for priority queuing |
+| RequestPriorityInterceptorTest.kt | +175 | 10 test cases for priority determination |
+| PriorityDispatcherTest.kt | +135 | 6 test cases for queue operations |
+
+**Files Modified** (1 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| ApiConfig.kt | +16, -3 | Added priorityDispatcher, RequestPriorityInterceptor integration |
+
+**Priority Levels**:
+| Priority | Level | Use Cases | Endpoints |
+|----------|--------|------------|-----------|
+| CRITICAL | 1 | Payment confirmations, authentication, health checks | `/payments/*/confirm`, `/payments/initiate`, `/health`, `/auth/*` |
+| HIGH | 2 | User-initiated write operations | `POST /users`, `POST /vendors`, `POST /work-orders`, `POST /messages` |
+| NORMAL | 3 | Standard data refresh | `GET /users`, `GET /pemanfaatan`, `GET /vendors`, `GET /work-orders` |
+| LOW | 4 | Non-critical reads | `GET /announcements` |
+| BACKGROUND | 5 | Background operations | `/background-sync`, `/analytics` |
+
+**Code Improvements**:
+- ✅ **Automatic Priority Assignment**: RequestPriorityInterceptor maps endpoints to priority levels
+- ✅ **Priority-Based Queuing**: Separate queues for each priority level, processed in order
+- ✅ **Thread-Safe Operations**: Mutex-protected queue management
+- ✅ **X-Priority Header**: All requests include priority header for server-side handling
+- ✅ **Queue Statistics**: `getPriorityQueueStats()` method for monitoring
+- ✅ **Queue Reset**: `resetPriorityQueue()` method for testing and recovery
+- ✅ **No Breaking Changes**: Automatic priority assignment, backward compatible
+
+**Benefits**:
+1. **Critical Request Priority**: Payment confirmations and auth operations processed first
+2. **Better User Experience**: Time-sensitive operations not blocked by background tasks
+3. **Load Management**: Background operations yield to critical requests during high load
+4. **Monitoring Support**: Priority queue statistics available for observability
+5. **Test Coverage**: 16 comprehensive test cases ensuring reliability
+
+**Success Criteria**:
+- [x] RequestPriority enum with 5 priority levels created
+- [x] Priority annotation for function-level priority specification
+- [x] RequestPriorityInterceptor automatically determines request priority
+- [x] X-Priority header added to all requests
+- [x] PriorityDispatcher with separate priority queues implemented
+- [x] Requests processed in priority order (CRITICAL first)
+- [x] Integrated into ApiConfig for both secure and mock clients
+- [x] 16 comprehensive test cases (10 + 6) created
+- [x] Queue statistics available via getPriorityQueueStats()
+- [x] Reset capability via resetPriorityQueue()
+- [x] Documentation updated (INTEGRATION_HARDENING.md, AGENTS.md)
+
+**Dependencies**: OkHttp Dispatcher extension, RequestPriority enum, Priority annotation
+**Documentation**: Updated docs/INTEGRATION_HARDENING.md with priority queue completion
+**Impact**: HIGH - Improved user experience during high load, critical requests prioritized, better system responsiveness, no breaking changes
+
+### UI-006: Responsive Enhancement - Fix Missing Include IDs for StateManager Access (RESOLVED 2026-01-11)
+**Problem**: StateManager could not access include views on tablets and landscape layouts, causing loading, empty, and error states to not display properly.
+
+**Root Cause**:
+- Portrait layouts for MainActivity and LaporanActivity had `android:id="@+id/stateManagementInclude"` on include elements
+- Tablet (sw600dp) and landscape layout variants were missing `android:id` attribute
+- ViewBinding requires `android:id` on `<include>` elements to generate access to included views
+- StateManager accesses `binding.stateManagementInclude?.progressBar` with safe call operator
+- Without include ID, ViewBinding returns null for state management include access
+- Impact: Loading, empty, and error states do NOT display on tablets or landscape devices
+
+**Solution Implemented**:
+1. **Fixed MainActivity Layout Variants** (2 files):
+   - layout-sw600dp/activity_main.xml: Added `android:id="@+id/stateManagementInclude"` to include
+   - layout-land/activity_main.xml: Added `android:id="@+id/stateManagementInclude"` to include
+   - Portrait already had correct ID (no change needed)
+
+2. **Fixed LaporanActivity Layout Variants** (3 files):
+   - layout-sw600dp/activity_laporan.xml: Added `android:id="@+id/stateManagementInclude"` to include
+   - layout-land/activity_laporan.xml: Added `android:id="@+id/stateManagementInclude"` to include
+   - layout-sw600dp-land/activity_laporan.xml: Added `android:id="@+id/stateManagementInclude"` to include (moved position)
+   - Portrait already had correct ID (no change needed)
+
+3. **Verified ViewBinding Access**:
+   - MainActivity.kt uses `binding.stateManagementInclude?.progressBar` (safe call)
+   - LaporanActivity.kt uses `binding.stateManagementInclude?.progressBar` (safe call)
+   - After fix: All layout variants now have include ID, ViewBinding generates proper access
+   - StateManager can now access progressBar, emptyStateTextView, errorStateLayout in all orientations
+
+**Files Modified** (5 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| app/src/main/res/layout-sw600dp/activity_main.xml | +2 | Add android:id to include |
+| app/src/main/res/layout-land/activity_main.xml | +2 | Add android:id to include |
+| app/src/main/res/layout-sw600dp/activity_laporan.xml | +2 | Add android:id to include |
+| app/src/main/res/layout-land/activity_laporan.xml | +2 | Add android:id to include |
+| app/src/main/res/layout-sw600dp-land/activity_laporan.xml | +1 | Add android:id to include |
+
+**Code Improvements**:
+- ✅ **StateManager Access**: All layout variants now properly generate ViewBinding include access
+- ✅ **Loading States**: ProgressBar displays correctly on tablets and landscape
+- ✅ **Empty States**: Empty state TextView displays correctly on tablets and landscape
+- ✅ **Error States**: Error layout and retry button display correctly on tablets and landscape
+- ✅ **User Feedback**: Users receive proper state feedback across all screen orientations/sizes
+- ✅ **Layout Consistency**: All variants now follow same include pattern with ID
+
+**Anti-Patterns Eliminated**:
+- ✅ No more missing android:id attributes on layout include elements
+- ✅ No more silent StateManager failures on tablets/landscape
+- ✅ No more inconsistent layout variant implementations
+
+**Benefits**:
+1. **Responsive Bug Fix**: Restores proper state feedback on tablets and landscape devices
+2. **Consistent UX**: Loading, empty, and error states work across all screen orientations/sizes
+3. **No Silent Failures**: ViewBinding generates include access in all layout variants
+4. **StateManager Reliability**: Can access state views in all orientations without null checks
+
+**Success Criteria**:
+- [x] MainActivity tablet and landscape layouts have include with ID
+- [x] LaporanActivity tablet and landscape layouts have include with ID
+- [x] All layout variants follow same pattern (portrait already had ID)
+- [x] ViewBinding generates proper include access in all variants
+- [x] StateManager can access progressBar, emptyStateTextView, errorStateLayout in all orientations
+- [x] Loading, empty, and error states display correctly on all screen sizes
+- [x] Documentation updated (AGENTS.md, task.md)
+
+**Dependencies**: StateManager pattern, ViewBinding (include access requires android:id)
+**Documentation**: Updated AGENTS.md and docs/task.md with UI-006 completion
+**Impact**: CRITICAL - Critical responsive bug fix, restores proper state feedback on tablets and landscape devices, ensures consistent user experience across all screen orientations/sizes, prevents silent UI failures
+
 ### TEST-001: DatabaseCacheStrategy Test Coverage (RESOLVED 2026-01-10)
 **Problem**: DatabaseCacheStrategy was a critical caching component with NO test coverage.
 
