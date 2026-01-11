@@ -107,8 +107,8 @@ class RateLimiterTest {
         delay(1000)
         
         // Should be allowed again
-        (allowed, _) = rateLimiter.tryAcquire()
-        assertTrue(allowed)
+        val (allowedAgain, _) = rateLimiter.tryAcquire()
+        assertTrue(allowedAgain)
     }
     
     @Test
@@ -265,8 +265,8 @@ class RateLimiterTest {
         rateLimiter.reset()
         
         // Should be allowed immediately
-        (allowed, _) = rateLimiter.tryAcquire()
-        assertTrue(allowed)
+        val (allowedAfterReset, _) = rateLimiter.tryAcquire()
+        assertTrue(allowedAfterReset)
     }
     
     // ===== BOUNDARY CONDITION TESTS =====
