@@ -7341,3 +7341,171 @@ val isDeleted: Boolean = false  // New field with default false
 **Dependencies**: Database version 21 → 22, Migrations 1-21 must be applied before Migration 22
 **Documentation**: Updated docs/task.md and docs/blueprint.md with DATA-001 completion
 **Impact**: HIGH - Eliminated index duplication, reduced storage by 40-50%, improved write performance by 50%, cleaner database architecture
+
+### Integration Hardening Module ✅ (INT-005 - 2026-01-11)
+
+**Issue Identified:**
+- ❌ Timeout configuration scattered across multiple files (Constants, TimeoutInterceptor, OkHttp config)
+- ❌ No unified timeout manager for per-endpoint timeout resolution
+- ❌ RetryHelper has no retry budget tracking (indefinite retries across concurrent calls)
+- ❌ No total retry duration limit (long-running retries could block UI)
+- ❌ Single CircuitBreaker shared across all endpoints (no per-endpoint isolation)
+- ❌ CircuitBreaker state not exposed to monitoring
+- ❌ No circuit breaker metrics (failure rate, recovery time, etc.)
+- ❌ `catch (e: NetworkError)` in RetryHelper doesn't make sense (NetworkError is custom class)
+
+**Critical Path Analysis:**
+- Timeouts and retries are core resilience mechanisms for all API calls
+- Circuit breaker prevents cascading failures during outages
+- Per-endpoint isolation prevents one failing endpoint from affecting others
+- Retry budget prevents indefinite retry storms and resource exhaustion
+- Monitoring and metrics essential for operational visibility
+- Network calls happen on every user interaction (frequent, high-traffic)
+
+**Solution Implemented:**
+
+**1. Created TimeoutManager** (TimeoutManager.kt - 157 lines):
+- Centralized timeout configuration with TimeoutProfile enum (FAST, NORMAL, SLOW)
+- Per-endpoint timeout resolution with `getTimeoutConfig(endpoint: String)`
+- `getProfileForEndpoint(endpoint: String)` maps endpoints to timeout profiles
+- `withTimeout(endpoint: String, block: suspend () -> T)` coroutine-level timeout
+- `withTimeoutOrNull(endpoint: String, block: suspend () -> T)` nullable timeout variant
+- Timeout metrics tracking (total calls, timeouts, avg/max execution time)
+- `getTimeoutStats(endpoint: String?)` for monitoring
+- Automatic metrics retention (max 1000 entries, FIFO eviction)
+
+**Timeout Profiles:**
+- **FAST (5s)**: `/health`, `/status` endpoints (health checks)
+- **NORMAL (30s)**: `/users`, `/pemanfaatan`, `/vendors`, `/messages`, `/announcements`, `/community-posts`, `/work-orders` (standard CRUD)
+- **SLOW (60s)**: `/payments/initiate`, `/payments/*/confirm` (payment operations)
+
+**2. Created RetryBudget** (RetryBudget.kt - 110 lines):
+- `RetryConfig` data class with maxRetries, initialDelayMs, maxDelayMs, maxTotalRetryDurationMs, backoffMultiplier, jitterMs
+- `canRetry(currentRetry: Int, totalElapsedMs: Long)` enforces retry budget limits
+- `recordRetry(delayMs: Long, success: Boolean)` tracks retry metrics
+- `calculateDelay(currentRetry: Int)` exponential backoff with jitter
+- `RetryMetrics` data class: totalRetries, successfulRetries, failedRetries, totalRetryDurationMs, avgDelayMs, maxDelayMs
+- `reset()` method clears all metrics
+- `RetryBudgetExhaustedException` thrown when total duration exceeded
+
+**Retry Budget Logic:**
+- Max retries: 3 (default from Constants.Network.MAX_RETRIES)
+- Max total retry duration: 90s (3x MAX_RETRY_DELAY_MS)
+- Initial delay: 1000ms
+- Max delay: 30000ms
+- Backoff multiplier: 2.0 (exponential)
+- Jitter: 500ms (randomized delay)
+- Prevents: Indefinite retry storms, cascading failures, resource exhaustion
+
+**3. Created CircuitBreakerRegistry** (CircuitBreakerRegistry.kt - 166 lines):
+- `CircuitBreakerConfig` data class with failureThreshold, successThreshold, timeoutMs, halfOpenMaxCalls
+- Per-endpoint circuit breakers (isolated failure domains)
+- `registerEndpoint(endpoint: String, config: CircuitBreakerConfig)` custom config per endpoint
+- `execute(endpoint: String, block: suspend () -> T)` unified execution method
+- `CircuitBreakerStats` data class: endpoint, state, failureCount, successCount, lastFailureTime, totalCalls, totalFailures, totalSuccesses
+- `getStats(endpoint: String)` endpoint-specific metrics
+- `getAllStats()` all circuit breaker metrics
+- `getState(endpoint: String)` current circuit breaker state
+- `getAllStates()` all circuit breaker states
+- `getOpenCircuits()` list of endpoints with open circuits
+- `getHalfOpenCircuits()` list of endpoints in half-open state
+- `getClosedCircuits()` list of endpoints with closed circuits
+- `getFailureRate(endpoint: String)` endpoint failure rate calculation
+- `getAllFailureRates()` all endpoint failure rates
+- `resetEndpoint(endpoint: String)` per-endpoint reset
+- `resetAll()` all circuit breakers reset
+
+**4. Created BaseRepositoryV3** (BaseRepositoryV3.kt - 150 lines):
+- Integrates TimeoutManager, RetryBudget, CircuitBreakerRegistry
+- `executeWithResilience(endpoint: String, apiCall: suspend () -> Response<T>)` unified resilience method
+- `executeWithResilienceV1(endpoint: String, apiCall: suspend () -> Response<ApiResponse<T>>)` ApiResponse wrapper
+- `executeWithResilienceV2(endpoint: String, apiCall: suspend () -> Response<ApiListResponse<T>>)` list response
+- `executeWithTimeoutAndRetry()` combines timeout + retry budget
+- `executeWithRetryBudget()` enforces retry budget limits
+- `shouldRetry(e: Exception)` determines retryable exceptions
+- Monitoring methods: `getCircuitBreakerState()`, `getTimeoutStats()`, `getRetryStats()`
+
+**Architecture Improvements**:
+- ✅ **Unified Timeout Management**: Single source of truth for all timeout configurations
+- ✅ **Per-Endpoint Resilience**: Separate circuit breakers prevent cascade failures
+- ✅ **Retry Budget Enforcement**: Limits total retry duration, prevents resource exhaustion
+- ✅ **Comprehensive Metrics**: Timeout, retry, and circuit breaker metrics available
+- ✅ **Observability**: All resilience patterns expose metrics for monitoring
+- ✅ **Thread Safety**: ConcurrentHashMap and synchronized blocks for concurrent access
+
+**Anti-Patterns Eliminated:**
+- ✅ No more scattered timeout configurations across multiple files
+- ✅ No more indefinite retry storms (retry budget prevents it)
+- ✅ No more cascading failures from shared circuit breaker
+- ✅ No more missing resilience metrics (all patterns tracked)
+- ✅ No more per-endpoint failures affecting entire application
+
+**Files Created** (6 total):
+| File | Lines | Purpose |
+|------|--------|---------|
+| TimeoutManager.kt | +157 (new) | Unified timeout configuration and metrics |
+| RetryBudget.kt | +110 (new) | Retry budget tracking and enforcement |
+| CircuitBreakerRegistry.kt | +166 (new) | Per-endpoint circuit breaker management |
+| BaseRepositoryV3.kt | +150 (new) | Enhanced repository with integrated resilience |
+| TimeoutManagerTest.kt | +181 (new) | Comprehensive timeout manager tests |
+| RetryBudgetTest.kt | +170 (new) | Comprehensive retry budget tests |
+| CircuitBreakerRegistryTest.kt | +200 (new) | Comprehensive circuit breaker registry tests |
+
+**Integration Benefits:**
+
+**Timeout Management:**
+- Per-endpoint timeout profiles (FAST, NORMAL, SLOW)
+- Coroutine-level timeout enforcement (not just OkHttp level)
+- Timeout metrics for monitoring (call count, timeout rate, execution time)
+- Automatic metrics retention (1000 entry buffer, FIFO eviction)
+
+**Retry Budget:**
+- Max retry duration limit (90s default)
+- Retry count tracking (successes, failures)
+- Delay metrics (average, max)
+- Exponential backoff with jitter (thundering herd prevention)
+- RetryBudgetExhaustedException for clear error signaling
+
+**Circuit Breaker Registry:**
+- Per-endpoint circuit breakers (isolated failure domains)
+- Endpoint-specific configuration support
+- Comprehensive metrics (state, counts, times, totals)
+- Failure rate calculation per endpoint
+- Circuit state queries (open, half-open, closed)
+- Per-endpoint reset support
+
+**Monitoring & Observability:**
+- Timeout stats: total calls, timeouts, avg/max execution time, timeout rate
+- Retry stats: total retries, successes, failures, total duration, avg/max delay
+- Circuit breaker stats: state, failure/success counts, last failure time, total calls, failure rate
+- All metrics accessible via simple API calls
+
+**Test Coverage:**
+- TimeoutManager: 15 test cases (profile resolution, timeout config, success/timeout, metrics)
+- RetryBudget: 20 test cases (retry limits, retry recording, delay calculation, metrics)
+- CircuitBreakerRegistry: 20 test cases (endpoint management, execution, state transitions, stats, failure rates)
+- Total: 55 test cases for integration hardening patterns
+
+**Best Practices Followed**:
+- ✅ **Fail Fast**: TimeoutManager enforces quick timeouts, prevents hanging
+- ✅ **Graceful Degradation**: Circuit breaker prevents cascading failures
+- ✅ **Resource Protection**: Retry budget prevents exhaustion
+- ✅ **Observability**: All resilience patterns expose metrics
+- ✅ **Thread Safety**: Concurrent access properly synchronized
+- ✅ **Metrics Retention**: Automatic FIFO eviction prevents memory leaks
+
+**Success Criteria:**
+- [x] TimeoutManager created with per-endpoint timeout profiles
+- [x] Timeout metrics tracking implemented
+- [x] RetryBudget implemented with retry duration limits
+- [x] CircuitBreakerRegistry created with per-endpoint circuit breakers
+- [x] BaseRepositoryV3 integrates all resilience patterns
+- [x] Comprehensive test suite created (55 test cases)
+- [x] All tests cover happy paths, edge cases, and error conditions
+- [x] Documentation updated (blueprint.md)
+- [x] Thread safety verified (ConcurrentHashMap, synchronized blocks)
+- [x] Metrics retention implemented (FIFO eviction)
+
+**Dependencies**: BaseRepository (legacy), CircuitBreaker (existing), Constants (existing)
+**Documentation**: Updated docs/blueprint.md with INT-005 integration hardening details
+**Impact**: HIGH - Critical integration resilience improvement, unified timeout/retry/circuit breaker management, per-endpoint isolation, comprehensive metrics, prevents cascading failures and resource exhaustion
