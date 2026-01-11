@@ -121,21 +121,27 @@ org.owasp:dependency-check-gradle:12.1.0
 
 ## 🚀 Quick Start
 
-### 5-Minute Quick Start (For Users)
+### 3-Minute Developer Quick Start
 
-**Already have the app? Here's how to get started:**
+**Get up and running immediately:**
 
-1. **Launch App** - Open IuranKomplek from your home screen
-2. **Main Menu** - You'll see 4 options: Users, Reports, Communication, Payments
-3. **View Users** - Tap "User Management" to see resident directory
-4. **Check Finances** - Tap "Financial Reports" to view dues and expenses
-5. **Process Payments** - Tap "Payments" to record resident payments
+```bash
+# Clone and build
+git clone https://github.com/sulhimbn/blokp.git && cd blokp
+./gradlew build
 
-> **Need detailed help?** See [User Guides](docs/USER_GUIDES.md) for step-by-step instructions.
+# Run tests
+./gradlew test
+
+# Install on device/emulator
+./gradlew installDebug
+```
+
+> **For detailed setup options**, see the Setup sections below. **For app usage guides**, see [User Guides](docs/USER_GUIDES.md).
 
 ---
 
-### Prerequisites (For Developers)
+### Prerequisites
 
 Before you begin, ensure you have:
 
@@ -219,13 +225,9 @@ http://localhost:8080
 
 > **📖 Detailed Docker Setup**: See [`docs/docker-setup.md`](docs/docker-setup.md) for comprehensive Docker configuration instructions.
 
-### Step 3: Verify Installation
+### Verification
 
-The application automatically switches between environments:
-- **Production**: Uses production API v1 endpoint
-- **Development (Mock)**: Uses mock API server in Docker
-
-Auto-switching is based on `BuildConfig.DEBUG` and `DOCKER_ENV` environment variable.
+After setup, verify your installation:
 
 ```bash
 # Run unit tests
@@ -237,6 +239,12 @@ Auto-switching is based on `BuildConfig.DEBUG` and `DOCKER_ENV` environment vari
 # Build debug APK
 ./gradlew assembleDebug
 ```
+
+The application automatically switches between environments:
+- **Production**: Uses production API v1 endpoint
+- **Development (Mock)**: Uses mock API server in Docker
+
+Auto-switching is based on `BuildConfig.DEBUG` and `DOCKER_ENV` environment variable.
 
 ## 📁 Project Structure
 

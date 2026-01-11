@@ -3,6 +3,155 @@
 ## Overview
 Track architectural refactoring tasks and their status.
 
+---
+
+## Technical Writer Tasks - 2026-01-11
+
+---
+
+### ✅ DOC-001: Fix Getting Started Section in README.md - 2026-01-11
+**Status**: Completed
+**Completed Date**: 2026-01-11
+**Priority**: HIGH (Critical Doc Fix)
+**Estimated Time**: 30 minutes (completed in 20 minutes)
+**Description**: Fix misleading Getting Started section in README.md for developer audience
+
+**Issue Identified**:
+1. **Line 124**: "5-Minute Quick Start (For Users)" - Misleading in a developer repository
+   - README.md is the primary entry point for developers on GitHub
+   - User-focused content (launch app, main menu navigation) is inappropriate for code repository
+   - Developers need clone, build, and test instructions, not app usage guides
+
+2. **Line 222**: "Step 3: Verify Installation" - Poorly positioned
+   - Labeled as "Step 3" implying it's part of Option 2 (Docker Setup)
+   - Actually a common verification step for ALL setup options
+   - Confusing structure for developers following setup instructions
+
+3. **Structure Confusion**:
+   - User-focused content mixed with developer-focused setup
+   - "Prerequisites (For Developers)" label redundant after user-focused quick start
+   - Step numbering inconsistent across setup options
+
+**Critical Path Analysis**:
+- GitHub README.md is the first thing developers see when visiting the repository
+- Misleading quick start causes confusion about repository purpose and target audience
+- Developers want immediate access to clone/build/test commands
+- User guides exist separately in docs/USER_GUIDES.md for actual app users
+- Proper structure improves developer onboarding experience
+
+**Solution Implemented**:
+
+**1. Replaced User-Focused Quick Start with Developer-Focused Quick Start**:
+```markdown
+# BEFORE (Misleading):
+### 5-Minute Quick Start (For Users)
+
+**Already have the app? Here's how to get started:**
+1. Launch App - Open IuranKomplek from your home screen
+2. Main Menu - You'll see 4 options: Users, Reports, Communication, Payments
+3. View Users - Tap "User Management" to see resident directory
+4. Check Finances - Tap "Financial Reports" to view dues and expenses
+5. Process Payments - Tap "Payments" to record resident payments
+
+# AFTER (Correct):
+### 3-Minute Developer Quick Start
+
+**Get up and running immediately:**
+```bash
+# Clone and build
+git clone https://github.com/sulhimbn/blokp.git && cd blokp
+./gradlew build
+
+# Run tests
+./gradlew test
+
+# Install on device/emulator
+./gradlew installDebug
+```
+```
+
+**2. Removed Redundant "(For Developers)" Label**:
+- Changed "Prerequisites (For Developers)" to "Prerequisites"
+- Context now clear from overall Quick Start section (developer-focused)
+- No redundancy with multiple developer-focused labels
+
+**3. Fixed Verification Section Positioning**:
+```markdown
+# BEFORE (Poorly positioned):
+### Step 3: Verify Installation
+The application automatically switches between environments:
+- Production: Uses production API v1 endpoint
+- Development (Mock): Uses mock API server in Docker
+Auto-switching is based on BuildConfig.DEBUG and DOCKER_ENV environment variable.
+
+# AFTER (Correct position):
+### Verification
+
+After setup, verify your installation:
+```bash
+# Run unit tests
+./gradlew test
+
+# Run instrumented tests (requires emulator)
+./gradlew connectedAndroidTest
+
+# Build debug APK
+./gradlew assembleDebug
+```
+
+The application automatically switches between environments:
+- Production: Uses production API v1 endpoint
+- Development (Mock): Uses mock API server in Docker
+
+Auto-switching is based on BuildConfig.DEBUG and DOCKER_ENV environment variable.
+```
+
+**4. Added Clear Cross-References**:
+- "For detailed setup options, see Setup sections below"
+- "For app usage guides, see User Guides"
+- Proper separation of developer vs. user documentation
+
+**Benefits**:
+1. **Audience Clarity**: README.md now clearly targets developers
+2. **Developer Onboarding**: Immediate access to clone, build, and test commands
+3. **Proper Separation**: User guides separated from developer documentation
+4. **Reduced Confusion**: Clear step numbering and section structure
+5. **Improved UX**: Developers get what they need quickly (3-minute vs 5-minute)
+6. **Better Information Architecture**: Logical flow from quick start → prerequisites → setup options → verification
+
+**Anti-Patterns Eliminated**:
+- ✅ No more user-focused content in developer README
+- ✅ No more confusing step numbering across sections
+- ✅ No more redundant "for developers" labels
+- ✅ No more misaligned target audience in repository entry point
+
+**Files Modified** (1 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| README.md | +12, -14 | Fixed Getting Started section structure and content |
+
+**Code Changes Summary**:
+- Replaced "5-Minute Quick Start (For Users)" with "3-Minute Developer Quick Start"
+- Replaced app usage instructions with clone/build/test commands
+- Removed "(For Developers)" from "Prerequisites (For Developers)"
+- Changed "Step 3: Verify Installation" to "Verification"
+- Reorganized Verification section to be a common step for all setup options
+- Added cross-references to detailed setup options and user guides
+
+**Success Criteria**:
+- [x] README.md Getting Start section now targets developers (not app users)
+- [x] Developer quick start provides clone, build, and test commands
+- [x] Verification section properly positioned as common step
+- [x] Clear cross-references to detailed setup and user guides
+- [x] Documentation structure is logical and easy to follow
+- [x] task.md updated with DOC-001 completion
+
+**Dependencies**: None (independent documentation fix)
+**Documentation**: Updated README.md and docs/task.md with DOC-001 completion
+**Impact**: MEDIUM - Critical doc fix that improves developer onboarding experience, reduces confusion about repository purpose, and provides immediate access to development commands
+
+---
+
 ## Integration Engineer Tasks - 2026-01-11
 
 ---
