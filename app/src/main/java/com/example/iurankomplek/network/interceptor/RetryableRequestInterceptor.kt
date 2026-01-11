@@ -13,7 +13,7 @@ class RetryableRequestInterceptor : Interceptor {
 
         return if (isRetryable) {
             val requestWithTag = request.newBuilder()
-                .tag(RetryableRequestTag, true)
+                .tag(Boolean::class.java, true)
                 .build()
             chain.proceed(requestWithTag)
         } else {
