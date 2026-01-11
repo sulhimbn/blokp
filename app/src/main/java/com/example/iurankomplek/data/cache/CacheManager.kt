@@ -53,12 +53,12 @@ object CacheManager {
 
     suspend fun isUserCacheFresh(): Boolean {
         val latestUpdatedAt = getUserDao().getLatestUpdatedAt()
-        return latestUpdatedAt?.time?.let { isCacheFresh(it.time) } ?: false
+        return latestUpdatedAt?.let { isCacheFresh(it.time) } ?: false
     }
 
     suspend fun isFinancialCacheFresh(): Boolean {
         val latestUpdatedAt = getFinancialRecordDao().getLatestFinancialRecordUpdatedAt()
-        return latestUpdatedAt?.time?.let { isCacheFresh(it.time) } ?: false
+        return latestUpdatedAt?.let { isCacheFresh(it.time) } ?: false
     }
 
     fun setCacheFreshnessThreshold(thresholdMs: Long) {
