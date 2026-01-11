@@ -94,10 +94,6 @@ fun <T : ViewModel> viewModelInstance(creator: () -> T): T {
     return creator()
 }
 
-        throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
-    }
-}
-
 /**
  * Extension function to create a GenericViewModelFactory for any ViewModel.
  *
