@@ -144,4 +144,12 @@ import java.util.concurrent.TimeUnit
     fun resetRateLimiter() {
         rateLimiter.reset()
     }
+
+    fun getFallbackMetrics(): List<com.example.iurankomplek.data.repository.FallbackUsageStats> {
+        return com.example.iurankomplek.data.repository.FallbackMetrics.getStats()
+    }
+
+    fun resetFallbackMetrics() {
+        com.example.iurankomplek.data.repository.FallbackMetrics.reset()
+    }
 }

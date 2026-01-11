@@ -19,27 +19,33 @@ class UserRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiServiceV1
 ) : UserRepository, BaseRepository() {
 
+    private val fallbackManager = FallbackManager<UserResponse>(
+        fallbackStrategy = CachedUserFallback(),
+        config = FallbackConfig(enableFallback = true, fallbackTimeoutMs = 5000L, logFallbackUsage = true)
+    )
+
     override suspend fun getUsers(forceRefresh: Boolean): OperationResult<UserResponse> {
-        return try {
-            if (!forceRefresh) {
-                if (CacheManager.isUserCacheFresh()) {
-                    val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
-                    if (usersWithFinancials.isNotEmpty()) {
-                        val dtoList = EntityMapper.toLegacyDtoList(usersWithFinancials)
-                        val userResponse = UserResponse(dtoList)
-                        return OperationResult.Success(userResponse)
+        return fallbackManager.executeWithFallback(
+            primaryOperation = {
+                if (!forceRefresh) {
+                    if (CacheManager.isUserCacheFresh()) {
+                        val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
+                        if (usersWithFinancials.isNotEmpty()) {
+                            val dtoList = EntityMapper.toLegacyDtoList(usersWithFinancials)
+                            val userResponse = UserResponse(dtoList)
+                            return@executeWithFallback OperationResult.Success(userResponse)
+                        }
                     }
                 }
-            }
 
-            val result = executeWithCircuitBreakerV1 { apiService.getUsers() }
-            if (result is OperationResult.Success) {
-                saveUsersToCache(result.data)
-            }
-            result
-        } catch (e: Exception) {
-            OperationResult.Error(e, e.message ?: "Unknown error")
-        }
+                val result = executeWithCircuitBreakerV1 { apiService.getUsers() }
+                if (result is OperationResult.Success) {
+                    saveUsersToCache(result.data)
+                }
+                result
+            },
+            fallbackOperation = { getCachedUsersFallback() }
+        )
     }
 
     override suspend fun getCachedUsers(): OperationResult<UserResponse> {
@@ -68,5 +74,21 @@ class UserRepositoryImpl(
         com.example.iurankomplek.data.cache.CacheHelper.saveEntityWithFinancialRecords(
             userFinancialPairs
         )
+    }
+
+    private class CachedUserFallback : CachedDataFallback<UserResponse>() {
+        override suspend fun getCachedData(): UserResponse? {
+            return try {
+                val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
+                if (usersWithFinancials.isNotEmpty()) {
+                    val dtoList = EntityMapper.toLegacyDtoList(usersWithFinancials)
+                    UserResponse(dtoList)
+                } else {
+                    null
+                }
+            } catch (e: Exception) {
+                null
+            }
+        }
     }
 }

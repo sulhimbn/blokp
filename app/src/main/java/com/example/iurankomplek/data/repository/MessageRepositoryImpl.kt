@@ -11,22 +11,28 @@ class MessageRepositoryImpl(
 ) : MessageRepository, BaseRepository() {
     private val cache = ConcurrentHashMap<String, List<Message>>()
 
-    override suspend fun getMessages(userId: String): OperationResult<List<Message>> {
-        val cachedMessages = cache[userId]
-        if (cachedMessages != null) {
-            return OperationResult.Success(cachedMessages)
-        }
+    private val messageFallbackManager = FallbackManager<List<Message>>(
+        fallbackStrategy = CachedMessagesFallback(cache),
+        config = FallbackConfig(enableFallback = true, fallbackTimeoutMs = 5000L, logFallbackUsage = true)
+    )
 
-        return executeWithCircuitBreakerV2 { apiService.getMessages(userId) }
-            .also { result ->
-                if (result is OperationResult.Success) {
-                    cache[userId] = result.data
-                }
+    override suspend fun getMessages(userId: String): OperationResult<List<Message>> {
+        return messageFallbackManager.executeWithFallback(
+            primaryOperation = {
+                executeWithCircuitBreakerV2 { apiService.getMessages(userId) }
+                    .also { result ->
+                        if (result is OperationResult.Success) {
+                            cache[userId] = result.data
+                        }
+                    }
             }
+        )
     }
 
     override suspend fun getMessagesWithUser(receiverId: String, senderId: String): OperationResult<List<Message>> {
-        return executeWithCircuitBreakerV2 { apiService.getMessagesWithUser(receiverId, senderId) }
+        return messageFallbackManager.executeWithFallback(
+            primaryOperation = { executeWithCircuitBreakerV2 { apiService.getMessagesWithUser(receiverId, senderId) } }
+        )
     }
 
     override suspend fun sendMessage(senderId: String, receiverId: String, content: String): OperationResult<Message> {
@@ -53,6 +59,16 @@ class MessageRepositoryImpl(
             OperationResult.Success(Unit)
         } catch (e: Exception) {
             OperationResult.Error(e, e.message ?: "Unknown error")
+        }
+    }
+
+    private class CachedMessagesFallback(private val cache: ConcurrentHashMap<String, List<Message>>) : CachedDataFallback<List<Message>>() {
+        override suspend fun getCachedData(): List<Message>? {
+            return try {
+                cache.values.firstOrNull()
+            } catch (e: Exception) {
+                null
+            }
         }
     }
 }

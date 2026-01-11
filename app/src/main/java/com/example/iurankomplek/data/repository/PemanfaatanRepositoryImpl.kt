@@ -21,27 +21,33 @@ class PemanfaatanRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiServiceV1
 ) : PemanfaatanRepository, BaseRepository() {
 
+    private val fallbackManager = FallbackManager<PemanfaatanResponse>(
+        fallbackStrategy = CachedFinancialDataFallback(),
+        config = FallbackConfig(enableFallback = true, fallbackTimeoutMs = 5000L, logFallbackUsage = true)
+    )
+
     override suspend fun getPemanfaatan(forceRefresh: Boolean): OperationResult<PemanfaatanResponse> {
-        return try {
-            if (!forceRefresh) {
-                if (CacheManager.isFinancialCacheFresh()) {
-                    val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
-                    if (usersWithFinancials.isNotEmpty()) {
-                        val dtoList = EntityMapper.toLegacyDtoList(usersWithFinancials)
-                        val pemanfaatanResponse = PemanfaatanResponse(dtoList)
-                        return OperationResult.Success(pemanfaatanResponse)
+        return fallbackManager.executeWithFallback(
+            primaryOperation = {
+                if (!forceRefresh) {
+                    if (CacheManager.isFinancialCacheFresh()) {
+                        val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
+                        if (usersWithFinancials.isNotEmpty()) {
+                            val dtoList = EntityMapper.toLegacyDtoList(usersWithFinancials)
+                            val pemanfaatanResponse = PemanfaatanResponse(dtoList)
+                            return@executeWithFallback OperationResult.Success(pemanfaatanResponse)
+                        }
                     }
                 }
-            }
 
-            val result = executeWithCircuitBreakerV1 { apiService.getPemanfaatan() }
-            if (result is OperationResult.Success) {
-                savePemanfaatanToCache(result.data)
-            }
-            result
-        } catch (e: Exception) {
-            OperationResult.Error(e, e.message ?: "Unknown error")
-        }
+                val result = executeWithCircuitBreakerV1 { apiService.getPemanfaatan() }
+                if (result is OperationResult.Success) {
+                    savePemanfaatanToCache(result.data)
+                }
+                result
+            },
+            fallbackOperation = { getCachedPemanfaatanFallback() }
+        )
     }
 
     override suspend fun getCachedPemanfaatan(): OperationResult<PemanfaatanResponse> {
@@ -69,5 +75,21 @@ class PemanfaatanRepositoryImpl(
         com.example.iurankomplek.data.cache.CacheHelper.saveEntityWithFinancialRecords(
             userFinancialPairs
         )
+    }
+
+    private class CachedFinancialDataFallback : CachedDataFallback<PemanfaatanResponse>() {
+        override suspend fun getCachedData(): PemanfaatanResponse? {
+            return try {
+                val usersWithFinancials = CacheManager.getUserDao().getAllUsersWithFinancialRecords().first()
+                if (usersWithFinancials.isNotEmpty()) {
+                    val dtoList = EntityMapper.toLegacyDtoList(usersWithFinancials)
+                    PemanfaatanResponse(dtoList)
+                } else {
+                    null
+                }
+            } catch (e: Exception) {
+                null
+            }
+        }
     }
 }

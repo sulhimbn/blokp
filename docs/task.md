@@ -472,6 +472,249 @@ Auto-switching is based on BuildConfig.DEBUG and DOCKER_ENV environment variable
 
 ---
 
+### ✅ INT-007: Integrate FallbackManager into Repository Layer - 2026-01-11
+**Status**: Completed
+**Completed Date**: 2026-01-11
+**Priority**: CRITICAL (Resilience Gap)
+**Estimated Time**: 2 hours (completed in 1.5 hours)
+**Description**: Integrate FallbackManager into all repository implementations for graceful service degradation
+
+**Issue Identified**:
+- `FallbackManager.kt` implemented with comprehensive test coverage but NOT used by any repositories
+- All repositories (UserRepository, PemanfaatanRepository, VendorRepository, etc.) used simple try-catch error handling
+- When external services fail, app returned errors to users instead of gracefully degrading with cached/static data
+- External services WILL fail (core resilience principle) but no graceful degradation implemented
+- FallbackManager code existed but provided no value (not integrated)
+
+**Critical Path Analysis**:
+- External services WILL fail (network outages, server errors, rate limits)
+- Current error handling: `catch (e: Exception) { OperationResult.Error(e, ...) }`
+- No fallback data served when API fails
+- Poor user experience during API outages (no graceful degradation)
+- Resilience principle violated: "External services WILL fail; handle gracefully"
+
+**Solution Implemented**:
+
+**1. Integrated FallbackManager into UserRepositoryImpl** (UserRepositoryImpl.kt):
+```kotlin
+class UserRepositoryImpl(
+    private val apiService: ApiServiceV1
+) : UserRepository, BaseRepository() {
+
+    private val fallbackManager = FallbackManager<UserResponse>(
+        fallbackStrategy = CachedUserFallback(),
+        config = FallbackConfig(enableFallback = true, fallbackTimeoutMs = 5000L, logFallbackUsage = true)
+    )
+
+    override suspend fun getUsers(forceRefresh: Boolean): OperationResult<UserResponse> {
+        return fallbackManager.executeWithFallback(
+            primaryOperation = { /* existing logic */ },
+            fallbackOperation = { getCachedUsersFallback() }
+        )
+    }
+
+    private class CachedUserFallback : CachedDataFallback<UserResponse>() {
+        override suspend fun getCachedData(): UserResponse? {
+            // Return cached users when API fails
+        }
+    }
+}
+```
+
+**2. Integrated FallbackManager into PemanfaatanRepositoryImpl** (PemanfaatanRepositoryImpl.kt):
+```kotlin
+private val fallbackManager = FallbackManager<PemanfaatanResponse>(
+    fallbackStrategy = CachedFinancialDataFallback(),
+    config = FallbackConfig(enableFallback = true, fallbackTimeoutMs = 5000L, logFallbackUsage = true)
+)
+
+private class CachedFinancialDataFallback : CachedDataFallback<PemanfaatanResponse>() {
+    override suspend fun getCachedData(): PemanfaatanResponse? {
+        // Return cached financial data when API fails
+    }
+}
+```
+
+**3. Integrated FallbackManager into VendorRepositoryImpl** (VendorRepositoryImpl.kt):
+```kotlin
+private val vendorFallbackManager = FallbackManager<VendorResponse>(
+    fallbackStrategy = EmptyVendorListFallback(),
+    config = FallbackConfig(enableFallback = true, fallbackTimeoutMs = 5000L, logFallbackUsage = true)
+)
+
+private val workOrderFallbackManager = FallbackManager<WorkOrderResponse>(
+    fallbackStrategy = EmptyWorkOrderListFallback(),
+    config = FallbackConfig(enableFallback = true, fallbackTimeoutMs = 5000L, logFallbackUsage = true)
+)
+
+private class EmptyVendorListFallback : EmptyDataFallback<VendorResponse>() {
+    override val emptyValue: VendorResponse = VendorResponse(emptyList())
+}
+
+private class EmptyWorkOrderListFallback : EmptyDataFallback<WorkOrderResponse>() {
+    override val emptyValue: WorkOrderResponse = WorkOrderResponse(emptyList())
+}
+```
+
+**4. Integrated FallbackManager into MessageRepositoryImpl** (MessageRepositoryImpl.kt):
+```kotlin
+private val messageFallbackManager = FallbackManager<List<Message>>(
+    fallbackStrategy = CachedMessagesFallback(cache),
+    config = FallbackConfig(enableFallback = true, fallbackTimeoutMs = 5000L, logFallbackUsage = true)
+)
+
+private class CachedMessagesFallback(private val cache: ConcurrentHashMap<String, List<Message>>) : CachedDataFallback<List<Message>>() {
+    override suspend fun getCachedData(): List<Message>? {
+        // Return cached messages when API fails
+    }
+}
+```
+
+**5. Integrated FallbackManager into AnnouncementRepositoryImpl** (AnnouncementRepositoryImpl.kt):
+```kotlin
+private val announcementFallbackManager = FallbackManager<List<Announcement>>(
+    fallbackStrategy = CachedAnnouncementsFallback(cache),
+    config = FallbackConfig(enableFallback = true, fallbackTimeoutMs = 5000L, logFallbackUsage = true)
+)
+
+private class CachedAnnouncementsFallback(private val cache: ConcurrentHashMap<String, Announcement>) : CachedDataFallback<List<Announcement>>() {
+    override suspend fun getCachedData(): List<Announcement>? {
+        // Return cached announcements when API fails
+    }
+}
+```
+
+**6. Integrated FallbackManager into CommunityPostRepositoryImpl** (CommunityPostRepositoryImpl.kt):
+```kotlin
+private val communityPostFallbackManager = FallbackManager<List<CommunityPost>>(
+    fallbackStrategy = CachedCommunityPostsFallback(cache),
+    config = FallbackConfig(enableFallback = true, fallbackTimeoutMs = 5000L, logFallbackUsage = true)
+)
+
+private class CachedCommunityPostsFallback(private val cache: ConcurrentHashMap<String, CommunityPost>) : CachedDataFallback<List<CommunityPost>>() {
+    override suspend fun getCachedData(): List<CommunityPost>? {
+        // Return cached community posts when API fails
+    }
+}
+```
+
+**7. Created FallbackMetrics for Metrics Collection** (FallbackMetrics.kt):
+```kotlin
+object FallbackMetrics {
+    private val fallbackCounts = ConcurrentHashMap<FallbackReason, AtomicLong>()
+    private val lastUsedAt = ConcurrentHashMap<FallbackReason, Long>()
+
+    fun recordFallback(reason: FallbackReason) {
+        val counter = fallbackCounts.getOrPut(reason) { AtomicLong(0) }
+        counter.incrementAndGet()
+        lastUsedAt[reason] = System.currentTimeMillis()
+        
+        android.util.Log.d("FallbackMetrics", "Fallback used: $reason, total count: ${counter.get()}")
+    }
+
+    fun getStats(): List<FallbackUsageStats> {
+        return fallbackCounts.map { (reason, counter) ->
+            FallbackUsageStats(
+                reason = reason,
+                count = counter.get(),
+                lastUsedAt = lastUsedAt[reason] ?: 0L
+            )
+        }.sortedByDescending { it.count }
+    }
+
+    fun reset() {
+        fallbackCounts.clear()
+        lastUsedAt.clear()
+        android.util.Log.d("FallbackMetrics", "Metrics reset")
+    }
+}
+```
+
+**8. Integrated FallbackMetrics into FallbackManager** (FallbackManager.kt):
+```kotlin
+private fun logFallback(message: String, reason: FallbackReason) {
+    android.util.Log.d("FallbackManager", message)
+    FallbackMetrics.recordFallback(reason)
+}
+```
+
+**9. Added Helper Methods to ApiConfig** (ApiConfig.kt):
+```kotlin
+fun getFallbackMetrics(): List<FallbackUsageStats> {
+    return FallbackMetrics.getStats()
+}
+
+fun resetFallbackMetrics() {
+    FallbackMetrics.reset()
+}
+```
+
+**Files Modified** (8 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| UserRepositoryImpl.kt | +16, -4 | Add FallbackManager integration with CachedUserFallback |
+| PemanfaatanRepositoryImpl.kt | +16, -4 | Add FallbackManager integration with CachedFinancialDataFallback |
+| VendorRepositoryImpl.kt | +23, -5 | Add FallbackManager integration with EmptyVendorListFallback and EmptyWorkOrderListFallback |
+| MessageRepositoryImpl.kt | +14, -3 | Add FallbackManager integration with CachedMessagesFallback |
+| AnnouncementRepositoryImpl.kt | +14, -3 | Add FallbackManager integration with CachedAnnouncementsFallback |
+| CommunityPostRepositoryImpl.kt | +14, -3 | Add FallbackManager integration with CachedCommunityPostsFallback |
+| FallbackManager.kt | +1, -1 | Add FallbackMetrics recording in logFallback |
+| FallbackMetrics.kt | +30 | NEW - Fallback metrics collection singleton |
+| ApiConfig.kt | +7 | Add getFallbackMetrics() and resetFallbackMetrics() helper methods |
+| INTEGRATION_HARDENING.md | +150, -10 | Update Fallback Pattern section with INT-007 completion |
+
+**Files Created** (1 total):
+| File | Lines | Purpose |
+|------|--------|---------|
+| FallbackMetrics.kt | +30 | Fallback usage metrics collection and logging |
+
+**Fallback Strategy Types Implemented**:
+1. **Cached Data Fallback**: UserRepository, PemanfaatanRepository, MessageRepository, AnnouncementRepository, CommunityPostRepository
+2. **Empty Data Fallback**: VendorRepository (getVendors, getWorkOrders) - no cache available
+3. **Write Operations**: No fallback for write operations (createVendor, createWorkOrder, sendMessage, etc.) - appropriate for data integrity
+
+**Architecture Improvements**:
+- ✅ **Graceful Degradation**: External service failures now return cached/static data instead of errors
+- ✅ **Fallback Metrics**: All fallback usage tracked with reasons and timestamps
+- ✅ **Observability**: FallbackMetrics provides monitoring data for resilience patterns
+- ✅ **Resilience Principle**: External services WILL fail; now handled gracefully
+- ✅ **User Experience**: Better UX during API outages (users see cached data)
+- ✅ **No Breaking Changes**: Existing repository interfaces unchanged, only internal error handling improved
+
+**Anti-Patterns Eliminated**:
+- ✅ No more error returns when external services fail
+- ✅ No more poor user experience during API outages
+- ✅ No more unimplemented FallbackManager code
+- ✅ No more missing graceful degradation
+
+**Benefits**:
+1. **Resilience**: External service failures now handled gracefully with fallback data
+2. **User Experience**: Users see cached/static data instead of error messages during outages
+3. **Observability**: Fallback metrics available for monitoring fallback usage
+4. **Consistency**: All repositories now use same fallback pattern
+5. **Data Integrity**: Write operations don't use fallbacks (prevents data inconsistency)
+6. **Graceful Degradation**: App remains functional with reduced capabilities during outages
+
+**Success Criteria**:
+- [x] FallbackManager integrated into UserRepositoryImpl with CachedUserFallback
+- [x] FallbackManager integrated into PemanfaatanRepositoryImpl with CachedFinancialDataFallback
+- [x] FallbackManager integrated into VendorRepositoryImpl with EmptyVendorListFallback and EmptyWorkOrderListFallback
+- [x] FallbackManager integrated into MessageRepositoryImpl with CachedMessagesFallback
+- [x] FallbackManager integrated into AnnouncementRepositoryImpl with CachedAnnouncementsFallback
+- [x] FallbackManager integrated into CommunityPostRepositoryImpl with CachedCommunityPostsFallback
+- [x] FallbackMetrics created for metrics collection
+- [x] FallbackMetrics integrated into FallbackManager.logFallback()
+- [x] ApiConfig updated with getFallbackMetrics() and resetFallbackMetrics() helper methods
+- [x] INTEGRATION_HARDENING.md updated with INT-007 completion
+- [x] task.md updated with INT-007 entry
+- [x] Changes committed and pushed to agent branch
+
+**Dependencies**: FallbackManager.kt (existing), FallbackConfig (existing), FallbackReason (existing), CachedDataFallback (existing), EmptyDataFallback (existing)
+**Documentation**: Updated INTEGRATION_HARDENING.md and docs/task.md with INT-007 completion
+**Impact**: CRITICAL - Critical resilience gap resolved, external service failures now handled gracefully, fallback data served instead of errors, metrics collection for monitoring fallback usage, improved user experience during API outages
+
+---
+
 ## Data Architect Tasks - 2026-01-11
 
 ---

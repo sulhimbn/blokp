@@ -15,8 +15,20 @@ class VendorRepositoryImpl(
     private val apiService: com.example.iurankomplek.network.ApiServiceV1
 ) : VendorRepository, BaseRepository() {
 
-    override suspend fun getVendors(): OperationResult<VendorResponse> = executeWithCircuitBreakerV1 {
-        apiService.getVendors()
+    private val vendorFallbackManager = FallbackManager<VendorResponse>(
+        fallbackStrategy = EmptyVendorListFallback(),
+        config = FallbackConfig(enableFallback = true, fallbackTimeoutMs = 5000L, logFallbackUsage = true)
+    )
+
+    private val workOrderFallbackManager = FallbackManager<WorkOrderResponse>(
+        fallbackStrategy = EmptyWorkOrderListFallback(),
+        config = FallbackConfig(enableFallback = true, fallbackTimeoutMs = 5000L, logFallbackUsage = true)
+    )
+
+    override suspend fun getVendors(): OperationResult<VendorResponse> {
+        return vendorFallbackManager.executeWithFallback(
+            primaryOperation = { executeWithCircuitBreakerV1 { apiService.getVendors() } }
+        )
     }
 
     override suspend fun getVendor(id: String): OperationResult<SingleVendorResponse> = executeWithCircuitBreakerV1 {
@@ -61,8 +73,10 @@ class VendorRepositoryImpl(
         )
     }
 
-    override suspend fun getWorkOrders(): OperationResult<WorkOrderResponse> = executeWithCircuitBreakerV1 {
-        apiService.getWorkOrders()
+    override suspend fun getWorkOrders(): OperationResult<WorkOrderResponse> {
+        return workOrderFallbackManager.executeWithFallback(
+            primaryOperation = { executeWithCircuitBreakerV1 { apiService.getWorkOrders() } }
+        )
     }
 
     override suspend fun getWorkOrder(id: String): OperationResult<SingleWorkOrderResponse> = executeWithCircuitBreakerV1 {
@@ -99,5 +113,13 @@ class VendorRepositoryImpl(
         notes: String?
     ): OperationResult<SingleWorkOrderResponse> = executeWithCircuitBreakerV1 {
         apiService.updateWorkOrderStatus(workOrderId, UpdateWorkOrderRequest(status, notes))
+    }
+
+    private class EmptyVendorListFallback : EmptyDataFallback<VendorResponse>() {
+        override val emptyValue: VendorResponse = VendorResponse(emptyList())
+    }
+
+    private class EmptyWorkOrderListFallback : EmptyDataFallback<WorkOrderResponse>() {
+        override val emptyValue: WorkOrderResponse = WorkOrderResponse(emptyList())
     }
 }

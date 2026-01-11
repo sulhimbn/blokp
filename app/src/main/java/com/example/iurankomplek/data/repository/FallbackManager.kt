@@ -114,6 +114,7 @@ class FallbackManager<T>(
     
     private fun logFallback(message: String, reason: FallbackReason) {
         android.util.Log.d("FallbackManager", message)
+        FallbackMetrics.recordFallback(reason)
     }
 }
 

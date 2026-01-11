@@ -11,12 +11,21 @@ class CommunityPostRepositoryImpl(
 ) : CommunityPostRepository, BaseRepository() {
     private val cache = ConcurrentHashMap<String, CommunityPost>()
 
-    override suspend fun getCommunityPosts(forceRefresh: Boolean): OperationResult<List<CommunityPost>> {
-        if (!forceRefresh && cache.isNotEmpty()) {
-            return OperationResult.Success(cache.values.toList())
-        }
+    private val communityPostFallbackManager = FallbackManager<List<CommunityPost>>(
+        fallbackStrategy = CachedCommunityPostsFallback(cache),
+        config = FallbackConfig(enableFallback = true, fallbackTimeoutMs = 5000L, logFallbackUsage = true)
+    )
 
-        return executeWithCircuitBreakerV2 { apiService.getCommunityPosts() }
+    override suspend fun getCommunityPosts(forceRefresh: Boolean): OperationResult<List<CommunityPost>> {
+        return communityPostFallbackManager.executeWithFallback(
+            primaryOperation = {
+                if (!forceRefresh && cache.isNotEmpty()) {
+                    OperationResult.Success(cache.values.toList())
+                } else {
+                    executeWithCircuitBreakerV2 { apiService.getCommunityPosts() }
+                }
+            }
+        )
     }
 
     override suspend fun createCommunityPost(
@@ -50,6 +59,16 @@ class CommunityPostRepositoryImpl(
             OperationResult.Success(Unit)
         } catch (e: Exception) {
             OperationResult.Error(e, e.message ?: "Unknown error")
+        }
+    }
+
+    private class CachedCommunityPostsFallback(private val cache: ConcurrentHashMap<String, CommunityPost>) : CachedDataFallback<List<CommunityPost>>() {
+        override suspend fun getCachedData(): List<CommunityPost>? {
+            return try {
+                cache.values.toList().takeIf { it.isNotEmpty() }
+            } catch (e: Exception) {
+                null
+            }
         }
     }
 }
