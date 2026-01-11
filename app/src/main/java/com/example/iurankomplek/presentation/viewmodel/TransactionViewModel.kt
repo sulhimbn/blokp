@@ -1,7 +1,5 @@
 package com.example.iurankomplek.presentation.viewmodel
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.example.iurankomplek.core.base.BaseViewModel
 import com.example.iurankomplek.data.entity.Transaction
 import com.example.iurankomplek.domain.usecase.LoadTransactionsUseCase
@@ -48,16 +46,12 @@ class TransactionViewModel(
         }
     }
 
-    class Factory(
-        private val loadTransactionsUseCase: LoadTransactionsUseCase,
-        private val refundPaymentUseCase: RefundPaymentUseCase
-    ) : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(TransactionViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return TransactionViewModel(loadTransactionsUseCase, refundPaymentUseCase) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
+    companion object {
+        fun Factory(
+            loadTransactionsUseCase: LoadTransactionsUseCase,
+            refundPaymentUseCase: RefundPaymentUseCase
+        ) = viewModelInstance {
+            TransactionViewModel(loadTransactionsUseCase, refundPaymentUseCase)
         }
     }
 }

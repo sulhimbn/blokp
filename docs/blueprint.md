@@ -498,8 +498,15 @@ app/
   - executeWithLoadingStateForResult() for Result<T> operations
   - executeWithoutLoadingState() for operations without loading state
   - **Code Reduction**: 174 lines eliminated across 7 ViewModels
-  - **Refactored ViewModels**: UserViewModel, FinancialViewModel, VendorViewModel, TransactionViewModel, AnnouncementViewModel, MessageViewModel, CommunityPostViewModel
-  - **Test Coverage**: 14 test cases for BaseViewModel
+   - **Refactored ViewModels**: UserViewModel, FinancialViewModel, VendorViewModel, TransactionViewModel, AnnouncementViewModel, MessageViewModel, CommunityPostViewModel
+   - **Test Coverage**: 14 test cases for BaseViewModel
+
+- **GenericViewModelFactory Pattern** (2026-01-11) ✅ NEW
+   - Eliminates duplicate Factory inner classes in all ViewModels
+   - Provides two usage patterns: viewModelInstance() for DependencyContainer, viewModelFactory() for ViewModelProvider
+   - **Code Reduction**: ~80-100 lines of duplicate Factory boilerplate eliminated
+   - **Refactored ViewModels**: All 7 ViewModels use companion object.Factory pattern
+   - **Test Coverage**: GenericViewModelFactoryTest verifies pattern correctness
 
 ### 3. BaseActivity ✅
 - Common functionality: retry logic, error handling, loading states
@@ -546,6 +553,7 @@ app/
 - ✅ Repository Pattern - Data abstraction
 - ✅ ViewModel Pattern - UI logic separation
 - ✅ Factory Pattern - ViewModel instantiation
+- ✅ GenericViewModelFactory Pattern - Eliminates duplicate Factory inner classes (2026-01-11)
 - ✅ Use Case Pattern - Business logic encapsulation (Module 62)
 - ✅ Observer Pattern - StateFlow/LiveData
 - ✅ Adapter Pattern - RecyclerView adapters

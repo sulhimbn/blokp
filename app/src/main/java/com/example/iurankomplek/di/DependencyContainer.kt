@@ -238,7 +238,7 @@ object DependencyContainer {
     }
 
     fun provideUserViewModel(): UserViewModel {
-        return UserViewModel.Factory(provideLoadUsersUseCase()).create(UserViewModel::class.java)
+        return UserViewModel.Factory(provideLoadUsersUseCase())
     }
 
     fun provideFinancialViewModel(): FinancialViewModel {
@@ -248,7 +248,7 @@ object DependencyContainer {
             provideLoadFinancialDataUseCase(),
             calculateFinancialSummaryUseCase,
             paymentSummaryIntegrationUseCase
-        ).create(FinancialViewModel::class.java)
+        )
     }
 
     fun providePaymentViewModel(): PaymentViewModel {
@@ -256,7 +256,7 @@ object DependencyContainer {
             provideTransactionRepository(),
             getReceiptGenerator(),
             provideValidatePaymentUseCase()
-        ).create(PaymentViewModel::class.java)
+        )
     }
 
     fun provideVendorViewModel(): VendorViewModel {
@@ -267,32 +267,32 @@ object DependencyContainer {
             provideLoadWorkOrderDetailUseCase(),
             provideCreateVendorUseCase(),
             provideCreateWorkOrderUseCase()
-        ).create(VendorViewModel::class.java)
+        )
     }
 
     fun provideTransactionViewModel(): TransactionViewModel {
         return TransactionViewModel.Factory(
             provideLoadTransactionsUseCase(),
             provideRefundPaymentUseCase()
-        ).create(TransactionViewModel::class.java)
+        )
     }
 
     fun provideAnnouncementViewModel(): AnnouncementViewModel {
-        return AnnouncementViewModel.Factory(provideLoadAnnouncementsUseCase()).create(AnnouncementViewModel::class.java)
+        return AnnouncementViewModel.Factory(provideLoadAnnouncementsUseCase())
     }
 
     fun provideMessageViewModel(): MessageViewModel {
         return MessageViewModel.Factory(
             provideLoadMessagesUseCase(),
             provideSendMessageUseCase()
-        ).create(MessageViewModel::class.java)
+        )
     }
 
     fun provideCommunityPostViewModel(): CommunityPostViewModel {
         return CommunityPostViewModel.Factory(
             provideLoadCommunityPostsUseCase(),
             provideCreateCommunityPostUseCase()
-        ).create(CommunityPostViewModel::class.java)
+        )
     }
 
     fun reset() {

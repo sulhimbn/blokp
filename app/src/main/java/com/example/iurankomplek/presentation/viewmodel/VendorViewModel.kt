@@ -1,7 +1,5 @@
 package com.example.iurankomplek.presentation.viewmodel
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.iurankomplek.core.base.BaseViewModel
 import com.example.iurankomplek.domain.usecase.LoadVendorsUseCase
@@ -114,23 +112,19 @@ class VendorViewModel(
         }
     }
 
-    class Factory(
-        private val loadVendorsUseCase: LoadVendorsUseCase,
-        private val loadWorkOrdersUseCase: LoadWorkOrdersUseCase,
-        private val loadVendorDetailUseCase: LoadVendorDetailUseCase,
-        private val loadWorkOrderDetailUseCase: LoadWorkOrderDetailUseCase,
-        private val createVendorUseCase: CreateVendorUseCase,
-        private val createWorkOrderUseCase: CreateWorkOrderUseCase
-    ) : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(VendorViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return VendorViewModel(
-                    loadVendorsUseCase, loadWorkOrdersUseCase, loadVendorDetailUseCase,
-                    loadWorkOrderDetailUseCase, createVendorUseCase, createWorkOrderUseCase
-                ) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
+    companion object {
+        fun Factory(
+            loadVendorsUseCase: LoadVendorsUseCase,
+            loadWorkOrdersUseCase: LoadWorkOrdersUseCase,
+            loadVendorDetailUseCase: LoadVendorDetailUseCase,
+            loadWorkOrderDetailUseCase: LoadWorkOrderDetailUseCase,
+            createVendorUseCase: CreateVendorUseCase,
+            createWorkOrderUseCase: CreateWorkOrderUseCase
+        ) = viewModelInstance {
+            VendorViewModel(
+                loadVendorsUseCase, loadWorkOrdersUseCase, loadVendorDetailUseCase,
+                loadWorkOrderDetailUseCase, createVendorUseCase, createWorkOrderUseCase
+            )
         }
     }
 }

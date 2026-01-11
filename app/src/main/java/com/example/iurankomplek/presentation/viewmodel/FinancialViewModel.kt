@@ -1,7 +1,5 @@
 package com.example.iurankomplek.presentation.viewmodel
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.example.iurankomplek.core.base.BaseViewModel
 import com.example.iurankomplek.domain.usecase.LoadFinancialDataUseCase
 import com.example.iurankomplek.domain.usecase.CalculateFinancialSummaryUseCase
@@ -27,37 +25,21 @@ class FinancialViewModel(
         }
     }
 
-    /**
-     * Calculates financial summary from financial data items
-     *
-     * @param items List of FinancialItem to calculate summary for
-     * @return FinancialSummary with calculated values
-     */
     fun calculateFinancialSummary(items: List<FinancialItem>): CalculateFinancialSummaryUseCase.FinancialSummary {
         return calculateFinancialSummaryUseCase(items)
     }
-    
-    /**
-     * Integrates payment transactions into financial summary
-     * Only available if TransactionRepository is provided
-     *
-     * @return PaymentIntegrationResult with payment data or null if not available
-     */
+
     suspend fun integratePaymentTransactions(): PaymentSummaryIntegrationUseCase.PaymentIntegrationResult? {
         return paymentSummaryIntegrationUseCase?.invoke()
     }
 
-    class Factory(
-        private val loadFinancialDataUseCase: LoadFinancialDataUseCase,
-        private val calculateFinancialSummaryUseCase: CalculateFinancialSummaryUseCase = CalculateFinancialSummaryUseCase(),
-        private val paymentSummaryIntegrationUseCase: PaymentSummaryIntegrationUseCase? = null
-    ) : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(FinancialViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return FinancialViewModel(loadFinancialDataUseCase, calculateFinancialSummaryUseCase, paymentSummaryIntegrationUseCase) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
+    companion object {
+        fun Factory(
+            loadFinancialDataUseCase: LoadFinancialDataUseCase,
+            calculateFinancialSummaryUseCase: CalculateFinancialSummaryUseCase = CalculateFinancialSummaryUseCase(),
+            paymentSummaryIntegrationUseCase: PaymentSummaryIntegrationUseCase? = null
+        ) = viewModelInstance {
+            FinancialViewModel(loadFinancialDataUseCase, calculateFinancialSummaryUseCase, paymentSummaryIntegrationUseCase)
         }
     }
 }

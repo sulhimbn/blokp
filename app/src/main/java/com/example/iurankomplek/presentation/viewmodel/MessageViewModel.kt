@@ -1,8 +1,5 @@
 package com.example.iurankomplek.presentation.viewmodel
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import com.example.iurankomplek.core.base.BaseViewModel
 import com.example.iurankomplek.domain.usecase.LoadMessagesUseCase
 import com.example.iurankomplek.domain.usecase.SendMessageUseCase
@@ -40,16 +37,12 @@ class MessageViewModel(
         }
     }
 
-    class Factory(
-        private val loadMessagesUseCase: LoadMessagesUseCase,
-        private val sendMessageUseCase: SendMessageUseCase
-    ) : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(MessageViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return MessageViewModel(loadMessagesUseCase, sendMessageUseCase) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
+    companion object {
+        fun Factory(
+            loadMessagesUseCase: LoadMessagesUseCase,
+            sendMessageUseCase: SendMessageUseCase
+        ) = viewModelInstance {
+            MessageViewModel(loadMessagesUseCase, sendMessageUseCase)
         }
     }
 }

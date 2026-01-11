@@ -1,8 +1,5 @@
 package com.example.iurankomplek.presentation.viewmodel
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import com.example.iurankomplek.core.base.BaseViewModel
 import com.example.iurankomplek.domain.usecase.LoadCommunityPostsUseCase
 import com.example.iurankomplek.domain.usecase.CreateCommunityPostUseCase
@@ -38,16 +35,12 @@ class CommunityPostViewModel(
         }
     }
 
-    class Factory(
-        private val loadCommunityPostsUseCase: LoadCommunityPostsUseCase,
-        private val createCommunityPostUseCase: CreateCommunityPostUseCase
-    ) : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(CommunityPostViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return CommunityPostViewModel(loadCommunityPostsUseCase, createCommunityPostUseCase) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
+    companion object {
+        fun Factory(
+            loadCommunityPostsUseCase: LoadCommunityPostsUseCase,
+            createCommunityPostUseCase: CreateCommunityPostUseCase
+        ) = viewModelInstance {
+            CommunityPostViewModel(loadCommunityPostsUseCase, createCommunityPostUseCase)
         }
     }
 }

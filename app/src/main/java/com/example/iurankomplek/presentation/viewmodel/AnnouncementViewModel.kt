@@ -1,8 +1,5 @@
 package com.example.iurankomplek.presentation.viewmodel
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import com.example.iurankomplek.core.base.BaseViewModel
 import com.example.iurankomplek.domain.usecase.LoadAnnouncementsUseCase
 import com.example.iurankomplek.model.Announcement
@@ -27,13 +24,9 @@ class AnnouncementViewModel(
         loadAnnouncements(forceRefresh = true)
     }
 
-    class Factory(private val loadAnnouncementsUseCase: LoadAnnouncementsUseCase) : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(AnnouncementViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return AnnouncementViewModel(loadAnnouncementsUseCase) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
+    companion object {
+        fun Factory(loadAnnouncementsUseCase: LoadAnnouncementsUseCase) = viewModelInstance {
+            AnnouncementViewModel(loadAnnouncementsUseCase)
         }
     }
 }
