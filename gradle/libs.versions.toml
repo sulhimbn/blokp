@@ -1,6 +1,6 @@
 [versions]
 agp = "8.1.0"
-kotlin = "2.2.0"
+kotlin = "1.9.22"
 core-ktx = "1.13.1"
 appcompat = "1.7.0"
 material = "1.12.0"
@@ -9,7 +9,7 @@ junit = "4.13.2"
 mockito-core = "5.1.1"
 mockito-kotlin = "5.0.0"
 arch-core = "2.2.0"
-kotlinx-coroutines-test = "1.10.2"
+kotlinx-coroutines-test = "1.7.3"
 robolectric = "4.10.3"
 androidx-test-ext-junit = "1.1.5"
 espresso-core = "3.5.1"
@@ -23,9 +23,9 @@ glide = "4.16.0"
 gson = "2.10.1"
 retrofit = "2.11.0"
 okhttp3 = "4.12.0"
-chucker = "4.2.0"
+chucker = "3.3.0"
 room = "2.6.1"
-kotlinx-coroutines-android = "1.10.2"
+kotlinx-coroutines-android = "1.7.3"
 lifecycle = "2.8.0"
 
 [libraries]
@@ -63,11 +63,11 @@ lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-view
 lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }
 lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
 swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version = "1.1.0" }
-kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version = "2.1.0" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version = "1.6.0" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-ksp = { id = "com.google.devtools.ksp", version = "2.2.0-1.0.25" }
+ksp = { id = "com.google.devtools.ksp", version = "1.9.22-1.0.17" }
