@@ -90,7 +90,7 @@ class ErrorHandler(private val context: Context) {
     }
     
     private fun generateRequestId(): String {
-        return UUID.randomUUID().toString().substring(0, 8)
+        return UUID.randomUUID().toString().substring(0, Constants.NetworkError.REQUEST_ID_LENGTH)
     }
     
     fun toNetworkError(throwable: Throwable): NetworkError {
