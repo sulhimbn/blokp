@@ -364,19 +364,6 @@ object SecurityManager {
         return threats
     }
 
-    /**
-     * Gets comprehensive security report
-     */
-    fun getSecurityReport(context: Context): SecurityReport {
-        return SecurityReport(
-            isSecure = isSecureEnvironment(context),
-            isRooted = isDeviceRooted(),
-            isEmulator = isDeviceEmulator(),
-            certificatePinningValid = validateSecurityConfiguration(),
-            threats = checkSecurityThreats(context)
-        )
-    }
-
     data class SecurityReport(
         val isSecure: Boolean,
         val isRooted: Boolean,
@@ -384,6 +371,7 @@ object SecurityManager {
         val certificatePinningValid: Boolean,
         val threats: List<String>
     )
+    }
 }
     
     /**
