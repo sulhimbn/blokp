@@ -21,7 +21,6 @@ import com.example.iurankomplek.payment.PaymentGateway
 import com.example.iurankomplek.payment.RealPaymentGateway
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.network.ApiServiceV1
-import com.example.iurankomplek.network.ApiService
 import kotlinx.coroutines.CoroutineScope
 import com.example.iurankomplek.presentation.viewmodel.UserViewModel
 import com.example.iurankomplek.presentation.viewmodel.FinancialViewModel
@@ -95,11 +94,7 @@ object DependencyContainer {
     private fun getApiServiceV1(): ApiServiceV1 {
         return ApiConfig.getApiServiceV1()
     }
-    
-    private fun getApiService(): ApiService {
-        return ApiConfig.getApiService()
-    }
-    
+
     private fun getTransactionDao(): TransactionDao {
         return transactionDao ?: synchronized(this) {
             transactionDao ?: AppDatabase.getDatabase(
@@ -108,10 +103,10 @@ object DependencyContainer {
             ).transactionDao().also { transactionDao = it }
         }
     }
-    
+
     private fun getPaymentGateway(): PaymentGateway {
         return paymentGateway ?: synchronized(this) {
-            paymentGateway ?: RealPaymentGateway(getApiService()).also { paymentGateway = it }
+            paymentGateway ?: RealPaymentGateway(getApiServiceV1()).also { paymentGateway = it }
         }
     }
     

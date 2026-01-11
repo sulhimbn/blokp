@@ -1,6 +1,6 @@
 package com.example.iurankomplek.payment
 
-import com.example.iurankomplek.network.ApiService
+import com.example.iurankomplek.network.ApiServiceV1
 import com.example.iurankomplek.network.model.InitiatePaymentRequest
 import com.example.iurankomplek.utils.OperationResult
 import kotlinx.coroutines.Dispatchers
@@ -9,7 +9,7 @@ import java.math.BigDecimal
 import java.util.UUID
 
 class RealPaymentGateway(
-    private val apiService: ApiService
+    private val apiService: ApiServiceV1
 ) : PaymentGateway {
 
     override suspend fun processPayment(request: PaymentRequest): OperationResult<PaymentResponse> {
@@ -26,21 +26,26 @@ class RealPaymentGateway(
 
                 if (response.isSuccessful) {
                     val apiResponse = response.body()
-                    if (apiResponse != null) {
-                        OperationResult.Success(
-                            PaymentResponse(
-                                transactionId = apiResponse.transactionId,
-                                status = convertApiStatus(apiResponse.status),
-                                paymentMethod = convertApiPaymentMethod(apiResponse.paymentMethod),
-                                amount = if (apiResponse.amount.isNotEmpty()) BigDecimal(apiResponse.amount) else request.amount,
-                                currency = apiResponse.currency,
-                                transactionTime = apiResponse.transactionTime,
-                                referenceNumber = apiResponse.referenceNumber,
-                                metadata = request.metadata
+                    if (apiResponse != null && apiResponse.success) {
+                        val data = apiResponse.data
+                        if (data != null) {
+                            OperationResult.Success(
+                                PaymentResponse(
+                                    transactionId = data.transactionId,
+                                    status = convertApiStatus(data.status),
+                                    paymentMethod = convertApiPaymentMethod(data.paymentMethod),
+                                    amount = if (data.amount.isNotEmpty()) BigDecimal(data.amount) else request.amount,
+                                    currency = data.currency,
+                                    transactionTime = data.transactionTime,
+                                    referenceNumber = data.referenceNumber,
+                                    metadata = request.metadata
+                                )
                             )
-                        )
+                        } else {
+                            OperationResult.Error(Exception("Empty data in API response"), "Empty API response data")
+                        }
                     } else {
-                        OperationResult.Error(Exception("Empty response body"), "Empty API response")
+                        OperationResult.Error(Exception("API request failed: ${apiResponse?.message}"), "API request failed: ${apiResponse?.message}")
                     }
                 } else {
                     OperationResult.Error(Exception("API request failed: ${response.code()} - ${response.message()}"), "API request failed: ${response.code()} - ${response.message()}")
@@ -85,10 +90,15 @@ class RealPaymentGateway(
 
                 if (response.isSuccessful) {
                     val apiResponse = response.body()
-                    if (apiResponse != null) {
-                        OperationResult.Success(convertApiStatus(apiResponse.status))
+                    if (apiResponse != null && apiResponse.success) {
+                        val data = apiResponse.data
+                        if (data != null) {
+                            OperationResult.Success(convertApiStatus(data.status))
+                        } else {
+                            OperationResult.Error(Exception("Empty data in API response"), "Empty API response data")
+                        }
                     } else {
-                        OperationResult.Error(Exception("Empty response body"), "Empty API response")
+                        OperationResult.Error(Exception("API request failed: ${apiResponse?.message}"), "API request failed: ${apiResponse?.message}")
                     }
                 } else {
                     OperationResult.Error(Exception("API request failed: ${response.code()} - ${response.message()}"), "API request failed: ${response.code()} - ${response.message()}")

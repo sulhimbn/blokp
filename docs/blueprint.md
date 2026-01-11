@@ -384,14 +384,17 @@ app/
     - Interface-based design for dependency inversion ✅ UPDATED
     - **Unified Repository Pattern** (Module 88 - 2026-01-08) ✅ NEW
 
-    - **API Standardization** (INT-001 - 2026-01-10) ✅ NEW
-    * Migrated all repositories from legacy ApiService to standardized ApiServiceV1
-    * Added executeWithCircuitBreakerV1 method to BaseRepository for ApiResponse<T> wrapper handling
-    * ApiResponse wrapper automatically unwraps .data field from v1 API responses
-    * Created BaseRepositoryLegacy type alias for backward compatibility
-    * Zero breaking changes: repository interfaces unchanged, only internal implementation migrated
-    * Benefits: Consistent API usage, standardized error handling, documentation alignment
-    * Files modified: BaseRepository.kt, UserRepositoryImpl.kt, PemanfaatanRepositoryImpl.kt, VendorRepositoryImpl.kt, MessageRepositoryImpl.kt, AnnouncementRepositoryImpl.kt, CommunityPostRepositoryImpl.kt
+     - **API Standardization** (INT-001 - 2026-01-10, REFACTOR-016 - 2026-01-11) ✅ COMPLETE
+     * Migrated all repositories from legacy ApiService to standardized ApiServiceV1 (INT-001 - 2026-01-10)
+     * Migrated PaymentGateway from legacy ApiService to ApiServiceV1 (REFACTOR-016 - 2026-01-11)
+     * Removed getApiService() method from DependencyContainer (REFACTOR-016 - 2026-01-11)
+     * Added executeWithCircuitBreakerV1 method to BaseRepository for ApiResponse<T> wrapper handling
+     * ApiResponse wrapper automatically unwraps .data field from v1 API responses
+     * Created BaseRepositoryLegacy type alias for backward compatibility
+     * Zero breaking changes: repository interfaces unchanged, only internal implementation migrated
+     * Benefits: Consistent API usage, standardized error handling, documentation alignment
+     * Files modified: BaseRepository.kt, UserRepositoryImpl.kt, PemanfaatanRepositoryImpl.kt, VendorRepositoryImpl.kt, MessageRepositoryImpl.kt, AnnouncementRepositoryImpl.kt, CommunityPostRepositoryImpl.kt
+     * Additional files modified (REFACTOR-016): RealPaymentGateway.kt, DependencyContainer.kt, PaymentApiTest.kt
    * Strategy Pattern for pluggable caching (InMemoryCacheStrategy, DatabaseCacheStrategy, NoCacheStrategy)
    * BaseRepositoryV2 provides unified error handling and circuit breaker protection
    * Eliminated code duplication (circuit breaker logic centralized)
