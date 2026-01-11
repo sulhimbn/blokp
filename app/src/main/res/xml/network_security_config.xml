@@ -6,33 +6,33 @@
         <domain includeSubdomains="true">api.apispreadsheets.com</domain>
         <pin-set expiration="2028-12-31">
             <!-- Primary certificate pin -->
-            <pin algorithm="sha256">PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=</pin>
-            
+            <pin digest="sha256">PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=</pin>
+
              <!-- Backup certificate pins extracted from certificate chain -->
              <!-- SECURITY: Having at least 2 active pins prevents single point of failure -->
              <!-- If the primary certificate rotates, backup pins ensure app continues to work -->
-             
+
              <!-- Certificate pins extracted on 2026-01-08 -->
              <!-- Pin extraction command:
-                  openssl s_client -servername api.apispreadsheets.com -connect api.apispreadsheets.com:443 -showcerts 2>/dev/null | \
-                  awk '/BEGIN CERTIFICATE/,/END CERTIFICATE/' | \
-                  csplit -f cert- -s - '/BEGIN CERTIFICATE/' '{*}' 2>/dev/null && \
-                  for f in cert-*; do [ -s "$f" ] && \
-                  openssl x509 -in "$f" -pubkey -noout 2>/dev/null | \
-                  openssl pkey -pubin -outform der 2>/dev/null | \
-                  openssl dgst -sha256 -binary 2>/dev/null | \
-                  openssl enc -base64; rm -f "$f"; done
-                  
-                  Best practices:
-                   - Always have at least 2 active pins (current + backup)
-                   - Add new backup pin BEFORE removing old pin during rotation
-                   - Monitor expiration dates and rotate pins before expiry
-                   - Test certificate rotation in staging before production
-                   - Set up monitoring for certificate expiration
-                   - Extract pins annually to capture certificate chain updates
-              -->
-             <pin algorithm="sha256">G9LNNAql897egYsabashkzUCTEJkWBzgoEtk8X/678c=</pin>
-             <pin algorithm="sha256">++MBgDH5WGvL9Bcn5Be30cRcL0f5O+NyoXuWtQdX1aI=</pin>
+                   openssl s_client -servername api.apispreadsheets.com -connect api.apispreadsheets.com:443 -showcerts 2>/dev/null | \
+                   awk '/BEGIN CERTIFICATE/,/END CERTIFICATE/' | \
+                   csplit -f cert- -s - '/BEGIN CERTIFICATE/' '{*}' 2>/dev/null && \
+                   for f in cert-*; do [ -s "$f" ] && \
+                   openssl x509 -in "$f" -pubkey -noout 2>/dev/null | \
+                   openssl pkey -pubin -outform der 2>/dev/null | \
+                   openssl dgst -sha256 -binary 2>/dev/null | \
+                   openssl enc -base64; rm -f "$f"; done
+
+                   Best practices:
+                    - Always have at least 2 active pins (current + backup)
+                    - Add new backup pin BEFORE removing old pin during rotation
+                    - Monitor expiration dates and rotate pins before expiry
+                    - Test certificate rotation in staging before production
+                    - Set up monitoring for certificate expiration
+                    - Extract pins annually to capture certificate chain updates
+               -->
+             <pin digest="sha256">G9LNNAql897egYsabashkzUCTEJkWBzgoEtk8X/678c=</pin>
+             <pin digest="sha256">++MBgDH5WGvL9Bcn5Be30cRcL0f5O+NyoXuWtQdX1aI=</pin>
         </pin-set>
     </domain-config>
     

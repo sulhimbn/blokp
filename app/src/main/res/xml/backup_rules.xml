@@ -18,8 +18,8 @@
     <exclude domain="sharedpref" path="." />
 
     <!-- Exclude cache and temporary files -->
-    <exclude domain="cache" path="." />
-    <exclude domain="no_backup" path="." />
+    <exclude domain="root" path="cache" />
+    <exclude domain="file" path="no_backup" />
 
     <!-- Exclude app-specific directories that may contain sensitive data -->
     <exclude domain="file" path="." />

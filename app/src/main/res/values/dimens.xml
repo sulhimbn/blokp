@@ -20,6 +20,7 @@
     <dimen name="padding_lg">24dp</dimen>
     <dimen name="padding_xl">32dp</dimen>
     <dimen name="padding_xxl">48dp</dimen>
+    <dimen name="padding_xxxl">64dp</dimen>
 
     <!-- Border Radius -->
     <dimen name="radius_sm">4dp</dimen>
@@ -32,6 +33,7 @@
     <dimen name="icon_lg">32dp</dimen>
     <dimen name="icon_xl">48dp</dimen>
     <dimen name="icon_xxl">64dp</dimen>
+    <dimen name="icon_xxxl">96dp</dimen>
 
     <!-- Avatar Sizes -->
     <dimen name="avatar_sm">40dp</dimen>
@@ -55,6 +57,7 @@
 
     <!-- Button Dimensions -->
     <dimen name="button_height_min">48dp</dimen>
+    <dimen name="button_height_max">72dp</dimen>
     <dimen name="button_corner_radius">8dp</dimen>
 
     <!-- Text Sizes (using sp for accessibility) -->
