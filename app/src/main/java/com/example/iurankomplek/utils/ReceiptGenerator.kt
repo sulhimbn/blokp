@@ -11,7 +11,7 @@ class ReceiptGenerator {
     fun generateReceipt(transaction: Transaction): Receipt {
         val receiptNumber = generateReceiptNumber()
         val qrCode = generateQRCode(transaction.id)
-        val amountInCurrency = java.math.BigDecimal(transaction.amount).divide(java.math.BigDecimal("100"), 2, java.math.RoundingMode.HALF_UP)
+        val amountInCurrency = java.math.BigDecimal(transaction.amount).divide(BD_HUNDRED, 2, java.math.RoundingMode.HALF_UP)
 
         return Receipt(
             id = UUID.randomUUID().toString(),
@@ -41,6 +41,8 @@ class ReceiptGenerator {
                 DATE_FORMAT ?: SimpleDateFormat("yyyyMMdd", Locale.US).also { DATE_FORMAT = it }
             }
         }
+
+        private val BD_HUNDRED = java.math.BigDecimal("100")
     }
 
     private fun generateQRCode(transactionId: String): String {
