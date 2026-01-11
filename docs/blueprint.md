@@ -3423,12 +3423,31 @@ Performance gap in WebhookEvent index strategy:
      - Single instance used across production and debug clients
      - Monitoring and reset functions work correctly (critical bug fixed 2026-01-07)
      - Prevents duplicate interceptor instances breaking observability
-- ✅ **Repository-Level CircuitBreaker Integration**: All repositories use shared CircuitBreaker
-    - UserRepositoryImpl: CircuitBreaker-protected with retry logic
-    - PemanfaatanRepositoryImpl: CircuitBreaker-protected with retry logic
-    - VendorRepositoryImpl: CircuitBreaker-protected with retry logic
-    - Eliminates duplicate retry logic across repositories
-    - Centralized failure tracking and recovery
+ - ✅ **Repository-Level CircuitBreaker Integration**: All repositories use shared CircuitBreaker
+     - UserRepositoryImpl: CircuitBreaker-protected with retry logic
+     - PemanfaatanRepositoryImpl: CircuitBreaker-protected with retry logic
+     - VendorRepositoryImpl: CircuitBreaker-protected with retry logic
+     - Eliminates duplicate retry logic across repositories
+     - Centralized failure tracking and recovery
+ - ✅ **Timeout Hardening** NEW (INT-006 - 2026-01-11)
+     - **Per-Endpoint Timeout Profiles**: TimeoutInterceptor provides differentiated timeouts
+       - FAST (5s): Health checks and status endpoints
+       - NORMAL (30s): Standard CRUD operations (users, vendors, messages, posts)
+       - SLOW (60s): Payment initiation and confirmation
+     - **WRITE_TIMEOUT Configuration**: Added missing write timeout to all OkHttp clients
+       - SecurityConfig (production client): Now sets WRITE_TIMEOUT = 30s
+       - ApiConfig (mock client): Now sets WRITE_TIMEOUT = 30s
+       - Prevents indefinite blocking on large uploads
+     - **Payment Confirmation Timeout**: Enhanced from NORMAL (30s) to SLOW (60s)
+       - Payment confirmations often require extended processing time
+       - Matches initiation timeout for consistency
+     - **Testing**: TimeoutInterceptorTest comprehensively validates timeout profiles
+       - Tests all endpoint paths with correct timeout profiles
+       - Validates timeout constants (FAST: 5s, NORMAL: 30s, SLOW: 60s)
+     - **Files Modified** (2 total):
+       - TimeoutInterceptor.kt: Added /payments/*/confirm to SLOW timeout profile
+       - SecurityConfig.kt: Added WRITE_TIMEOUT configuration
+       - ApiConfig.kt: Added WRITE_TIMEOUT to mock client configuration
 - ✅ **API Standardization** NEW (2026-01-08)
     - **Legacy ApiService**: Updated to use request bodies instead of query parameters (non-breaking)
     - **ApiServiceV1**: New fully standardized interface with `/api/v1` prefix

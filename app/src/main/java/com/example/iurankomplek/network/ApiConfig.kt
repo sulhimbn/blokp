@@ -92,6 +92,7 @@ import java.util.concurrent.TimeUnit
             val clientBuilder = OkHttpClient.Builder()
                 .connectTimeout(Constants.Network.CONNECT_TIMEOUT, TimeUnit.SECONDS)
                 .readTimeout(Constants.Network.READ_TIMEOUT, TimeUnit.SECONDS)
+                .writeTimeout(Constants.Network.WRITE_TIMEOUT, TimeUnit.SECONDS)
                 .connectionPool(connectionPool)
                 .addInterceptor(TimeoutInterceptor())
                 .addInterceptor(RequestIdInterceptor())

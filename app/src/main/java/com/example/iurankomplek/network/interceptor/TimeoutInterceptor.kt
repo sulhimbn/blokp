@@ -25,6 +25,7 @@ object TimeoutProfileConfig {
             path.contains("/health") -> TimeoutProfile.FAST
             path.contains("/status") -> TimeoutProfile.FAST
             path.contains("/payments/initiate") -> TimeoutProfile.SLOW
+            path.contains("/payments/") && path.contains("/confirm") -> TimeoutProfile.SLOW
             path.contains("/payments") -> TimeoutProfile.NORMAL
             path.contains("/vendors") -> TimeoutProfile.NORMAL
             path.contains("/work-orders") -> TimeoutProfile.NORMAL
