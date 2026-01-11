@@ -89,35 +89,44 @@ The domain layer represents business entities and use cases, independent of any 
 - **domain/usecase/**: Use cases for business logic ✅ IMPLEMENTED (Module 62 - 2026-01-08)
 
 ### Current Domain Models ✅
-1. **User.kt** - Domain model for user business entity
-   - Pure business entity without framework dependencies
-   - Contains validation and business logic
-   - Used for business operations, independent of data persistence
-   - Mapped to/from UserEntity via DomainMapper
+ 1. **User.kt** - Domain model for user business entity
+    - Pure business entity without framework dependencies
+    - Contains validation and business logic
+    - Used for business operations, independent of data persistence
+    - Mapped to/from UserEntity via DomainMapper
 
-2. **FinancialRecord.kt** - Domain model for financial record business entity
-   - Pure business entity without framework dependencies
-   - Contains validation and business logic
-   - Used for business operations, independent of data persistence
-   - Mapped to/from FinancialRecordEntity via DomainMapper
+ 2. **FinancialRecord.kt** - Domain model for financial record business entity
+    - Pure business entity without framework dependencies
+    - Contains validation and business logic
+    - Used for business operations, independent of data persistence
+    - Mapped to/from FinancialRecordEntity via DomainMapper
 
-### Current Use Cases ✅ (Module 62 - 2026-01-08)
-1. **CalculateFinancialTotalsUseCase.kt** - Calculates financial totals from DataItem list
-   - Extracted from FinancialCalculator utility
-   - Encapsulates business logic for financial calculations
-   - Calculates: totalIuranBulanan, totalPengeluaran, totalIuranIndividu, rekapIuran
-   - Validates data before calculation
-   - Prevents arithmetic overflow/underflow
-   - Returns immutable FinancialTotals result object
+ 3. **FinancialItem.kt** - Domain model for financial calculations (NEW - Module ARCH-007 - 2026-01-11)
+    - Pure business entity independent of data layer DTOs
+    - Contains validation and business logic in init block
+    - Used for financial calculations in use cases
+    - Conversion methods from LegacyDataItemDto (fromLegacyDataItemDto, fromLegacyDataItemDtoList)
+    - **Benefit**: Domain layer now independent of data layer DTOs
 
-2. **ValidateFinancialDataUseCase.kt** - Validates financial data
-   - Extracted from FinancialCalculator utility
-   - Validates single DataItem or list of DataItems
-   - Validates all financial calculations (test calculations)
-   - Returns boolean validation results
-   - Throws IllegalArgumentException with detailed error messages
+### Current Use Cases ✅ (Module 62 - 2026-01-08, ARCH-007 - 2026-01-11)
+ 1. **CalculateFinancialTotalsUseCase.kt** - Calculates financial totals from FinancialItem list
+    - Extracted from FinancialCalculator utility
+    - Encapsulates business logic for financial calculations
+    - Calculates: totalIuranBulanan, totalPengeluaran, totalIuranIndividu, rekapIuran
+    - Validates data before calculation
+    - Prevents arithmetic overflow/underflow
+    - Returns immutable FinancialTotals result object
+    - **UPDATED (Module ARCH-007 - 2026-01-11)**: Uses FinancialItem domain model instead of LegacyDataItemDto
 
-3. **LoadUsersUseCase.kt** - Loads users from repository
+ 2. **ValidateFinancialDataUseCase.kt** - Validates financial data
+    - Extracted from FinancialCalculator utility
+    - Validates single FinancialItem or list of FinancialItems
+    - Validates all financial calculations (test calculations)
+    - Returns boolean validation results
+    - Throws IllegalArgumentException with detailed error messages
+    - **UPDATED (Module ARCH-007 - 2026-01-11)**: Uses FinancialItem domain model instead of LegacyDataItemDto
+
+ 3. **LoadUsersUseCase.kt** - Loads users from repository
    - Encapsulates user loading business logic
    - Wrapper around UserRepository with business rules
    - Supports forceRefresh parameter for cache bypass
@@ -131,13 +140,14 @@ The domain layer represents business entities and use cases, independent of any 
     - Returns Result<PemanfaatanResponse> for error handling
     - **UPDATED (Module ARCH-001)**: Accepts ValidateFinancialDataUseCase via constructor (Dependency Inversion)
  
-5. **CalculateFinancialSummaryUseCase.kt** - Calculates financial summary with totals (NEW - Module ARCH-002)
-    - Encapsulates financial summary calculation business logic
-    - Uses ValidateFinancialDataUseCase and CalculateFinancialTotalsUseCase
-    - Calculates: totalIuranBulanan, totalPengeluaran, rekapIuran
-    - Validates data before calculation
-    - Returns immutable FinancialSummary result with validation status
-    - **Benefit**: Extracted 65 lines of business logic from LaporanActivity
+ 5. **CalculateFinancialSummaryUseCase.kt** - Calculates financial summary with totals (NEW - Module ARCH-002, UPDATED Module ARCH-007 - 2026-01-11)
+     - Encapsulates financial summary calculation business logic
+     - Uses ValidateFinancialDataUseCase and CalculateFinancialTotalsUseCase
+     - Calculates: totalIuranBulanan, totalPengeluaran, rekapIuran
+     - Validates data before calculation
+     - Returns immutable FinancialSummary result with validation status
+     - **Benefit**: Extracted 65 lines of business logic from LaporanActivity
+     - **UPDATED (Module ARCH-007 - 2026-01-11)**: Uses FinancialItem domain model instead of LegacyDataItemDto
  
  6. **PaymentSummaryIntegrationUseCase.kt** - Integrates payment transactions into financial summary (NEW - Module ARCH-002)
      - Encapsulates payment integration business logic
@@ -4935,7 +4945,7 @@ API inconsistencies found in ApiService.kt:
 
 **Directory Role Clarification**:
 - **domain/model/** ✅ NEW - Pure domain models (business entities)
-  - User.kt, FinancialRecord.kt
+  - User.kt, FinancialRecord.kt, FinancialItem.kt (Module ARCH-007 - 2026-01-11)
   - No framework dependencies
   - Contains business logic and validation
   - Ready for use case implementations
@@ -5014,6 +5024,7 @@ API inconsistencies found in ApiService.kt:
 - `app/src/main/java/com/example/iurankomplek/domain/model/User.kt` (NEW - domain model)
 - `app/src/main/java/com/example/iurankomplek/domain/model/FinancialRecord.kt` (NEW - domain model)
 - `app/src/main/java/com/example/iurankomplek/data/mapper/DomainMapper.kt` (NEW - entity ↔ domain mapper)
+- `app/src/main/java/com/example/iurankomplek/domain/model/FinancialItem.kt` (NEW - Module ARCH-007 - 2026-01-11, domain model for financial calculations)
 
 **Files Modified** (1 total):
 - `docs/blueprint.md` (UPDATED - domain layer architecture documentation, migration strategy)

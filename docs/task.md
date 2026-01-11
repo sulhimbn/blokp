@@ -3,6 +3,135 @@
 ## Overview
 Track architectural refactoring tasks and their status.
 
+## Code Architect Tasks - 2026-01-11
+
+---
+
+### ✅ ARCH-007: Domain Layer Independence - Migrate UseCases from DTOs to Domain Models - 2026-01-11
+**Status**: Completed
+**Completed Date**: 2026-01-11
+**Priority**: HIGH (Architecture Violation)
+**Estimated Time**: 2 hours (completed in 1 hour)
+**Description**: Migrate domain use cases from data layer DTOs to pure domain models
+
+**Issue Identified**:
+- Domain layer use cases (CalculateFinancialTotalsUseCase, ValidateFinancialDataUseCase, CalculateFinancialSummaryUseCase) depended on LegacyDataItemDto from data layer
+- This violated Clean Architecture principles - domain layer should NOT depend on data layer
+- Layer separation violation reduced testability and maintainability
+- Domain use cases imported `com.example.iurankomplek.data.dto.LegacyDataItemDto` (wrong direction)
+- Architecture had: Domain → depends on → Data (incorrect)
+
+**Critical Path Analysis**:
+- Domain layer should be independent of data layer
+- Use cases should operate on pure domain models
+- Presentation layer is responsible for converting DTOs/Entities to domain models
+- Clean Architecture requires: Presentation → Domain → Data (correct direction)
+- Testing domain layer should not require data layer dependencies
+
+**Solution Implemented**:
+
+**1. Created FinancialItem Domain Model** (FinancialItem.kt):
+```kotlin
+data class FinancialItem(
+    val iuranPerwarga: Int = 0,
+    val pengeluaranIuranWarga: Int = 0,
+    val totalIuranIndividu: Int = 0
+) {
+    init { validate() }
+
+    companion object {
+        fun fromLegacyDataItemDto(dto: LegacyDataItemDto): FinancialItem
+        fun fromLegacyDataItemDtoList(dtos: List<LegacyDataItemDto>): List<FinancialItem>
+    }
+}
+```
+- Pure domain model independent of data layer
+- Contains essential financial calculation fields only
+- Includes validation in init block
+- Conversion methods from LegacyDataItemDto
+
+**2. Updated Domain Use Cases** (3 files):
+- CalculateFinancialTotalsUseCase.kt: Changed from `List<LegacyDataItemDto>` to `List<FinancialItem>`
+- ValidateFinancialDataUseCase.kt: Changed from `List<LegacyDataItemDto>` to `List<FinancialItem>`
+- CalculateFinancialSummaryUseCase.kt: Changed from `List<LegacyDataItemDto>` to `List<FinancialItem>`
+- All property access updated (e.g., `iuran_perwarga` → `iuranPerwarga`)
+
+**3. Updated Presentation Layer**:
+- FinancialViewModel.kt: calculateFinancialSummary now accepts `List<FinancialItem>`
+- LaporanActivity.kt: Uses `FinancialItem.fromLegacyDataItemDtoList()` to convert before calling use case
+
+**Architecture Improvements**:
+```
+BEFORE (INCORRECT):
+Presentation → Domain (depends on) → Data
+   ↓             ↓ (wrong)           ↑
+  DTOs         UseCases           DTOs
+
+AFTER (CORRECT):
+Presentation → Domain → Data
+   ↓ (converts)  ↓
+  DTOs        Domain Models    ← DTOs/Entities
+```
+
+**Files Created** (1 total):
+| File | Lines | Purpose |
+|------|--------|---------|
+| FinancialItem.kt | +55 | Pure domain model for financial calculations |
+
+**Files Modified** (5 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| CalculateFinancialTotalsUseCase.kt | +1, -3 | Update imports, parameter types, property names |
+| ValidateFinancialDataUseCase.kt | +1, -3 | Update imports, parameter types, property names |
+| CalculateFinancialSummaryUseCase.kt | +1, -3 | Update imports, parameter types, property names |
+| FinancialViewModel.kt | +3, -3 | Update imports, parameter type, constructor |
+| LaporanActivity.kt | +2, -1 | Add FinancialItem import, add conversion logic |
+
+**Code Changes Summary**:
+- Removed 3 imports of `com.example.iurankomplek.data.dto.LegacyDataItemDto` from domain layer
+- Added 3 imports of `com.example.iurankomplek.domain.model.FinancialItem` to domain layer
+- Updated 4 method signatures to use `List<FinancialItem>` instead of `List<LegacyDataItemDto>`
+- Updated 15 property accesses (snake_case → camelCase)
+- Added 2 conversion methods to FinancialItem companion object
+- Added 1 conversion call in LaporanActivity
+
+**Benefits**:
+1. Clean Architecture Compliance: Domain layer now independent of data layer
+2. Testability: Domain models and use cases can be tested without data layer dependencies
+3. Maintainability: Clear layer boundaries, easier to reason about code
+4. Single Responsibility: Each layer has clear responsibility
+5. Dependency Inversion: Domain layer depends only on abstractions (domain models)
+6. SOLID Compliance: Follows Dependency Inversion Principle
+
+**Architecture Best Practices Followed ✅**:
+- ✅ Clean Architecture: Proper layer separation
+- ✅ Domain Independence: Domain models don't depend on data layer
+- ✅ Dependency Inversion: Domain layer depends on abstractions (domain models)
+- ✅ Single Responsibility: Each layer has one clear responsibility
+- ✅ Open/Closed: Domain layer open for extension, closed for modification
+
+**Anti-Patterns Eliminated**:
+- ✅ No more domain layer depending on data layer DTOs
+- ✅ No more circular dependencies between layers
+- ✅ No more mixing concerns across layers
+- ✅ No more tight coupling between domain and data layers
+
+**Success Criteria**:
+- [x] FinancialItem domain model created with validation
+- [x] CalculateFinancialTotalsUseCase uses FinancialItem
+- [x] ValidateFinancialDataUseCase uses FinancialItem
+- [x] CalculateFinancialSummaryUseCase uses FinancialItem
+- [x] FinancialViewModel accepts FinancialItem
+- [x] LaporanActivity converts DTOs to domain models
+- [x] Domain layer no longer imports data.dto package
+- [x] Documentation updated (task.md, blueprint.md)
+
+**Dependencies**: None (independent architectural refactoring)
+**Documentation**: Updated docs/task.md with ARCH-007 completion
+**Impact**: HIGH - Critical Clean Architecture compliance improvement, domain layer now independent of data layer, proper layer separation, improved testability and maintainability
+
+---
+
 ## Performance Engineer Tasks - 2026-01-11
 
 ---
