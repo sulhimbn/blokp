@@ -1,6 +1,8 @@
 package com.example.iurankomplek
 
 import androidx.recyclerview.widget.ListAdapter
+import com.example.iurankomplek.presentation.adapter.LaporanSummaryAdapter
+import com.example.iurankomplek.presentation.adapter.LaporanSummaryItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
@@ -22,9 +24,7 @@ class LaporanSummaryAdapterTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        adapter = LaporanSummaryAdapter(
-            coroutineScope = TestScope(testDispatcher)
-        )
+        adapter = LaporanSummaryAdapter()
     }
 
     @After

@@ -73,64 +73,47 @@ class FoundationInfrastructureTest {
 
     @Test
     fun `test data validator sanitizes inputs properly`() {
-        val validator = DataValidator
-        
         // Test name sanitization
-        val sanitized1 = validator.sanitizeName("<script>alert('XSS')</script>John")
+        val sanitized1 = InputSanitizer.sanitizeName("<script>alert('XSS')</script>John")
         assertNotEquals("Script should be sanitized", "<script>alert('XSS')</script>John", sanitized1)
-        
+
         // Test email sanitization
-        val sanitized2 = validator.sanitizeEmail("test@;DROP TABLE users;")
+        val sanitized2 = InputSanitizer.sanitizeEmail("test@;DROP TABLE users;")
         assertEquals("Invalid email should be sanitized", "invalid@email.com", sanitized2)
-        
+
         // Test URL validation
-        assertFalse("JavaScript URL should be rejected", validator.isValidUrl("javascript:alert('XSS')"))
-        assertTrue("HTTPS URL should be accepted", validator.isValidUrl("https://example.com"))
+        assertFalse("JavaScript URL should be rejected", InputSanitizer.isValidUrl("javascript:alert('XSS')"))
+        assertTrue("HTTPS URL should be accepted", InputSanitizer.isValidUrl("https://example.com"))
     }
 
     @Test
-    fun `test logging utils are available`() {
-        // Test that logging utils can be called without exceptions
-        LoggingUtils.d("Test debug message", "FoundationTest")
-        LoggingUtils.i("Test info message", "FoundationTest")
-        LoggingUtils.w("Test warning message", "FoundationTest")
-        LoggingUtils.e("Test error message", null, "FoundationTest")
-        LoggingUtils.logNetworkSecurityWarning("Test security warning")
-        
-        // If we reach this point, logging worked without exceptions
-        assertTrue("Logging utilities should be accessible", true)
-    }
-
-    @Test
-    fun `test UI state companion object functions`() {
-        // Test that UiState companion object functions work correctly
-        val successState = UiState.success("test data")
+    fun `test UI state sealed class instances`() {
+        // Test that UiState sealed class instances work correctly
+        val successState = UiState.Success("test data")
         assertTrue("Success state should be created", successState is UiState.Success)
-        
-        val errorState = UiState.error("test error")
+
+        val errorState = UiState.Error("test error")
         assertTrue("Error state should be created", errorState is UiState.Error)
-        
-        val loadingState = UiState.loading()
+
+        val loadingState = UiState.Loading
         assertTrue("Loading state should be created", loadingState is UiState.Loading)
     }
 
     @Test
     fun `test security manager functionality`() {
-        val securityManager = SecurityManager
-        
         // Test security environment check
-        val isSecure = securityManager.isSecureEnvironment()
+        val isSecure = SecurityManager.isSecureEnvironment(context)
         assertTrue("Security manager should return boolean", isSecure is Boolean)
-        
+
         // Test certificate monitoring
-        securityManager.monitorCertificateExpiration()
-        
+        SecurityManager.monitorCertificateExpiration()
+
         // Test security configuration validation
-        val isValid = securityManager.validateSecurityConfiguration()
+        val isValid = SecurityManager.validateSecurityConfiguration()
         assertTrue("Security configuration should be valid", isValid)
-        
+
         // Test security threat detection
-        val threats = securityManager.checkSecurityThreats()
+        val threats = SecurityManager.checkSecurityThreats(context)
         assertTrue("Threats should be returned as a list", threats is List<*>)
     }
 

@@ -383,7 +383,7 @@ class EntityMapperTest {
         val result = EntityMapper.fromLegacyDto(dtoWithNegativeValues, userId = 1)
 
         // Assert - Note: This tests that the mapper preserves values even if they're invalid
-        // Validation should be handled by DataValidator
+        // Validation should be handled by InputSanitizer
         assertEquals(-100.0, result.second.iuranPerwarga, 0.0)
         assertEquals(-50.0, result.second.pengeluaranIuranWarga, 0.0)
     }
