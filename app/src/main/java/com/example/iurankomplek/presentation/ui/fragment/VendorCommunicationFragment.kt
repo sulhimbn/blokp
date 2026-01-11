@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.R
 import com.example.iurankomplek.core.base.BaseFragment
 import com.example.iurankomplek.databinding.FragmentVendorCommunicationBinding
+import com.example.iurankomplek.di.DependencyContainer
 import com.example.iurankomplek.presentation.adapter.VendorAdapter
 import com.example.iurankomplek.presentation.viewmodel.VendorViewModel
 import com.example.iurankomplek.utils.UiState
@@ -58,7 +59,7 @@ class VendorCommunicationFragment : BaseFragment<com.example.iurankomplek.model.
     }
 
     override fun initializeViewModel(viewModelProvider: ViewModelProvider) {
-        vendorViewModel = DependencyContainer.provideVendorViewModel()
+        vendorViewModel = com.example.iurankomplek.di.DependencyContainer.provideVendorViewModel()
     }
 
     override fun loadData() {
