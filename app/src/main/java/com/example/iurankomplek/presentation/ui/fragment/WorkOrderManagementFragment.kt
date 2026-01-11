@@ -14,14 +14,13 @@ import com.example.iurankomplek.model.WorkOrderResponse
 
 class WorkOrderManagementFragment : BaseFragment<WorkOrderResponse>() {
 
-    private var _binding: FragmentWorkOrderManagementBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding: FragmentWorkOrderManagementBinding
 
     private lateinit var workOrderAdapter: WorkOrderAdapter
     private lateinit var vendorViewModel: VendorViewModel
 
     override val recyclerView: RecyclerView
-        get() = binding.workOrderRecyclerView!!
+        get() = binding.workOrderRecyclerView
 
     override val progressBar: View
         get() = binding.root.findViewById(com.example.iurankomplek.R.id.progressBar)
@@ -34,7 +33,7 @@ class WorkOrderManagementFragment : BaseFragment<WorkOrderResponse>() {
         container: android.view.ViewGroup?,
         savedInstanceState: android.os.Bundle?
     ): View {
-        _binding = FragmentWorkOrderManagementBinding.inflate(inflater, container, false)
+        binding = FragmentWorkOrderManagementBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -66,6 +65,5 @@ class WorkOrderManagementFragment : BaseFragment<WorkOrderResponse>() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
     }
 }

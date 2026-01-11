@@ -13,14 +13,13 @@ import com.example.iurankomplek.utils.UiState
 
 class VendorCommunicationFragment : BaseFragment<com.example.iurankomplek.model.VendorResponse>() {
 
-    private var _binding: FragmentVendorCommunicationBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding: FragmentVendorCommunicationBinding
 
     private lateinit var vendorAdapter: VendorAdapter
     private lateinit var vendorViewModel: VendorViewModel
 
     override val recyclerView: RecyclerView
-        get() = binding.vendorRecyclerView!!
+        get() = binding.vendorRecyclerView
 
     override val progressBar: View
         get() = binding.root.findViewById(com.example.iurankomplek.R.id.progressBar)
@@ -33,13 +32,12 @@ class VendorCommunicationFragment : BaseFragment<com.example.iurankomplek.model.
         container: android.view.ViewGroup?,
         savedInstanceState: android.os.Bundle?
     ): View {
-        _binding = FragmentVendorCommunicationBinding.inflate(inflater, container, false)
+        binding = FragmentVendorCommunicationBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
     }
 
     override fun createAdapter(): RecyclerView.Adapter<*> {

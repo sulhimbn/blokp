@@ -15,14 +15,13 @@ import com.example.iurankomplek.model.CommunityPost
 
 class CommunityFragment : BaseFragment<List<CommunityPost>>() {
 
-    private var _binding: FragmentCommunityBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding: FragmentCommunityBinding
 
     private lateinit var adapter: CommunityPostAdapter
     private lateinit var viewModel: CommunityPostViewModel
 
     override val recyclerView: RecyclerView
-        get() = binding.rvCommunity!!
+        get() = binding.rvCommunity
 
     override val progressBar: View
         get() = binding.progressBar
@@ -35,7 +34,7 @@ class CommunityFragment : BaseFragment<List<CommunityPost>>() {
         container: android.view.ViewGroup?,
         savedInstanceState: android.os.Bundle?
     ): View {
-        _binding = FragmentCommunityBinding.inflate(inflater, container, false)
+        binding = FragmentCommunityBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -58,6 +57,5 @@ class CommunityFragment : BaseFragment<List<CommunityPost>>() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
     }
 }

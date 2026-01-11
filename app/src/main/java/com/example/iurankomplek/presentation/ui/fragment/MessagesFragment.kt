@@ -16,8 +16,7 @@ import com.example.iurankomplek.utils.Constants
 
 class MessagesFragment : BaseFragment<List<Message>>() {
 
-    private var _binding: FragmentMessagesBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding: FragmentMessagesBinding
 
     private lateinit var adapter: MessageAdapter
     private lateinit var viewModel: MessageViewModel
@@ -36,7 +35,7 @@ class MessagesFragment : BaseFragment<List<Message>>() {
         container: android.view.ViewGroup?,
         savedInstanceState: android.os.Bundle?
     ): View {
-        _binding = FragmentMessagesBinding.inflate(inflater, container, false)
+        binding = FragmentMessagesBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -59,6 +58,5 @@ class MessagesFragment : BaseFragment<List<Message>>() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
     }
 }

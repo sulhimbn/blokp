@@ -10,15 +10,14 @@ import com.example.iurankomplek.databinding.FragmentVendorPerformanceBinding
 
 class VendorPerformanceFragment : Fragment() {
 
-    private var _binding: FragmentVendorPerformanceBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding: FragmentVendorPerformanceBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentVendorPerformanceBinding.inflate(inflater, container, false)
+        binding = FragmentVendorPerformanceBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -30,6 +29,5 @@ class VendorPerformanceFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
     }
 }

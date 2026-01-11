@@ -15,8 +15,7 @@ import com.example.iurankomplek.model.Announcement
 
 class AnnouncementsFragment : BaseFragment<List<Announcement>>() {
 
-    private var _binding: FragmentAnnouncementsBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding: FragmentAnnouncementsBinding
 
     private lateinit var adapter: AnnouncementAdapter
     private lateinit var viewModel: AnnouncementViewModel
@@ -35,7 +34,7 @@ class AnnouncementsFragment : BaseFragment<List<Announcement>>() {
         container: android.view.ViewGroup?,
         savedInstanceState: android.os.Bundle?
     ): View {
-        _binding = FragmentAnnouncementsBinding.inflate(inflater, container, false)
+        binding = FragmentAnnouncementsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -58,6 +57,5 @@ class AnnouncementsFragment : BaseFragment<List<Announcement>>() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
     }
 }
