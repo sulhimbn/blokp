@@ -14,13 +14,15 @@ import com.example.iurankomplek.utils.NetworkUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.pow
-import kotlin.random.Random
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import javax.net.ssl.SSLException
 import retrofit2.Response
 
 abstract class BaseActivity : AppCompatActivity() {
+    companion object {
+        private val RANDOM = kotlin.random.Random
+    }
     private val errorHandler = ErrorHandler(this)
     private val accessibilityManager by lazy {
         getSystemService(android.view.accessibility.AccessibilityManager::class.java)
@@ -125,7 +127,7 @@ abstract class BaseActivity : AppCompatActivity() {
         retryCount: Int
     ) {
         val exponentialDelay = (initialDelayMs * 2.0.pow((retryCount - 1).toDouble())).toLong()
-        val jitter = (kotlin.random.Random.nextDouble() * initialDelayMs).toLong()
+        val jitter = (RANDOM.nextDouble() * initialDelayMs).toLong()
         val delay = minOf(exponentialDelay + jitter, maxDelayMs)
 
         val activityRef = WeakReference(this@BaseActivity)

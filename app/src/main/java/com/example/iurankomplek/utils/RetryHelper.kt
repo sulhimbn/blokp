@@ -13,6 +13,7 @@ sealed class ApiException(message: String, cause: Throwable? = null) : Exception
 }
 
 object RetryHelper {
+    private val RANDOM = kotlin.random.Random
 
     suspend fun <T : Any> executeWithRetry(
         apiCall: suspend () -> retrofit2.Response<T>,
@@ -90,7 +91,7 @@ object RetryHelper {
 
     private fun calculateDelay(currentRetry: Int): Long {
         val exponentialDelay = (Constants.Network.INITIAL_RETRY_DELAY_MS * 2.0.pow((currentRetry - 1).toDouble())).toLong()
-        val jitter = (kotlin.random.Random.nextDouble() * Constants.Network.INITIAL_RETRY_DELAY_MS).toLong()
+        val jitter = (RANDOM.nextDouble() * Constants.Network.INITIAL_RETRY_DELAY_MS).toLong()
         return minOf(exponentialDelay + jitter, Constants.Network.MAX_RETRY_DELAY_MS)
     }
 }

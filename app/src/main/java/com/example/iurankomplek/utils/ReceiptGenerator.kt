@@ -28,7 +28,7 @@ class ReceiptGenerator {
 
     private fun generateReceiptNumber(): String {
         val date = getDateFormat().format(Date())
-        val random = kotlin.random.Random.nextInt(Constants.Receipt.RANDOM_MAX - Constants.Receipt.RANDOM_MIN + 1) + Constants.Receipt.RANDOM_MIN
+        val random = RANDOM.nextInt(Constants.Receipt.RANDOM_MAX - Constants.Receipt.RANDOM_MIN + 1) + Constants.Receipt.RANDOM_MIN
         return "RCPT-$date-$random"
     }
 
@@ -43,6 +43,7 @@ class ReceiptGenerator {
         }
 
         private val BD_HUNDRED = java.math.BigDecimal("100")
+        private val RANDOM = kotlin.random.Random
     }
 
     private fun generateQRCode(transactionId: String): String {
