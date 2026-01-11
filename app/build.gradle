@@ -42,6 +42,10 @@ plugins {
             logger.warn("CERTIFICATE_PINNER not configured. Using default pins.")
         }
         buildConfigField "String", "CERTIFICATE_PINNER", "\"${certificatePinner ?: 'sha256/PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=;sha256/G9LNNAql897egYsabashkzUCTEJkWBzgoEtk8X/678c=;sha256/++MBgDH5WGvL9Bcn5Be30cRcL0f5O+NyoXuWtQdX1aI='}\""
+
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
+        }
     }
 
     configurations.all {
