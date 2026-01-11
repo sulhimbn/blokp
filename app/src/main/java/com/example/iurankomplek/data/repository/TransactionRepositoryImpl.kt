@@ -109,7 +109,7 @@ class TransactionRepositoryImpl(
         return try {
             val refundResult = paymentGateway.refundPayment(transactionId)
 
-            refundResult.onSuccess { _ ->
+            if (refundResult is OperationResult.Success) {
                 val originalTransaction = getTransactionById(transactionId)
                 if (originalTransaction != null) {
                     val refundedTransaction = originalTransaction.copy(

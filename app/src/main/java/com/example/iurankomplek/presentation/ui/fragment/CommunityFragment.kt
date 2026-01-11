@@ -21,7 +21,7 @@ class CommunityFragment : BaseFragment<List<CommunityPost>>() {
     private lateinit var viewModel: CommunityPostViewModel
 
     override val recyclerView: RecyclerView
-        get() = binding.rvCommunity
+        get() = binding.rvCommunity!!
 
     override val progressBar: View
         get() = binding.progressBar
@@ -41,8 +41,7 @@ class CommunityFragment : BaseFragment<List<CommunityPost>>() {
     override fun createAdapter(): RecyclerView.Adapter<*> = CommunityPostAdapter().also { adapter = it }
  
     override fun initializeViewModel(viewModelProvider: ViewModelProvider) {
-        val factory = com.example.iurankomplek.di.DependencyContainer.provideCommunityPostViewModel()
-        viewModel = ViewModelProvider(this, factory)[CommunityPostViewModel::class.java]
+        viewModel = DependencyContainer.provideCommunityPostViewModel()
     }
 
     override fun observeViewModelState() {

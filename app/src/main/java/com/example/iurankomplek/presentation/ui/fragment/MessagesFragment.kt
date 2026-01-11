@@ -42,8 +42,7 @@ class MessagesFragment : BaseFragment<List<Message>>() {
     override fun createAdapter(): RecyclerView.Adapter<*> = MessageAdapter().also { adapter = it }
  
     override fun initializeViewModel(viewModelProvider: ViewModelProvider) {
-        val factory = DependencyContainer.provideMessageViewModel()
-        viewModel = ViewModelProvider(this, factory)[MessageViewModel::class.java]
+        viewModel = DependencyContainer.provideMessageViewModel()
     }
 
     override fun observeViewModelState() {
