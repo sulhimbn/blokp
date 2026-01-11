@@ -37,14 +37,13 @@ class UserRepositoryImpl(
                         }
                     }
                 }
-
+                
                 val result = executeWithCircuitBreakerV1 { apiService.getUsers() }
                 if (result is OperationResult.Success) {
                     saveUsersToCache(result.data)
                 }
                 result
-            },
-            fallbackOperation = { getCachedUsersFallback() }
+            }
         )
     }
 

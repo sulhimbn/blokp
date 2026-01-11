@@ -39,14 +39,13 @@ class PemanfaatanRepositoryImpl(
                         }
                     }
                 }
-
+                
                 val result = executeWithCircuitBreakerV1 { apiService.getPemanfaatan() }
                 if (result is OperationResult.Success) {
                     savePemanfaatanToCache(result.data)
                 }
                 result
-            },
-            fallbackOperation = { getCachedPemanfaatanFallback() }
+            }
         )
     }
 

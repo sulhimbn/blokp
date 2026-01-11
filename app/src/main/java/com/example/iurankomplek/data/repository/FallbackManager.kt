@@ -122,6 +122,8 @@ abstract class CachedDataFallback<T> : FallbackStrategy<T> {
     abstract suspend fun getCachedData(): T?
     
     override suspend fun getFallback(): T? = getCachedData()
+    override val isEnabled: Boolean = true
+    override val priority: Int = 50
 }
 
 abstract class StaticDataFallback<T>(private val staticData: T) : FallbackStrategy<T> {
