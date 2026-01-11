@@ -644,7 +644,8 @@ app/
 - ✅ String templates in adapters (NEW 2026-01-10 - Performance Optimization Module 95)
 - ✅ UserAdapter string templates completed (NEW 2026-01-10 - Performance Optimization Module 96)
 - ✅ NumberFormat cached in InputSanitizer (NEW 2026-01-11 - Performance Optimization Module 97)
- 
+- ✅ Regex patterns cached in EntityValidator (NEW 2026-01-11 - Performance Optimization Module 98)
+   
 ### Performance Best Practices ✅
 - ✅ No memory leaks in adapters
 - ✅ Proper view recycling
@@ -2599,9 +2600,148 @@ Performance bottlenecks in RecyclerView adapter implementations:
 **Dependencies**: None (independent adapter optimization, improves UI performance)
 **Documentation**: Updated docs/blueprint.md with Adapter Performance Optimization Module 92
 **Impact**: HIGH - Critical UI performance improvement, 92.4% allocation reduction, significantly smoother scrolling, reduced GC pressure
-
+ 
 ---
+ 
+### Regex Pattern Caching Optimization Module ✅ (Module 98 - PERF-008 - 2026-01-11)
 
+**Issue Identified:**
+- `isValidEmail()` created new Regex object on every call (line 95)
+- `isValidUrl()` created new Regex object on every call (line 103)
+- Regex compilation is expensive (pattern parsing, optimization, state machine generation)
+- Validation methods called frequently during data processing
+- EntityValidator.validateUser() calls isValidEmail() for every user
+- EntityValidator.validateUserWithFinancials() calls validateUser() for each user
+- DatabaseIntegrityValidator uses EntityValidator for integrity checks
+- Unnecessary object allocations and CPU overhead on every validation
+
+**Root Cause Analysis:**
+Performance bottleneck in EntityValidator validation hot path:
+1. **Regex Compilation Pattern**:
+   * Line 95: `val emailPattern = Regex("...")` in isValidEmail()
+   * Line 103: `val urlPattern = Regex("...")` in isValidUrl()
+   * Each call compiles regex pattern from scratch
+   * Pattern parsing: O(m) where m = pattern length
+   * Optimization: O(n) where n = pattern complexity
+   * State machine generation: Creates automaton for pattern matching
+
+2. **Usage Frequency**:
+   * validateUser() → calls isValidEmail() → creates Regex
+   * validateUser() → calls isValidUrl() → creates Regex
+   * validateUserWithFinancials() → calls validateUser() → creates 2 Regex
+   * validateUserList() → iterates users → creates 2 * userCount Regex objects
+   * DatabaseIntegrityValidator → uses EntityValidator → creates Regex objects
+
+3. **Impact Scenarios**:
+   * Single user: 2 Regex allocations
+   * 100 users: 200 Regex allocations
+   * 1000 users: 2000 Regex allocations
+   * Bulk validation: Significant memory pressure and GC overhead
+
+**Solution Implemented:**
+
+**1. Cached Regex Patterns as Companion Object Properties** (EntityValidator.kt lines 9-10):
+```kotlin
+// BEFORE (created on every call):
+private fun isValidEmail(email: String): Boolean {
+    val emailPattern = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+    return emailPattern.matches(email)
+}
+
+private fun isValidUrl(url: String): Boolean {
+    val urlPattern = Regex("^https?://[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)+.*$")
+    return urlPattern.matches(url)
+}
+
+// AFTER (compiled once at class load):
+private val EMAIL_PATTERN = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+private val URL_PATTERN = Regex("^https?://[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)+.*$")
+
+private fun isValidEmail(email: String): Boolean {
+    return EMAIL_PATTERN.matches(email)
+}
+
+private fun isValidUrl(url: String): Boolean {
+    return URL_PATTERN.matches(url)
+}
+```
+
+2. **Benefits of Pattern Caching**:
+   - Patterns compiled once when class is loaded (static initialization)
+   - Zero Regex allocations during validation calls
+   - No regex compilation overhead after first class load
+   - Thread-safe: Companion object properties are JVM static final
+
+**Performance Improvements:**
+
+**Memory Efficiency:**
+- **Before**: 2 new Regex allocations per validation call (email + URL)
+- **After**: 0 new Regex allocations (patterns compiled once at class load)
+- **Reduction**: 100% reduction in Regex allocations during validation
+- **GC Pressure**: Eliminated temporary Regex objects during bulk validation
+
+**CPU Efficiency:**
+- **Before**: Regex compilation on every validation call
+  * Pattern parsing: O(m) where m = pattern length
+  * Pattern optimization: O(n) where n = pattern complexity
+  * State machine generation: Creates automaton for pattern matching
+- **After**: No compilation overhead after first class load
+- **Savings**: Eliminates regex compilation overhead for all validation calls after initialization
+- **Validation Speed**: ~50-100ms saved for every 100 users validated (estimated)
+
+**Impact Scenarios:**
+
+| Scenario | Before (Allocations) | After (Allocations) | Reduction |
+|----------|----------------------|---------------------|------------|
+| Single User | 2 Regex objects | 0 Regex objects | 100% |
+| 100 Users | 200 Regex objects | 0 Regex objects | 100% |
+| 1000 Users | 2000 Regex objects | 0 Regex objects | 100% |
+| Bulk Validation | N * 2 Regex objects | 0 Regex objects | 100% |
+
+**Architecture Improvements:**
+- ✅ **Resource Efficiency**: Pre-compiled Regex patterns reused across all validations
+- ✅ **Performance Consistency**: No runtime regex compilation overhead
+- ✅ **Best Practice**: Follows Kotlin optimization guidelines
+- ✅ **Pattern Consistency**: Aligns with InputSanitizer (also caches Regex patterns at lines 15-20)
+- ✅ **Thread Safety**: Companion object properties are thread-safe (JVM guarantees)
+
+**Anti-Patterns Eliminated:**
+- ✅ No more Regex allocation on every method call
+- ✅ No more unnecessary object creation in validation hot path
+- ✅ No more redundant regex compilation overhead
+- ✅ No more GC pressure from temporary Regex objects
+
+**Files Modified** (1 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| EntityValidator.kt | +4, -4 | Cached EMAIL_PATTERN and URL_PATTERN as companion object properties |
+
+**Code Quality Improvements:**
+- ✅ **Caching Pattern**: Immutable companion object properties for regex patterns
+- ✅ **Single Responsibility**: isValidEmail/isValidUrl only validate, don't compile
+- ✅ **Reusability**: Patterns shared across all validation calls
+- ✅ **Consistency**: Matches InputSanitizer pattern (EMAIL_PATTERN, SANITIZATION_PATTERN)
+
+**Success Criteria:**
+- Regex patterns cached as companion object properties
+- isValidEmail() uses cached EMAIL_PATTERN
+- isValidUrl() uses cached URL_PATTERN
+- All existing functionality preserved
+- No breaking API changes
+- Changes committed and pushed to agent branch
+- Documentation updated (task.md, blueprint.md)
+
+**Dependencies**: None (independent optimization, no API changes, no external dependencies)
+**Documentation**: Updated docs/task.md with PERF-008 completion, updated docs/blueprint.md with Module 98
+**Impact**: MEDIUM - Eliminates regex compilation overhead during validation, reduces temporary object allocations, improves data validation performance, aligns with existing InputSanitizer pattern
+
+**Follow-up Opportunities:**
+- Monitor validation performance in production to verify improvement
+- Consider similar regex caching in other validation classes (if found)
+- Profile EntityValidator usage patterns for additional optimization opportunities
+ 
+---
+ 
 ### Handler Memory Leak Fix Module ✅ (Module 94 - 2026-01-08)
 
 **Critical Performance Issue Identified:**
