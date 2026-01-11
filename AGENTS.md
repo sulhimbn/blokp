@@ -4,6 +4,57 @@ This file provides guidance to agents when working with code in this repository.
 
 ## Known Issues & Solutions
 
+### SAN-002: Fix Coroutine Blocking Anti-Pattern in MockPaymentGateway (RESOLVED 2026-01-11)
+**Problem**: MockPaymentGateway used Thread.sleep() in a suspend function, blocking coroutine threads.
+
+**Root Cause**:
+- `Thread.sleep(500)` blocks the underlying thread for 500ms
+- In suspend function, Thread.sleep prevents coroutine dispatcher from doing work
+- Violates Kotlin coroutines best practices for structured concurrency
+- Blocks coroutine dispatcher thread, preventing other coroutines from running
+- Performance impact: Blocking thread delays other async operations
+
+**Solution Implemented**:
+1. **Replaced Thread.sleep with delay** (MockPaymentGateway.kt):
+   - Changed `Thread.sleep(500)` to `delay(500)`
+   - `delay()` is coroutine-friendly and doesn't block threads
+   - Added `import kotlinx.coroutines.delay`
+   - Removed unused `import java.util.Date`
+
+**Files Modified** (1 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| MockPaymentGateway.kt | +2, -2 | Replace Thread.sleep with delay, remove unused import |
+
+**Code Improvements**:
+- ✅ **Coroutine-Friendly**: delay() doesn't block thread dispatcher
+- ✅ **Structured Concurrency**: Follows Kotlin coroutines best practices
+- ✅ **Performance**: Non-blocking delay allows other coroutines to run
+- ✅ **Cleaner Code**: Removed unused import
+
+**Anti-Patterns Eliminated**:
+- ✅ No more Thread.sleep() in suspend functions
+- ✅ No more coroutine thread blocking in async code
+- ✅ No more violation of structured concurrency principles
+
+**Benefits**:
+1. **Performance**: Non-blocking delay allows efficient coroutine scheduling
+2. **Scalability**: Dispatcher thread available for other coroutines
+3. **Best Practices**: Follows Kotlin coroutines recommendations
+4. **Responsiveness**: Better async operation scheduling
+
+**Success Criteria**:
+- [x] Thread.sleep(500) replaced with delay(500)
+- [x] kotlinx.coroutines.delay import added
+- [x] Unused java.util.Date import removed
+- [x] Changes committed and pushed to agent branch
+
+**Dependencies**: kotlinx.coroutines.delay (standard coroutines library)
+**Documentation**: Updated AGENTS.md with SAN-002 completion
+**Impact**: MEDIUM - Fixes coroutine blocking anti-pattern, improves async operation efficiency, follows Kotlin coroutines best practices
+
+---
+
 ### SAN-001: Remove Dead Code - BaseRepositoryV3.kt and Unused BaseRepository Methods (RESOLVED 2026-01-11)
 **Problem**: BaseRepositoryV3.kt (174 lines) and unused methods in BaseRepository.kt (71 lines) accumulated as dead code, increasing maintenance burden.
 

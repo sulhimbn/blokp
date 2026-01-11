@@ -5,6 +5,92 @@ Track architectural refactoring tasks and their status.
 
 ---
 
+## Code Sanitizer Tasks - 2026-01-11
+
+---
+
+### ✅ SAN-002: Fix Coroutine Blocking Anti-Pattern in MockPaymentGateway - 2026-01-11
+**Status**: Completed
+**Completed Date**: 2026-01-11
+**Priority**: HIGH (Code Quality & Performance)
+**Estimated Time**: 15 minutes (completed in 10 minutes)
+**Description**: Fix Thread.sleep blocking in suspend function
+
+**Issue Identified**:
+- `MockPaymentGateway.kt:11` used `Thread.sleep(500)` in suspend function
+- `Thread.sleep()` blocks the underlying thread for 500ms
+- In suspend function, Thread.sleep prevents coroutine dispatcher from doing work
+- Violates Kotlin coroutines best practices for structured concurrency
+- Blocks coroutine dispatcher thread, preventing other coroutines from running
+- Performance impact: Blocking thread delays other async operations
+
+**Critical Path Analysis**:
+- MockPaymentGateway is used in tests and debug builds
+- Thread.sleep blocks coroutine dispatcher thread instead of yielding
+- Suspended functions should use coroutine-friendly `delay()` instead
+- This anti-pattern affects all async operations using MockPaymentGateway
+- Prevents coroutine dispatcher from efficiently managing thread pool
+
+**Solution Implemented**:
+
+**1. Replaced Thread.sleep with delay**:
+```kotlin
+// BEFORE (BLOCKING):
+Thread.sleep(500)
+
+// AFTER (COROUTINE-FRIENDLY):
+delay(500)
+```
+
+**2. Removed Unused Import**:
+```kotlin
+// BEFORE:
+import java.util.Date
+
+// AFTER (removed - unused)
+```
+
+**Performance Improvements**:
+- **Thread Efficiency**: Non-blocking delay allows coroutine dispatcher to schedule other work
+- **Scalability**: Thread can be used for other coroutines during delay
+- **Best Practices**: Follows Kotlin structured concurrency guidelines
+- **Responsiveness**: Better async operation scheduling across coroutine pool
+
+**Architecture Best Practices Followed ✅**:
+- ✅ **Structured Concurrency**: Use delay() instead of Thread.sleep() in suspend functions
+- ✅ **Non-Blocking Operations**: Coroutines can be scheduled during delay
+- ✅ **Clean Imports**: Removed unused java.util.Date import
+- ✅ **Idiomatic Kotlin**: Use coroutine-friendly delay function
+
+**Anti-Patterns Eliminated**:
+- ✅ No more Thread.sleep() in suspend functions
+- ✅ No more coroutine thread blocking in async code
+- ✅ No more violation of structured concurrency principles
+
+**Benefits**:
+1. **Performance**: Non-blocking delay allows efficient coroutine scheduling
+2. **Scalability**: Dispatcher thread available for other coroutines
+3. **Best Practices**: Follows Kotlin coroutines recommendations
+4. **Responsiveness**: Better async operation scheduling
+
+**Files Modified** (1 total):
+| File | Lines Changed | Changes |
+|------|---------------|---------|
+| MockPaymentGateway.kt | +2, -2 | Replace Thread.sleep with delay, remove unused import |
+
+**Success Criteria**:
+- [x] Thread.sleep(500) replaced with delay(500)
+- [x] kotlinx.coroutines.delay import added
+- [x] Unused java.util.Date import removed
+- [x] Changes committed and pushed to agent branch
+- [x] Documentation updated (AGENTS.md, task.md)
+
+**Dependencies**: kotlinx.coroutines.delay (standard coroutines library)
+**Documentation**: Updated AGENTS.md and docs/task.md with SAN-002 completion
+**Impact**: MEDIUM - Fixes coroutine blocking anti-pattern, improves async operation efficiency, follows Kotlin coroutines best practices
+
+---
+
 ## Technical Writer Tasks - 2026-01-11
 
 ---
