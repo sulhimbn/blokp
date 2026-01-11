@@ -13,6 +13,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import androidx.fragment.app.Fragment
 
@@ -21,7 +22,7 @@ import androidx.fragment.app.Fragment
 class CommunicationActivityTest {
 
     private lateinit var activity: CommunicationActivity
-    private lateinit var controller: RobolectricTestRunner.ActivityController<CommunicationActivity>
+    private lateinit var controller: ActivityController<CommunicationActivity>
 
     @Before
     fun setup() {

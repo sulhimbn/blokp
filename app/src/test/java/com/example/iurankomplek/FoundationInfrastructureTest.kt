@@ -11,6 +11,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import java.util.concurrent.TimeUnit
+import kotlin.reflect.full.isAbstract
 
 /**
  * Test suite to verify foundation infrastructure components are properly implemented
@@ -45,7 +46,7 @@ class FoundationInfrastructureTest {
     @Test
     fun `test base viewmodel abstract class exists`() {
         // Verify BaseViewModel abstract class exists
-        assertTrue("BaseViewModel should be an abstract class", BaseViewModel::class.java.isAbstract)
+        assertTrue("BaseViewModel should be an abstract class", BaseViewModel::class.isAbstract)
     }
 
     @Test
@@ -61,11 +62,11 @@ class FoundationInfrastructureTest {
         // Test Success case
         val successResult = OperationResult.Success("test")
         assertTrue("Success result should be instance of OperationResult", successResult is OperationResult.Success)
-        
+
         // Test Error case
-        val errorResult = OperationResult.Error(Exception("test"))
+        val errorResult = OperationResult.Error(Exception("test"), "test")
         assertTrue("Error result should be instance of OperationResult", errorResult is OperationResult.Error)
-        
+
         // Test Loading case
         val loadingResult = OperationResult.Loading
         assertTrue("Loading result should be instance of OperationResult", loadingResult is OperationResult.Loading)

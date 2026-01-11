@@ -3,6 +3,7 @@ package com.example.iurankomplek
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.example.iurankomplek.data.dto.LegacyDataItemDto
+import com.example.iurankomplek.domain.usecase.LoadFinancialDataUseCase
 import com.example.iurankomplek.presentation.viewmodel.FinancialViewModel
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
@@ -26,6 +27,9 @@ class FinancialViewModelTest {
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Mock
+    private lateinit var mockLoadFinancialDataUseCase: LoadFinancialDataUseCase
+
+    @Mock
     private lateinit var mockUserObserver: Observer<String>
 
     private lateinit var viewModel: FinancialViewModel
@@ -33,7 +37,7 @@ class FinancialViewModelTest {
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        viewModel = FinancialViewModel()
+        viewModel = FinancialViewModel(mockLoadFinancialDataUseCase)
     }
 
     @Test

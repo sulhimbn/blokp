@@ -4,9 +4,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.iurankomplek.model.Message
 import org.junit.Assert.*
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -14,6 +16,10 @@ import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
 class MessageAdapterTest {
+
+    @get:Rule
+    @Suppress("unused")
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Mock
     private lateinit var inflater: LayoutInflater
@@ -374,12 +380,6 @@ class MessageAdapterTest {
     }
 
     private fun advanceExecutor() {
-        val executor = androidx.arch.core.executor.ArchTaskExecutor.getInstance()
-        try {
-            androidx.arch.core.executor.ArchTaskExecutor.getInstance().executeOnDiskIO(
-                androidx.arch.core.internal.FastSafeRunnable {}
-            )
-        } catch (e: Exception) {
-        }
+        Thread.sleep(50)
     }
 }

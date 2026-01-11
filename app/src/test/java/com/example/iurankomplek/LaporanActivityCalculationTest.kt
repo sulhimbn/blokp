@@ -13,9 +13,9 @@ class LaporanActivityCalculationTest {
     fun testTotalIuranIndividuCalculation_accumulatesCorrectly() {
         // Test data with multiple items to verify accumulation
         val testItems = listOf(
-            LegacyDataItemDto(iuran_perwarga = 100, total_iuran_individu = 50, pengeluaran_iuran_warga = 25),
-            LegacyDataItemDto(iuran_perwarga = 200, total_iuran_individu = 75, pengeluaran_iuran_warga = 30),
-            LegacyDataItemDto(iuran_perwarga = 300, total_iuran_individu = 100, pengeluaran_iuran_warga = 45)
+            LegacyDataItemDto(first_name = "John", last_name = "Doe", email = "john@example.com", alamat = "123 St", iuran_perwarga = 100, total_iuran_rekap = 150, jumlah_iuran_bulanan = 50, total_iuran_individu = 50, pengeluaran_iuran_warga = 25, pemanfaatan_iuran = "Test", avatar = "url"),
+            LegacyDataItemDto(first_name = "Jane", last_name = "Smith", email = "jane@example.com", alamat = "456 Ave", iuran_perwarga = 200, total_iuran_rekap = 225, jumlah_iuran_bulanan = 75, total_iuran_individu = 75, pengeluaran_iuran_warga = 30, pemanfaatan_iuran = "Test", avatar = "url"),
+            LegacyDataItemDto(first_name = "Bob", last_name = "Johnson", email = "bob@example.com", alamat = "789 Blvd", iuran_perwarga = 300, total_iuran_rekap = 300, jumlah_iuran_bulanan = 100, total_iuran_individu = 100, pengeluaran_iuran_warga = 45, pemanfaatan_iuran = "Test", avatar = "url")
         )
 
         // Simulate the calculation logic from LaporanActivity
@@ -42,7 +42,7 @@ class LaporanActivityCalculationTest {
     fun testTotalIuranIndividuCalculation_singleItem() {
         // Test with single item to ensure it doesn't just take last item but properly accumulates
         val testItems = listOf(
-            LegacyDataItemDto(iuran_perwarga = 100, total_iuran_individu = 50, pengeluaran_iuran_warga = 25)
+            LegacyDataItemDto(first_name = "Test", last_name = "User", email = "test@example.com", alamat = "Test Addr", iuran_perwarga = 100, total_iuran_rekap = 150, jumlah_iuran_bulanan = 50, total_iuran_individu = 50, pengeluaran_iuran_warga = 25, pemanfaatan_iuran = "Test", avatar = "url")
         )
 
         var totalIuranBulanan = 0
@@ -86,9 +86,9 @@ class LaporanActivityCalculationTest {
         // This test verifies that each item's total_iuran_individu is multiplied by 3
         // and then accumulated to the running total (not just assigned)
         val testItems = listOf(
-            LegacyDataItemDto(iuran_perwarga = 100, total_iuran_individu = 10, pengeluaran_iuran_warga = 5),
-            LegacyDataItemDto(iuran_perwarga = 200, total_iuran_individu = 20, pengeluaran_iuran_warga = 10),
-            LegacyDataItemDto(iuran_perwarga = 300, total_iuran_individu = 30, pengeluaran_iuran_warga = 15)
+            LegacyDataItemDto(first_name = "Test1", last_name = "User1", email = "test1@example.com", alamat = "Addr1", iuran_perwarga = 100, total_iuran_rekap = 30, jumlah_iuran_bulanan = 10, total_iuran_individu = 10, pengeluaran_iuran_warga = 5, pemanfaatan_iuran = "Test", avatar = "url"),
+            LegacyDataItemDto(first_name = "Test2", last_name = "User2", email = "test2@example.com", alamat = "Addr2", iuran_perwarga = 200, total_iuran_rekap = 60, jumlah_iuran_bulanan = 20, total_iuran_individu = 20, pengeluaran_iuran_warga = 10, pemanfaatan_iuran = "Test", avatar = "url"),
+            LegacyDataItemDto(first_name = "Test3", last_name = "User3", email = "test3@example.com", alamat = "Addr3", iuran_perwarga = 300, total_iuran_rekap = 90, jumlah_iuran_bulanan = 30, total_iuran_individu = 30, pengeluaran_iuran_warga = 15, pemanfaatan_iuran = "Test", avatar = "url")
         )
 
         var totalIuranBulanan = 0
@@ -117,8 +117,8 @@ class LaporanActivityCalculationTest {
         // Test to verify the bug fix in payment integration where payments were incorrectly
         // added to iuran totals, inflating the financial calculations
         val testItems = listOf(
-            LegacyDataItemDto(iuran_perwarga = 100, total_iuran_individu = 10, pengeluaran_iuran_warga = 5),
-            LegacyDataItemDto(iuran_perwarga = 200, total_iuran_individu = 20, pengeluaran_iuran_warga = 10)
+            LegacyDataItemDto(first_name = "Test1", last_name = "User1", email = "test1@example.com", alamat = "Addr1", iuran_perwarga = 100, total_iuran_rekap = 30, jumlah_iuran_bulanan = 10, total_iuran_individu = 10, pengeluaran_iuran_warga = 5, pemanfaatan_iuran = "Test", avatar = "url"),
+            LegacyDataItemDto(first_name = "Test2", last_name = "User2", email = "test2@example.com", alamat = "Addr2", iuran_perwarga = 200, total_iuran_rekap = 60, jumlah_iuran_bulanan = 20, total_iuran_individu = 20, pengeluaran_iuran_warga = 10, pemanfaatan_iuran = "Test", avatar = "url")
         )
 
         // Calculate the base financial values without payment integration
