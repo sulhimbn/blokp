@@ -18,7 +18,7 @@ class CompressionInterceptor(
 ) : Interceptor {
 
     private val tag = "CompressionInterceptor"
-    private val contentEncoding = "gzip"
+    private val gzipEncoding = "gzip"
     private val contentType = "Content-Type"
     private val acceptEncoding = "Accept-Encoding"
     private val contentEncoding = "Content-Encoding"
@@ -37,7 +37,7 @@ class CompressionInterceptor(
                 val compressedBody = compress(body)
                 request = originalRequest.newBuilder()
                     .method(originalRequest.method, compressedBody)
-                    .header(contentEncoding, contentEncoding)
+                    .header(contentEncoding, gzipEncoding)
                     .build()
 
                 if (enableLogging) {
@@ -55,7 +55,7 @@ class CompressionInterceptor(
 
         response.body?.let { responseBody ->
             val encoding = response.header(contentEncoding)
-            if (encoding != null && encoding.contains(contentEncoding)) {
+            if (encoding != null && encoding.contains(gzipEncoding)) {
                 if (enableLogging) {
                     android.util.Log.d(tag, buildString {
                         append("Response decompressed\n")
@@ -106,7 +106,7 @@ class CompressionInterceptor(
                 body.writeTo(buffer)
                 val gzippedBuffer = Buffer()
                 val gzipOutputStream = GZIPOutputStream(gzippedBuffer.outputStream())
-                buffer.readFrom(gzipOutputStream)
+                buffer.inputStream().copyTo(gzipOutputStream)
                 gzipOutputStream.close()
                 return gzippedBuffer.size
             }
