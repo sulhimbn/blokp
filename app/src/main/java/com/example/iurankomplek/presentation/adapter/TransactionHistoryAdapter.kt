@@ -8,6 +8,7 @@ import com.example.iurankomplek.databinding.ItemTransactionHistoryBinding
 import com.example.iurankomplek.payment.PaymentStatus
 import com.example.iurankomplek.data.entity.Transaction
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
 import java.util.Locale
 
 class TransactionHistoryAdapter(
@@ -19,6 +20,7 @@ class TransactionHistoryAdapter(
     companion object {
         private val CURRENCY_FORMATTER = NumberFormat.getCurrencyInstance(Locale("in", "ID"))
         private val BD_HUNDRED = java.math.BigDecimal("100")
+        private val DATE_FORMATTER = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.US)
     }
 
     override fun createViewHolderInternal(parent: ViewGroup): TransactionViewHolder {
@@ -45,7 +47,7 @@ class TransactionHistoryAdapter(
             val formattedAmount = CURRENCY_FORMATTER.format(amountInCurrency)
             binding.tvAmount.text = formattedAmount
             binding.tvDescription.text = transaction.description
-            binding.tvDate.text = transaction.createdAt.toString()
+            binding.tvDate.text = DATE_FORMATTER.format(transaction.createdAt)
             binding.tvStatus.text = transaction.status.name
             binding.tvPaymentMethod.text = transaction.paymentMethod.name
 
