@@ -240,15 +240,15 @@ class RateLimiterTest {
         assertTrue("First request allowed", allowed)
         
         // Second request should be blocked
-        (allowed, _) = limiter.tryAcquire()
-        assertFalse("Second request blocked", allowed)
+        val (allowed2, _) = limiter.tryAcquire()
+        assertFalse("Second request blocked", allowed2)
         
         // Wait for refill
         Thread.sleep(1100L)
         
         // Should be allowed again
-        (allowed, _) = limiter.tryAcquire()
-        assertTrue("Request allowed after refill", allowed)
+        val (allowed3, _) = limiter.tryAcquire()
+        assertTrue("Request allowed after refill", allowed3)
     }
     
     @Test

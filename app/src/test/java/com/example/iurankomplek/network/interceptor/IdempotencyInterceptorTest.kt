@@ -29,7 +29,7 @@ class IdempotencyInterceptorTest {
 
     @Test
     fun `POST request should include Idempotency-Key header`() {
-        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{\"success\":true\"}"))
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{\"success\":true}"))
         mockWebServer.start()
 
         val request = Request.Builder()
@@ -49,11 +49,11 @@ class IdempotencyInterceptorTest {
 
     @Test
     fun `PUT request should include Idempotency-Key header`() {
-        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{\"success\":true\"}"))
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{\"success\":true}"))
         mockWebServer.start()
 
         val request = Request.Builder()
-            .url("${mockWebServer.url("/api/v1/vendors/123\")}")
+            .url("${mockWebServer.url("/api/v1/vendors/123")}")
             .put(okhttp3.RequestBody.create(null, "{\"name\":\"test\"}"))
             .build()
 
@@ -69,11 +69,11 @@ class IdempotencyInterceptorTest {
 
     @Test
     fun `DELETE request should include Idempotency-Key header`() {
-        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{\"success\":true\"}"))
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{\"success\":true}"))
         mockWebServer.start()
 
         val request = Request.Builder()
-            .url("${mockWebServer.url("/api/v1/messages/123\")}")
+            .url("${mockWebServer.url("/api/v1/messages/123")}")
             .delete(okhttp3.RequestBody.create(null, ""))
             .build()
 
@@ -89,11 +89,11 @@ class IdempotencyInterceptorTest {
 
     @Test
     fun `PATCH request should include Idempotency-Key header`() {
-        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{\"success\":true\"}"))
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{\"success\":true}"))
         mockWebServer.start()
 
         val request = Request.Builder()
-            .url("${mockWebServer.url("/api/v1/payments/123\")}")
+            .url("${mockWebServer.url("/api/v1/payments/123")}")
             .patch(okhttp3.RequestBody.create(null, "{\"status\":\"PAID\"}"))
             .build()
 
@@ -113,7 +113,7 @@ class IdempotencyInterceptorTest {
         mockWebServer.start()
 
         val request = Request.Builder()
-            .url("${mockWebServer.url("/api/v1/users\")}")
+            .url("${mockWebServer.url("/api/v1/users")}")
             .get()
             .build()
 
@@ -128,17 +128,17 @@ class IdempotencyInterceptorTest {
 
     @Test
     fun `Idempotency-Key should be unique per request`() {
-        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{\"success\":true\"}"))
-        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{\"success\":true\"}"))
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{\"success\":true}"))
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{\"success\":true}"))
         mockWebServer.start()
 
         val request1 = Request.Builder()
-            .url("${mockWebServer.url("/api/v1/messages\")}")
+            .url("${mockWebServer.url("/api/v1/messages")}")
             .post(okhttp3.RequestBody.create(null, "{\"message\":\"test1\"}"))
             .build()
 
         val request2 = Request.Builder()
-            .url("${mockWebServer.url("/api/v1/messages\")}")
+            .url("${mockWebServer.url("/api/v1/messages")}")
             .post(okhttp3.RequestBody.create(null, "{\"message\":\"test2\"}"))
             .build()
 
@@ -160,11 +160,11 @@ class IdempotencyInterceptorTest {
 
     @Test
     fun `Idempotency-Key should contain timestamp`() {
-        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{\"success\":true\"}"))
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{\"success\":true}"))
         mockWebServer.start()
 
         val request = Request.Builder()
-            .url("${mockWebServer.url("/api/v1/messages\")}")
+            .url("${mockWebServer.url("/api/v1/messages")}")
             .post(okhttp3.RequestBody.create(null, "{\"message\":\"test\"}"))
             .build()
 
@@ -184,11 +184,11 @@ class IdempotencyInterceptorTest {
 
     @Test
     fun `Idempotency-Key should contain random number`() {
-        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{\"success\":true\"}"))
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{\"success\":true}"))
         mockWebServer.start()
 
         val request = Request.Builder()
-            .url("${mockWebServer.url("/api/v1/messages\")}")
+            .url("${mockWebServer.url("/api/v1/messages")}")
             .post(okhttp3.RequestBody.create(null, "{\"message\":\"test\"}"))
             .build()
 
