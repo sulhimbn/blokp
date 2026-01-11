@@ -19,12 +19,20 @@ abstract class BaseRepository {
         apiCall: suspend () -> retrofit2.Response<ApiResponse<T>>
     ): OperationResult<T> {
         val circuitBreakerResult = circuitBreaker.execute {
-            com.example.iurankomplek.utils.RetryHelper.executeWithRetry(
-                apiCall = apiCall,
-                maxRetries = maxRetries
-            )
+            try {
+                com.example.iurankomplek.utils.RetryHelper.executeWithRetry(
+                    apiCall = apiCall,
+                    maxRetries = maxRetries
+                )
+            } catch (e: retrofit2.HttpException) {
+                throw com.example.iurankomplek.network.model.NetworkError.HttpError(
+                    code = com.example.iurankomplek.network.model.ApiErrorCode.fromHttpCode(e.code()),
+                    userMessage = "API request failed",
+                    httpCode = e.code()
+                )
+            }
         }
-
+        
         return when (circuitBreakerResult) {
             is CircuitBreakerResult.Success -> OperationResult.Success(circuitBreakerResult.value.data)
             is CircuitBreakerResult.Failure -> OperationResult.Error(circuitBreakerResult.exception, circuitBreakerResult.exception.message ?: "Unknown error")
@@ -36,12 +44,20 @@ abstract class BaseRepository {
         apiCall: suspend () -> retrofit2.Response<ApiListResponse<T>>
     ): OperationResult<List<T>> {
         val circuitBreakerResult = circuitBreaker.execute {
-            com.example.iurankomplek.utils.RetryHelper.executeWithRetry(
-                apiCall = apiCall,
-                maxRetries = maxRetries
-            )
+            try {
+                com.example.iurankomplek.utils.RetryHelper.executeWithRetry(
+                    apiCall = apiCall,
+                    maxRetries = maxRetries
+                )
+            } catch (e: retrofit2.HttpException) {
+                throw com.example.iurankomplek.network.model.NetworkError.HttpError(
+                    code = com.example.iurankomplek.network.model.ApiErrorCode.fromHttpCode(e.code()),
+                    userMessage = "API request failed",
+                    httpCode = e.code()
+                )
+            }
         }
-
+        
         return when (circuitBreakerResult) {
             is CircuitBreakerResult.Success -> OperationResult.Success(circuitBreakerResult.value.data)
             is CircuitBreakerResult.Failure -> OperationResult.Error(circuitBreakerResult.exception, circuitBreakerResult.exception.message ?: "Unknown error")
