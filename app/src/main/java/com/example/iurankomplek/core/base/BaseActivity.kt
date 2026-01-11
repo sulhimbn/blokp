@@ -93,7 +93,7 @@ abstract class BaseActivity : AppCompatActivity() {
                     )
                 } else {
                     onError(errorMessage)
-                    Log.e("BaseActivity", "Non-retryable error after $currentRetry retries: ${t.javaClass.simpleName}", t)
+                    Log.e("BaseActivity", "Non-retryable error")
                 }
             }
         }
@@ -109,7 +109,7 @@ abstract class BaseActivity : AppCompatActivity() {
             is UnknownHostException,
             is SSLException -> true
             else -> {
-                Log.w("BaseActivity", "Non-retryable exception: ${t.javaClass.simpleName}")
+                Log.w("BaseActivity", "Non-retryable exception")
                 false
             }
         }
@@ -128,8 +128,6 @@ abstract class BaseActivity : AppCompatActivity() {
         val jitter = (kotlin.random.Random.nextDouble() * initialDelayMs).toLong()
         val delay = minOf(exponentialDelay + jitter, maxDelayMs)
 
-        Log.d("BaseActivity", "Scheduling retry $retryCount in ${delay}ms")
-
         val activityRef = WeakReference(this@BaseActivity)
         val runnable = Runnable {
             val activity = activityRef.get()
@@ -137,14 +135,12 @@ abstract class BaseActivity : AppCompatActivity() {
                 activity.executeWithRetry(
                     maxRetries = maxRetries,
                     initialDelayMs = initialDelayMs,
-                    maxDelayMs = maxDelayMs,
+                    maxDelayMs = delay,
                     operation = operation,
                     onSuccess = onSuccess,
                     onError = onError,
                     currentRetry = retryCount
                 )
-            } else {
-                Log.d("BaseActivity", "Activity destroyed or finishing, skipping retry $retryCount")
             }
         }
 
@@ -167,6 +163,5 @@ abstract class BaseActivity : AppCompatActivity() {
             mainHandler.removeCallbacks(runnable)
         }
         pendingRetryRunnables.clear()
-        Log.d("BaseActivity", "Cancelled ${pendingRetryRunnables.size} pending retry operations")
     }
 }

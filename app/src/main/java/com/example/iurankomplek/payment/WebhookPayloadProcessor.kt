@@ -22,35 +22,32 @@ class WebhookPayloadProcessor(
                 "payment.failed" -> {
                     updateTransactionStatus(webhookPayload.transactionId, PaymentStatus.FAILED)
                 }
-                "payment.refunded" -> {
-                    updateTransactionStatus(webhookPayload.transactionId, PaymentStatus.REFUNDED)
-                }
+                    "payment.refunded" -> {
+                        updateTransactionStatus(webhookPayload.transactionId, PaymentStatus.REFUNDED)
+                    }
                 else -> {
-                    Log.d(TAG, "Unknown webhook event type: ${webhookPayload.eventType}")
                     return true
                 }
             }
             
             true
         } catch (e: kotlinx.serialization.SerializationException) {
-            Log.e(TAG, "Invalid JSON payload for event $event: ${e.message}")
+            Log.e(TAG, "Invalid JSON payload")
             false
         } catch (e: Exception) {
-            Log.e(TAG, "Error processing webhook payload for event $event: ${e.message}", e)
+            Log.e(TAG, "Error processing webhook payload")
             false
         }
     }
 
     private suspend fun updateTransactionStatus(transactionId: String?, status: PaymentStatus): Boolean {
         if (transactionId.isNullOrBlank()) {
-            Log.w(TAG, "Transaction ID is null or blank")
             return false
         }
 
         return try {
             val sanitizedId = transactionId.trim().takeIf { it.isNotBlank() }
             if (sanitizedId == null) {
-                Log.e(TAG, "Invalid transaction ID")
                 return false
             }
 
@@ -60,11 +57,11 @@ class WebhookPayloadProcessor(
                 transactionRepository.updateTransaction(updatedTransaction)
                 true
             } else {
-                Log.e(TAG, "Transaction not found: $sanitizedId")
+                Log.e(TAG, "Transaction not found")
                 false
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error updating transaction status: ${e.message}", e)
+            Log.e(TAG, "Error updating transaction status")
             false
         }
     }

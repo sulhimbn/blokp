@@ -69,7 +69,7 @@ class WebhookQueue(
                 }
                 json.encodeToString(enriched)
             } catch (e: Exception) {
-                Log.w(TAG, "Failed to enrich payload, using original: ${e.message}")
+                Log.w(TAG, "Failed to enrich payload, using original")
                 payload
             }
         } else {
@@ -88,7 +88,6 @@ class WebhookQueue(
 
         val id = webhookEventDao.insert(webhookEvent)
         eventChannel.trySend(id)
-        Log.d(TAG, "Enqueued webhook event: $id, type: $eventType, key: $idempotencyKey")
         return id
     }
 
@@ -121,7 +120,7 @@ class WebhookQueue(
                     Log.d(TAG, "Processing cancelled")
                     break
                 }
-                Log.e(TAG, "Error processing queue: ${e.message}", e)
+                Log.e(TAG, "Error processing queue")
                 delay(Constants.Webhook.INITIAL_RETRY_DELAY_MS)
             }
         }
@@ -130,7 +129,6 @@ class WebhookQueue(
     private suspend fun processEvent(eventId: Long) {
         val event = webhookEventDao.getEventById(eventId)
         if (event == null) {
-            Log.w(TAG, "Event $eventId not found")
             return
         }
 
@@ -155,16 +153,15 @@ class WebhookQueue(
 
             if (success) {
                 webhookEventDao.markAsDelivered(eventId)
-                Log.d(TAG, "Webhook event $eventId delivered successfully")
             } else {
                 throw WebhookException.ProcessingFailed()
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error processing webhook event $eventId: ${e.message}", e)
+            Log.e(TAG, "Error processing webhook event")
             
             if (event.retryCount >= event.maxRetries) {
                 webhookEventDao.markAsFailed(eventId)
-                Log.e(TAG, "Webhook event $eventId failed after ${event.retryCount} retries")
+                Log.e(TAG, "Webhook event failed after maximum retries")
             } else {
                 val nextRetryDelay = retryCalculator.calculateRetryDelay(event.retryCount)
                 val nextRetryAt = System.currentTimeMillis() + nextRetryDelay
@@ -176,7 +173,6 @@ class WebhookQueue(
                     lastError = e.message?.take(500)
                 )
                 
-                Log.d(TAG, "Webhook event $eventId scheduled for retry #${event.retryCount + 1} in ${nextRetryDelay}ms")
                 eventChannel.send(eventId)
             }
         }

@@ -28,7 +28,7 @@ class WebhookEventCleaner(
             retriedCount++
         }
         
-        Log.d(TAG, "Retrying $retriedCount failed events")
+        Log.d(TAG, "Retrying failed events")
         return retriedCount
     }
 
@@ -37,7 +37,7 @@ class WebhookEventCleaner(
             (Constants.Webhook.MAX_EVENT_RETENTION_DAYS * 24L * 60L * 60L * 1000L)
         
         val deletedCount = webhookEventDao.deleteEventsOlderThan(cutoffTime)
-        Log.d(TAG, "Cleaned up $deletedCount old webhook events")
+        Log.d(TAG, "Cleaned up old webhook events")
         return deletedCount
     }
 }

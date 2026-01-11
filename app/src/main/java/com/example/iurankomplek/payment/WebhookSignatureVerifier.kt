@@ -59,8 +59,8 @@ class WebhookSignatureVerifier(
                 WebhookVerificationResult.Invalid("Signature mismatch")
             }
         } catch (e: Exception) {
-            Log.e(Constants.Tags.WEBHOOK_RECEIVER, "Error verifying webhook signature: ${e.message}", e)
-            WebhookVerificationResult.Invalid("Verification error: ${e.message}")
+            Log.e(Constants.Tags.WEBHOOK_RECEIVER, "Error verifying webhook signature")
+            WebhookVerificationResult.Invalid("Verification error")
         }
     }
     

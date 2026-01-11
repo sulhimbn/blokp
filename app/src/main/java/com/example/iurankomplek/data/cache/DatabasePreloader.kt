@@ -36,7 +36,7 @@ class DatabasePreloader(private val scope: CoroutineScope) : RoomDatabase.Callba
                 }
             }
         } catch (e: Exception) {
-            android.util.Log.e("DatabasePreloader", "Error preloading indexes", e)
+            android.util.Log.e("DatabasePreloader", "Error preloading indexes")
         }
     }
     
@@ -51,7 +51,7 @@ class DatabasePreloader(private val scope: CoroutineScope) : RoomDatabase.Callba
                 }
             }
         } catch (e: Exception) {
-            android.util.Log.e("DatabasePreloader", "Error validating cache integrity", e)
+            android.util.Log.e("DatabasePreloader", "Error validating cache integrity")
         }
     }
 }

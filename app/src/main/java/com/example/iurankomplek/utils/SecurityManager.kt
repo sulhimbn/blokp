@@ -311,9 +311,7 @@ object SecurityManager {
         val daysUntilExpiration = ((expirationDate.time - currentDate.time) / (1000 * 60 * 60 * 24)).toInt()
         
         if (daysUntilExpiration <= 90) {
-            Log.w(TAG, "Certificate pinning expires in $daysUntilExpiration days. Consider rotating pins before expiration.")
-        } else {
-            Log.i(TAG, "Certificate pinning is valid. Expires in $daysUntilExpiration days.")
+            Log.w(TAG, "Certificate pinning expires soon. Consider rotating pins before expiration.")
         }
     }
 

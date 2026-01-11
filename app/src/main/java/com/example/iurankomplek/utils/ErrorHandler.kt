@@ -66,32 +66,25 @@ class ErrorHandler(private val context: Context) {
             append("Error [ID: $requestId] ")
             append("at $endpoint: ")
             append("$userMessage")
-
+ 
             if (errorContext?.httpCode != null) {
                 append(" (HTTP ${errorContext.httpCode})")
-            }
-
-            if (throwable is HttpException) {
-                val errorBody = throwable.response()?.errorBody()?.string()
-                if (!errorBody.isNullOrBlank()) {
-                    append(" | Details: $errorBody")
-                }
             }
         }
 
         when (throwable) {
             is CircuitBreakerException -> {
-                android.util.Log.w(Constants.Tags.BASE_ACTIVITY, logMessage, throwable)
+                android.util.Log.w(Constants.Tags.BASE_ACTIVITY, logMessage)
             }
             is HttpException -> {
                 if (throwable.code() >= 500) {
-                    android.util.Log.e(Constants.Tags.BASE_ACTIVITY, logMessage, throwable)
+                    android.util.Log.e(Constants.Tags.BASE_ACTIVITY, logMessage)
                 } else {
-                    android.util.Log.w(Constants.Tags.BASE_ACTIVITY, logMessage, throwable)
+                    android.util.Log.w(Constants.Tags.BASE_ACTIVITY, logMessage)
                 }
             }
             else -> {
-                android.util.Log.e(Constants.Tags.BASE_ACTIVITY, logMessage, throwable)
+                android.util.Log.e(Constants.Tags.BASE_ACTIVITY, logMessage)
             }
         }
     }

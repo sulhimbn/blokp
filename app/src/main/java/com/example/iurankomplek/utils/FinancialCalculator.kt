@@ -172,7 +172,7 @@ object FinancialCalculator {
             calculateRekapIuranInternal(items)
             true
         } catch (e: Exception) {
-            android.util.Log.e("FinancialCalculator", "Financial validation failed: ${e.message}", e)
+            android.util.Log.e("FinancialCalculator", "Financial validation failed")
             false
         }
     }

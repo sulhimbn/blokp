@@ -48,22 +48,21 @@ class WebhookReceiver(
 
                 when (verificationResult) {
                     is WebhookVerificationResult.Valid -> {
-                        Log.d(TAG, "Webhook signature verified successfully")
                         processWebhook(payload)
                     }
                     is WebhookVerificationResult.Invalid -> {
-                        Log.e(TAG, "Invalid webhook signature: ${verificationResult.reason}")
+                        Log.e(TAG, "Invalid webhook signature")
                         return@launch
                     }
                     is WebhookVerificationResult.Skipped -> {
-                        Log.w(TAG, "Webhook signature verification skipped: ${verificationResult.reason}")
+                        Log.w(TAG, "Webhook signature verification skipped")
                         processWebhook(payload)
                     }
                 }
             } catch (e: kotlinx.serialization.SerializationException) {
-                Log.e(TAG, "Invalid JSON payload: ${e.message}")
+                Log.e(TAG, "Invalid JSON payload")
             } catch (e: Exception) {
-                Log.e(TAG, "Error handling webhook: ${e.message}", e)
+                Log.e(TAG, "Error handling webhook")
             }
         }
     }
@@ -84,12 +83,11 @@ class WebhookReceiver(
                     transactionId = webhookPayload.transactionId,
                     metadata = webhookPayload.metadata
                 )
-                Log.d(TAG, "Webhook event queued: ${webhookPayload.eventType}")
             } else {
                 processImmediately(webhookPayload)
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error processing webhook: ${e.message}", e)
+            Log.e(TAG, "Error processing webhook")
         }
     }
 
@@ -97,7 +95,6 @@ class WebhookReceiver(
         try {
             val sanitizedId = webhookPayload.transactionId?.trim()?.takeIf { it.isNotBlank() }
             if (sanitizedId == null) {
-                Log.e(TAG, "Invalid transaction ID: empty or whitespace")
                 return
             }
 
@@ -108,19 +105,17 @@ class WebhookReceiver(
                     "payment.failed" -> PaymentStatus.FAILED
                     "payment.refunded" -> PaymentStatus.REFUNDED
                     else -> {
-                        Log.d(TAG, "Unknown webhook event type: ${webhookPayload.eventType}")
                         return
                     }
                 }
                 
                 val updatedTransaction = transaction.copy(status = status)
                 transactionRepository.updateTransaction(updatedTransaction)
-                Log.d(TAG, "Transaction status updated immediately")
             } else {
                 Log.e(TAG, "Transaction not found")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error processing webhook immediately: ${e.message}", e)
+            Log.e(TAG, "Error processing webhook immediately")
         }
     }
 

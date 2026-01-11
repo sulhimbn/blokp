@@ -113,7 +113,7 @@ class FallbackManager<T>(
     }
     
     private fun logFallback(message: String, reason: FallbackReason) {
-        android.util.Log.d("FallbackManager", "$message (Reason: $reason)")
+        android.util.Log.d("FallbackManager", message)
     }
 }
 
