@@ -154,7 +154,7 @@ class Migration20 : Migration(19, 20) {
  * - Exact rollback of conversion
  * - Reverts to previous schema
  */
-class Migration20Down : Migration(20, 19) {
+object Migration20Down : Migration(20, 19) {
     override fun migrate(database: SupportSQLiteDatabase) {
         // Add temporary column for TEXT amount
         database.execSQL(

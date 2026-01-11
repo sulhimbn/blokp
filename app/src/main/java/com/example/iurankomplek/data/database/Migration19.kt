@@ -293,7 +293,7 @@ class Migration19 : Migration(18, 19) {
  * - Requires full table recreation
  * - Foreign key relationships must be preserved
  */
-class Migration19Down : Migration(19, 18) {
+object Migration19Down : Migration(19, 18) {
     override fun migrate(database: SupportSQLiteDatabase) {
         // Users Table Recreation (DROP CONSTRAINT workaround)
         database.execSQL(

@@ -8,8 +8,6 @@ import com.example.iurankomplek.R
 import com.example.iurankomplek.core.base.BaseFragment
 import com.example.iurankomplek.di.DependencyContainer
 import com.example.iurankomplek.databinding.FragmentCommunityBinding
-import com.example.iurankomplek.core.base.BaseFragment
-import com.example.iurankomplek.di.DependencyContainer
 import com.example.iurankomplek.presentation.adapter.CommunityPostAdapter
 import com.example.iurankomplek.presentation.viewmodel.CommunityPostViewModel
 import com.example.iurankomplek.utils.UiState
