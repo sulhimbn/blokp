@@ -91,15 +91,15 @@ object SecurityManager {
      * @return true if the environment is secure (not rooted, not emulated)
      */
     fun isSecureEnvironment(context: Context): Boolean {
-        return !isDeviceRooted() && !isDeviceEmulator()
+        return !isDeviceRooted(context) && !isDeviceEmulator(context)
     }
 
     /**
      * Checks if the device is rooted
      * @return true if the device is rooted, false otherwise
      */
-    fun isDeviceRooted(): Boolean {
-        return checkSuBinary() || checkDangerousApps() || checkRootManagementApps() || checkSystemProps()
+    fun isDeviceRooted(context: Context): Boolean {
+        return checkSuBinary() || checkDangerousApps(context) || checkRootManagementApps(context) || checkSystemProps()
     }
 
     /**
@@ -117,10 +117,10 @@ object SecurityManager {
     /**
      * Checks for known dangerous/ rooting apps
      */
-    private fun checkDangerousApps(): Boolean {
+    private fun checkDangerousApps(context: Context): Boolean {
         return DANGEROUS_APPS.any { app ->
             try {
-                val pm = android.app.ActivityThread.currentPackageManager()
+                val pm = context.packageManager
                 pm.getPackageInfo(app, 0)
                 true
             } catch (e: Exception) {
@@ -132,7 +132,7 @@ object SecurityManager {
     /**
      * Checks for root management apps (SuperSU, Magisk, etc.)
      */
-    private fun checkRootManagementApps(): Boolean {
+    private fun checkRootManagementApps(context: Context): Boolean {
         val rootApps = listOf(
             "com.noshufou.android.su",
             "com.topjohnwu.magisk",
@@ -140,7 +140,7 @@ object SecurityManager {
         )
         return rootApps.any { app ->
             try {
-                val pm = android.app.ActivityThread.currentPackageManager()
+                val pm = context.packageManager
                 pm.getPackageInfo(app, 0)
                 true
             } catch (e: Exception) {
@@ -192,12 +192,12 @@ object SecurityManager {
      * @return true if the device is an emulator, false otherwise
      */
     @SuppressLint("HardwareIds")
-    fun isDeviceEmulator(): Boolean {
+    fun isDeviceEmulator(context: Context): Boolean {
         return checkBuildManufacturer() ||
                 checkBuildModel() ||
                 checkBuildProduct() ||
                 checkBuildHardware() ||
-                checkTelephony() ||
+                checkTelephony(context) ||
                 checkEmulatorFiles() ||
                 checkEmulatorHosts()
     }
@@ -245,10 +245,9 @@ object SecurityManager {
     /**
      * Checks telephony for emulator indicators
      */
-    private fun checkTelephony(): Boolean {
+    private fun checkTelephony(context: Context): Boolean {
         return try {
-            val tm = android.app.ActivityThread.currentApplication()
-                .getSystemService(Context.TELEPHONY_SERVICE) as? android.telephony.TelephonyManager
+            val tm = context.getSystemService(Context.TELEPHONY_SERVICE) as? android.telephony.TelephonyManager
             val deviceId = tm?.deviceId
             deviceId == null || deviceId == "000000000000000"
         } catch (e: Exception) {
@@ -294,7 +293,7 @@ object SecurityManager {
      * @return true if the device appears to be a real device
      */
     fun isLikelyRealDevice(context: Context): Boolean {
-        return !isDeviceEmulator() && !isDeviceRooted()
+        return !isDeviceEmulator(context) && !isDeviceRooted(context)
     }
 
     /**
@@ -349,10 +348,10 @@ object SecurityManager {
         val threats = mutableListOf<String>()
 
         if (!isSecureEnvironment(context)) {
-            if (isDeviceRooted()) {
+            if (isDeviceRooted(context)) {
                 threats.add("Device is rooted")
             }
-            if (isDeviceEmulator()) {
+            if (isDeviceEmulator(context)) {
                 threats.add("Device appears to be an emulator")
             }
         }
