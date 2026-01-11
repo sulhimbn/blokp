@@ -8,8 +8,6 @@ import com.example.iurankomplek.R
 import com.example.iurankomplek.core.base.BaseFragment
 import com.example.iurankomplek.di.DependencyContainer
 import com.example.iurankomplek.databinding.FragmentAnnouncementsBinding
-import com.example.iurankomplek.core.base.BaseFragment
-import com.example.iurankomplek.di.DependencyContainer
 import com.example.iurankomplek.presentation.adapter.AnnouncementAdapter
 import com.example.iurankomplek.presentation.viewmodel.AnnouncementViewModel
 import com.example.iurankomplek.utils.UiState
