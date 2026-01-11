@@ -3,7 +3,6 @@ package com.example.iurankomplek.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.launch
 import com.example.iurankomplek.core.base.BaseViewModel
 import com.example.iurankomplek.domain.usecase.LoadVendorsUseCase
 import com.example.iurankomplek.domain.usecase.LoadWorkOrdersUseCase
@@ -86,6 +85,7 @@ class VendorViewModel(
                 }
                 is com.example.iurankomplek.utils.OperationResult.Error -> {
                 }
+                else -> {}
             }
         }
     }
@@ -108,6 +108,7 @@ class VendorViewModel(
                 }
                 is com.example.iurankomplek.utils.OperationResult.Error -> {
                 }
+                else -> {}
             }
         }
     }
