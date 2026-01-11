@@ -546,18 +546,46 @@ Main navigation hub with four menu cards:
 ### Security Features
 
 - ✅ **HTTPS Enforcement**: Production API uses secure connections
-- ✅ **Certificate Pinning**: Prevents man-in-the-middle attacks
+- ✅ **Certificate Pinning**: Prevents man-in-the-middle attacks (with backup pins)
+- ✅ **Encrypted Storage**: SecureStorage with AES-256-GCM encryption
+- ✅ **Root Detection**: Comprehensive rooted device detection (8 methods)
+- ✅ **Emulator Detection**: Comprehensive emulator detection (7 methods)
+- ✅ **Environment Validation**: `isSecureEnvironment()` verifies real device
+- ✅ **Certificate Monitoring**: Automatic expiration monitoring with 90-day warnings
 - ✅ **Input Validation**: Sanitized user inputs
-- ✅ **Secure Logging**: No sensitive data in logs
+- ✅ **Secure Logging**: No sensitive data in logs (reduced information leakage)
 - ✅ **Up-to-date Dependencies**: Regular security updates
 - ✅ **Network Security Config**: Proper SSL/TLS configuration
+- ✅ **Dependency Scanning**: OWASP dependency-check with CVSS threshold 7.0
 
 ### Security Audits
 
-Latest security audit completed: **2026-01-08**
-- OWASP Mobile Security compliance
+Latest security audit completed: **2026-01-11**
+- OWASP Mobile Security compliance (9/10 score)
 - CWE Top 25 mitigations
-- Dependency vulnerability scanning
+- Encrypted storage with AES-256-GCM
+- Root and emulator detection
+- Certificate expiration monitoring
+- Dependency vulnerability scanning (OWASP dependency-check)
+
+## ♿ Accessibility
+
+### Accessibility Features
+
+- ✅ **Screen Reader Support**: Proper contentDescription on all interactive elements
+- ✅ **Non-Redundant Announcements**: Single announcements for menu items (no double-speak)
+- ✅ **Consistent Navigation**: Proper focus ordering and accessibility hints
+- ✅ **Touch Target Size**: Minimum 48dp for all interactive elements
+- ✅ **Color Contrast**: WCAG AA compliant text contrast
+- ✅ **Accessibility Labeling**: Descriptive labels for all controls
+
+### Accessibility Improvements (2026-01-11)
+
+- **A11Y-001**: Eliminated redundant screen reader announcements in menu layouts
+  - Parent LinearLayouts provide complete context
+  - Child TextViews set to `importantForAccessibility="no"`
+  - Single announcement per menu item
+  - Consistent across portrait and tablet layouts
 
 ## 📊 Performance
 
