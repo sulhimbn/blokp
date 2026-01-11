@@ -28,8 +28,3 @@ abstract class BaseListAdapter<T, VH : RecyclerView.ViewHolder>(
         }
     }
 }
-
-    final override fun onBindViewHolder(holder: VH, position: Int) {
-        bindViewHolderInternal(holder, getItem(position))
-    }
-}
