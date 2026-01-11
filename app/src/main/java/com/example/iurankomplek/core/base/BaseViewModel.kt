@@ -78,10 +78,12 @@ abstract class BaseViewModel : ViewModel() {
         }
     }
     
+    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     protected fun createMutableStateFlow(initialValue: UiState<Nothing> = UiState.Loading): MutableStateFlow<UiState<Nothing>> {
         return MutableStateFlow(initialValue)
     }
     
+    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     protected fun <T> createMutableStateFlow(initialValue: UiState<T>): MutableStateFlow<UiState<T>> {
         return MutableStateFlow(initialValue)
     }
