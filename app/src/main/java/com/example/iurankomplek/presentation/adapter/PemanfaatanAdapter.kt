@@ -1,31 +1,31 @@
 package com.example.iurankomplek.presentation.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 
 import com.example.iurankomplek.databinding.ItemPemanfaatanBinding
 import com.example.iurankomplek.data.dto.LegacyDataItemDto
 import com.example.iurankomplek.utils.InputSanitizer
 
-class PemanfaatanAdapter : ListAdapter<LegacyDataItemDto, PemanfaatanAdapter.ListViewHolder>(DiffCallback) {
+class PemanfaatanAdapter : BaseListAdapter<LegacyDataItemDto, PemanfaatanAdapter.ListViewHolder>(
+    diffById { it.pemanfaatan_iuran }
+) {
 
     companion object {
-        private val DiffCallback = GenericDiffUtil.byId<LegacyDataItemDto> { it.pemanfaatan_iuran }
         private const val PEMANFAATAN_PREFIX = "-"
         private const val PEMANFAATAN_SUFFIX = ":"
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
+    override fun createViewHolderInternal(parent: ViewGroup): ListViewHolder {
         val binding = ItemPemanfaatanBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ListViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
-        holder.bind(getItem(position))
+    override fun bindViewHolderInternal(holder: ListViewHolder, item: LegacyDataItemDto) {
+        holder.bind(item)
     }
 
-    class ListViewHolder(val binding: ItemPemanfaatanBinding): RecyclerView.ViewHolder(binding.root) {
+    class ListViewHolder(val binding: ItemPemanfaatanBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: LegacyDataItemDto) {
             binding.itemPemanfaatan.text = "$PEMANFAATAN_PREFIX${InputSanitizer.sanitizePemanfaatan(item.pemanfaatan_iuran)}$PEMANFAATAN_SUFFIX"

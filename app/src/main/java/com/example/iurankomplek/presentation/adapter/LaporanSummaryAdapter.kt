@@ -2,7 +2,6 @@ package com.example.iurankomplek.presentation.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.databinding.ItemLaporanBinding
 
@@ -11,21 +10,18 @@ data class LaporanSummaryItem(
     val value: String
 )
 
-class LaporanSummaryAdapter : ListAdapter<LaporanSummaryItem, LaporanSummaryAdapter.ListViewHolder>(DiffCallback) {
+class LaporanSummaryAdapter : BaseListAdapter<LaporanSummaryItem, LaporanSummaryAdapter.ListViewHolder>(
+    diffById { it.title }
+) {
 
-    companion object {
-        private val DiffCallback = GenericDiffUtil.byId<LaporanSummaryItem> { it.title }
-    }
+    override fun getItemCount(): Int = currentList.size
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
+    override fun createViewHolderInternal(parent: ViewGroup): ListViewHolder {
         val binding = ItemLaporanBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ListViewHolder(binding)
     }
 
-    override fun getItemCount(): Int = currentList.size
-
-    override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
-        val item = getItem(position)
+    override fun bindViewHolderInternal(holder: ListViewHolder, item: LaporanSummaryItem) {
         holder.binding.itemLaporanTitle.text = item.title
         holder.binding.itemLaporanValue.text = item.value
     }

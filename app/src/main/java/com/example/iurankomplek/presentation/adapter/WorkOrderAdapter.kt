@@ -2,35 +2,35 @@ package com.example.iurankomplek.presentation.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.databinding.ItemWorkOrderBinding
 import com.example.iurankomplek.model.WorkOrder
 
 class WorkOrderAdapter(
     private val onWorkOrderClick: (WorkOrder) -> Unit
-) : ListAdapter<WorkOrder, WorkOrderAdapter.WorkOrderViewHolder>(DiffCallback) {
+) : BaseListAdapter<WorkOrder, WorkOrderAdapter.WorkOrderViewHolder>(
+    diffById { it.id }
+) {
 
-    companion object {
-        private val DiffCallback = GenericDiffUtil.byId<WorkOrder> { it.id }
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WorkOrderViewHolder {
+    override fun createViewHolderInternal(parent: ViewGroup): WorkOrderViewHolder {
         val binding = ItemWorkOrderBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return WorkOrderViewHolder(binding)
+        return WorkOrderViewHolder(binding, onWorkOrderClick)
     }
 
-    override fun onBindViewHolder(holder: WorkOrderViewHolder, position: Int) {
-        holder.bind(getItem(position))
+    override fun bindViewHolderInternal(holder: WorkOrderViewHolder, workOrder: WorkOrder) {
+        holder.bind(workOrder)
     }
 
-    inner class WorkOrderViewHolder(val binding: ItemWorkOrderBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class WorkOrderViewHolder(
+        val binding: ItemWorkOrderBinding,
+        private val onWorkOrderClick: (WorkOrder) -> Unit
+    ) : RecyclerView.ViewHolder(binding.root) {
 
         init {
             binding.root.setOnClickListener {
                 val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
-                    onWorkOrderClick(getItem(position))
+                    onWorkOrderClick(getItemAt(position))
                 }
             }
         }

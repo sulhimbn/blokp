@@ -3,7 +3,6 @@ package com.example.iurankomplek.presentation.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.databinding.ItemTransactionHistoryBinding
 import com.example.iurankomplek.payment.PaymentStatus
@@ -13,21 +12,22 @@ import java.util.Locale
 
 class TransactionHistoryAdapter(
     private val onRefundRequested: (Transaction) -> Unit
-) : ListAdapter<Transaction, TransactionHistoryAdapter.TransactionViewHolder>(DiffCallback) {
+) : BaseListAdapter<Transaction, TransactionHistoryAdapter.TransactionViewHolder>(
+    diffById { it.id }
+) {
 
     companion object {
-        private val DiffCallback = GenericDiffUtil.byId<Transaction> { it.id }
         private val CURRENCY_FORMATTER = NumberFormat.getCurrencyInstance(Locale("in", "ID"))
         private val BD_HUNDRED = java.math.BigDecimal("100")
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionViewHolder {
+    override fun createViewHolderInternal(parent: ViewGroup): TransactionViewHolder {
         val binding = ItemTransactionHistoryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return TransactionViewHolder(binding, onRefundRequested)
     }
 
-    override fun onBindViewHolder(holder: TransactionViewHolder, position: Int) {
-        holder.bind(getItem(position))
+    override fun bindViewHolderInternal(holder: TransactionViewHolder, transaction: Transaction) {
+        holder.bind(transaction)
     }
 
     class TransactionViewHolder(val binding: ItemTransactionHistoryBinding, private val onRefundRequested: (Transaction) -> Unit) : RecyclerView.ViewHolder(binding.root) {
