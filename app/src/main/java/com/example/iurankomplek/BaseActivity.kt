@@ -77,7 +77,7 @@ abstract class BaseActivity : AppCompatActivity() {
                     )
                 } else {
                     onError(errorMessage)
-                    t.printStackTrace()
+                    Log.e("BaseActivity", "Operation failed after $maxRetries retries", t)
                 }
             }
         })

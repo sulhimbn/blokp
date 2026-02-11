@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 import com.example.iurankomplek.payment.PaymentMethod
 import com.example.iurankomplek.payment.PaymentStatus
 import java.math.BigDecimal
-import java.util.Date
+import java.util.Calendar
 
 @Entity(tableName = "transactions")
 data class Transaction(
@@ -22,7 +22,7 @@ data class Transaction(
 ) {
     companion object {
         fun create(request: com.example.iurankomplek.payment.PaymentRequest): Transaction {
-            val now = Date()
+            val now = Calendar.getInstance().time
             return Transaction(
                 id = java.util.UUID.randomUUID().toString(),
                 userId = request.customerId,
