@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
+    id 'com.google.dagger.hilt.android'
 }
 
 android {
@@ -82,9 +83,12 @@ dependencies {
     implementation libs.room.ktx
     kapt libs.room.compiler
     
-    // Hilt for dependency injection (if we want to use it later)
+    // Hilt for dependency injection
     implementation libs.hilt.android
     kapt libs.hilt.android.compiler
+
+    // Encrypted SharedPreferences for secure session storage
+    implementation libs.security.crypto
     
     // Coroutines
     implementation libs.kotlinx.coroutines.android
