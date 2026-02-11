@@ -111,9 +111,13 @@ class UserAdapter(private var users: MutableList<DataItem>):
         override fun getNewListSize(): Int = newList.size
         
         override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            // Since there's no explicit ID, use a combination of fields that would uniquely identify a user
-            // Using email as it's typically unique, or a combination of name and address
-            return oldList[oldItemPosition].email == newList[newItemPosition].email
+            // Use a composite key of name + address which is more stable than email
+            // Email can change, but name and address combination rarely changes together
+            val oldItem = oldList[oldItemPosition]
+            val newItem = newList[newItemPosition]
+            return oldItem.first_name == newItem.first_name &&
+                   oldItem.last_name == newItem.last_name &&
+                   oldItem.alamat == newItem.alamat
         }
         
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
