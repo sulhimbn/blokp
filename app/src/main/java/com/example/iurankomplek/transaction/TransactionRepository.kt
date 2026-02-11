@@ -5,7 +5,7 @@ import com.example.iurankomplek.payment.PaymentRequest
 import com.example.iurankomplek.payment.PaymentStatus
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
-import java.util.Date
+import java.util.Calendar
 
 class TransactionRepository @Inject constructor(
     private val paymentGateway: PaymentGateway,
@@ -49,13 +49,13 @@ class TransactionRepository @Inject constructor(
             paymentResult.onSuccess { response ->
                 val updatedTransaction = transaction.copy(
                     status = PaymentStatus.COMPLETED,
-                    updatedAt = Date()
+                    updatedAt = Calendar.getInstance().time
                 )
                 transactionDao.update(updatedTransaction)
             }.onFailure { error ->
                 val failedTransaction = transaction.copy(
                     status = PaymentStatus.FAILED,
-                    updatedAt = Date()
+                    updatedAt = Calendar.getInstance().time
                 )
                 transactionDao.update(failedTransaction)
             }
@@ -92,7 +92,7 @@ class TransactionRepository @Inject constructor(
                 if (originalTransaction != null) {
                     val refundedTransaction = originalTransaction.copy(
                         status = com.example.iurankomplek.payment.PaymentStatus.REFUNDED,
-                        updatedAt = java.util.Date()
+                        updatedAt = Calendar.getInstance().time
                     )
                     transactionDao.update(refundedTransaction)
                 }
