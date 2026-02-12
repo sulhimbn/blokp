@@ -15,6 +15,8 @@ import com.example.iurankomplek.payment.RefundResponse
 import com.example.iurankomplek.transaction.Transaction
 import com.example.iurankomplek.transaction.TransactionDatabase
 import com.example.iurankomplek.transaction.TransactionRepository
+import android.os.Handler
+import android.os.Looper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -64,13 +66,13 @@ class TransactionHistoryAdapter : ListAdapter<Transaction, TransactionHistoryAda
                     CoroutineScope(Dispatchers.IO).launch {
                         val result = transactionRepository.refundPayment(transaction.id, "User requested refund")
                         if (result.isSuccess) {
-                            runOnUiThread(context) {
+                            runOnUiThread {
                                 tvStatus.text = PaymentStatus.REFUNDED.name
                                 btnRefund.visibility = View.GONE
                                 Toast.makeText(context, "Refund processed successfully", Toast.LENGTH_SHORT).show()
                             }
                         } else {
-                            runOnUiThread(context) {
+                            runOnUiThread {
                                 Toast.makeText(context, "Refund failed: ${result.exceptionOrNull()?.message}", Toast.LENGTH_LONG).show()
                             }
                         }
@@ -81,10 +83,8 @@ class TransactionHistoryAdapter : ListAdapter<Transaction, TransactionHistoryAda
             }
         }
 
-        private fun runOnUiThread(context: android.content.Context, action: () -> Unit) {
-            if (context is android.app.Activity) {
-                context.runOnUiThread(action)
-            }
+        private fun runOnUiThread(action: () -> Unit) {
+            Handler(Looper.getMainLooper()).post(action)
         }
     }
 
