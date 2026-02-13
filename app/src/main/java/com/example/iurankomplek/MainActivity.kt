@@ -10,6 +10,7 @@ import com.example.iurankomplek.databinding.ActivityMainBinding
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -40,7 +41,7 @@ class MainActivity : BaseActivity() {
 
     private fun observeUserState() {
         lifecycleScope.launch {
-            viewModel.usersState.collect { state ->
+            viewModel.usersState.collectLatest { state ->
                 when (state) {
                     is UiState.Loading -> {
                         binding.progressBar.visibility = View.VISIBLE

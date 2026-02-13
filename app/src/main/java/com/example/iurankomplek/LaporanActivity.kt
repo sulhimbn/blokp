@@ -19,6 +19,7 @@ import com.example.iurankomplek.payment.MockPaymentGateway
 import com.example.iurankomplek.viewmodel.FinancialViewModel
 import com.example.iurankomplek.viewmodel.FinancialViewModelFactory
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -63,7 +64,7 @@ class LaporanActivity : BaseActivity() {
     
     private fun observeFinancialState() {
         lifecycleScope.launch {
-            viewModel.financialState.collect { state ->
+            viewModel.financialState.collectLatest { state ->
                 when (state) {
                      is UiState.Loading -> {
                          binding.progressBar.visibility = View.VISIBLE

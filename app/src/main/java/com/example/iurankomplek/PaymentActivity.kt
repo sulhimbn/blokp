@@ -11,6 +11,7 @@ import com.example.iurankomplek.databinding.ActivityPaymentBinding
 import com.example.iurankomplek.payment.PaymentMethod
 import com.example.iurankomplek.payment.PaymentViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
@@ -41,7 +42,7 @@ class PaymentActivity : AppCompatActivity() {
     private fun observeUiState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                paymentViewModel.uiState.collect { uiState ->
+                paymentViewModel.uiState.collectLatest { uiState ->
                     if (!uiState.isProcessing && uiState.errorMessage != null) {
                         Toast.makeText(
                             this@PaymentActivity,
