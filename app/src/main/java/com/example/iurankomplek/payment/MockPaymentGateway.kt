@@ -1,5 +1,6 @@
 package com.example.iurankomplek.payment
 
+import kotlinx.coroutines.delay
 import java.math.BigDecimal
 import java.util.Date
 import java.util.UUID
@@ -9,7 +10,7 @@ class MockPaymentGateway : PaymentGateway {
         // Simulate payment processing
         return try {
             // In a real implementation, this would call actual payment gateway APIs
-            Thread.sleep(500) // Simulate network delay
+            delay(500) // Simulate network delay - non-blocking
             
             val response = PaymentResponse(
                 transactionId = UUID.randomUUID().toString(),
