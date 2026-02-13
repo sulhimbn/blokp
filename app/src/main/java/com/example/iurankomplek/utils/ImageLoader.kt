@@ -67,9 +67,41 @@ object ImageLoader {
             .into(imageView)
     }
     
-    private val urlPattern = Regex("^https?://[\\w.-]+(:\\d+)?(/.*)?$")
+    /**
+     * Regex for validating HTTPS URLs for avatar images.
+     * Security requirements:
+     * - Only HTTPS (no HTTP for security)
+     * - No username/password in URL (prevents credential leaks)
+     * - Valid domain format with at least one dot
+     * - Optional port number
+     * - Optional path
+     */
+    private val urlPattern = Regex(
+        "^https://" +                    // Only HTTPS, no HTTP
+        "(?!.*@)" +                     // No username/password (no @ symbol)
+        "[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]" +  // Domain name (subdomain)
+        "(\\.[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9])*" +  // Additional subdomains
+        "\\.[a-zA-Z]{2,}" +            // TLD (at least 2 chars)
+        "(:\\d{1,5})?" +               // Optional port (1-5 digits)
+        "(/[^\\s]*)?$"                 // Optional path
+    )
 
     private fun isValidUrl(url: String): Boolean {
+        // Additional security checks beyond regex
+        if (url.isBlank()) return false
+        
+        // Reject URLs with embedded credentials (defense in depth)
+        if (url.contains("@")) {
+            android.util.Log.w("ImageLoader", "Rejected URL with embedded credentials")
+            return false
+        }
+        
+        // Reject HTTP URLs explicitly (security requirement for avatars)
+        if (url.startsWith("http://", ignoreCase = true)) {
+            android.util.Log.w("ImageLoader", "Rejected HTTP URL (HTTPS required): $url")
+            return false
+        }
+        
         return urlPattern.matches(url)
     }
 }
