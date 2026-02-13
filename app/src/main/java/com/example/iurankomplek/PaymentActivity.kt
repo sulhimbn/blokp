@@ -43,18 +43,22 @@ class PaymentActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 paymentViewModel.uiState.collectLatest { uiState ->
-                    if (!uiState.isProcessing && uiState.errorMessage != null) {
-                        Toast.makeText(
-                            this@PaymentActivity,
-                            "Payment failed: ${uiState.errorMessage}",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    } else if (!uiState.isProcessing && uiState.errorMessage == null && uiState.amount > BigDecimal.ZERO) {
-                        Toast.makeText(
-                            this@PaymentActivity,
-                            "Payment processed successfully!",
-                            Toast.LENGTH_LONG
-                        ).show()
+                    uiState?.let { safeState ->
+                        if (!safeState.isProcessing && safeState.errorMessage != null) {
+                            Toast.makeText(
+                                this@PaymentActivity,
+                                "Payment failed: ${safeState.errorMessage}",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        } else if (!safeState.isProcessing && safeState.errorMessage == null && safeState.amount > BigDecimal.ZERO) {
+                            Toast.makeText(
+                                this@PaymentActivity,
+                                "Payment processed successfully!",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    } ?: run {
+                        android.util.Log.w("PaymentActivity", "Received null UI state")
                     }
                 }
             }
