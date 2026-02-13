@@ -3,31 +3,29 @@ package com.example.iurankomplek
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-import androidx.lifecycle.ViewModelProvider
+import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityLaporanBinding
-import com.example.iurankomplek.data.repository.PemanfaatanRepositoryImpl
 import com.example.iurankomplek.model.LaporanSummaryItem
-import com.example.iurankomplek.model.ValidatedDataItem
-import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.utils.DataValidator
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.transaction.TransactionDatabase
 import com.example.iurankomplek.transaction.TransactionRepository
 import com.example.iurankomplek.payment.MockPaymentGateway
 import com.example.iurankomplek.viewmodel.FinancialViewModel
-import com.example.iurankomplek.viewmodel.FinancialViewModelFactory
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@AndroidEntryPoint
 class LaporanActivity : BaseActivity() {
     private lateinit var adapter: PemanfaatanAdapter
     private lateinit var summaryAdapter: LaporanSummaryAdapter
     private lateinit var binding: ActivityLaporanBinding
-    private lateinit var viewModel: FinancialViewModel
+    private val viewModel: FinancialViewModel by viewModels()
     private lateinit var transactionRepository: TransactionRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,12 +33,7 @@ class LaporanActivity : BaseActivity() {
         binding = ActivityLaporanBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Initialize transaction repository for payment integration
         initializeTransactionRepository()
-
-        // Initialize ViewModel with repository
-        val pemanfaatanRepository = PemanfaatanRepositoryImpl(ApiConfig.getApiService())
-        viewModel = ViewModelProvider(this, FinancialViewModel.Factory(pemanfaatanRepository))[FinancialViewModel::class.java]
 
         adapter = PemanfaatanAdapter(mutableListOf())
         summaryAdapter = LaporanSummaryAdapter(mutableListOf())

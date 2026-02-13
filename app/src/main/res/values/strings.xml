@@ -10,9 +10,15 @@
     <string name="jumlah_iuran_bulanan">1. Jumlah Iuran Bulanan</string>
     <string name="total_pengeluaran">2. Total Pengeluaran</string>
     <string name="rekap_total_iuran">3. Rekap Total Iuran</string>
-     <string name="no_internet_connection">No internet connection. Please check your network settings.</string>
-     <string name="failed_after_attempts">Failed after %d attempts</string>
-     <string name="network_error">Network error: %s</string>
-     <string name="request_failed_with_status">Request failed with status code: %d</string>
-     <string name="financial_calculation_overflow_error">Financial calculation error due to data overflow</string>
+    <string name="no_internet_connection">No internet connection. Please check your network settings.</string>
+    <string name="failed_after_attempts">Failed after %d attempts</string>
+    <string name="network_error">Network error: %s</string>
+    <string name="request_failed_with_status">Request failed with status code: %d</string>
+    <string name="financial_calculation_overflow_error">Financial calculation error due to data overflow</string>
+    
+    <!-- Search and Filter -->
+    <string name="search_hint">Search...</string>
+    <string name="clear_filters">Clear filters</string>
+    <string name="sort_by">Sort by</string>
+    <string name="no_results_found">No results found</string>
 </resources>
