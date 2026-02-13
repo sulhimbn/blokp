@@ -1,10 +1,15 @@
 package com.example.iurankomplek.di
 
 import android.content.Context
+import com.example.iurankomplek.data.repository.PemanfaatanRepository
+import com.example.iurankomplek.data.repository.PemanfaatanRepositoryImpl
 import com.example.iurankomplek.data.repository.UserRepository
 import com.example.iurankomplek.data.repository.UserRepositoryImpl
+import com.example.iurankomplek.data.repository.VendorRepository
+import com.example.iurankomplek.data.repository.VendorRepositoryImpl
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.network.ApiService
+import com.example.iurankomplek.network.NetworkStatusListener
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,6 +31,18 @@ object AppModule {
     @Singleton
     fun provideUserRepository(apiService: ApiService): UserRepository {
         return UserRepositoryImpl(apiService)
+    }
+
+    @Provides
+    @Singleton
+    fun providePemanfaatanRepository(apiService: ApiService): PemanfaatanRepository {
+        return PemanfaatanRepositoryImpl(apiService)
+    }
+
+    @Provides
+    @Singleton
+    fun provideVendorRepository(apiService: ApiService): VendorRepository {
+        return VendorRepositoryImpl(apiService)
     }
 
     @Provides

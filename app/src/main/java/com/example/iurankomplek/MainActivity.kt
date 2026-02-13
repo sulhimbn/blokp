@@ -7,6 +7,7 @@ import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityMainBinding
+import com.example.iurankomplek.ui.component.UserSearchFilterViewModel
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -18,6 +19,7 @@ class MainActivity : BaseActivity() {
     private lateinit var adapter: UserAdapter
     private lateinit var binding: ActivityMainBinding
     private val viewModel: UserViewModel by viewModels()
+    private val searchFilterViewModel: UserSearchFilterViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,9 +30,26 @@ class MainActivity : BaseActivity() {
         binding.rvUsers.layoutManager = LinearLayoutManager(this)
         binding.rvUsers.adapter = adapter
 
+        setupSearchFilter()
         setupSwipeRefresh()
         observeUserState()
+        observeFilteredUsers()
         viewModel.loadUsers()
+    }
+
+    private fun setupSearchFilter() {
+        binding.searchFilterView.apply {
+            setOnSearchQueryChanged { query ->
+                searchFilterViewModel.setSearchQuery(query)
+            }
+            setOnSortOptionChanged { option ->
+                searchFilterViewModel.setSortOption(option)
+            }
+            setOnClearFilters {
+                searchFilterViewModel.clearFilters()
+            }
+            observeViewModel(this@MainActivity, searchFilterViewModel)
+        }
     }
 
     private fun setupSwipeRefresh() {
@@ -58,7 +77,7 @@ class MainActivity : BaseActivity() {
                                         user
                                     } else null
                                 }
-                                adapter.setUsers(validatedUsers)
+                                searchFilterViewModel.setItems(validatedUsers)
                             } else {
                                 Toast.makeText(this@MainActivity, getString(R.string.no_users_available), Toast.LENGTH_LONG).show()
                             }
@@ -71,6 +90,17 @@ class MainActivity : BaseActivity() {
                         binding.swipeRefreshLayout.isRefreshing = false
                         Toast.makeText(this@MainActivity, state.error, Toast.LENGTH_LONG).show()
                     }
+                }
+            }
+        }
+    }
+
+    private fun observeFilteredUsers() {
+        lifecycleScope.launch {
+            searchFilterViewModel.filteredItems.collectLatest { users ->
+                adapter.setUsers(users)
+                if (users.isEmpty() && searchFilterViewModel.isFilterActive.value) {
+                    Toast.makeText(this@MainActivity, getString(R.string.no_results_found), Toast.LENGTH_SHORT).show()
                 }
             }
         }

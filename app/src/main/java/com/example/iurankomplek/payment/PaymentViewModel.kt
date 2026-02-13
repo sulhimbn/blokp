@@ -2,6 +2,8 @@ package com.example.iurankomplek.payment
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.iurankomplek.event.AppEvent
+import com.example.iurankomplek.event.EventBus
 import com.example.iurankomplek.receipt.ReceiptGenerator
 import com.example.iurankomplek.session.UserSessionManager
 import com.example.iurankomplek.transaction.TransactionRepository
@@ -24,7 +26,8 @@ data class PaymentUiState(
 class PaymentViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val receiptGenerator: ReceiptGenerator,
-    private val sessionManager: UserSessionManager
+    private val sessionManager: UserSessionManager,
+    private val eventBus: EventBus
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PaymentUiState())
     val uiState: StateFlow<PaymentUiState> = _uiState
@@ -47,6 +50,7 @@ class PaymentViewModel @Inject constructor(
                     isProcessing = false,
                     errorMessage = "User not logged in"
                 )
+                emitPaymentFailed("User not logged in")
                 return@launch
             }
 
@@ -65,12 +69,29 @@ class PaymentViewModel @Inject constructor(
                     isProcessing = false,
                     errorMessage = null
                 )
+                emitPaymentSuccess(transaction)
             }.onFailure { error ->
                 _uiState.value = _uiState.value.copy(
                     isProcessing = false,
                     errorMessage = error.message
                 )
+                emitPaymentFailed(error.message ?: "Payment failed")
             }
         }
+    }
+
+    private suspend fun emitPaymentSuccess(transaction: com.example.iurankomplek.transaction.Transaction) {
+        eventBus.publish(AppEvent.PaymentCompleted(
+            paymentId = transaction.id,
+            amount = transaction.amount
+        ))
+        eventBus.publish(AppEvent.TransactionCreated(
+            transactionId = transaction.id
+        ))
+        eventBus.publish(AppEvent.FinancialDataUpdated)
+    }
+
+    private suspend fun emitPaymentFailed(error: String) {
+        eventBus.publish(AppEvent.PaymentFailed(error))
     }
 }

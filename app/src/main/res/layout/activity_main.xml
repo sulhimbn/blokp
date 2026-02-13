@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-    <!-- TextView untuk judul -->
+
     <TextView
         android:id="@+id/textView1"
         android:layout_width="match_parent"
@@ -20,12 +20,20 @@
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent" />
-    <!-- SwipeRefreshLayout for pull-to-refresh -->
+
+    <com.example.iurankomplek.ui.component.SearchFilterView
+        android:id="@+id/searchFilterView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:elevation="4dp"
+        app:layout_constraintTop_toBottomOf="@id/textView1" />
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/textView1"
+        app:layout_constraintTop_toBottomOf="@id/searchFilterView"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">

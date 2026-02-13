@@ -43,5 +43,9 @@ class MenuActivity : AppCompatActivity() {
         binding.cdMenu4.setOnClickListener {
             startActivity(Intent(this, PaymentActivity::class.java))
         }
+        
+        binding.cdMenuDashboard?.setOnClickListener {
+            startActivity(Intent(this, DashboardActivity::class.java))
+        }
     }
 }
