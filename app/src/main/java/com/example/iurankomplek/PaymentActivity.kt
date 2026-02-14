@@ -67,26 +67,56 @@ class PaymentActivity : AppCompatActivity() {
 
     private fun processPayment() {
         val amountText = binding.etAmount.text.toString()
-        if (amountText.isEmpty()) {
-            Toast.makeText(this, "Please enter an amount", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        try {
-            val amount = BigDecimal(amountText)
-            val selectedMethod = when (binding.spinnerPaymentMethod.selectedItemPosition) {
-                0 -> PaymentMethod.CREDIT_CARD
-                1 -> PaymentMethod.BANK_TRANSFER
-                2 -> PaymentMethod.E_WALLET
-                3 -> PaymentMethod.VIRTUAL_ACCOUNT
-                else -> PaymentMethod.CREDIT_CARD
+        
+        when (val validationResult = validatePaymentAmount(amountText)) {
+            is ValidationResult.Failure -> {
+                Toast.makeText(this, validationResult.message, Toast.LENGTH_SHORT).show()
+                return
             }
+            is ValidationResult.Success -> {
+                val amount = validationResult.amount
+                val selectedMethod = when (binding.spinnerPaymentMethod.selectedItemPosition) {
+                    0 -> PaymentMethod.CREDIT_CARD
+                    1 -> PaymentMethod.BANK_TRANSFER
+                    2 -> PaymentMethod.E_WALLET
+                    3 -> PaymentMethod.VIRTUAL_ACCOUNT
+                    else -> PaymentMethod.CREDIT_CARD
+                }
 
-            paymentViewModel.setAmount(amount)
-            paymentViewModel.selectPaymentMethod(selectedMethod)
-            paymentViewModel.processPayment()
-        } catch (e: NumberFormatException) {
-            Toast.makeText(this, "Invalid amount", Toast.LENGTH_SHORT).show()
+                paymentViewModel.setAmount(amount)
+                paymentViewModel.selectPaymentMethod(selectedMethod)
+                paymentViewModel.processPayment()
+            }
         }
+    }
+
+    private fun validatePaymentAmount(input: String): ValidationResult {
+        if (input.isBlank()) {
+            return ValidationResult.Failure("Amount cannot be empty")
+        }
+
+        return try {
+            val amount = BigDecimal(input)
+            when {
+                amount <= BigDecimal.ZERO -> 
+                    ValidationResult.Failure("Amount must be positive")
+                amount > MAX_PAYMENT_AMOUNT -> 
+                    ValidationResult.Failure("Amount exceeds maximum limit of Rp $MAX_PAYMENT_AMOUNT")
+                amount.scale() > 2 -> 
+                    ValidationResult.Failure("Amount cannot have more than 2 decimal places")
+                else -> ValidationResult.Success(amount)
+            }
+        } catch (e: NumberFormatException) {
+            ValidationResult.Failure("Invalid amount format")
+        }
+    }
+
+    private sealed class ValidationResult {
+        data class Success(val amount: BigDecimal) : ValidationResult()
+        data class Failure(val message: String) : ValidationResult()
+    }
+
+    companion object {
+        private val MAX_PAYMENT_AMOUNT = BigDecimal("999999.99")
     }
 }
