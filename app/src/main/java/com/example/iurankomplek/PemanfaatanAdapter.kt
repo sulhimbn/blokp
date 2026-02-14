@@ -62,10 +62,7 @@ class PemanfaatanAdapter(private var pemanfaatan: MutableList<DataItem>) :
             // Using email + name + expense details ensures proper RecyclerView diff behavior
             val oldItem = oldList[oldItemPosition]
             val newItem = newList[newItemPosition]
-            return oldItem.email == newItem.email &&
-                   oldItem.first_name == newItem.first_name &&
-                   oldItem.last_name == newItem.last_name &&
-                   oldItem.pemanfaatan_iuran == newItem.pemanfaatan_iuran &&
+            return oldItem.pemanfaatan_iuran == newItem.pemanfaatan_iuran &&
                    oldItem.pengeluaran_iuran_warga == newItem.pengeluaran_iuran_warga
         }
         

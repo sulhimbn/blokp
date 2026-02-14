@@ -39,7 +39,7 @@ class UserAdapter(private var users: MutableList<DataItem>):
      fun addUser(newUser: DataItem?) {
          newUser?.let { user ->
              // Validate required fields before adding to prevent null values
-             if (user.email.isNotBlank() && (user.first_name.isNotBlank() || user.last_name.isNotBlank())) {
+              if (!user.email.isNullOrBlank() && (!user.first_name.isNullOrBlank() || !user.last_name.isNullOrBlank())) {
                  users.add(user)
                  notifyItemInserted(users.lastIndex)
              }
@@ -65,17 +65,17 @@ class UserAdapter(private var users: MutableList<DataItem>):
           )
           
           // Safely construct and display user name
-          val userName = mutableListOf<String>().apply {
-              if (user.first_name.isNotBlank()) add(DataValidator.sanitizeName(user.first_name))
-              if (user.last_name.isNotBlank()) add(DataValidator.sanitizeName(user.last_name))
-          }.joinToString(" ")
-          holder.binding.itemName.text = userName.ifEmpty { "Unknown User" }
-          
-          // Safely display email
-          holder.binding.itemEmail.text = user.email.takeIf { it.isNotBlank() } ?: "No email"
-          
-          // Safely display address
-          holder.binding.itemAddress.text = user.alamat.takeIf { it.isNotBlank() } ?: "No address"
+           val userName = mutableListOf<String>().apply {
+               if (!user.first_name.isNullOrBlank()) add(DataValidator.sanitizeName(user.first_name))
+               if (!user.last_name.isNullOrBlank()) add(DataValidator.sanitizeName(user.last_name))
+           }.joinToString(" ")
+           holder.binding.itemName.text = userName.ifEmpty { "Unknown User" }
+           
+           // Safely display email
+           holder.binding.itemEmail.text = user.email?.takeIf { it.isNotBlank() } ?: "No email"
+           
+           // Safely display address
+           holder.binding.itemAddress.text = user.alamat?.takeIf { it.isNotBlank() } ?: "No address"
           
           // Safely display iuran perwarga with validation
           val iuranPerwargaValue = if (user.iuran_perwarga >= 0) user.iuran_perwarga else 0
@@ -117,7 +117,8 @@ class UserAdapter(private var users: MutableList<DataItem>):
             val newItem = newList[newItemPosition]
             return oldItem.first_name == newItem.first_name &&
                    oldItem.last_name == newItem.last_name &&
-                   oldItem.alamat == newItem.alamat
+                   oldItem.alamat == newItem.alamat &&
+                   oldItem.email == newItem.email
         }
         
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
