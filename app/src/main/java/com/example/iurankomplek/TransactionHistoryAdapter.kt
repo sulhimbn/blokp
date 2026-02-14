@@ -9,11 +9,8 @@ import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.iurankomplek.payment.MockPaymentGateway
 import com.example.iurankomplek.payment.PaymentStatus
-import com.example.iurankomplek.payment.RefundResponse
 import com.example.iurankomplek.transaction.Transaction
-import com.example.iurankomplek.transaction.TransactionDatabase
 import com.example.iurankomplek.transaction.TransactionRepository
 import android.os.Handler
 import android.os.Looper
@@ -23,19 +20,30 @@ import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
 
-class TransactionHistoryAdapter : ListAdapter<Transaction, TransactionHistoryAdapter.TransactionViewHolder>(TransactionDiffCallback()) {
+/**
+ * Adapter for displaying transaction history in a RecyclerView.
+ *
+ * @param transactionRepository Repository for transaction operations, injected to avoid
+ *                              creating new instances in ViewHolders which causes memory leaks.
+ */
+class TransactionHistoryAdapter(
+    private val transactionRepository: TransactionRepository
+) : ListAdapter<Transaction, TransactionHistoryAdapter.TransactionViewHolder>(TransactionDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_transaction_history, parent, false)
-        return TransactionViewHolder(view)
+        return TransactionViewHolder(view, transactionRepository)
     }
 
     override fun onBindViewHolder(holder: TransactionViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
 
-    class TransactionViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class TransactionViewHolder(
+        itemView: View,
+        private val transactionRepository: TransactionRepository
+    ) : RecyclerView.ViewHolder(itemView) {
         private val tvAmount: TextView = itemView.findViewById(R.id.tv_amount)
         private val tvDescription: TextView = itemView.findViewById(R.id.tv_description)
         private val tvDate: TextView = itemView.findViewById(R.id.tv_date)
@@ -56,13 +64,8 @@ class TransactionHistoryAdapter : ListAdapter<Transaction, TransactionHistoryAda
             if (transaction.status == PaymentStatus.COMPLETED) {
                 btnRefund.visibility = View.VISIBLE
                 btnRefund.setOnClickListener {
-                    // Initialize payment gateway and repository
-                    val mockPaymentGateway = MockPaymentGateway()
-                    val transactionDatabase = TransactionDatabase.getDatabase(context)
-                    val transactionDao = transactionDatabase.transactionDao()
-                    val transactionRepository = TransactionRepository(mockPaymentGateway, transactionDao)
-
-                    // Process refund
+                    // Process refund using the injected repository instance
+                    // This avoids creating new instances on each click, fixing memory leak (Issue #225)
                     CoroutineScope(Dispatchers.IO).launch {
                         val result = transactionRepository.refundPayment(transaction.id, "User requested refund")
                         if (result.isSuccess) {
