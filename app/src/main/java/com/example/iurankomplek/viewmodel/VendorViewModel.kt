@@ -4,10 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.iurankomplek.data.repository.VendorRepository
-import com.example.iurankomplek.model.VendorResponse
-import com.example.iurankomplek.model.SingleVendorResponse
-import com.example.iurankomplek.model.WorkOrderResponse
-import com.example.iurankomplek.model.SingleWorkOrderResponse
+import com.example.iurankomplek.data.api.models.VendorResponse
+import com.example.iurankomplek.data.api.models.SingleVendorResponse
+import com.example.iurankomplek.data.api.models.WorkOrderResponse
+import com.example.iurankomplek.data.api.models.SingleWorkOrderResponse
 import com.example.iurankomplek.utils.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

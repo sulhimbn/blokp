@@ -61,8 +61,8 @@ enum class RefundStatus {
 }
 
 // Extension function to convert PaymentResponse to API model
-fun PaymentResponse.toApiPaymentResponse(): com.example.iurankomplek.model.PaymentResponse {
-    return com.example.iurankomplek.model.PaymentResponse(
+fun PaymentResponse.toApiPaymentResponse(): com.example.iurankomplek.data.api.models.PaymentResponse {
+    return com.example.iurankomplek.data.api.models.PaymentResponse(
         transactionId = this.transactionId,
         status = this.status.name,
         paymentMethod = this.paymentMethod.name,
@@ -73,7 +73,7 @@ fun PaymentResponse.toApiPaymentResponse(): com.example.iurankomplek.model.Payme
     )
 }
 
-fun com.example.iurankomplek.model.PaymentResponse.toDomainPaymentResponse(): PaymentResponse {
+fun com.example.iurankomplek.data.api.models.PaymentResponse.toDomainPaymentResponse(): PaymentResponse {
     return PaymentResponse(
         transactionId = this.transactionId,
         status = when(this.status.uppercase()) {

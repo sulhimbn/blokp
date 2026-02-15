@@ -18,7 +18,7 @@ class TransactionRepository @Inject constructor(
           description: String,
           customerId: String,
           paymentMethod: String
-      ): Result<com.example.iurankomplek.model.PaymentResponse> {
+      ): Result<com.example.iurankomplek.data.api.models.PaymentResponse> {
           // This method properly integrates with the payment gateway using suspend functions
           return try {
               val response = paymentGateway.processPayment(
