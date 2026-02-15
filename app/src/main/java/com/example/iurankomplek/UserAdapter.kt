@@ -39,7 +39,10 @@ class UserAdapter(private var users: MutableList<DataItem>):
      fun addUser(newUser: DataItem?) {
          newUser?.let { user ->
              // Validate required fields before adding to prevent null values
-             if (user.email.isNotBlank() && (user.first_name.isNotBlank() || user.last_name.isNotBlank())) {
+             val email = user.email ?: ""
+             val firstName = user.first_name ?: ""
+             val lastName = user.last_name ?: ""
+             if (email.isNotBlank() && (firstName.isNotBlank() || lastName.isNotBlank())) {
                  users.add(user)
                  notifyItemInserted(users.lastIndex)
              }
@@ -65,17 +68,21 @@ class UserAdapter(private var users: MutableList<DataItem>):
           )
           
           // Safely construct and display user name
+          val firstName = user.first_name ?: ""
+          val lastName = user.last_name ?: ""
           val userName = mutableListOf<String>().apply {
-              if (user.first_name.isNotBlank()) add(DataValidator.sanitizeName(user.first_name))
-              if (user.last_name.isNotBlank()) add(DataValidator.sanitizeName(user.last_name))
+              if (firstName.isNotBlank()) add(DataValidator.sanitizeName(firstName))
+              if (lastName.isNotBlank()) add(DataValidator.sanitizeName(lastName))
           }.joinToString(" ")
           holder.binding.itemName.text = userName.ifEmpty { "Unknown User" }
           
           // Safely display email
-          holder.binding.itemEmail.text = user.email.takeIf { it.isNotBlank() } ?: "No email"
+          val email = user.email ?: ""
+          holder.binding.itemEmail.text = email.takeIf { it.isNotBlank() } ?: "No email"
           
           // Safely display address
-          holder.binding.itemAddress.text = user.alamat.takeIf { it.isNotBlank() } ?: "No address"
+          val alamat = user.alamat ?: ""
+          holder.binding.itemAddress.text = alamat.takeIf { it.isNotBlank() } ?: "No address"
           
           // Safely display iuran perwarga with validation
           val iuranPerwargaValue = if (user.iuran_perwarga >= 0) user.iuran_perwarga else 0
