@@ -1,8 +1,8 @@
 package com.example.iurankomplek.network
 
-import com.example.iurankomplek.model.PaymentResponse
-import com.example.iurankomplek.model.PaymentStatusResponse
-import com.example.iurankomplek.model.PaymentConfirmationResponse
+import com.example.iurankomplek.data.api.models.PaymentResponse
+import com.example.iurankomplek.data.api.models.PaymentStatusResponse
+import com.example.iurankomplek.data.api.models.PaymentConfirmationResponse
 import org.junit.Test
 import retrofit2.Call
 import kotlin.test.assertNotNull

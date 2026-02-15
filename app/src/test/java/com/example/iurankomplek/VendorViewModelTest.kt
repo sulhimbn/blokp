@@ -3,9 +3,9 @@ package com.example.iurankomplek
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.iurankomplek.data.repository.VendorRepository
 import com.example.iurankomplek.model.Vendor
-import com.example.iurankomplek.model.VendorResponse
+import com.example.iurankomplek.data.api.models.VendorResponse
 import com.example.iurankomplek.model.WorkOrder
-import com.example.iurankomplek.model.WorkOrderResponse
+import com.example.iurankomplek.data.api.models.WorkOrderResponse
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.VendorViewModel
 import kotlinx.coroutines.Dispatchers

@@ -1,9 +1,9 @@
 package com.example.iurankomplek.data.repository
 
-import com.example.iurankomplek.model.VendorResponse
-import com.example.iurankomplek.model.SingleVendorResponse
-import com.example.iurankomplek.model.WorkOrderResponse
-import com.example.iurankomplek.model.SingleWorkOrderResponse
+import com.example.iurankomplek.data.api.models.VendorResponse
+import com.example.iurankomplek.data.api.models.SingleVendorResponse
+import com.example.iurankomplek.data.api.models.WorkOrderResponse
+import com.example.iurankomplek.data.api.models.SingleWorkOrderResponse
 
 interface VendorRepository {
     suspend fun getVendors(): Result<VendorResponse>
