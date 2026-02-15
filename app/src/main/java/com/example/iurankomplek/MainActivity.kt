@@ -72,8 +72,11 @@ class MainActivity : BaseActivity() {
                         state.data.data?.let { users ->
                             if (users.isNotEmpty()) {
                                 val validatedUsers = users.mapNotNull { user ->
-                                    if (user.email.isNotBlank() &&
-                                        (user.first_name.isNotBlank() || user.last_name.isNotBlank())) {
+                                    val email = user.email ?: ""
+                                    val firstName = user.first_name ?: ""
+                                    val lastName = user.last_name ?: ""
+                                    if (email.isNotBlank() &&
+                                        (firstName.isNotBlank() || lastName.isNotBlank())) {
                                         user
                                     } else null
                                 }
