@@ -18,3 +18,13 @@ sealed class Result<out T> {
     object Loading : Result<Nothing>()
     object Empty : Result<Nothing>()
 }
+
+inline fun <T> Result<T>.onSuccess(action: (T) -> Unit): Result<T> {
+    if (this is Result.Success) action(data)
+    return this
+}
+
+inline fun <T> Result<T>.onFailure(action: (Throwable) -> Unit): Result<T> {
+    if (this is Result.Error) action(exception)
+    return this
+}

@@ -5,7 +5,7 @@ import com.example.iurankomplek.transaction.TransactionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.*
+import okhttp3.OkHttpClient
 import java.io.IOException
 
 class WebhookReceiver(

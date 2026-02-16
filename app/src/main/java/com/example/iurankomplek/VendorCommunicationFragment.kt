@@ -34,17 +34,17 @@ class VendorCommunicationFragment : Fragment() {
         // Initialize ViewModel
         val repository = VendorRepositoryImpl(ApiConfig.getApiService())
         vendorViewModel = ViewModelProvider(
-            this, 
+            this,
             VendorViewModel.Factory(repository)
         )[VendorViewModel::class.java]
         
-        setupViews()
+        setupViews(view)
         observeVendors()
         vendorViewModel.loadVendors()
     }
-    
-    private fun setupViews() {
-        vendorRecyclerView = view?.findViewById(R.id.vendorRecyclerView)!!
+
+    private fun setupViews(view: View) {
+        vendorRecyclerView = view.findViewById(R.id.vendorRecyclerView)
         vendorAdapter = VendorAdapter { vendor ->
             // Handle vendor click - could initiate communication
             Toast.makeText(context, "Communicate with: ${vendor.name}", Toast.LENGTH_SHORT).show()
