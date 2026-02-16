@@ -11,12 +11,16 @@ import com.example.iurankomplek.utils.Constants
 object SecurityConfig {
     
     fun getSecureOkHttpClient(): OkHttpClient {
+        val certificatePinnerBuilder = CertificatePinner.Builder()
+            .add("api.apispreadsheets.com", Constants.Security.CERTIFICATE_PINNER)
+        
+        // Add backup certificate pin if it's not a placeholder
+        if (!Constants.Security.BACKUP_CERTIFICATE_PINNER.contains("PLACEHOLDER")) {
+            certificatePinnerBuilder.add("api.apispreadsheets.com", Constants.Security.BACKUP_CERTIFICATE_PINNER)
+        }
+        
         val clientBuilder = OkHttpClient.Builder()
-            .certificatePinner(
-                CertificatePinner.Builder()
-                    .add("api.apispreadsheets.com", Constants.Security.CERTIFICATE_PINNER)
-                    .build()
-            )
+            .certificatePinner(certificatePinnerBuilder.build())
             .connectTimeout(Constants.Network.CONNECT_TIMEOUT, TimeUnit.SECONDS)
             .readTimeout(Constants.Network.READ_TIMEOUT, TimeUnit.SECONDS)
             .addInterceptor(getSecurityInterceptor())
