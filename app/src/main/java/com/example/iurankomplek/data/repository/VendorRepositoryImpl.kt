@@ -16,7 +16,12 @@ class VendorRepositoryImpl(
         return try {
             val response = apiService.getVendors()
             if (response.isSuccessful) {
-                Result.success(response.body()!!)
+                val body = response.body()
+                if (body != null) {
+                    Result.success(body)
+                } else {
+                    Result.failure(IOException("Response body is null"))
+                }
             } else {
                 Result.failure(HttpException(response))
             }
@@ -29,7 +34,12 @@ class VendorRepositoryImpl(
         return try {
             val response = apiService.getVendor(id)
             if (response.isSuccessful) {
-                Result.success(response.body()!!)
+                val body = response.body()
+                if (body != null) {
+                    Result.success(body)
+                } else {
+                    Result.failure(IOException("Response body is null"))
+                }
             } else {
                 Result.failure(HttpException(response))
             }
@@ -56,7 +66,12 @@ class VendorRepositoryImpl(
                 licenseNumber, insuranceInfo, contractStart, contractEnd
             )
             if (response.isSuccessful) {
-                Result.success(response.body()!!)
+                val body = response.body()
+                if (body != null) {
+                    Result.success(body)
+                } else {
+                    Result.failure(IOException("Response body is null"))
+                }
             } else {
                 Result.failure(HttpException(response))
             }
@@ -85,7 +100,12 @@ class VendorRepositoryImpl(
                 licenseNumber, insuranceInfo, contractStart, contractEnd, isActive
             )
             if (response.isSuccessful) {
-                Result.success(response.body()!!)
+                val body = response.body()
+                if (body != null) {
+                    Result.success(body)
+                } else {
+                    Result.failure(IOException("Response body is null"))
+                }
             } else {
                 Result.failure(HttpException(response))
             }
@@ -98,7 +118,12 @@ class VendorRepositoryImpl(
         return try {
             val response = apiService.getWorkOrders()
             if (response.isSuccessful) {
-                Result.success(response.body()!!)
+                val body = response.body()
+                if (body != null) {
+                    Result.success(body)
+                } else {
+                    Result.failure(IOException("Response body is null"))
+                }
             } else {
                 Result.failure(HttpException(response))
             }
@@ -111,7 +136,12 @@ class VendorRepositoryImpl(
         return try {
             val response = apiService.getWorkOrder(id)
             if (response.isSuccessful) {
-                Result.success(response.body()!!)
+                val body = response.body()
+                if (body != null) {
+                    Result.success(body)
+                } else {
+                    Result.failure(IOException("Response body is null"))
+                }
             } else {
                 Result.failure(HttpException(response))
             }
@@ -134,7 +164,12 @@ class VendorRepositoryImpl(
                 title, description, category, priority, propertyId, reporterId, estimatedCost
             )
             if (response.isSuccessful) {
-                Result.success(response.body()!!)
+                val body = response.body()
+                if (body != null) {
+                    Result.success(body)
+                } else {
+                    Result.failure(IOException("Response body is null"))
+                }
             } else {
                 Result.failure(HttpException(response))
             }
@@ -151,7 +186,12 @@ class VendorRepositoryImpl(
         return try {
             val response = apiService.assignVendorToWorkOrder(workOrderId, vendorId, scheduledDate)
             if (response.isSuccessful) {
-                Result.success(response.body()!!)
+                val body = response.body()
+                if (body != null) {
+                    Result.success(body)
+                } else {
+                    Result.failure(IOException("Response body is null"))
+                }
             } else {
                 Result.failure(HttpException(response))
             }
@@ -168,7 +208,12 @@ class VendorRepositoryImpl(
         return try {
             val response = apiService.updateWorkOrderStatus(workOrderId, status, notes)
             if (response.isSuccessful) {
-                Result.success(response.body()!!)
+                val body = response.body()
+                if (body != null) {
+                    Result.success(body)
+                } else {
+                    Result.failure(IOException("Response body is null"))
+                }
             } else {
                 Result.failure(HttpException(response))
             }

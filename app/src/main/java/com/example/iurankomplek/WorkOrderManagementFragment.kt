@@ -34,17 +34,17 @@ class WorkOrderManagementFragment : Fragment() {
         // Initialize ViewModel
         val repository = VendorRepositoryImpl(ApiConfig.getApiService())
         vendorViewModel = ViewModelProvider(
-            this, 
+            this,
             VendorViewModel.Factory(repository)
         )[VendorViewModel::class.java]
         
-        setupViews()
+        setupViews(view)
         observeWorkOrders()
         vendorViewModel.loadWorkOrders()
     }
-    
-    private fun setupViews() {
-        workOrderRecyclerView = view?.findViewById(R.id.workOrderRecyclerView)!!
+
+    private fun setupViews(view: View) {
+        workOrderRecyclerView = view.findViewById(R.id.workOrderRecyclerView)
         workOrderAdapter = WorkOrderAdapter { workOrder ->
             // Handle work order click - could navigate to work order details
             Toast.makeText(context, "Work Order: ${workOrder.title}", Toast.LENGTH_SHORT).show()
