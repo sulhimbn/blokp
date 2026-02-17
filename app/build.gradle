@@ -96,4 +96,10 @@ dependencies {
     // Lifecycle
     implementation libs.lifecycle.viewmodel.ktx
     implementation libs.lifecycle.livedata.ktx
+    
+    // PDF Export - iText for Android
+    implementation 'com.itextpdf:itext7-core:7.2.5'
+    
+    // CSV Export - Apache Commons CSV
+    implementation 'org.apache.commons:commons-csv:1.10.0'
 }
