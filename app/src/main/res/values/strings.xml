@@ -16,6 +16,17 @@
     <string name="request_failed_with_status">Request failed with status code: %d</string>
     <string name="financial_calculation_overflow_error">Financial calculation error due to data overflow</string>
     
+    <!-- Export and Share -->
+    <string name="export_pdf">Export as PDF</string>
+    <string name="export_csv">Export as CSV</string>
+    <string name="share_report">Share Report</string>
+    <string name="export_success">Report exported successfully</string>
+    <string name="export_failed">Failed to export report</string>
+    <string name="no_data_to_export">No data available to export</string>
+    <string name="select_export_format">Select export format</string>
+    <string name="export">Export</string>
+    <string name="cancel">Cancel</string>
+    
     <!-- Search and Filter -->
     <string name="search_hint">Search...</string>
     <string name="clear_filters">Clear filters</string>

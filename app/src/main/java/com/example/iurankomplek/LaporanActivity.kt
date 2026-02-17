@@ -1,12 +1,19 @@
 package com.example.iurankomplek
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityLaporanBinding
+import com.example.iurankomplek.export.ExportFormat
+import com.example.iurankomplek.export.ReportExporter
+import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.model.LaporanSummaryItem
 import com.example.iurankomplek.utils.DataValidator
 import com.example.iurankomplek.utils.UiState
@@ -27,6 +34,10 @@ class LaporanActivity : BaseActivity() {
     private lateinit var binding: ActivityLaporanBinding
     private val viewModel: FinancialViewModel by viewModels()
     private lateinit var transactionRepository: TransactionRepository
+    private lateinit var reportExporter: ReportExporter
+    private var currentDataItems: List<DataItem> = emptyList()
+    private var currentSummaryItems: List<LaporanSummaryItem> = emptyList()
+    private var lastExportResult: ReportExporter.ExportResult? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +45,7 @@ class LaporanActivity : BaseActivity() {
         setContentView(binding.root)
 
         initializeTransactionRepository()
+        reportExporter = ReportExporter(this)
 
         adapter = PemanfaatanAdapter(mutableListOf())
         summaryAdapter = LaporanSummaryAdapter(mutableListOf())
@@ -48,6 +60,111 @@ class LaporanActivity : BaseActivity() {
          observeFinancialState()
          viewModel.loadFinancialData()
      }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_laporan, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_export_pdf -> {
+                exportReport(ExportFormat.PDF)
+                true
+            }
+            R.id.action_export_csv -> {
+                exportReport(ExportFormat.CSV)
+                true
+            }
+            R.id.action_share -> {
+                showShareDialog()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun exportReport(format: ExportFormat) {
+        if (currentDataItems.isEmpty() || currentSummaryItems.isEmpty()) {
+            Toast.makeText(this, getString(R.string.no_data_to_export), Toast.LENGTH_LONG).show()
+            return
+        }
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val result = reportExporter.exportFinancialReport(
+                currentDataItems,
+                currentSummaryItems,
+                format
+            )
+
+            withContext(Dispatchers.Main) {
+                result.fold(
+                    onSuccess = { exportResult ->
+                        lastExportResult = exportResult
+                        Toast.makeText(
+                            this@LaporanActivity,
+                            getString(R.string.export_success),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    },
+                    onFailure = { error ->
+                        Toast.makeText(
+                            this@LaporanActivity,
+                            getString(R.string.export_failed) + ": ${error.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                )
+            }
+        }
+    }
+
+    private fun showShareDialog() {
+        val formats = ExportFormat.values()
+        val formatNames = formats.map { it.getDisplayName() }.toTypedArray()
+
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.select_export_format))
+            .setItems(formatNames) { _, which ->
+                shareReport(formats[which])
+            }
+            .setNegativeButton(getString(R.string.cancel), null)
+            .show()
+    }
+
+    private fun shareReport(format: ExportFormat) {
+        if (currentDataItems.isEmpty() || currentSummaryItems.isEmpty()) {
+            Toast.makeText(this, getString(R.string.no_data_to_export), Toast.LENGTH_LONG).show()
+            return
+        }
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val result = reportExporter.exportFinancialReport(
+                currentDataItems,
+                currentSummaryItems,
+                format
+            )
+
+            withContext(Dispatchers.Main) {
+                result.fold(
+                    onSuccess = { exportResult ->
+                        val shareIntent = reportExporter.createShareIntent(
+                            exportResult.uri,
+                            format
+                        )
+                        startActivity(Intent.createChooser(shareIntent, getString(R.string.share_report)))
+                    },
+                    onFailure = { error ->
+                        Toast.makeText(
+                            this@LaporanActivity,
+                            getString(R.string.export_failed) + ": ${error.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                )
+            }
+        }
+    }
      
      private fun setupSwipeRefresh() {
          binding.swipeRefreshLayout.setOnRefreshListener {
@@ -93,19 +210,17 @@ class LaporanActivity : BaseActivity() {
     
     private fun calculateAndSetSummary(dataArray: List<com.example.iurankomplek.model.DataItem>) {
         try {
-            // Use FinancialCalculator for all financial calculations
+            currentDataItems = dataArray
             val totalIuranBulanan = com.example.iurankomplek.utils.FinancialCalculator.calculateTotalIuranBulanan(dataArray)
             val totalPengeluaran = com.example.iurankomplek.utils.FinancialCalculator.calculateTotalPengeluaran(dataArray)
             val totalIuranIndividu = com.example.iurankomplek.utils.FinancialCalculator.calculateTotalIuranIndividu(dataArray)
             val rekapIuran = com.example.iurankomplek.utils.FinancialCalculator.calculateRekapIuran(dataArray)
 
-            // Validate financial calculations before displaying
             if (!com.example.iurankomplek.utils.FinancialCalculator.validateFinancialCalculations(dataArray)) {
                 Toast.makeText(this, getString(R.string.invalid_financial_data_detected), Toast.LENGTH_LONG).show()
                 return
             }
             
-            // Integrate payment transaction data into financial calculations
             integratePaymentTransactions(
                 dataArray,
                 totalIuranBulanan,
@@ -151,20 +266,15 @@ class LaporanActivity : BaseActivity() {
                 }
                 
 withContext(Dispatchers.Main) {
-             // If there are completed transactions, update the summary to show payment integration
              if (completedTransactions.isNotEmpty()) {
-                 // Update financial calculations to include actual payment data
-                 // Instead of adding payments to total iuran, show payments as collected amounts against outstanding balances
-                 val updatedRekapIuran = currentRekapIuran // Keep the original rekap iuran calculation
-                 
-                 // Update summary with integrated data
+                 val updatedRekapIuran = currentRekapIuran
                  val updatedSummaryItems = listOf(
                      LaporanSummaryItem(getString(R.string.jumlah_iuran_bulanan), DataValidator.formatCurrency(currentTotalIuranBulanan)),
                      LaporanSummaryItem(getString(R.string.total_pengeluaran), DataValidator.formatCurrency(currentTotalPengeluaran)),
                      LaporanSummaryItem(getString(R.string.rekap_total_iuran), DataValidator.formatCurrency(updatedRekapIuran)),
                      LaporanSummaryItem("Total Payments Processed", DataValidator.formatCurrency(paymentTotal))
                  )
-                 
+                 currentSummaryItems = updatedSummaryItems
                  summaryAdapter.setItems(updatedSummaryItems)
                  
                  Toast.makeText(
@@ -173,13 +283,12 @@ withContext(Dispatchers.Main) {
                      Toast.LENGTH_LONG
                  ).show()
              } else {
-                 // If no completed transactions, show original summary without payment data
                  val originalSummaryItems = listOf(
                      LaporanSummaryItem(getString(R.string.jumlah_iuran_bulanan), DataValidator.formatCurrency(currentTotalIuranBulanan)),
                      LaporanSummaryItem(getString(R.string.total_pengeluaran), DataValidator.formatCurrency(currentTotalPengeluaran)),
                      LaporanSummaryItem(getString(R.string.rekap_total_iuran), DataValidator.formatCurrency(currentRekapIuran))
                  )
-                 
+                 currentSummaryItems = originalSummaryItems
                  summaryAdapter.setItems(originalSummaryItems)
              }
          }
