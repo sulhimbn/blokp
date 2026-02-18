@@ -10,12 +10,15 @@ import com.example.iurankomplek.databinding.ItemListBinding
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.utils.ImageLoader
 import com.example.iurankomplek.utils.DataValidator
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class UserAdapter(private var users: MutableList<DataItem>):
+class UserAdapter(
+    private var users: MutableList<DataItem>,
+    private val coroutineScope: CoroutineScope
+):
     RecyclerView.Adapter<UserAdapter.ListViewHolder>(){
     
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
@@ -24,7 +27,7 @@ class UserAdapter(private var users: MutableList<DataItem>):
     }
     
     fun setUsers(newUsers: List<DataItem>) {
-        GlobalScope.launch(Dispatchers.Default) {
+        coroutineScope.launch(Dispatchers.Default) {
             val diffCallback = UserDiffCallback(this@UserAdapter.users, newUsers)
             val diffResult = DiffUtil.calculateDiff(diffCallback)
             

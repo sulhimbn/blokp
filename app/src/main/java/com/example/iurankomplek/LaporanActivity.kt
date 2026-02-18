@@ -47,8 +47,8 @@ class LaporanActivity : BaseActivity() {
         initializeTransactionRepository()
         reportExporter = ReportExporter(this)
 
-        adapter = PemanfaatanAdapter(mutableListOf())
-        summaryAdapter = LaporanSummaryAdapter(mutableListOf())
+        adapter = PemanfaatanAdapter(mutableListOf(), lifecycleScope)
+        summaryAdapter = LaporanSummaryAdapter()
         
         binding.rvLaporan.layoutManager = LinearLayoutManager(this)
         binding.rvLaporan.adapter = adapter

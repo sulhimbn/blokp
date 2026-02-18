@@ -7,10 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+
 
 data class LaporanSummaryItem(
     val title: String,
@@ -46,9 +43,7 @@ class LaporanSummaryAdapter : ListAdapter<LaporanSummaryItem, LaporanSummaryAdap
     }
 
     fun setItems(newItems: List<LaporanSummaryItem>) {
-        GlobalScope.launch(Dispatchers.Default) {
-            submitList(newItems)
-        }
+        submitList(newItems)
     }
 
     class ListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
