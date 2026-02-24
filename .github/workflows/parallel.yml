@@ -80,7 +80,7 @@ jobs:
         timeout-minutes: 30
         run: |
             opencode run /ulw-loop "
-            IF issue_count > 10 THEN enter MANAGER MODE. IF issue_count < 10 THEN enter CREATOR MODE.
+            IF Github issue_count > 10 THEN enter MANAGER MODE. IF Github issue_count < 10 THEN enter CREATOR MODE.
 
             // MANAGER MODE
             - Audit all existing issues:
