@@ -10,10 +10,19 @@ class PemanfaatanRepositoryImpl(
     
     override val errorHandler = ErrorHandler()
     
+    companion object {
+        private const val CACHE_KEY_PEMANFAATAN = "pemanfaatan_list"
+    }
+
     override suspend fun getPemanfaatan(): Result<PemanfaatanResponse> {
-        return executeWithRetry(
-            operation = { apiService.getPemanfaatan() },
-            transform = { it }
-        )
+        return getCachedOrNetwork(
+            cacheKey = CACHE_KEY_PEMANFAATAN,
+            ttlMs = 5 * 60 * 1000L // 5 minutes TTL
+        ) {
+            executeWithRetry(
+                operation = { apiService.getPemanfaatan() },
+                transform = { it }
+            )
+        }
     }
 }

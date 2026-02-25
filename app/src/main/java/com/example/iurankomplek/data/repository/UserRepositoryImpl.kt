@@ -1,4 +1,33 @@
-package com.example.iurankomplek.data.repository
+import com.example.iurankomplek.model.User
+import com.example.iurankomplek.model.UserResponse
+import com.example.iurankomplek.network.ApiService
+import com.example.iurankomplek.session.UserSessionManager
+import com.example.iurankomplek.utils.ErrorHandler
+import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
+
+class UserRepositoryImpl @Inject constructor(
+    private val apiService: ApiService,
+    private val sessionManager: UserSessionManager
+) : BaseNetworkRepository(), UserRepository {
+    
+    override val errorHandler = ErrorHandler()
+    
+    companion object {
+        private const val CACHE_KEY_USERS = "user_list"
+    }
+
+    override suspend fun getUsers(): Result<UserResponse> {
+        return getCachedOrNetwork(
+            cacheKey = CACHE_KEY_USERS,
+            ttlMs = 5 * 60 * 1000L // 5 minutes TTL
+        ) {
+            executeWithRetry(
+                operation = { apiService.getUsers() },
+                transform = { it }
+            )
+        }
+    }
 
 import com.example.iurankomplek.model.User
 import com.example.iurankomplek.model.UserResponse
@@ -51,6 +80,15 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override suspend fun logout(): Result<Unit> {
+        return try {
+            sessionManager.clearSession()
+            // Clear user cache on logout to ensure fresh data on next login
+            invalidateCache(CACHE_KEY_USERS)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(Exception("Logout failed: ${e.message}"))
+        }
+    }
         return try {
             sessionManager.clearSession()
             Result.success(Unit)
