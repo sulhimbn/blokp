@@ -3,6 +3,8 @@ package com.example.iurankomplek.utils
 import android.util.Log
 import com.example.iurankomplek.BuildConfig
 import java.nio.charset.StandardCharsets
+import com.example.iurankomplek.BuildConfig
+import java.nio.charset.StandardCharsets
 import java.nio.charset.StandardCharsets
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
@@ -22,6 +24,15 @@ object WebhookSecurityUtil {
     private val TAG = Constants.Tags.WEBHOOK_RECEIVER
     
     // Get webhook secret: prefer BuildConfig (CI/CD set) over Constants (placeholder)
+    private val webhookSecret: String
+        get() = if (BuildConfig.WEBHOOK_SECRET.isNotBlank()) {
+            BuildConfig.WEBHOOK_SECRET
+        } else {
+            Log.w(TAG, "WARNING: Using placeholder webhook secret - MUST configure BuildConfig.WEBHOOK_SECRET in production")
+            Constants.Security.WEBHOOK_SECRET_KEY
+        }
+    
+    /**
     private val webhookSecret: String
         get() = if (BuildConfig.WEBHOOK_SECRET.isNotBlank()) {
             BuildConfig.WEBHOOK_SECRET
