@@ -40,7 +40,7 @@ class WorkOrderManagementFragment : Fragment() {
         workOrderRecyclerView = view.findViewById(R.id.workOrderRecyclerView)
         workOrderAdapter = WorkOrderAdapter { workOrder ->
             // Handle work order click - could navigate to work order details
-            Toast.makeText(requireContext(), "Work Order: ${workOrder.title}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.work_order_selected, workOrder.title), Toast.LENGTH_SHORT).show()
         }
         
         workOrderRecyclerView.apply {
@@ -59,7 +59,7 @@ class WorkOrderManagementFragment : Fragment() {
                     workOrderAdapter.submitList(state.data.data)
                 }
                 is UiState.Error -> {
-                    Toast.makeText(requireContext(), "Error: ${state.error}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.error_loading_data), Toast.LENGTH_SHORT).show()
                 }
             }
         }

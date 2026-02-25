@@ -41,3 +41,23 @@
     <string name="title_daftar_iuran">DAFTAR IURAN WARGA KONOHA</string>
     <string name="content_pembayaran">Menu Pembayaran</string>
     <string name="no_results_found">No results found</string>
+
+    <string name="no_announcements_available">No announcements available</string>
+    <string name="failed_to_load_announcements">Failed to load announcements</string>
+    <string name="network_error_announcements">Network error: %s</string>
+    <string name="no_messages_available">No messages available</string>
+    <string name="failed_to_load_messages">Failed to load messages</string>
+    <string name="network_error_messages">Network error: %s</string>
+    <string name="no_community_posts_available">No community posts available</string>
+    <string name="failed_to_load_community_posts">Failed to load community posts</string>
+    <string name="network_error_community_posts">Network error: %s</string>
+    <string name="work_order_id_not_provided">Work order ID not provided</string>
+    <string name="vendor_selected">Vendor: %s</string>
+    <string name="work_order_selected">Work Order: %s</string>
+    <string name="communicate_with_vendor">Communicate with: %s</string>
+    <string name="refund_processed_successfully">Refund processed successfully</string>
+    <string name="refund_failed">Refund failed: %s</string>
+    <string name="payment_processing">Processing payment…</string>
+    <string name="payment_success">Payment successful!</string>
+    <string name="payment_validation_failed">Payment validation failed: %s</string>
+    <string name="error_loading_dashboard">Error loading dashboard</string>
