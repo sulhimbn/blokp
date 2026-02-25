@@ -83,6 +83,7 @@ suspend fun getTransactionById(id: String): Transaction? {
     - Falls back to default scope for backward compatibility
 
 - Issue #421: Additional CoroutineScope leaks in TransactionHistoryAdapter, WebhookReceiver, and TransactionHistoryActivity
-  - Fixed by adding externalScope parameter to TransactionHistoryAdapter and WebhookReceiver
-  - TransactionHistoryActivity now uses lifecycleScope for proper lifecycle management
+  - Fixed WebhookReceiver.kt: Removed duplicate transactionRepository declaration and nested CoroutineScope(Dispatchers.IO) leak in processWebhookEvent()
+  - Fixed TransactionHistoryActivity.kt: Now passes lifecycleScope to TransactionHistoryAdapter for proper lifecycle management
+  - TransactionHistoryAdapter.kt already had externalScope parameter (was previously fixed)
   - Follows the same pattern as Issue #401/PR #404
