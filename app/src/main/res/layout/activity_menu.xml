@@ -43,6 +43,7 @@
                     android:layout_height="50dp"
                     android:layout_margin="5dp"
                     android:layout_weight="1"
+                    android:contentDescription="Menu Warga - Daftar Pengguna"
                     app:srcCompat="@drawable/profile" />
 
                 <TextView
@@ -69,6 +70,7 @@
                     android:layout_height="50dp"
                     android:layout_margin="5dp"
                     android:layout_weight="1"
+                    android:contentDescription="Menu Laporan - Laporan Keuangan"
                     app:srcCompat="@drawable/kas" />
 
                 <TextView
@@ -105,6 +107,7 @@
                      android:layout_height="50dp"
                      android:layout_margin="5dp"
                      android:layout_weight="1"
+                     android:contentDescription="Menu Komunikasi"
                      app:srcCompat="@drawable/profile" />
 
                  <TextView
@@ -132,6 +135,7 @@
                      android:layout_height="50dp"
                      android:layout_margin="5dp"
                      android:layout_weight="1"
+                     android:contentDescription="Menu Pembayaran"
                      app:srcCompat="@drawable/kas" />
 
                  <TextView
