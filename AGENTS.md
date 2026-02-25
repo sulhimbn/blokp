@@ -21,9 +21,9 @@ This file provides guidance to agents when working with code in this repository.
 - RecyclerView adapters now use DiffUtil for efficient updates instead of notifyDataSetChanged() for better performance
 
 ## Documentation
-- Complete API documentation available in docs/API.md
+- Complete API documentation available in docs/api-documentation.md
 - Architecture documentation in docs/ARCHITECTURE.md
-- Development guidelines in docs/DEVELOPMENT.md
+- Development guidelines in docs/development-guidelines.md
 - Troubleshooting guide in docs/TROUBLESHOOTING.md
 
 ## Code Style
