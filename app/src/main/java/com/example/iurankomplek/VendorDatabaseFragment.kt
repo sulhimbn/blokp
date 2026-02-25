@@ -40,7 +40,7 @@ class VendorDatabaseFragment : Fragment() {
         vendorRecyclerView = view.findViewById(R.id.vendorRecyclerView)
         vendorAdapter = VendorAdapter { vendor ->
             // Handle vendor click - could navigate to vendor details
-            Toast.makeText(context, "Vendor: ${vendor.name}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Vendor: ${vendor.name}", Toast.LENGTH_SHORT).show()
         }
         
         vendorRecyclerView.apply {
@@ -59,7 +59,7 @@ class VendorDatabaseFragment : Fragment() {
                     vendorAdapter.submitList(state.data.data)
                 }
                 is UiState.Error -> {
-                    Toast.makeText(context, "Error: ${state.error}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Error: ${state.error}", Toast.LENGTH_SHORT).show()
                 }
             }
         }

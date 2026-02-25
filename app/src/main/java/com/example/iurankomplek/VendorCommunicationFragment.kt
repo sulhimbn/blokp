@@ -40,7 +40,7 @@ class VendorCommunicationFragment : Fragment() {
         vendorRecyclerView = view.findViewById(R.id.vendorRecyclerView)
         vendorAdapter = VendorAdapter { vendor ->
             // Handle vendor click - could initiate communication
-            Toast.makeText(context, "Communicate with: ${vendor.name}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Communicate with: ${vendor.name}", Toast.LENGTH_SHORT).show()
         }
         
         vendorRecyclerView.apply {
@@ -59,7 +59,7 @@ class VendorCommunicationFragment : Fragment() {
                     vendorAdapter.submitList(state.data.data)
                 }
                 is UiState.Error -> {
-                    Toast.makeText(context, "Error: ${state.error}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Error: ${state.error}", Toast.LENGTH_SHORT).show()
                 }
             }
         }

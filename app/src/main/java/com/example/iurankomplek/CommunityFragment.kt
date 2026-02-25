@@ -43,7 +43,7 @@ class CommunityFragment : Fragment() {
         if (!NetworkUtils.isNetworkAvailable(requireContext())) {
             // Hide progress bar after failure
             binding.progressBar.visibility = View.GONE
-            Toast.makeText(context, "No internet connection", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "No internet connection", Toast.LENGTH_LONG).show()
             return
         }
 
@@ -60,17 +60,17 @@ class CommunityFragment : Fragment() {
                     if (posts != null) {
                         adapter.submitList(posts)
                     } else {
-                        Toast.makeText(context, "No community posts available", Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), "No community posts available", Toast.LENGTH_LONG).show()
                     }
                 } else {
-                    Toast.makeText(context, "Failed to load community posts", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), "Failed to load community posts", Toast.LENGTH_LONG).show()
                 }
             }
 
             override fun onFailure(call: Call<List<CommunityPost>>, t: retrofit2.Call<List<CommunityPost>>) {
                 // Hide progress bar after failure
                 binding.progressBar.visibility = View.GONE
-                Toast.makeText(context, "Network error: ${t.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), "Network error: ${t.message}", Toast.LENGTH_LONG).show()
             }
         })
     }
