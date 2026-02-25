@@ -17,10 +17,6 @@ class WebhookReceiver(
     private val client = OkHttpClient()
     private val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
     private val scope: CoroutineScope = externalScope ?: CoroutineScope(Dispatchers.IO)
-    private val transactionRepository: TransactionRepository
-) {
-    private val client = OkHttpClient()
-    private val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
 
     companion object {
         private val TAG = Constants.Tags.WEBHOOK_RECEIVER
@@ -82,10 +78,10 @@ class WebhookReceiver(
 
     /**
      * Internal method to process webhook event after verification.
+     * Uses the class-level scope for proper lifecycle management (fixes Issue #421)
      */
     private fun processWebhookEvent(payload: String) {
         scope.launch {
-        CoroutineScope(Dispatchers.IO).launch {
             try {
                 // Parse the webhook payload (simplified for this example)
                 val event = parseWebhookPayload(payload)
