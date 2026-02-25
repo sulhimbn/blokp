@@ -44,7 +44,7 @@ class MessagesFragment : Fragment() {
         if (!NetworkUtils.isNetworkAvailable(requireContext())) {
             // Hide progress bar after failure
             binding.progressBar.visibility = View.GONE
-            Toast.makeText(context, "No internet connection", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "No internet connection", Toast.LENGTH_LONG).show()
             return
         }
 
@@ -61,17 +61,17 @@ class MessagesFragment : Fragment() {
                     if (messages != null) {
                         adapter.submitList(messages)
                     } else {
-                        Toast.makeText(context, "No messages available", Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), "No messages available", Toast.LENGTH_LONG).show()
                     }
                 } else {
-                    Toast.makeText(context, "Failed to load messages", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), "Failed to load messages", Toast.LENGTH_LONG).show()
                 }
             }
 
             override fun onFailure(call: Call<List<Message>>, t: retrofit2.Call<List<Message>>) {
                 // Hide progress bar after failure
                 binding.progressBar.visibility = View.GONE
-                Toast.makeText(context, "Network error: ${t.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), "Network error: ${t.message}", Toast.LENGTH_LONG).show()
             }
         })
     }
