@@ -184,14 +184,3 @@ abstract class BaseNetworkRepository {
     protected fun hasCachedData(cacheKey: String): Boolean {
         return cacheManager.contains(cacheKey)
     }
-}
-     * Calculates delay for retry using exponential backoff with jitter
-     */
-    protected fun calculateDelay(currentRetry: Int, initialDelayMs: Long, maxDelayMs: Long): Long {
-        // Implement exponential backoff with jitter and max delay
-        val exponentialDelay = (initialDelayMs * 2.0.pow(currentRetry - 1)).toLong()
-        // Add jitter to prevent thundering herd problem
-        val jitter = (Math.random() * initialDelayMs).toLong()
-        return min(exponentialDelay + jitter, maxDelayMs)
-    }
-}

@@ -33,6 +33,13 @@ This document serves as the long-term memory for the autonomous quality-assuranc
 - **File**: `app/src/main/res/values/strings.xml`
 - **Risk**: Low - simple resource addition, no functional impact
 - **Verification**: All R.string references in codebase now have corresponding resources
+### 4. Duplicate calculateDelay Function Fix (2026-02-25)
+- **Issue**: Duplicate `calculateDelay` function in BaseRepository.kt
+- **Problem**: Two identical implementations - one inside class (line 124), one orphaned outside class
+- **Fix**: Removed orphaned duplicate (was at line 190)
+- **File**: `app/src/main/java/com/example/iurankomplek/data/repository/BaseRepository.kt`
+- **Risk**: Low - duplicate removal, no functional impact
+- **Verification**: File compiles, single calculateDelay function remains
 
 ## Patterns to Check
 
