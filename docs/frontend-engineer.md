@@ -1,3 +1,13 @@
+
+### PR #407: Externalize hardcoded strings to strings.xml (continued)
+**Fix Applied**: 2026-02-25
+
+**Bug Fixed:**
+- PaymentActivity.kt had duplicate code causing syntax errors
+- The PR added new getString() calls but failed to remove old hardcoded strings
+- Fixed by removing the duplicate code while keeping externalized strings
+
+
 # Frontend Engineer Agent - Long-term Memory
 
 ## Agent Profile
