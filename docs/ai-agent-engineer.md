@@ -12,14 +12,14 @@ This repository employs multiple autonomous agents that work together to maintai
 
 #### Primary Agent Workflows (OpenCode-powered)
 
-| Workflow File | Name | Purpose | Trigger | Model | Timeout |
-|---------------|------|---------|---------|-------|--------|
-| `oc-issue-solver.yml` | Issue Solver | Handles open issues end-to-end: analyze, plan, implement, verify, create PR | Schedule (30 min), manual | iflowcn/qwen3-coder-plus | 40 min |
-| `oc-pr-handler.yml` | PR Handler | Maintains PRs, resolves feedback, fixes checks, merges when ready | Schedule (9,15,21 UTC), PR events, manual | iflowcn/qwen3-coder-plus | 40 min |
-| `oc-maintainer.yml` | Maintainer | Repository health scans, proactive maintenance, security, CI improvements | Schedule (daily 3 UTC), manual | iflowcn/glm-4.6 | 40 min |
-| `oc-repo-manager.yml` | Repo Manager | Issue/PR coordination, label management, stale tracking, dependency monitoring | Schedule (6 hours), PR events, push to main, manual | iflowcn/glm-4.6 | 30 min |
-| `oc-release-manager.yml` | Release Manager | Analyzes commits, creates changelogs, manages GitHub releases | Manual (workflow_dispatch) | iflowcn/glm-4.6 | 40 min |
-| `oc-code-quality-analyzer.yml` | Code Quality Analyzer | Deep code analysis, identifies bugs, performance issues, creates improvement issues | Schedule (daily 2 UTC), manual | iflowcn/glm-4.6 | 60 min |
+| Workflow File | Name | Purpose | Trigger | Model | Runner | Timeout |
+|---------------|------|---------|---------|-------|--------|---------|
+| `oc-issue-solver.yml` | Issue Solver | Handles open issues end-to-end: analyze, plan, implement, verify, create PR | Schedule (30 min), manual | iflowcn/qwen3-coder-plus | ubuntu-slim | 40 min |
+| `oc-pr-handler.yml` | PR Handler | Maintains PRs, resolves feedback, fixes checks, merges when ready | Schedule (9,15,21 UTC), PR events, manual | iflowcn/qwen3-coder-plus | ubuntu-24.04-arm | 40 min |
+| `oc-maintainer.yml` | Maintainer | Repository health scans, proactive maintenance, security, CI improvements | Schedule (daily 3 UTC), manual | iflowcn/glm-4.6 | ubuntu-slim | 40 min |
+| `oc-repo-manager.yml` | Repo Manager | Issue/PR coordination, label management, stale tracking, dependency monitoring | Schedule (6 hours), PR events, push to main, manual | iflowcn/glm-4.6 | ubuntu-slim | 30 min |
+| `oc-release-manager.yml` | Release Manager | Analyzes commits, creates changelogs, manages GitHub releases | Manual (workflow_dispatch) | iflowcn/glm-4.6 | ubuntu-slim | 40 min |
+| `oc-code-quality-analyzer.yml` | Code Quality Analyzer | Deep code analysis, identifies bugs, performance issues, creates improvement issues | Schedule (daily 2 UTC), manual | iflowcn/glm-4.6 | ubuntu-slim | 60 min |
 
 #### Event-Driven Workflows
 
@@ -259,6 +259,7 @@ All agent workflows request these permissions:
 ## GitHub Actions Workflows
 
 ### Main CI/CD Workflows
+
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
 | `on-push.yml` | Push to main | Sequential 00-11 agent pipeline |
@@ -266,6 +267,7 @@ All agent workflows request these permissions:
 | `parallel.yml` | Push to main | 4-stage parallel specialist execution |
 
 ### Autonomous Agent Workflows
+
 | Workflow | Schedule | Purpose |
 |----------|----------|---------|
 | `oc-issue-solver.yml` | Every 30 min | Handles open issues end-to-end |
