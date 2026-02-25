@@ -15,6 +15,7 @@ import javax.net.ssl.SSLException
 
 abstract class BaseActivity : AppCompatActivity() {
     private val errorHandler = ErrorHandler()
+    private val retryHandler = Handler(Looper.getMainLooper())
     
     protected fun <T> executeWithRetry(
         maxRetries: Int = 3,
@@ -126,7 +127,7 @@ abstract class BaseActivity : AppCompatActivity() {
         
         Log.d("BaseActivity", "Scheduling retry $retryCount in ${delay}ms")
         
-        Handler(Looper.getMainLooper()).postDelayed({
+        retryHandler.postDelayed({
             executeWithRetry(
                 maxRetries = maxRetries,
                 initialDelayMs = initialDelayMs,
@@ -137,5 +138,10 @@ abstract class BaseActivity : AppCompatActivity() {
                 currentRetry = retryCount
             )
         }, delay)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        retryHandler.removeCallbacksAndMessages(null)
     }
 }

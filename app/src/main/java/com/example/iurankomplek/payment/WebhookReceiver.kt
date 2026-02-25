@@ -2,6 +2,8 @@ package com.example.iurankomplek.payment
 
 import android.util.Log
 import com.example.iurankomplek.transaction.TransactionRepository
+import com.example.iurankomplek.utils.Constants
+import com.example.iurankomplek.utils.WebhookSecurityUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,7 +26,58 @@ class WebhookReceiver(
         Log.d(TAG, "Webhook listener setup for URL: $webhookUrl")
     }
 
+    /**
+     * Handle webhook event with security verification.
+     * This is the secure entry point that validates signature and timestamp.
+     * 
+     * @param payload The raw webhook payload body
+     * @param signature The signature from X-Webhook-Signature header
+     * @param timestamp The timestamp from X-Webhook-Timestamp header (Unix timestamp in seconds)
+     */
+    fun handleWebhookEventWithHeaders(
+        payload: String,
+        signature: String?,
+        timestamp: String?
+    ) {
+        // First, verify the webhook signature and timestamp
+        val verificationResult = WebhookSecurityUtil.verifyWebhook(
+            payload = payload,
+            signature = signature,
+            timestamp = timestamp
+        )
+
+        when (verificationResult) {
+            is WebhookSecurityUtil.VerificationResult.Success -> {
+                // Signature verified - process the webhook
+                processWebhookEvent(payload)
+            }
+            is WebhookSecurityUtil.VerificationResult.Error -> {
+                // Verification failed - reject the webhook
+                Log.w(TAG, "Webhook rejected: ${verificationResult.reason}")
+            }
+        }
+    }
+
+    /**
+     * Handle webhook event without security verification.
+     * WARNING: This method is insecure and should only be used for testing.
+     * Use handleWebhookEventWithHeaders for production.
+     * 
+     * @deprecated Use handleWebhookEventWithHeaders for production
+     */
+    @Deprecated(
+        message = "Insecure method - use handleWebhookEventWithHeaders for production",
+        ReplaceWith("handleWebhookEventWithHeaders(payload, signature, timestamp)")
+    )
     fun handleWebhookEvent(payload: String) {
+        Log.w(TAG, "Using insecure handleWebhookEvent - consider migrating to handleWebhookEventWithHeaders")
+        processWebhookEvent(payload)
+    }
+
+    /**
+     * Internal method to process webhook event after verification.
+     */
+    private fun processWebhookEvent(payload: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 // Parse the webhook payload (simplified for this example)
