@@ -32,8 +32,6 @@ class TransactionHistoryAdapter(
 ) : ListAdapter<Transaction, TransactionHistoryAdapter.TransactionViewHolder>(TransactionDiffCallback()) {
 
     private val scope: CoroutineScope = externalScope ?: CoroutineScope(Dispatchers.IO)
-    private val transactionRepository: TransactionRepository
-) : ListAdapter<Transaction, TransactionHistoryAdapter.TransactionViewHolder>(TransactionDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionViewHolder {
         val view = LayoutInflater.from(parent.context)

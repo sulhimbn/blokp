@@ -1,12 +1,12 @@
-
-### PR #407: Externalize hardcoded strings to strings.xml (continued)
+### PR #429: Fix TransactionHistoryAdapter duplicate constructor (2026-02-25)
 **Fix Applied**: 2026-02-25
 
 **Bug Fixed:**
-- PaymentActivity.kt had duplicate code causing syntax errors
-- The PR added new getString() calls but failed to remove old hardcoded strings
-- Fixed by removing the duplicate code while keeping externalized strings
+- TransactionHistoryAdapter.kt had duplicate constructor parameter declaration
+- Also had duplicate class declaration causing compilation failure
+- Fixed by removing duplicate lines (2 lines removed)
 
+---
 
 # Frontend Engineer Agent - Long-term Memory
 
@@ -96,7 +96,7 @@
 
 ## Known Limitations
 - Build verification requires Android SDK (not available in current CI environment)
-- No "frontend-engineer" label exists - uses "enhancement" as fallback
+- "frontend-engineer" label now exists in repository
 
 ## Repository - Patterns Identified
 - Mixed Kotlin/Java Android project
@@ -105,8 +105,10 @@
 - Strings defined in `app/src/main/res/values/strings.xml`
 - Common issue: ImageViews missing contentDescription for accessibility
 - Common issue: Hardcoded strings in Toast messages
+- Common issue: Duplicate code in adapters causing compilation errors
 
 ## Areas for Future Improvement
 - Externalize remaining hardcoded strings in validation methods
 - Review color contrast ratios throughout the app
 - Add accessibility testing to CI pipeline
+- Review all adapters for duplicate code issues
