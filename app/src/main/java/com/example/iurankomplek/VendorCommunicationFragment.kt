@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.utils.UiState
+import com.example.iurankomplek.utils.Constants
 import com.example.iurankomplek.viewmodel.VendorViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -40,7 +41,7 @@ class VendorCommunicationFragment : Fragment() {
         vendorRecyclerView = view.findViewById(R.id.vendorRecyclerView)
         vendorAdapter = VendorAdapter { vendor ->
             // Handle vendor click - could initiate communication
-            Toast.makeText(requireContext(), getString(R.string.communicate_with_vendor, vendor.name), Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.communicate_with_vendor, vendor.name), Constants.Toast.DURATION_SHORT).show()
         }
         
         vendorRecyclerView.apply {
@@ -59,7 +60,7 @@ class VendorCommunicationFragment : Fragment() {
                     vendorAdapter.submitList(state.data.data)
                 }
                 is UiState.Error -> {
-                    Toast.makeText(requireContext(), getString(R.string.error_loading_data), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.error_loading_data), Constants.Toast.DURATION_SHORT).show()
                 }
             }
         }

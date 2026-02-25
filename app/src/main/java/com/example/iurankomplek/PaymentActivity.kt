@@ -10,6 +10,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.iurankomplek.databinding.ActivityPaymentBinding
 import com.example.iurankomplek.payment.PaymentMethod
 import com.example.iurankomplek.presentation.viewmodel.PaymentViewModel
+import com.example.iurankomplek.utils.Constants
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -48,14 +49,14 @@ class PaymentActivity : AppCompatActivity() {
                             Toast.makeText(
                                 this@PaymentActivity,
                                 getString(R.string.payment_validation_failed, safeState.errorMessage),
-                                Toast.LENGTH_LONG
+                                Constants.Toast.DURATION_LONG
                             ).show()
 
                         } else if (!safeState.isProcessing && safeState.errorMessage == null && safeState.amount > BigDecimal.ZERO) {
                             Toast.makeText(
                                 this@PaymentActivity,
                                 getString(R.string.payment_success),
-                                Toast.LENGTH_LONG
+                                Constants.Toast.DURATION_LONG
                             ).show()
                         }
 
@@ -72,7 +73,7 @@ class PaymentActivity : AppCompatActivity() {
         
         when (val validationResult = validatePaymentAmount(amountText)) {
             is ValidationResult.Failure -> {
-                Toast.makeText(this, validationResult.message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, validationResult.message, Constants.Toast.DURATION_SHORT).show()
                 return
             }
             is ValidationResult.Success -> {

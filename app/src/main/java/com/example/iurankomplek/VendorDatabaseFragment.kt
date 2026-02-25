@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.iurankomplek.utils.Constants
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.VendorViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -40,7 +41,7 @@ class VendorDatabaseFragment : Fragment() {
         vendorRecyclerView = view.findViewById(R.id.vendorRecyclerView)
         vendorAdapter = VendorAdapter { vendor ->
             // Handle vendor click - could navigate to vendor details
-            Toast.makeText(requireContext(), getString(R.string.vendor_selected, vendor.name), Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.vendor_selected, vendor.name), Constants.Toast.DURATION_SHORT).show()
         }
         
         vendorRecyclerView.apply {
@@ -59,7 +60,7 @@ class VendorDatabaseFragment : Fragment() {
                     vendorAdapter.submitList(state.data.data)
                 }
                 is UiState.Error -> {
-                    Toast.makeText(requireContext(), getString(R.string.error_loading_data), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.error_loading_data), Constants.Toast.DURATION_SHORT).show()
                 }
             }
         }
