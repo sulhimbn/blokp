@@ -1,7 +1,6 @@
 package com.example.iurankomplek.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.iurankomplek.data.repository.VendorRepository
 import com.example.iurankomplek.data.api.models.VendorResponse
@@ -9,11 +8,14 @@ import com.example.iurankomplek.data.api.models.SingleVendorResponse
 import com.example.iurankomplek.data.api.models.WorkOrderResponse
 import com.example.iurankomplek.data.api.models.SingleWorkOrderResponse
 import com.example.iurankomplek.utils.UiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class VendorViewModel(
+@HiltViewModel
+class VendorViewModel @Inject constructor(
     private val vendorRepository: VendorRepository
 ) : ViewModel() {
     
@@ -132,16 +134,6 @@ class VendorViewModel(
                 .onFailure { exception ->
                     // Handle error - could emit to a separate error state flow
                 }
-        }
-    }
-    
-    class Factory(private val vendorRepository: VendorRepository) : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(VendorViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return VendorViewModel(vendorRepository) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
 }
