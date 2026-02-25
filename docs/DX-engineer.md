@@ -11,6 +11,31 @@ This document serves as the long-term memory for the DX-engineer agent, tracking
 
 ## DX Improvements Made
 
+### 2026-02-25: Comprehensive .gitignore
+
+**Changes:**
+- Replaced minimal .gitignore with comprehensive Android/Gradle entries
+- Added build artifacts (`*.apk`, `*.aab`, `*.dex`, `*.class`)
+- Added generated files (`bin/`, `gen/`, `out/`)
+- Added IDE files (IntelliJ `.idea/`, `*.iml`)
+- Added local configuration (`local.properties`)
+- Added secrets protection (`secrets.properties`)
+- Added build tools (lint, Kotlin, fastlane, app modules)
+
+**Impact:**
+- Prevents committing build artifacts to version control
+- Keeps repository clean from IDE-specific files
+- Protects secrets like API keys and local paths
+- Improves CI performance by reducing unnecessary file tracking
+
+**Files Changed:**
+- `.gitignore` (72 additions, 2 deletions)
+
+---
+
+### 2025-02-25: Gradle Build Performance
+## DX Improvements Made
+
 ### 2025-02-25: Gradle Build Performance
 
 **Changes:**
