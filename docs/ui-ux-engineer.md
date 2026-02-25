@@ -48,6 +48,24 @@ Location: `app/src/main/res/layout/`
 - **Labels**: ui-ux-engineer
 - **Status**: Open
 
+### Task 3: Issue #95 - Extract Hardcoded Strings to Resources
+- **Date**: 2026-02-25
+- **Issue**: Inconsistent String Resource Management and Hardcoded Text
+- **Files Changed**:
+  - `app/src/main/res/layout/item_list.xml` - Replaced 6 hardcoded strings with @string/ references
+  - `app/src/main/res/layout/activity_dashboard.xml` - Replaced 20+ hardcoded strings
+  - `app/src/main/res/layout/activity_menu.xml` - Replaced 1 hardcoded string
+  - `app/src/main/res/values/strings.xml` - Added 30+ new string resources
+  - `app/src/main/java/.../DashboardActivity.kt` - Updated to use getString() for dynamic text
+- **PR**: https://github.com/sulhimbn/blokp/pull/412
+- **Labels**: ui-ux-engineer
+- **Status**: Open
+- **Benefits**:
+  - Consistency across the app
+  - Accessibility (screen readers can now read labels)
+  - Localization support (all strings in one place)
+
+
 ## Notes
 - Build verification couldn't run due to missing Android SDK in environment
 - XML changes are syntactically correct and follow Android best practices
