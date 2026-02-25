@@ -53,7 +53,8 @@ class MessagesFragment : Fragment() {
 
         call.enqueue(object : Callback<List<Message>> {
             override fun onResponse(call: Call<List<Message>>, response: Response<List<Message>>) {
-                // Hide progress bar after response
+                // Hide progress bar after response - check if fragment is still attached
+                if (!isAdded) return
                 binding.progressBar.visibility = View.GONE
                 
                 if (response.isSuccessful) {
@@ -69,7 +70,8 @@ class MessagesFragment : Fragment() {
             }
 
             override fun onFailure(call: Call<List<Message>>, t: retrofit2.Call<List<Message>>) {
-                // Hide progress bar after failure
+                // Hide progress bar after failure - check if fragment is still attached
+                if (!isAdded) return
                 binding.progressBar.visibility = View.GONE
                 Toast.makeText(context, "Network error: ${t.message}", Toast.LENGTH_LONG).show()
             }

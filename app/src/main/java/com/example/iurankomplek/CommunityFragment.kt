@@ -52,7 +52,8 @@ class CommunityFragment : Fragment() {
 
         call.enqueue(object : Callback<List<CommunityPost>> {
             override fun onResponse(call: Call<List<CommunityPost>>, response: Response<List<CommunityPost>>) {
-                // Hide progress bar after response
+                // Hide progress bar after response - check if fragment is still attached
+                if (!isAdded) return
                 binding.progressBar.visibility = View.GONE
                 
                 if (response.isSuccessful) {
@@ -68,7 +69,8 @@ class CommunityFragment : Fragment() {
             }
 
             override fun onFailure(call: Call<List<CommunityPost>>, t: retrofit2.Call<List<CommunityPost>>) {
-                // Hide progress bar after failure
+                // Hide progress bar after failure - check if fragment is still attached
+                if (!isAdded) return
                 binding.progressBar.visibility = View.GONE
                 Toast.makeText(context, "Network error: ${t.message}", Toast.LENGTH_LONG).show()
             }
