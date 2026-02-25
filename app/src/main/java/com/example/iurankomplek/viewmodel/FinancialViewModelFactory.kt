@@ -9,6 +9,7 @@ class FinancialViewModelFactory(
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(FinancialViewModel::class.java)) {
+            // Legitimate: Safe cast due to isAssignableFrom check above. Kotlin type erasure requires this cast from ViewModel to generic T.
             @Suppress("UNCHECKED_CAST")
             return FinancialViewModel(pemanfaatanRepository) as T
         }

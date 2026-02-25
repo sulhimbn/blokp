@@ -361,6 +361,7 @@ class VendorRepositoryImpl(
         ttlMs: Long,
         fetchFromNetwork: suspend () -> Result<*>
     ): Result<*> {
+        // Legitimate: Generic cache returns Any?. Type erasure requires unchecked cast from cache to specific result type.
         @Suppress("UNCHECKED_CAST")
         val cachedData = cacheManager.get<Any>(cacheKey)
         if (cachedData != null) {
