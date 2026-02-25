@@ -72,14 +72,14 @@ suspend fun getTransactionById(id: String): Transaction? {
 
 ## Known Issues Fixed (Continued)
 
-- PR #404: Security and Performance Fixes (PENDING MERGE)
-  - Issue #399: Remove insecure `createInsecureTrustManager()` from SecurityManager.kt
-    - This method creates an all-trusting X509TrustManager that bypasses SSL verification
-    - Removing method and 7 unused SSL-related imports
+- PR #404: Security and Performance Fixes
+  - Issue #399: Removed insecure `createInsecureTrustManager()` from SecurityManager.kt
+    - This method created an all-trusting X509TrustManager that bypassed SSL verification
+    - Removed method and 7 unused SSL-related imports
     - Fixes MITM attack vulnerability
-  - Issue #401: Fix unmanaged CoroutineScope in PaymentService.kt
-    - Adding `externalScope: CoroutineScope?` parameter for lifecycle-aware scope management
-    - Callers can pass viewModelScope or lifecycleScope for proper cancellation
+  - Issue #401: Fixed unmanaged CoroutineScope in PaymentService.kt
+    - Added `externalScope: CoroutineScope?` parameter for lifecycle-aware scope management
+    - Callers can now pass viewModelScope or lifecycleScope for proper cancellation
     - Falls back to default scope for backward compatibility
 
 - Issue #421: Additional CoroutineScope leaks in TransactionHistoryAdapter, WebhookReceiver, and TransactionHistoryActivity
