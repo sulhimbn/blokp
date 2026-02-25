@@ -5,6 +5,7 @@ import com.example.iurankomplek.payment.PaymentRequest
 import com.example.iurankomplek.payment.PaymentStatus
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
+import androidx.room.Transaction
 import java.util.Calendar
 
 class TransactionRepository @Inject constructor(
@@ -40,6 +41,7 @@ class TransactionRepository @Inject constructor(
               Result.failure(e)
           }
       }
+    @Transaction
     suspend fun processPayment(request: PaymentRequest): Result<Transaction> {
         return try {
             val transaction = Transaction.create(request)
@@ -82,6 +84,7 @@ class TransactionRepository @Inject constructor(
         transactionDao.update(transaction)
     }
 
+    @Transaction
     suspend fun refundPayment(transactionId: String, reason: String?): Result<com.example.iurankomplek.payment.RefundResponse> {
         return try {
             val refundResult = paymentGateway.refundPayment(transactionId)
