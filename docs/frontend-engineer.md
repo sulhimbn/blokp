@@ -7,8 +7,30 @@
 
 ## Completed Work
 
-### PR #363: Fix accessibility - ImageView content descriptions and color contrast
+### PR #393: Fix accessibility - Text color contrast (teal_200 → teal_700)
 **Status**: Open
+**Date**: 2026-02-25
+
+**Changes Made:**
+1. **Color Contrast Fix**: Replaced teal_200 (#FF03DAC5) with teal_700 (#FF018786) for text colors
+   - teal_200 is too bright for text on light backgrounds (poor WCAG contrast)
+   - teal_700 provides WCAG AA compliant contrast while maintaining visual design
+
+2. **Fixed 9 layout files**:
+   - activity_communication.xml - Title and tab colors
+   - activity_menu.xml - Title and menu text (also resolved merge conflict markers)
+   - activity_work_order_detail.xml - Title text
+   - item_announcement.xml - Title text
+   - item_community_post.xml - Title text
+   - item_message.xml - Sender name
+   - item_transaction_history.xml - Labels (4 instances)
+   - item_vendor.xml - Vendor name
+   - item_work_order.xml - Work order title
+
+**Issue**: Proactive accessibility improvement
+
+### PR #363: Fix accessibility - ImageView content descriptions and color contrast
+**Status**: Merged
 **Date**: 2026-02-25
 
 **Changes Made:**
@@ -35,9 +57,9 @@
 
 ## Known Limitations
 - Build verification requires Android SDK (not available in current CI environment)
-- No "frontend-engineer" label exists in the "enhancement" as fallback
+- No "frontend-engineer" label exists - uses "enhancement" as fallback
 
-## repository - using Patterns Identified
+## Repository - Patterns Identified
 - Mixed Kotlin/Java Android project
 - XML layouts in `app/src/main/res/layout/`
 - Colors defined in `app/src/main/res/values/colors.xml`
