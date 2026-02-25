@@ -268,7 +268,7 @@ This project follows a simplified MVVM pattern with the following key components
 - `PemanfaatanResponse.kt` - Response wrapper for financial data
 
 ### Development Workflow
-1. Check the [Development Guidelines](docs/DEVELOPMENT.md) for coding standards
+1. Check the [Development Guidelines](docs/development-guidelines.md) for coding standards
 2. Refer to [Architecture Documentation](docs/ARCHITECTURE.md) for system design patterns
 3. Use the [Troubleshooting Guide](docs/TROUBLESHOOTING.md) for common issues
 4. Follow the Git workflow: create feature branches, submit PRs with issue references
