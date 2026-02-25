@@ -50,21 +50,15 @@ class PaymentActivity : AppCompatActivity() {
                                 getString(R.string.payment_validation_failed, safeState.errorMessage),
                                 Toast.LENGTH_LONG
                             ).show()
-                                this@PaymentActivity,
-                                "Payment failed: ${safeState.errorMessage}",
-                                Toast.LENGTH_LONG
-                            ).show()
+
                         } else if (!safeState.isProcessing && safeState.errorMessage == null && safeState.amount > BigDecimal.ZERO) {
                             Toast.makeText(
                                 this@PaymentActivity,
                                 getString(R.string.payment_success),
                                 Toast.LENGTH_LONG
                             ).show()
-                                this@PaymentActivity,
-                                "Payment processed successfully!",
-                                Toast.LENGTH_LONG
-                            ).show()
                         }
+
                     } ?: run {
                         android.util.Log.w("PaymentActivity", "Received null UI state")
                     }
