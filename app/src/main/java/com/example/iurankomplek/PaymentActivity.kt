@@ -13,7 +13,7 @@ import com.example.iurankomplek.presentation.viewmodel.PaymentViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.math.BigDecimal
+import com.example.iurankomplek.utils.Constants
 
 @AndroidEntryPoint
 class PaymentActivity : AppCompatActivity() {
@@ -48,14 +48,14 @@ class PaymentActivity : AppCompatActivity() {
                             Toast.makeText(
                                 this@PaymentActivity,
                                 getString(R.string.payment_validation_failed, safeState.errorMessage),
-                                Toast.LENGTH_LONG
+                                Constants.Toast.DURATION_LONG
                             ).show()
 
                         } else if (!safeState.isProcessing && safeState.errorMessage == null && safeState.amount > BigDecimal.ZERO) {
                             Toast.makeText(
                                 this@PaymentActivity,
                                 getString(R.string.payment_success),
-                                Toast.LENGTH_LONG
+                                Constants.Toast.DURATION_LONG
                             ).show()
                         }
 
@@ -72,7 +72,7 @@ class PaymentActivity : AppCompatActivity() {
         
         when (val validationResult = validatePaymentAmount(amountText)) {
             is ValidationResult.Failure -> {
-                Toast.makeText(this, validationResult.message, Toast.LENGTH_SHORT).show()
+                Constants.Toast.DURATION_SHORT
                 return
             }
             is ValidationResult.Success -> {

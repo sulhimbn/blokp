@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.FragmentAnnouncementsBinding
 import com.example.iurankomplek.model.Announcement
 import com.example.iurankomplek.network.ApiConfig
-import com.example.iurankomplek.utils.NetworkUtils
+import com.example.iurankomplek.utils.Constants
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -43,7 +43,7 @@ class AnnouncementsFragment : Fragment() {
         if (!NetworkUtils.isNetworkAvailable(requireContext())) {
             // Hide progress bar after failure
             binding.progressBar.visibility = View.GONE
-            Toast.makeText(requireContext(), getString(R.string.no_internet_connection), Toast.LENGTH_LONG).show()
+            Constants.Toast.DURATION_LONG
             return
         }
 
@@ -61,10 +61,10 @@ class AnnouncementsFragment : Fragment() {
                     if (announcements != null) {
                         adapter.submitList(announcements)
                     } else {
-                        Toast.makeText(requireContext(), getString(R.string.no_announcements_available), Toast.LENGTH_LONG).show()
+                        Constants.Toast.DURATION_LONG
                     }
                 } else {
-                    Toast.makeText(requireContext(), getString(R.string.failed_to_load_announcements), Toast.LENGTH_LONG).show()
+                    Constants.Toast.DURATION_LONG
                 }
             }
 
@@ -72,7 +72,7 @@ class AnnouncementsFragment : Fragment() {
                 // Hide progress bar after failure - check if fragment is still attached
                 if (!isAdded) return
                 binding.progressBar.visibility = View.GONE
-                Toast.makeText(requireContext(), getString(R.string.network_error_announcements, t.message), Toast.LENGTH_LONG).show()
+                Constants.Toast.DURATION_LONG
             }
         })
     }

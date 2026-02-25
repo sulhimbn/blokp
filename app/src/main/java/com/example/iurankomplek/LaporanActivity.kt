@@ -22,7 +22,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.example.iurankomplek.utils.Constants
 
 @AndroidEntryPoint
 class LaporanActivity : BaseActivity() {
@@ -81,7 +81,7 @@ class LaporanActivity : BaseActivity() {
 
     private fun exportReport(format: ExportFormat) {
         if (currentDataItems.isEmpty() || currentSummaryItems.isEmpty()) {
-            Toast.makeText(this, getString(R.string.no_data_to_export), Toast.LENGTH_LONG).show()
+            Constants.Toast.DURATION_LONG
             return
         }
 
@@ -99,14 +99,14 @@ class LaporanActivity : BaseActivity() {
                         Toast.makeText(
                             this@LaporanActivity,
                             getString(R.string.export_success),
-                            Toast.LENGTH_LONG
+                            Constants.Toast.DURATION_LONG
                         ).show()
                     },
                     onFailure = { error ->
                         Toast.makeText(
                             this@LaporanActivity,
                             getString(R.string.export_failed) + ": ${error.message}",
-                            Toast.LENGTH_LONG
+                            Constants.Toast.DURATION_LONG
                         ).show()
                     }
                 )
@@ -129,7 +129,7 @@ class LaporanActivity : BaseActivity() {
 
     private fun shareReport(format: ExportFormat) {
         if (currentDataItems.isEmpty() || currentSummaryItems.isEmpty()) {
-            Toast.makeText(this, getString(R.string.no_data_to_export), Toast.LENGTH_LONG).show()
+            Constants.Toast.DURATION_LONG
             return
         }
 
@@ -153,7 +153,7 @@ class LaporanActivity : BaseActivity() {
                         Toast.makeText(
                             this@LaporanActivity,
                             getString(R.string.export_failed) + ": ${error.message}",
-                            Toast.LENGTH_LONG
+                            Constants.Toast.DURATION_LONG
                         ).show()
                     }
                 )
@@ -181,7 +181,7 @@ class LaporanActivity : BaseActivity() {
                         
                         state.response.data.let { dataArray ->
                             if (dataArray.isEmpty()) {
-                                Toast.makeText(this@LaporanActivity, getString(R.string.no_financial_data_available), Toast.LENGTH_LONG).show()
+                                Constants.Toast.DURATION_LONG
                                 return@let
                             }
                             
@@ -193,7 +193,7 @@ class LaporanActivity : BaseActivity() {
                             val summary = state.summary
                             
                             if (!summary.isValid) {
-                                Toast.makeText(this@LaporanActivity, getString(R.string.invalid_financial_data_detected), Toast.LENGTH_LONG).show()
+                                Constants.Toast.DURATION_LONG
                                 return@let
                             }
                             
@@ -215,7 +215,7 @@ class LaporanActivity : BaseActivity() {
                                 Toast.makeText(
                                     this@LaporanActivity,
                                     "Integrated ${summary.completedTransactionsCount} payment transactions (Total: ${DataValidator.formatCurrency(summary.totalPaymentsProcessed)})",
-                                    Toast.LENGTH_LONG
+                                    Constants.Toast.DURATION_LONG
                                 ).show()
                             }
                             
@@ -226,7 +226,7 @@ class LaporanActivity : BaseActivity() {
                     is FinancialDataState.Error -> {
                         binding.progressBar.visibility = View.GONE
                         binding.swipeRefreshLayout.isRefreshing = false
-                        Toast.makeText(this@LaporanActivity, state.message, Toast.LENGTH_LONG).show()
+                        Constants.Toast.DURATION_LONG
                     }
                 }
             }

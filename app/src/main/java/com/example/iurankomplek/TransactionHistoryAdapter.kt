@@ -18,7 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
-import java.util.Locale
+import com.example.iurankomplek.utils.Constants
 
 /**
  * Adapter for displaying transaction history in a RecyclerView.
@@ -75,11 +75,11 @@ class TransactionHistoryAdapter(
                             runOnUiThread {
                                 tvStatus.text = PaymentStatus.REFUNDED.name
                                 btnRefund.visibility = View.GONE
-                                Toast.makeText(context, context.getString(R.string.refund_processed_successfully), Toast.LENGTH_SHORT).show()
+                                Constants.Toast.DURATION_SHORT
                             }
                         } else {
                             runOnUiThread {
-                                Toast.makeText(context, context.getString(R.string.refund_failed, result.exceptionOrNull()?.message ?: "Unknown error"), Toast.LENGTH_LONG).show()
+                                Constants.Toast.DURATION_LONG
                             }
                         }
                     }
