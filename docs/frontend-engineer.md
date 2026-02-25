@@ -7,6 +7,35 @@
 
 ## Completed Work
 
+### PR #407: Externalize hardcoded strings to strings.xml
+**Status**: Open
+**Date**: 2026-02-25
+
+**Changes Made:**
+1. **strings.xml**: Added 20 new string resources for Toast messages:
+   - `no_announcements_available`, `failed_to_load_announcements`, `network_error_announcements`
+   - `no_messages_available`, `failed_to_load_messages`, `network_error_messages`
+   - `no_community_posts_available`, `failed_to_load_community_posts`, `network_error_community_posts`
+   - `work_order_id_not_provided`, `vendor_selected`, `work_order_selected`
+   - `communicate_with_vendor`, `refund_processed_successfully`, `refund_failed`
+   - `payment_processing`, `payment_success`, `payment_validation_failed`
+   - `error_loading_dashboard`
+
+2. **11 Kotlin files externalized**:
+   - AnnouncementsFragment.kt - 4 strings
+   - MessagesFragment.kt - 4 strings
+   - CommunityFragment.kt - 4 strings
+   - DashboardActivity.kt - 1 string
+   - WorkOrderDetailActivity.kt - 2 strings
+   - VendorManagementActivity.kt - 2 strings
+   - VendorDatabaseFragment.kt - 2 strings
+   - VendorCommunicationFragment.kt - 2 strings
+   - WorkOrderManagementFragment.kt - 2 strings
+   - TransactionHistoryAdapter.kt - 2 strings
+   - PaymentActivity.kt - 2 strings
+
+**Issue**: Closes #95
+
 ### PR #393: Fix accessibility - Text color contrast (teal_200 → teal_700)
 **Status**: Open
 **Date**: 2026-02-25
@@ -63,9 +92,11 @@
 - Mixed Kotlin/Java Android project
 - XML layouts in `app/src/main/res/layout/`
 - Colors defined in `app/src/main/res/values/colors.xml`
+- Strings defined in `app/src/main/res/values/strings.xml`
 - Common issue: ImageViews missing contentDescription for accessibility
+- Common issue: Hardcoded strings in Toast messages
 
 ## Areas for Future Improvement
-- Add contentDescription to more ImageViews across layouts
+- Externalize remaining hardcoded strings in validation methods
 - Review color contrast ratios throughout the app
 - Add accessibility testing to CI pipeline
