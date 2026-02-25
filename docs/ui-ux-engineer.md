@@ -38,7 +38,27 @@ Location: `app/src/main/res/layout/`
 - **Labels**: ui-ux-engineer
 - **Status**: Open
 
-### Task 2: Fix Merge Conflict Markers in activity_menu.xml
+XH|### Task 2: Fix Merge Conflict Markers in activity_menu.xml
+- **Date**: 2026-02-25
+- **Issue Found**: Unresolved merge conflict markers (`<<<<<<< HEAD`, `=======`, `>>>>>>> origin/main`) in activity_menu.xml
+- **Impact**: Would cause build failure due to invalid XML
+- **Files Changed**:
+  - `app/src/main/res/layout/activity_menu.xml` - Removed merge conflict markers, kept string resources version
+- **PR**: https://github.com/sulhimbn/blokp/pull/387
+- **Labels**: ui-ux-engineer
+- **Status**: Open
+
+### Task 3: Accessibility Improvements - Deprecated Widgets and Missing contentDescriptions
+- **Date**: 2026-02-25
+- **Issue Found**: Deprecated EditText widget in TextInputLayout, missing contentDescriptions on Spinners and Avatar ImageView
+- **Impact**: Accessibility issues for screen reader users, deprecated widget usage
+- **Files Changed**:
+  - `app/src/main/res/layout/activity_payment.xml` - Replaced deprecated EditText with TextInputEditText, added contentDescription to Spinner
+  - `app/src/main/res/layout/view_search_filter.xml` - Added contentDescription to Spinner
+  - `app/src/main/res/layout/item_list.xml` - Improved contentDescription for avatar ImageView
+  - `app/src/main/res/values/strings.xml` - Added 8 new accessibility string resources
+- **Labels**: ui-ux-engineer
+- **Status**: Pending PR
 - **Date**: 2026-02-25
 - **Issue Found**: Unresolved merge conflict markers (`<<<<<<< HEAD`, `=======`, `>>>>>>> origin/main`) in activity_menu.xml
 - **Impact**: Would cause build failure due to invalid XML

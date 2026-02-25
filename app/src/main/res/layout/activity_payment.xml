@@ -19,7 +19,12 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_amount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Amount"
+            android:inputType="numberDecimal" />
             android:id="@+id/et_amount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -36,6 +41,12 @@
         android:layout_marginBottom="8dp" />
 
     <Spinner
+        android:id="@+id/spinner_payment_method"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:entries="@array/payment_methods"
+        android:contentDescription="@string/content_payment_method" />
         android:id="@+id/spinner_payment_method"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

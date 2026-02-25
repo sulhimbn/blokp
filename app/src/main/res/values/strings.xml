@@ -39,7 +39,16 @@
     <string name="menu_laporan">Laporan</string>
     <string name="menu_komunikasi">Komunikasi</string>
     <string name="title_daftar_iuran">DAFTAR IURAN WARGA KONOHA</string>
-    <string name="content_pembayaran">Menu Pembayaran</string>
+    <string name="content_avatar_user">Avatar pengguna</string>
+    <string name="content_dashboard_users">Buka daftar pengguna</string>
+    <string name="content_dashboard_reports">Buka laporan keuangan</string>
+    <string name="content_dashboard_payment">Buat pembayaran iuran</string>
+    <string name="content_dashboard_announcements">Buka pengumuman</string>
+    <string name="content_dashboard_history">Buka riwayat transaksi</string>
+    <string name="content_dashboard_vendors">Buka manajemen vendor</string>
+    <string name="content_payment_method">Pilih metode pembayaran</string>
+    <string name="content_filter_category">Filter berdasarkan kategori</string>
+
     <string name="no_results_found">No results found</string>
 
     <string name="no_announcements_available">No announcements available</string>
@@ -61,3 +70,4 @@
     <string name="payment_success">Payment successful!</string>
     <string name="payment_validation_failed">Payment validation failed: %s</string>
     <string name="error_loading_dashboard">Error loading dashboard</string>
+</resources>
