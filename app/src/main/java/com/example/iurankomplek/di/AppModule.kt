@@ -3,6 +3,8 @@ package com.example.iurankomplek.di
 import android.content.Context
 import com.example.iurankomplek.data.repository.PemanfaatanRepository
 import com.example.iurankomplek.data.repository.PemanfaatanRepositoryImpl
+import com.example.iurankomplek.data.repository.TransactionRepository
+import com.example.iurankomplek.data.repository.TransactionRepositoryImpl
 import com.example.iurankomplek.data.repository.UserRepository
 import com.example.iurankomplek.data.repository.UserRepositoryImpl
 import com.example.iurankomplek.data.repository.VendorRepository
@@ -43,6 +45,14 @@ object AppModule {
     @Singleton
     fun provideVendorRepository(apiService: ApiService): VendorRepository {
         return VendorRepositoryImpl(apiService)
+    }
+
+    @Provides
+    @Singleton
+    fun provideTransactionRepository(
+        transactionRepositoryImpl: TransactionRepositoryImpl
+    ): TransactionRepository {
+        return transactionRepositoryImpl
     }
 
     @Provides

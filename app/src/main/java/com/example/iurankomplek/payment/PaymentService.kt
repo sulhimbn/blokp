@@ -1,7 +1,7 @@
 package com.example.iurankomplek.payment
 
 import com.example.iurankomplek.receipt.ReceiptGenerator
-import com.example.iurankomplek.transaction.TransactionRepository
+import com.example.iurankomplek.data.repository.TransactionRepository
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

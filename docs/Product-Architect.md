@@ -57,7 +57,16 @@ When fixing CoroutineScope lifecycle issues:
 - Always track whether scope is owned (created internally) vs external (passed in)
 - Never cancel external scopes - only cancel scopes you created
 - Use pattern: `ownsScope: Boolean = externalScope == null`
+HQ|
 
+### Repository Interface Pattern
+When adding interface for consistency:
+- Create interface in `data/repository/` package following existing naming (XxxRepository)
+- Rename implementation to XxxRepositoryImpl
+- Add explicit @Provides binding in AppModule for Hilt
+- Update all imports in consuming classes
+- Consider package location - other repositories are in data/repository/
+- The implementation can still use @Inject constructor
 ### Code Review Checklist
 - Check for edge cases in dependency injection
 - Verify lifecycle methods handle cleanup properly
@@ -67,7 +76,12 @@ When fixing CoroutineScope lifecycle issues:
 ### Documentation Maintenance
 - Keep history entries clean - remove duplicates
 - Update relevant agent docs when patterns are discovered
-
+YY|
+## History
+- 2026-02-25: Issue #455 - Added TransactionRepository interface for consistency with other repositories (UserRepository, VendorRepository, PemanfaatanRepository)
+- 2026-02-25: Fixed CoroutineScope bug in PaymentService.kt - added ownsScope tracking to prevent external scope cancellation
+- 2026-02-25: Documented @Suppress UNCHECKED_CAST annotations in 5 files - these are legitimate use cases that cannot be fixed due to Kotlin type erasure and standard Android ViewModelFactory patterns
+- 2026-02-25: Fixed CoroutineScope bug in PaymentService.kt - added ownsScope tracking to prevent external scope cancellation
 ## History
 - 2026-02-25: Fixed CoroutineScope bug in PaymentService.kt - added ownsScope tracking to prevent external scope cancellation
 - 2026-02-25: Documented @Suppress UNCHECKED_CAST annotations in 5 files - these are legitimate use cases that cannot be fixed due to Kotlin type erasure and standard Android ViewModelFactory patterns
