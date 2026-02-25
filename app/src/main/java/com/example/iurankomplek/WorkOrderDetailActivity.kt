@@ -3,16 +3,16 @@ package com.example.iurankomplek
 import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
-import com.example.iurankomplek.data.repository.VendorRepositoryImpl
-import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.VendorViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class WorkOrderDetailActivity : AppCompatActivity() {
     
-    private lateinit var vendorViewModel: VendorViewModel
+    private val viewModel: VendorViewModel by viewModels()
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,12 +22,8 @@ class WorkOrderDetailActivity : AppCompatActivity() {
         val workOrderId = intent.getStringExtra("WORK_ORDER_ID")
         
         if (workOrderId != null) {
-            // Initialize ViewModel
-            val repository = VendorRepositoryImpl(ApiConfig.getApiService())
-            vendorViewModel = ViewModelProvider(this, VendorViewModel.Factory(repository))[VendorViewModel::class.java]
-            
             observeWorkOrderDetails()
-            vendorViewModel.loadWorkOrderDetail(workOrderId)
+            viewModel.loadWorkOrderDetail(workOrderId)
         } else {
             Toast.makeText(this, "Work order ID not provided", Toast.LENGTH_SHORT).show()
             finish()
@@ -35,7 +31,7 @@ class WorkOrderDetailActivity : AppCompatActivity() {
     }
     
     private fun observeWorkOrderDetails() {
-        vendorViewModel.workOrderDetailState.observe(this) { state ->
+        viewModel.workOrderDetailState.observe(this) { state ->
             when (state) {
                 is UiState.Loading -> {
                     // Show loading indicator

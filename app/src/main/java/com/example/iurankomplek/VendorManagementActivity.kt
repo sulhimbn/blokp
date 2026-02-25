@@ -2,32 +2,28 @@ package com.example.iurankomplek
 
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.iurankomplek.data.repository.VendorRepositoryImpl
-import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.VendorViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class VendorManagementActivity : AppCompatActivity() {
     
     private lateinit var vendorRecyclerView: RecyclerView
     private lateinit var vendorAdapter: VendorAdapter
-    private lateinit var vendorViewModel: VendorViewModel
+    private val viewModel: VendorViewModel by viewModels()
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_vendor_management)
         
-        // Initialize ViewModel
-        val repository = VendorRepositoryImpl(ApiConfig.getApiService())
-        vendorViewModel = ViewModelProvider(this, VendorViewModel.Factory(repository))[VendorViewModel::class.java]
-        
         setupViews()
         observeVendors()
-        vendorViewModel.loadVendors()
+        viewModel.loadVendors()
     }
     
     private fun setupViews() {
@@ -44,7 +40,7 @@ class VendorManagementActivity : AppCompatActivity() {
     }
     
     private fun observeVendors() {
-        vendorViewModel.vendorState.observe(this) { state ->
+        viewModel.vendorState.observe(this) { state ->
             when (state) {
                 is UiState.Loading -> {
                     // Show loading indicator
