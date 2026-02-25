@@ -3,6 +3,7 @@ package com.example.iurankomplek.data.repository
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.model.UserResponse
 import com.example.iurankomplek.network.ApiService
+import com.example.iurankomplek.session.UserSessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
@@ -25,6 +26,9 @@ class UserRepositoryImplTest {
     @Mock
     private lateinit var apiService: ApiService
 
+    @Mock
+    private lateinit var sessionManager: UserSessionManager
+
     private lateinit var repository: UserRepositoryImpl
     private val testDispatcher = StandardTestDispatcher()
 
@@ -32,7 +36,7 @@ class UserRepositoryImplTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
-        repository = UserRepositoryImpl(apiService)
+        repository = UserRepositoryImpl(apiService, sessionManager)
     }
 
     @After
