@@ -11,6 +11,12 @@ import okhttp3.OkHttpClient
 import java.io.IOException
 
 class WebhookReceiver(
+    private val transactionRepository: TransactionRepository,
+    private val externalScope: CoroutineScope? = null
+) {
+    private val client = OkHttpClient()
+    private val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
+    private val scope: CoroutineScope = externalScope ?: CoroutineScope(Dispatchers.IO)
     private val transactionRepository: TransactionRepository
 ) {
     private val client = OkHttpClient()
@@ -78,6 +84,7 @@ class WebhookReceiver(
      * Internal method to process webhook event after verification.
      */
     private fun processWebhookEvent(payload: String) {
+        scope.launch {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 // Parse the webhook payload (simplified for this example)

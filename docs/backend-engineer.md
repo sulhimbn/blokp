@@ -69,3 +69,20 @@ suspend fun getTransactionById(id: String): Transaction? {
 - This is an Android/Kotlin project with Room database
 - Network layer uses Retrofit 2 with OkHttp3
 - No Android SDK available in CI - build verification limited to syntax checks
+
+## Known Issues Fixed (Continued)
+
+- PR #404: Security and Performance Fixes (PENDING MERGE)
+  - Issue #399: Remove insecure `createInsecureTrustManager()` from SecurityManager.kt
+    - This method creates an all-trusting X509TrustManager that bypasses SSL verification
+    - Removing method and 7 unused SSL-related imports
+    - Fixes MITM attack vulnerability
+  - Issue #401: Fix unmanaged CoroutineScope in PaymentService.kt
+    - Adding `externalScope: CoroutineScope?` parameter for lifecycle-aware scope management
+    - Callers can pass viewModelScope or lifecycleScope for proper cancellation
+    - Falls back to default scope for backward compatibility
+
+- Issue #421: Additional CoroutineScope leaks in TransactionHistoryAdapter, WebhookReceiver, and TransactionHistoryActivity
+  - Fixed by adding externalScope parameter to TransactionHistoryAdapter and WebhookReceiver
+  - TransactionHistoryActivity now uses lifecycleScope for proper lifecycle management
+  - Follows the same pattern as Issue #401/PR #404

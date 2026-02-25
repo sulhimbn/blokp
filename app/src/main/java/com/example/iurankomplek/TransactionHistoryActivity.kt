@@ -4,13 +4,12 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityTransactionHistoryBinding
 import com.example.iurankomplek.payment.PaymentStatus
-import com.example.iurankomplek.transaction.Transaction
 import com.example.iurankomplek.transaction.TransactionDatabase
 import com.example.iurankomplek.transaction.TransactionRepository
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -49,7 +48,8 @@ class TransactionHistoryActivity : AppCompatActivity() {
             binding.progressBar.visibility = View.VISIBLE
         }
         
-        CoroutineScope(Dispatchers.IO).launch {
+        // Use lifecycleScope for proper lifecycle management (fixes Issue #421)
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
                 // For now, we'll get all transactions - in a real app, we'd filter by actual user ID
                 // Using a placeholder user ID for demo purposes
