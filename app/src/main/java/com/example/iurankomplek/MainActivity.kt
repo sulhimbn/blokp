@@ -8,6 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityMainBinding
 import com.example.iurankomplek.ui.component.UserSearchFilterViewModel
+import com.example.iurankomplek.utils.Constants
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -82,16 +83,16 @@ class MainActivity : BaseActivity() {
                                 }
                                 searchFilterViewModel.setItems(validatedUsers)
                             } else {
-                                Toast.makeText(this@MainActivity, getString(R.string.no_users_available), Toast.LENGTH_LONG).show()
+                                Toast.makeText(this@MainActivity, getString(R.string.no_users_available), Constants.Toast.DURATION_LONG).show()
                             }
                         } ?: run {
-                            Toast.makeText(this@MainActivity, getString(R.string.invalid_response_format), Toast.LENGTH_LONG).show()
+                            Toast.makeText(this@MainActivity, getString(R.string.invalid_response_format), Constants.Toast.DURATION_LONG).show()
                         }
                     }
                     is UiState.Error -> {
                         binding.progressBar.visibility = View.GONE
                         binding.swipeRefreshLayout.isRefreshing = false
-                        Toast.makeText(this@MainActivity, state.error, Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@MainActivity, state.error, Constants.Toast.DURATION_LONG).show()
                     }
                 }
             }
@@ -103,7 +104,7 @@ class MainActivity : BaseActivity() {
             searchFilterViewModel.filteredItems.collectLatest { users ->
                 adapter.setUsers(users)
                 if (users.isEmpty() && searchFilterViewModel.isFilterActive.value) {
-                    Toast.makeText(this@MainActivity, getString(R.string.no_results_found), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, getString(R.string.no_results_found), Constants.Toast.DURATION_SHORT).show()
                 }
             }
         }
