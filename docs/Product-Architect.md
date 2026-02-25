@@ -68,7 +68,21 @@ When fixing CoroutineScope lifecycle issues:
 - Keep history entries clean - remove duplicates
 - Update relevant agent docs when patterns are discovered
 
+### Systematic Refactoring Pattern
+When refactoring scattered hardcoded values:
+- Use grep to identify all occurrences (42 found)
+- Verify existing centralized constants (Constants.Toast already existed)
+- Update files systematically using edit tool with LINE#ID
+- Add required imports (Constants) to each file
+- Verify with grep after completion (0 remaining in code)
+- Keep history entries clean - remove duplicates
+- Update relevant agent docs when patterns are discovered
+
 ## History
+- 2026-02-25: Fixed CoroutineScope bug in PaymentService.kt - added ownsScope tracking to prevent external scope cancellation
+- 2026-02-25: Documented @Suppress UNCHECKED_CAST annotations in 5 files - these are legitimate use cases that cannot be fixed due to Kotlin type erasure and standard Android ViewModelFactory patterns
+- 2026-02-25: Fixed CoroutineScope bug in PaymentService.kt - added ownsScope tracking to prevent external scope cancellation
+- 2026-02-25: Refactored Toast durations - replaced 42 hardcoded Toast.LENGTH_SHORT/LONG with Constants.Toast.DURATION_SHORT/LONG across 13 files (Issue #431)
 - 2026-02-25: Fixed CoroutineScope bug in PaymentService.kt - added ownsScope tracking to prevent external scope cancellation
 - 2026-02-25: Documented @Suppress UNCHECKED_CAST annotations in 5 files - these are legitimate use cases that cannot be fixed due to Kotlin type erasure and standard Android ViewModelFactory patterns
 - 2026-02-25: Fixed CoroutineScope bug in PaymentService.kt - added ownsScope tracking to prevent external scope cancellation
