@@ -10,6 +10,7 @@ This document serves as the long-term memory for the autonomous quality-assuranc
 - Documentation accuracy
 
 ## QA Issues Fixed
+
 ### 1. allowBackup Security Fix (2026-02-25)
 - **Issue**: `android:allowBackup="true"` in AndroidManifest.xml
 - **Problem**: Financial app data could be backed up and potentially exposed
@@ -34,6 +35,14 @@ This document serves as the long-term memory for the autonomous quality-assuranc
 - **Risk**: Low - simple resource addition, no functional impact
 - **Verification**: All R.string references in codebase now have corresponding resources
 
+### 4. Unused Backup Configuration Removal (2026-02-25)
+- **Issue**: `android:dataExtractionRules` and `android:fullBackupContent` attributes in AndroidManifest.xml
+- **Problem**: Unnecessary configuration when `android:allowBackup="false"` is already set - both attributes are ignored
+- **Fix**: Removed both attributes from AndroidManifest.xml, deleted unused backup_rules.xml and data_extraction_rules.xml
+- **Files**: `app/src/main/AndroidManifest.xml`, `app/src/main/res/xml/backup_rules.xml`, `app/src/main/res/xml/data_extraction_rules.xml`
+- **Risk**: Low - removing dead code, no functional impact
+- **Verification**: Manifest remains valid XML, no behavioral changes
+
 ## Patterns to Check
 
 ### Security Checklist
@@ -43,17 +52,13 @@ This document serves as the long-term memory for the autonomous quality-assuranc
 - [ ] Room database encryption for sensitive data
 - [ ] Certificate pinning pins must be valid (no placeholders)
 - [ ] Backup certificate pins obtained before production deployment
-- [ ] allowBackup should be false for financial apps
-- [ ] No hardcoded secrets in source code
-- [ ] Webhook signature verification implemented
-- [ ] Room database encryption for sensitive data
-- [ ] Certificate pinning pins must be valid (no placeholders)
 
 ### Code Quality
 - [ ] Empty catch blocks should log errors
 - [ ] DiffUtil instead of notifyDataSetChanged
 - [ ] Proper error handling in repositories
 - [ ] All R.string references have corresponding resources in strings.xml
+- [ ] Unused XML resources (backup rules, etc.) removed when allowBackup=false
 
 ### Documentation
 - [ ] docs/blueprint.md matches actual code state
