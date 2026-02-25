@@ -60,3 +60,41 @@ The Technical Writer agent is responsible for maintaining and improving document
 - Use session_id for follow-up tasks
 - Document learnings in this file
 - Share insights with other agents via shared documentation
+## Agent Communication
+
+XY|- Use session_id for follow-up tasks
+KX|- Document learnings in this file
+RM|- Share insights with other agents via shared documentation
+
+## Learnings (2026-02-25)
+
+### Documentation Fixes Completed
+
+1. **AGENTS.md - Duplicate Header**
+   - Issue: Duplicate `## Code Style` header on lines 29-30
+   - Fix: Removed one duplicate header
+   - Impact: Cleaner documentation structure
+
+2. **README.md - Outdated Language Reference**
+   - Issue: Line 7 mentioned "dilengkapi dengan Java untuk kompatibilitas" (equipped with Java for compatibility)
+   - Fix: Updated to reflect 100% Kotlin - removed Java compatibility reference
+   - Impact: Accurate representation of project language
+
+3. **api-documentation.md - Missing Endpoints**
+   - Issue: Many implemented endpoints were not documented
+   - Fix: Added comprehensive documentation for:
+     - Announcements (`GET /announcements`)
+     - Messages (`GET /messages`, `GET /messages/{receiverId}`, `POST /messages`)
+     - Community Posts (`GET /community-posts`, `POST /community-posts`)
+     - Payments (`POST /payments/initiate`, `GET /payments/{id}/status`, `POST /payments/{id}/confirm`)
+     - Vendors (`GET /vendors`, `GET /vendors/{id}`, `POST /vendors`, `PUT /vendors/{id}`)
+     - Work Orders (`GET /work-orders`, `GET /work-orders/{id}`, `POST /work-orders`, `PUT /work-orders/{id}/assign`, `PUT /work-orders/{id}/status`)
+   - Impact: Complete API reference for developers
+
+### Proactive Scanning Tips
+
+- Always check AGENTS.md for duplicate headers/sections
+- Compare README.md statements with AGENTS.md (they should be consistent)
+- Verify api-documentation.md matches actual implementation in ApiService.kt
+- Check for outdated language references (Java vs Kotlin)
+- Look for missing model documentation when new endpoints are added
