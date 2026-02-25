@@ -9,6 +9,7 @@ class UserViewModelFactory(
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(UserViewModel::class.java)) {
+            // UNCHECKED_CAST: Type erasure - T is guaranteed by isAssignableFrom check above
             @Suppress("UNCHECKED_CAST")
             return UserViewModel(userRepository) as T
         }

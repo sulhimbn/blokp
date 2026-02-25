@@ -53,6 +53,7 @@ class CacheManager private constructor() {
      * Retrieves a value from the cache if it exists and hasn't expired.
      * Returns null if the key doesn't exist or has expired.
      */
+    // UNCHECKED_CAST: Type erasure - ConcurrentHashMap<String, CacheEntry<*>> cannot preserve generic type at runtime
     @Suppress("UNCHECKED_CAST")
     suspend fun <T> get(key: String): T? {
         return mutex.withLock {
@@ -77,6 +78,7 @@ class CacheManager private constructor() {
      * Retrieves a value from the cache without using mutex (for synchronous access).
      * Use this when you're already in a synchronized context.
      */
+    // UNCHECKED_CAST: Type erasure - ConcurrentHashMap<String, CacheEntry<*>> cannot preserve generic type at runtime
     @Suppress("UNCHECKED_CAST")
     fun <T> getSync(key: String): T? {
         val entry = cache[key] as CacheEntry<T>?

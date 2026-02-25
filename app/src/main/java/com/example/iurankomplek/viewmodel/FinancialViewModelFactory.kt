@@ -9,6 +9,7 @@ class FinancialViewModelFactory(
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(FinancialViewModel::class.java)) {
+            // UNCHECKED_CAST: Type erasure - T is guaranteed by isAssignableFrom check above
             @Suppress("UNCHECKED_CAST")
             return FinancialViewModel(pemanfaatanRepository) as T
         }

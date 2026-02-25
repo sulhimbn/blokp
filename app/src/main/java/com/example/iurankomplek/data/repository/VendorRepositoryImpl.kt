@@ -361,6 +361,7 @@ class VendorRepositoryImpl(
         ttlMs: Long,
         fetchFromNetwork: suspend () -> Result<*>
     ): Result<*> {
+        // UNCHECKED_CAST: Type erasure - cacheManager.get returns generic T?, using Any as safe upper bound
         @Suppress("UNCHECKED_CAST")
         val cachedData = cacheManager.get<Any>(cacheKey)
         if (cachedData != null) {
