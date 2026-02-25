@@ -8,10 +8,13 @@ import com.example.iurankomplek.event.AppEvent
 import com.example.iurankomplek.event.EventBus
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.model.PemanfaatanResponse
+import com.example.iurankomplek.payment.PaymentStatus
+import com.example.iurankomplek.transaction.TransactionRepository
 import com.example.iurankomplek.utils.FinancialCalculator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,6 +23,8 @@ data class FinancialSummary(
     val totalPengeluaran: Int = 0,
     val totalIuranIndividu: Int = 0,
     val rekapIuran: Int = 0,
+    val totalPaymentsProcessed: Int = 0,
+    val completedTransactionsCount: Int = 0,
     val isValid: Boolean = true
 )
 
@@ -35,7 +40,8 @@ sealed class FinancialDataState {
 @HiltViewModel
 class FinancialViewModel @Inject constructor(
     private val pemanfaatanRepository: PemanfaatanRepository,
-    private val eventBus: EventBus
+    private val eventBus: EventBus,
+    private val transactionRepository: TransactionRepository
 ) : ViewModel() {
 
     private val _financialState = MutableStateFlow<FinancialDataState>(FinancialDataState.Loading)
@@ -78,7 +84,7 @@ class FinancialViewModel @Inject constructor(
         }
     }
 
-    private fun calculateFinancialSummary(items: List<DataItem>): FinancialSummary {
+    private suspend fun calculateFinancialSummary(items: List<DataItem>): FinancialSummary {
         return try {
             if (items.isEmpty()) {
                 return FinancialSummary(isValid = true)
@@ -88,27 +94,43 @@ class FinancialViewModel @Inject constructor(
                 return FinancialSummary(isValid = false)
             }
 
+            // Get payment transaction data from repository
+            val paymentData = getPaymentTransactionData()
+
             FinancialSummary(
                 totalIuranBulanan = FinancialCalculator.calculateTotalIuranBulanan(items),
                 totalPengeluaran = FinancialCalculator.calculateTotalPengeluaran(items),
                 totalIuranIndividu = FinancialCalculator.calculateTotalIuranIndividu(items),
                 rekapIuran = FinancialCalculator.calculateRekapIuran(items),
+                totalPaymentsProcessed = paymentData.first,
+                completedTransactionsCount = paymentData.second,
                 isValid = true
             )
         } catch (e: Exception) {
             FinancialSummary(isValid = false)
         }
     }
+
+    private suspend fun getPaymentTransactionData(): Pair<Int, Int> {
+        return try {
+            val completedTransactions = transactionRepository.getTransactionsByStatus(PaymentStatus.COMPLETED).first()
+            val paymentTotal = completedTransactions.sumOf { it.amount.toInt() }
+            Pair(paymentTotal, completedTransactions.size)
+        } catch (e: Exception) {
+            Pair(0, 0)
+        }
+    }
 }
 
 class FinancialViewModelFactory(
     private val pemanfaatanRepository: PemanfaatanRepository,
-    private val eventBus: EventBus
+    private val eventBus: EventBus,
+    private val transactionRepository: TransactionRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(FinancialViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return FinancialViewModel(pemanfaatanRepository, eventBus) as T
+            return FinancialViewModel(pemanfaatanRepository, eventBus, transactionRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

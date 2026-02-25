@@ -16,10 +16,7 @@ import com.example.iurankomplek.export.ReportExporter
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.model.LaporanSummaryItem
 import com.example.iurankomplek.utils.DataValidator
-import com.example.iurankomplek.utils.UiState
-import com.example.iurankomplek.transaction.TransactionDatabase
-import com.example.iurankomplek.transaction.TransactionRepository
-import com.example.iurankomplek.payment.MockPaymentGateway
+import com.example.iurankomplek.viewmodel.FinancialDataState
 import com.example.iurankomplek.viewmodel.FinancialViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -33,7 +30,6 @@ class LaporanActivity : BaseActivity() {
     private lateinit var summaryAdapter: LaporanSummaryAdapter
     private lateinit var binding: ActivityLaporanBinding
     private val viewModel: FinancialViewModel by viewModels()
-    private lateinit var transactionRepository: TransactionRepository
     private lateinit var reportExporter: ReportExporter
     private var currentDataItems: List<DataItem> = emptyList()
     private var currentSummaryItems: List<LaporanSummaryItem> = emptyList()
@@ -44,10 +40,9 @@ class LaporanActivity : BaseActivity() {
         binding = ActivityLaporanBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        initializeTransactionRepository()
         reportExporter = ReportExporter(this)
 
-        adapter = PemanfaatanAdapter(mutableListOf(), lifecycleScope)
+        adapter = PemanfaatkanAdapter(mutableListOf(), lifecycleScope)
         summaryAdapter = LaporanSummaryAdapter()
         
         binding.rvLaporan.layoutManager = LinearLayoutManager(this)
@@ -56,10 +51,10 @@ class LaporanActivity : BaseActivity() {
         binding.rvSummary.layoutManager = LinearLayoutManager(this)
         binding.rvSummary.adapter = summaryAdapter
 
-         setupSwipeRefresh()
-         observeFinancialState()
-         viewModel.loadFinancialData()
-     }
+        setupSwipeRefresh()
+        observeFinancialState()
+        viewModel.loadFinancialData()
+    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_laporan, menu)
@@ -166,24 +161,25 @@ class LaporanActivity : BaseActivity() {
         }
     }
      
-     private fun setupSwipeRefresh() {
-         binding.swipeRefreshLayout.setOnRefreshListener {
-             viewModel.loadFinancialData()
-         }
-     }
+    private fun setupSwipeRefresh() {
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            viewModel.loadFinancialData()
+        }
+    }
     
     private fun observeFinancialState() {
         lifecycleScope.launch {
             viewModel.financialState.collectLatest { state ->
                 when (state) {
-                     is UiState.Loading -> {
-                         binding.progressBar.visibility = View.VISIBLE
-                         binding.swipeRefreshLayout.isRefreshing = true
-                     }
-                     is UiState.Success -> {
-                         binding.progressBar.visibility = View.GONE
-                         binding.swipeRefreshLayout.isRefreshing = false
-                         state.data.data?.let { dataArray ->
+                    is FinancialDataState.Loading -> {
+                        binding.progressBar.visibility = View.VISIBLE
+                        binding.swipeRefreshLayout.isRefreshing = true
+                    }
+                    is FinancialDataState.Success -> {
+                        binding.progressBar.visibility = View.GONE
+                        binding.swipeRefreshLayout.isRefreshing = false
+                        
+                        state.response.data.let { dataArray ->
                             if (dataArray.isEmpty()) {
                                 Toast.makeText(this@LaporanActivity, getString(R.string.no_financial_data_available), Toast.LENGTH_LONG).show()
                                 return@let
@@ -191,123 +187,49 @@ class LaporanActivity : BaseActivity() {
                             
                             // Set data pemanfaatan pada adapter
                             adapter.setPemanfaatan(dataArray)
+                            currentDataItems = dataArray
                             
-                            // Calculate and set summary items with payment integration
-                            calculateAndSetSummary(dataArray)
-                        } ?: run {
-                            Toast.makeText(this@LaporanActivity, getString(R.string.invalid_response_format), Toast.LENGTH_LONG).show()
+                            // Use summary from ViewModel (includes payment integration)
+                            val summary = state.summary
+                            
+                            if (!summary.isValid) {
+                                Toast.makeText(this@LaporanActivity, getString(R.string.invalid_financial_data_detected), Toast.LENGTH_LONG).show()
+                                return@let
+                            }
+                            
+                            // Build summary items from ViewModel state
+                            val summaryItems = mutableListOf(
+                                LaporanSummaryItem(getString(R.string.jumlah_iuran_bulanan), DataValidator.formatCurrency(summary.totalIuranBulanan)),
+                                LaporanSummaryItem(getString(R.string.total_pengeluaran), DataValidator.formatCurrency(summary.totalPengeluaran)),
+                                LaporanSummaryItem(getString(R.string.rekap_total_iuran), DataValidator.formatCurrency(summary.rekapIuran))
+                            )
+                            
+                            // Add payment data if available
+                            if (summary.completedTransactionsCount > 0) {
+                                summaryItems.add(
+                                    LaporanSummaryItem(
+                                        "Total Payments Processed",
+                                        DataValidator.formatCurrency(summary.totalPaymentsProcessed)
+                                    )
+                                )
+                                Toast.makeText(
+                                    this@LaporanActivity,
+                                    "Integrated ${summary.completedTransactionsCount} payment transactions (Total: ${DataValidator.formatCurrency(summary.totalPaymentsProcessed)})",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                            
+                            currentSummaryItems = summaryItems
+                            summaryAdapter.setItems(summaryItems)
                         }
                     }
-                     is UiState.Error -> {
-                         binding.progressBar.visibility = View.GONE
-                         binding.swipeRefreshLayout.isRefreshing = false
-                         Toast.makeText(this@LaporanActivity, state.error, Toast.LENGTH_LONG).show()
-                     }
+                    is FinancialDataState.Error -> {
+                        binding.progressBar.visibility = View.GONE
+                        binding.swipeRefreshLayout.isRefreshing = false
+                        Toast.makeText(this@LaporanActivity, state.message, Toast.LENGTH_LONG).show()
+                    }
                 }
             }
         }
-    }
-    
-    private fun calculateAndSetSummary(dataArray: List<com.example.iurankomplek.model.DataItem>) {
-        try {
-            currentDataItems = dataArray
-            val totalIuranBulanan = com.example.iurankomplek.utils.FinancialCalculator.calculateTotalIuranBulanan(dataArray)
-            val totalPengeluaran = com.example.iurankomplek.utils.FinancialCalculator.calculateTotalPengeluaran(dataArray)
-            val totalIuranIndividu = com.example.iurankomplek.utils.FinancialCalculator.calculateTotalIuranIndividu(dataArray)
-            val rekapIuran = com.example.iurankomplek.utils.FinancialCalculator.calculateRekapIuran(dataArray)
-
-            if (!com.example.iurankomplek.utils.FinancialCalculator.validateFinancialCalculations(dataArray)) {
-                Toast.makeText(this, getString(R.string.invalid_financial_data_detected), Toast.LENGTH_LONG).show()
-                return
-            }
-            
-            integratePaymentTransactions(
-                dataArray,
-                totalIuranBulanan,
-                totalPengeluaran,
-                totalIuranIndividu,
-                rekapIuran
-            )
-            
-            // Create summary items for the RecyclerView with security validation
-            val summaryItems = listOf(
-                LaporanSummaryItem(getString(R.string.jumlah_iuran_bulanan), DataValidator.formatCurrency(totalIuranBulanan)),
-                LaporanSummaryItem(getString(R.string.total_pengeluaran), DataValidator.formatCurrency(totalPengeluaran)),
-                LaporanSummaryItem(getString(R.string.rekap_total_iuran), DataValidator.formatCurrency(rekapIuran))
-            )
-            
-            summaryAdapter.setItems(summaryItems)
-        } catch (e: ArithmeticException) {
-            Toast.makeText(this, getString(R.string.financial_calculation_overflow_error), Toast.LENGTH_LONG).show()
-        } catch (e: IllegalArgumentException) {
-            Toast.makeText(this, getString(R.string.invalid_financial_data_detected), Toast.LENGTH_LONG).show()
-        }
-    }
-    
-     private fun integratePaymentTransactions(
-        validatedDataItems: List<com.example.iurankomplek.model.DataItem>,
-        currentTotalIuranBulanan: Int,
-        currentTotalPengeluaran: Int,
-        currentTotalIuranIndividu: Int,
-        currentRekapIuran: Int
-    ) {
-        // Fetch completed payment transactions from local database to integrate with financial reporting
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                // Get all completed payment transactions 
-                val completedTransactions = transactionRepository.getTransactionsByStatus(
-                    com.example.iurankomplek.payment.PaymentStatus.COMPLETED
-                ).value
-                
-                // Calculate total amount from completed payments
-                var paymentTotal = 0
-                completedTransactions.forEach { transaction ->
-                    paymentTotal += transaction.amount.toInt() // Convert BigDecimal to Int for consistency
-                }
-                
-withContext(Dispatchers.Main) {
-             if (completedTransactions.isNotEmpty()) {
-                 val updatedRekapIuran = currentRekapIuran
-                 val updatedSummaryItems = listOf(
-                     LaporanSummaryItem(getString(R.string.jumlah_iuran_bulanan), DataValidator.formatCurrency(currentTotalIuranBulanan)),
-                     LaporanSummaryItem(getString(R.string.total_pengeluaran), DataValidator.formatCurrency(currentTotalPengeluaran)),
-                     LaporanSummaryItem(getString(R.string.rekap_total_iuran), DataValidator.formatCurrency(updatedRekapIuran)),
-                     LaporanSummaryItem("Total Payments Processed", DataValidator.formatCurrency(paymentTotal))
-                 )
-                 currentSummaryItems = updatedSummaryItems
-                 summaryAdapter.setItems(updatedSummaryItems)
-                 
-                 Toast.makeText(
-                     this@LaporanActivity,
-                     "Integrated ${completedTransactions.size} payment transactions (Total: ${DataValidator.formatCurrency(paymentTotal)})",
-                     Toast.LENGTH_LONG
-                 ).show()
-             } else {
-                 val originalSummaryItems = listOf(
-                     LaporanSummaryItem(getString(R.string.jumlah_iuran_bulanan), DataValidator.formatCurrency(currentTotalIuranBulanan)),
-                     LaporanSummaryItem(getString(R.string.total_pengeluaran), DataValidator.formatCurrency(currentTotalPengeluaran)),
-                     LaporanSummaryItem(getString(R.string.rekap_total_iuran), DataValidator.formatCurrency(currentRekapIuran))
-                 )
-                 currentSummaryItems = originalSummaryItems
-                 summaryAdapter.setItems(originalSummaryItems)
-             }
-         }
-             } catch (e: Exception) {
-                 withContext(Dispatchers.Main) {
-                     Toast.makeText(
-                         this@LaporanActivity,
-                         "Error integrating payment data: ${e.message}",
-                         Toast.LENGTH_LONG
-                     ).show()
-                 }
-             }
-        }
-    }
-    
-    private fun initializeTransactionRepository() {
-        val transactionDatabase = TransactionDatabase.getDatabase(this)
-        val transactionDao = transactionDatabase.transactionDao()
-        val mockPaymentGateway = MockPaymentGateway() // In production, this would be a real payment gateway
-        transactionRepository = TransactionRepository(mockPaymentGateway, transactionDao)
     }
 }
