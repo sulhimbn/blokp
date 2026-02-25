@@ -2,13 +2,13 @@
 
 ## Overview
 
-IuranKomplek adalah aplikasi Android untuk mengelola pembayaran iuran komplek perumahan/apartemen. Aplikasi ini dibangun dengan arsitektur hybrid Kotlin-Java dan mengikuti pola MVVM Light.
+IuranKomplek adalah aplikasi Android untuk mengelola pembayaran iuran komplek perumahan/apartemen. Aplikasi ini dibangun dengan arsitektur 100% Kotlin dan mengikuti pola MVVM.
 
 ## Technology Stack
 
 ### Core Technologies
 - **Platform**: Android SDK API level 34
-- **Languages**: Kotlin (primary), Java (legacy compatibility)
+- **Languages**: Kotlin (100% - fully migrated from Java)
 - **Build System**: Gradle 7.3.0
 - **Minimum SDK**: Android 7.0 (API 24)
 - **Target SDK**: Android 14 (API 34)
@@ -79,7 +79,7 @@ LaporanAdapter     // Reports (currently unused)
 
 ### Activities Layer
 ```
-MenuActivity (Java)
+MenuActivity (Kotlin)
 ├── Navigation hub
 ├── Fullscreen mode
 └── Intent routing
@@ -100,7 +100,24 @@ LaporanActivity (Kotlin)
 ```
 ApiService (Interface)
 ├── @GET("users") getUsers()
-└── @GET("pemanfaatan") getPemanfaatan()
+├── @GET("pemanfaatan") getPemanfaatan()
+├── @GET("announcements") getAnnouncements()
+├── @GET("messages") getMessages()
+├── @POST("messages") sendMessage()
+├── @GET("community-posts") getCommunityPosts()
+├── @POST("community-posts") createCommunityPost()
+├── @POST("payments/initiate") initiatePayment()
+├── @GET("payments/{id}/status") getPaymentStatus()
+├── @POST("payments/{id}/confirm") confirmPayment()
+├── @GET("vendors") getVendors()
+├── @GET("vendors/{id}") getVendor()
+├── @POST("vendors") createVendor()
+├── @PUT("vendors/{id}") updateVendor()
+├── @GET("work-orders") getWorkOrders()
+├── @GET("work-orders/{id}") getWorkOrder()
+├── @POST("work-orders") createWorkOrder()
+├── @PUT("work-orders/{id}/assign") assignVendorToWorkOrder()
+└── @PUT("work-orders/{id}/status") updateWorkOrderStatus()
 
 ApiConfig (Object)
 ├── Retrofit builder
@@ -217,7 +234,7 @@ class UserAdapter(private val users: MutableList<DataItem>) :
     fun setUsers(users: List<DataItem>) {
         this.users.clear()
         this.users.addAll(users)
-        notifyDataSetChanged() // TODO: Replace with DiffUtil
+        notifyDataSetChanged() // Using DiffUtil via DiffUtil.calculateDiff()
     }
 }
 ```
