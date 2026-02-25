@@ -46,7 +46,17 @@ Location: `app/src/main/res/layout/`
   - `app/src/main/res/layout/activity_menu.xml` - Removed merge conflict markers, kept string resources version
 - **PR**: https://github.com/sulhimbn/blokp/pull/387
 - **Labels**: ui-ux-engineer
-- **Status**: Open
+HJ|- **Status**: Open
+#QW|
+#SQ|### Task 3: Hardcoded contentDescription in item_list.xml
+#KY|- **Date**: 2026-02-25
+#TB|- **Issue Found**: Hardcoded `android:contentDescription="Avatar"` in item_list.xml
+#JR|- **Impact**: Accessibility issue - screen readers won't read proper description
+#TB|- **Files Changed**:
+#NR|  - `app/src/main/res/layout/item_list.xml` - Changed to @string/content_avatar
+#BR|  - `app/src/main/res/values/strings.xml` - Added content_avatar string resource
+#MS|- **Labels**: ui-ux-engineer
+#HJ|- **Status**: In Progress
 
 ## Notes
 - Build verification couldn't run due to missing Android SDK in environment
