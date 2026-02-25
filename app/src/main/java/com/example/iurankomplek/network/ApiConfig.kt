@@ -11,9 +11,9 @@ object ApiConfig {
     // Use mock API in debug mode or when running in Docker
     private const val USE_MOCK_API = BuildConfig.DEBUG || System.getenv("DOCKER_ENV") != null
     private val BASE_URL = if (USE_MOCK_API) {
-        "http://api-mock:5000/data/QjX6hB1ST2IDKaxB/"
+        "http://api-mock:5000/data/${BuildConfig.API_SPREADSHEET_ID}/"
     } else {
-        "https://api.apispreadsheets.com/data/QjX6hB1ST2IDKaxB/"
+        "https://api.apispreadsheets.com/data/${BuildConfig.API_SPREADSHEET_ID}/"
     }
     
     // Connection pool for efficient HTTP connection reuse
