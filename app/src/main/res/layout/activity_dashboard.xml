@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/green"
-        app:title="Dashboard"
+        app:title="@string/title_dashboard"
         app:titleTextColor="@android:color/white"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -62,7 +62,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Financial Summary"
+                            android:text="@string/label_financial_summary"
                             android:textSize="18sp"
                             android:textStyle="bold"
                             android:layout_marginBottom="16dp" />
@@ -83,14 +83,14 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Total Due"
+                                    android:text="@string/label_total_due"
                                     android:textSize="12sp" />
 
                                 <TextView
                                     android:id="@+id/tvTotalDue"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Rp 0"
+                                    android:text="Rp %s"
                                     android:textSize="16sp"
                                     android:textStyle="bold" />
 
@@ -106,14 +106,14 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Total Collected"
+                                    android:text="@string/label_total_collected"
                                     android:textSize="12sp" />
 
                                 <TextView
                                     android:id="@+id/tvTotalCollected"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Rp 0"
+                                    android:text="Rp %s"
                                     android:textSize="16sp"
                                     android:textStyle="bold"
                                     android:textColor="@android:color/holo_green_dark" />
@@ -130,14 +130,14 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Total Expenses"
+                                    android:text="@string/label_total_expenses"
                                     android:textSize="12sp" />
 
                                 <TextView
                                     android:id="@+id/tvTotalExpenses"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Rp 0"
+                                    android:text="Rp %s"
                                     android:textSize="16sp"
                                     android:textStyle="bold"
                                     android:textColor="@android:color/holo_red_dark" />
@@ -154,14 +154,14 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Balance"
+                                    android:text="@string/label_balance"
                                     android:textSize="12sp" />
 
                                 <TextView
                                     android:id="@+id/tvBalance"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Rp 0"
+                                    android:text="Rp %s"
                                     android:textSize="16sp"
                                     android:textStyle="bold" />
 
@@ -178,14 +178,14 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Payment Status: "
+                                android:text="@string/label_payment_status"
                                 android:textSize="14sp" />
 
                             <TextView
                                 android:id="@+id/tvPaymentStatus"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Good"
+                                android:text="@string/status_good"
                                 android:textSize="14sp"
                                 android:textStyle="bold" />
 
@@ -195,7 +195,7 @@
                             android:id="@+id/tvResidentStats"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="0/0 Residents Paid"
+                            android:text="@string/label_residents_paid"
                             android:textSize="12sp"
                             android:layout_marginTop="4dp" />
 
@@ -227,7 +227,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Announcements"
+                                android:text="@string/label_announcements"
                                 android:textSize="12sp" />
 
                             <TextView
@@ -251,7 +251,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Messages"
+                                android:text="@string/label_messages"
                                 android:textSize="12sp" />
 
                             <TextView
@@ -286,7 +286,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Quick Actions"
+                            android:text="@string/label_quick_actions"
                             android:textSize="18sp"
                             android:textStyle="bold"
                             android:layout_marginBottom="16dp" />
@@ -302,7 +302,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_columnWeight="1"
                                 android:layout_margin="4dp"
-                                android:text="Users"
+                                android:text="@string/btn_users"
                                 android:textSize="12sp" />
 
                             <Button
@@ -311,7 +311,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_columnWeight="1"
                                 android:layout_margin="4dp"
-                                android:text="Reports"
+                                android:text="@string/btn_reports"
                                 android:textSize="12sp" />
 
                             <Button
@@ -320,7 +320,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_columnWeight="1"
                                 android:layout_margin="4dp"
-                                android:text="Pay"
+                                android:text="@string/btn_pay"
                                 android:textSize="12sp" />
 
                             <Button
@@ -329,7 +329,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_columnWeight="1"
                                 android:layout_margin="4dp"
-                                android:text="News"
+                                android:text="@string/btn_news"
                                 android:textSize="12sp" />
 
                             <Button
@@ -338,7 +338,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_columnWeight="1"
                                 android:layout_margin="4dp"
-                                android:text="History"
+                                android:text="@string/btn_history"
                                 android:textSize="12sp" />
 
                             <Button
@@ -347,7 +347,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_columnWeight="1"
                                 android:layout_margin="4dp"
-                                android:text="Vendors"
+                                android:text="@string/btn_vendors"
                                 android:textSize="12sp" />
 
                         </GridLayout>
@@ -360,7 +360,7 @@
                     android:id="@+id/tvLastSync"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Last synced: Never"
+                    android:text="@string/label_last_synced"
                     android:textSize="10sp"
                     android:layout_marginTop="8dp"
                     app:layout_constraintTop_toBottomOf="@id/cardQuickActions"

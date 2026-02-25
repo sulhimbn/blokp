@@ -41,3 +41,40 @@
     <string name="title_daftar_iuran">DAFTAR IURAN WARGA KONOHA</string>
     <string name="content_pembayaran">Menu Pembayaran</string>
     <string name="no_results_found">No results found</string>
+    <string name="content_avatar">Avatar</string>
+    <string name="label_name">Name</string>
+    <string name="label_email">Email</string>
+    <string name="label_address">Address</string>
+    <string name="label_iuran_perwarga">Iuran Perwarga</string>
+    <string name="label_total_iuran_individu">Total Iuran Individu</string>
+
+    <!-- Dashboard strings -->
+    <string name="title_dashboard">Dashboard</string>
+    <string name="label_financial_summary">Financial Summary</string>
+    <string name="label_total_due">Total Due</string>
+    <string name="label_total_collected">Total Collected</string>
+    <string name="label_total_expenses">Total Expenses</string>
+    <string name="label_balance">Balance</string>
+    <string name="label_payment_status">Payment Status: </string>
+    <string name="status_good">Good</string>
+    <string name="label_residents_paid">%1$d/%2$d Residents Paid</string>
+    <string name="label_announcements">Announcements</string>
+    <string name="label_messages">Messages</string>
+    <string name="label_quick_actions">Quick Actions</string>
+    <string name="btn_users">Users</string>
+    <string name="btn_reports">Reports</string>
+    <string name="btn_pay">Pay</string>
+    <string name="btn_news">News</string>
+    <string name="btn_history">History</string>
+    <string name="btn_vendors">Vendors</string>
+    <string name="label_last_synced">Last synced: %s</string>
+    <string name="label_never">Never</string>
+
+    <string name="status_excellent">Excellent</string>
+    <string name="status_fair">Fair</string>
+    <string name="status_poor">Poor</string>
+    <string name="label_residents_paid_format">%1$d/%2$d Residents Paid</string>
+
+    <string name="title_iuran_komplek">IURAN KOMPLEK KONOHA</string>
+    <string name="menu_pembayaran">Pembayaran</string>
+
