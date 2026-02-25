@@ -47,3 +47,4 @@ Deliver small, safe, measurable improvements strictly within the Growth-Innovati
 - 2026-02-25: Fixed unmanaged CoroutineScope in PaymentService.kt - added externalScope parameter, SupervisorJob, ownsScope tracking, and destroy() method for proper lifecycle management (Issues #400, #401)
 - 2026-02-25: First scan - found hardcoded strings in AnnouncementsFragment.kt and MessagesFragment.kt that should use string resources
 - 2026-02-25: Fixed hardcoded strings - replaced with getString() calls, added 4 new string resources, created PR #392
+- 2026-02-25: Fixed hardcoded Toast.LENGTH_SHORT/LENGTH_LONG - replaced with Constants.Toast.DURATION_SHORT/DURATION_LONG across 13 files, created PR #447 (Issue #431)
