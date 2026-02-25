@@ -46,4 +46,5 @@ Deliver small, safe, measurable improvements strictly within the Growth-Innovati
 - 2026-02-25: Fixed duplicate Room dependencies in app/build.gradle (removed 3 duplicate lines)
 - 2026-02-25: Fixed unmanaged CoroutineScope in PaymentService.kt - added externalScope parameter, SupervisorJob, ownsScope tracking, and destroy() method for proper lifecycle management (Issues #400, #401)
 - 2026-02-25: First scan - found hardcoded strings in AnnouncementsFragment.kt and MessagesFragment.kt that should use string resources
+- 2026-02-25: Documented @Suppress(UNCHECKED_CAST) in 5 files (UserViewModelFactory, FinancialViewModelFactory, FinancialViewModel, CacheManager, VendorRepositoryImpl) - explained why they are legitimate due to Kotlin type erasure, created PR #428
 - 2026-02-25: Fixed hardcoded strings - replaced with getString() calls, added 4 new string resources, created PR #392
