@@ -10,22 +10,65 @@ This document serves as the long-term memory for the ai-agent-engineer domain. I
 
 This repository employs multiple autonomous agents that work together to maintain and improve the codebase:
 
-| Workflow | Purpose | Trigger |
-|----------|---------|---------|
-| `oc-issue-solver` | Handles open issues end-to-end | Schedule (30 min), manual |
-| `oc-pr-handler` | Maintains PRs, resolves feedback, merges when ready | Schedule, PR events |
-| `oc-maintainer` | Repository maintenance, health scans | Schedule (daily) |
-| `oc-repo-manager` | General repo management, issue/PR coordination | Schedule (6 hours), events |
-| `oc-researcher` | Research and investigation | Manual |
-| `oc-problem-finder` | Proactive issue discovery | Manual |
-| `oc-code-quality-analyzer` | Code quality analysis | Manual |
-| `oc-release-manager` | Release management | Manual |
+#### Primary Agent Workflows (OpenCode-powered)
+
+| Workflow File | Name | Purpose | Trigger | Model | Timeout |
+|---------------|------|---------|---------|-------|--------|
+| `oc-issue-solver.yml` | Issue Solver | Handles open issues end-to-end: analyze, plan, implement, verify, create PR | Schedule (30 min), manual | iflowcn/qwen3-coder-plus | 40 min |
+| `oc-pr-handler.yml` | PR Handler | Maintains PRs, resolves feedback, fixes checks, merges when ready | Schedule (9,15,21 UTC), PR events, manual | iflowcn/qwen3-coder-plus | 40 min |
+| `oc-maintainer.yml` | Maintainer | Repository health scans, proactive maintenance, security, CI improvements | Schedule (daily 3 UTC), manual | iflowcn/glm-4.6 | 40 min |
+| `oc-repo-manager.yml` | Repo Manager | Issue/PR coordination, label management, stale tracking, dependency monitoring | Schedule (6 hours), PR events, push to main, manual | iflowcn/glm-4.6 | 30 min |
+| `oc-release-manager.yml` | Release Manager | Analyzes commits, creates changelogs, manages GitHub releases | Manual (workflow_dispatch) | iflowcn/glm-4.6 | 40 min |
+| `oc-code-quality-analyzer.yml` | Code Quality Analyzer | Deep code analysis, identifies bugs, performance issues, creates improvement issues | Schedule (daily 2 UTC), manual | iflowcn/glm-4.6 | 60 min |
+
+#### Event-Driven Workflows
+
+| Workflow File | Name | Purpose | Trigger |
+|---------------|------|---------|---------|
+| `on-push.yml` | On Push | Multi-phase autonomous agent: handles PRs→issues→analysis→product thinking→docs | Push to main, manual |
+| `on-pull.yml` | On Pull | PR review, merge handling, issue management with quality scoring | PR events, schedule (hourly), manual |
+| `parallel.yml` | Parallel | Multi-stage pipeline: Architect → Implement → Verify → Review → Release | Push to main, schedule (4 hours), manual |
+
+#### Additional Specialized Workflows
+
+| Workflow File | Name | Purpose | Trigger |
+|---------------|------|---------|---------|
+| `oc-researcher.yml` | Researcher | Research and investigation tasks | Manual |
+| `oc-problem-finder.yml` | Problem Finder | Proactive issue discovery | Manual |
+
+#### Global Concurrency Control
+
+Most agent workflows use a global concurrency group to prevent parallel execution:
+```yaml
+concurrency:
+  group: ${{ github.repository }}-global-workflow
+  cancel-in-progress: false
+```
+
+#### Common Patterns
+
+All OpenCode-powered workflows:
+- Use `softprops/turnstyle` for queue management (where applicable)
+- Cache OpenCode CLI between runs
+- Configure Git identity for commits
+- Support both scheduled and manual (`workflow_dispatch`) triggers
+- Set appropriate timeout limits to prevent runaway jobs
 
 ### Agent Identity
 
 Agents operate using the following Git identity:
-- Email: `maskom_team@ma-malnukananga.sch.id` (issue solver)
-- Email: `pr_handler@jasaweb.co.id` (PR handler)
+- Email: `maskom_team@ma-malnukananga.sch.id` (issue solver, maintainer, code quality analyzer)
+- Email: `pr_handler@jasaweb.co.id` (PR handler, release manager)
+- Email: `repo-manager@ai-agent.local` (repo manager)
+
+#### Common Permissions
+
+All agent workflows request these permissions:
+- `contents: write` - For creating branches, commits, PRs
+- `pull-requests: write` - For creating and updating PRs
+- `issues: write` - For creating and updating issues
+- `actions: write` - For managing workflow runs (some workflows)
+- `id-token: write` - For OIDC authentication
 
 ## Operating Contract
 
@@ -94,6 +137,51 @@ Agents operate using the following Git identity:
 3. Developer experience and maintainability
 4. Performance and efficiency
 5. Documentation and governance
+
+### Repo Manager Agent
+
+**Capabilities:**
+- Issue management: identify duplicates, add labels, suggest milestones
+- PR review: code review best practices, bug detection, reviewer suggestions
+- Code & quality: metrics analysis, technical debt identification, dependency monitoring
+- Documentation: ensure documentation stays current
+- Security: vulnerability scanning, credential detection
+
+**Triggers:**
+- Schedule (every 6 hours)
+- PR events (opened, reopened, synchronize, ready_for_review)
+- Push to main/master
+- Issue comments with `/repo-manager` command
+- Manual workflow dispatch
+
+### Release Manager Agent
+
+**Capabilities:**
+- Analyze commit history for changes since last release
+- Categorize changes (features, bug fixes, breaking changes, performance)
+- Generate structured changelogs (Keep a Changelog format)
+- Create GitHub releases with semantic versioning
+- Handle version conflicts with fallback to patch increment
+
+**Usage:**
+- Manual trigger only via workflow_dispatch
+- Accepts version input (optional, auto-determines if not provided)
+- Supports draft releases
+
+### Code Quality Analyzer Agent
+
+**Capabilities:**
+- Deep code analysis for bugs and errors
+- Performance pattern analysis
+- Code consistency evaluation
+- Dependency integration analysis
+- Identify code consolidation opportunities
+
+**Constraints:**
+- Maximum 10 issues per execution to avoid spam
+- Only create issues for significant findings
+- Avoid speculative changes without concrete evidence
+- Focus on improvements with real value
 
 ## Issue/PR Labels
 
