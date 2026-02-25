@@ -41,7 +41,30 @@ This document serves as the long-term memory for the autonomous quality-assuranc
 - **Fix**: Removed both attributes from AndroidManifest.xml, deleted unused backup_rules.xml and data_extraction_rules.xml
 - **Files**: `app/src/main/AndroidManifest.xml`, `app/src/main/res/xml/backup_rules.xml`, `app/src/main/res/xml/data_extraction_rules.xml`
 - **Risk**: Low - removing dead code, no functional impact
-- **Verification**: Manifest remains valid XML, no behavioral changes
+### 5. Build.gradle Syntax Bug Fix (2026-02-25)
+- **Issue**: Extra closing brace `}` in app/build.gradle at line 28
+- **Problem**: Caused Gradle build failure with error: "Unexpected input: '{...}'" - prevented any tests from running
+- **Fix**: Removed extra closing brace, corrected brace count (10 opens, 10 closes)
+- **File**: `app/build.gradle`
+- **Risk**: Low - syntax fix only, no functional impact
+- **Verification**: Build parses successfully, no Groovy syntax errors
+
+### 6. CacheManager Unit Tests (2026-02-25)
+- **Issue**: CacheManager.kt mentioned as untested in Issue #402 (Critical Test Coverage Gaps)
+- **Problem**: No unit tests for CacheManager - a critical in-memory caching utility
+- **Fix**: Created comprehensive unit tests covering:
+  - put/getSync operations with default and custom TTL
+  - Cache expiry handling (entries expire correctly)
+  - contains() method for key existence checks
+  - size() method for cache entry count
+  - remove() for removing specific entries
+  - clear()/clearSync() for clearing all entries
+  - evictExpired() for removing expired entries
+  - Concurrent put operations
+  - Update existing key behavior
+- **File**: `app/src/test/java/com/example/iurankomplek/utils/CacheManagerTest.kt`
+- **Risk**: Low - test additions only, no production code changes
+- **Test Count**: 23 test methods
 
 ## Patterns to Check
 
