@@ -1,3 +1,14 @@
+### PR #FIX: Fix build.gradle syntax error (extra closing brace)
+**Status**: Open
+**Date**: 2026-02-25
+
+**Bug Fixed:**
+- app/build.gradle had an extra closing brace `}` at line 28
+- This caused compilation failure with error: "Unexpected input: '{\n        jvmTarget = '1.8'\n    }\n}'"
+- Removed the duplicate `}` to fix the syntax error
+
+---
+
 ### PR #449: Use Constants.Toast for Toast duration (2026-02-25)
 **Status**: Open
 **Date**: 2026-02-25
