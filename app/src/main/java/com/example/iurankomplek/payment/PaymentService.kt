@@ -11,10 +11,11 @@ import java.math.BigDecimal
 
 class PaymentService(
     private val transactionRepository: TransactionRepository,
-    private val receiptGenerator: ReceiptGenerator
+    private val receiptGenerator: ReceiptGenerator,
+    private val externalScope: CoroutineScope? = null
 ) {
     // Managed coroutine scope to prevent memory leaks
-    private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val serviceScope = externalScope ?: CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val jobs = mutableListOf<Job>()
 
     fun processPayment(
