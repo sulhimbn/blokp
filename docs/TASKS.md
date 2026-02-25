@@ -102,7 +102,7 @@ Dokumen ini mengelola **16 granular tasks** untuk repositori IuranKomplek berdas
 **Estimated Time**: 2 hours
 
 #### Action Items:
-- [ ] Convert MenuActivity.java to Kotlin syntax
+- [x] Convert MenuActivity.java to Kotlin syntax
 - [ ] Implement ViewBinding for activity_menu.xml
 - [ ] Replace findViewById with binding references
 - [ ] Update click listeners to Kotlin lambda syntax
