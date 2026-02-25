@@ -10,6 +10,7 @@ This document serves as the long-term memory for the autonomous quality-assuranc
 - Documentation accuracy
 
 ## QA Issues Fixed
+
 ### 1. allowBackup Security Fix (2026-02-25)
 - **Issue**: `android:allowBackup="true"` in AndroidManifest.xml
 - **Problem**: Financial app data could be backed up and potentially exposed
@@ -34,26 +35,31 @@ This document serves as the long-term memory for the autonomous quality-assuranc
 - **Risk**: Low - simple resource addition, no functional impact
 - **Verification**: All R.string references in codebase now have corresponding resources
 
+### 4. Insecure Trust Manager Removal (2026-02-25)
+- **Issue**: `createInsecureTrustManager()` method in SecurityManager.kt bypassed SSL/TLS verification
+- **Problem**: All-trusting X509TrustManager made app vulnerable to MITM attacks
+- **Fix**: Removed the insecure method entirely - it was not used anywhere in the codebase
+- **File**: `app/src/main/java/com/example/iurankomplek/utils/SecurityManager.kt`
+- **Risk**: None - method was unused, removal has no functional impact
+- **Verification**: Code review confirmed method was not called anywhere
+- **Linked Issue**: #399
+
 ## Patterns to Check
 
 ### Security Checklist
-- [ ] allowBackup should be false for financial apps
+- [x] allowBackup should be false for financial apps
 - [ ] No hardcoded secrets in source code
 - [ ] Webhook signature verification implemented
 - [ ] Room database encryption for sensitive data
 - [ ] Certificate pinning pins must be valid (no placeholders)
 - [ ] Backup certificate pins obtained before production deployment
-- [ ] allowBackup should be false for financial apps
-- [ ] No hardcoded secrets in source code
-- [ ] Webhook signature verification implemented
-- [ ] Room database encryption for sensitive data
-- [ ] Certificate pinning pins must be valid (no placeholders)
+- [x] No insecure all-trusting TrustManager in code
 
 ### Code Quality
 - [ ] Empty catch blocks should log errors
 - [ ] DiffUtil instead of notifyDataSetChanged
 - [ ] Proper error handling in repositories
-- [ ] All R.string references have corresponding resources in strings.xml
+- [x] All R.string references have corresponding resources in strings.xml
 
 ### Documentation
 - [ ] docs/blueprint.md matches actual code state
@@ -64,6 +70,7 @@ This document serves as the long-term memory for the autonomous quality-assuranc
 1. **Issue Validation**: Always verify that mentioned files actually exist before attempting to fix
 2. **Proactive Scanning**: When no actionable issues exist, scan for related security/code quality issues
 3. **Small Changes**: Prefer single-file, low-risk changes that are easy to verify
+4. **Usage Verification**: Always verify if methods are actually used before removal - unused code can be safely removed
 
 ## Workflow
 1. INITIATE: Check for open QA PRs → Check for QA issues → Proactive scan

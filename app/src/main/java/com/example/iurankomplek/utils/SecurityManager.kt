@@ -1,13 +1,6 @@
 package com.example.iurankomplek.utils
 
-import android.content.Context
 import android.util.Log
-import java.security.cert.Certificate
-import java.security.cert.X509Certificate
-import javax.net.ssl.HttpsURLConnection
-import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
 
 /**
  * SecurityManager handles various security-related tasks including
@@ -40,18 +33,6 @@ object SecurityManager {
         // In a real implementation, this would perform actual validation
         Log.d(TAG, "Validating security configuration...")
         return true
-    }
-    
-    /**
-     * Creates an all-trusting trust manager for development purposes
-     * WARNING: This should ONLY be used in development and never in production
-     */
-    fun createInsecureTrustManager(): X509TrustManager {
-        return object : X509TrustManager {
-            override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
-            override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
-            override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
-        }
     }
     
     /**
