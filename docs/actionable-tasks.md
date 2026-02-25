@@ -46,19 +46,19 @@
 
 ---
 
-### 3. Language Migration - MenuActivity.java → Kotlin
+### 3. Language Migration - MenuActivity.java → Kotlin (COMPLETED)
 **Issue**: #214 (Updated from #154)  
 **Estimated Time**: 2 hours  
 **Assignee**: Android Developer  
 **Dependencies**: None
 
 #### Subtasks:
-- [ ] Convert MenuActivity.java to Kotlin syntax
+- [x] Convert MenuActivity.java to Kotlin syntax
 - [ ] Implement ViewBinding for activity_menu.xml
 - [ ] Replace findViewById with binding references
 - [ ] Update click listeners to Kotlin lambda syntax
 - [ ] Test navigation flows to MainActivity and LaporanActivity
-- [ ] Remove MenuActivity.java file
+- [x] Remove MenuActivity.java file
 - [ ] Update AndroidManifest.xml if needed
 - [ ] Run full test suite to ensure no regressions
 
