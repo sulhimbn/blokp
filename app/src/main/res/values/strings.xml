@@ -35,5 +35,7 @@
     <string name="content_warga">Menu Warga</string>
     <string name="content_laporan">Menu Laporan</string>
     <string name="content_komunikasi">Menu Komunikasi</string>
-    <string name="content_pembayaran">Menu Pembayaran</string>
-</resources>
+    <string name="menu_warga">Warga</string>
+    <string name="menu_laporan">Laporan</string>
+    <string name="menu_komunikasi">Komunikasi</string>
+    <string name="title_daftar_iuran">DAFTAR IURAN WARGA KONOHA</string>
