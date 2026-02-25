@@ -87,9 +87,6 @@ dependencies {
     
     // SQLCipher for database encryption
     implementation libs.sqlcipher
-    implementation libs.room.runtime
-    implementation libs.room.ktx
-    kapt libs.room.compiler
     
     // Hilt for dependency injection
     implementation libs.hilt.android

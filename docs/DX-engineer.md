@@ -55,6 +55,45 @@ org.gradle.daemon=true
 org.gradle.caching=true
 ```
 
+### 2026-02-25: Duplicate Room Dependencies Fixed
+
+**Changes:**
+- Removed duplicate Room dependencies in `app/build.gradle`
+- Previously: Room runtime, ktx, and compiler declared twice (6 entries)
+- Now: Single declaration (3 entries)
+
+**Impact:**
+- Eliminates redundant dependency resolution
+- Reduces Gradle sync and build time slightly
+- Cleaner dependency graph
+
+**Files Changed:**
+- `app/build.gradle` (removed 3 duplicate lines)
+### 2026-02-25: Duplicate Room Dependencies Fixed
+
+**Issue Found:**
+- PR #408 initially removed ALL Room dependencies instead of just duplicates
+- This would have broken the build completely
+
+**Fix Applied:**
+- Corrected to remove only the duplicate Room dependency set (3 lines)
+- Main had 6 entries (2 sets) → PR correctly removes to 3 entries (1 set)
+
+**Changes:**
+- Removed duplicate Room dependencies in `app/build.gradle`
+- Previously: Room runtime, ktx, and compiler declared twice (6 entries)
+- Now: Single declaration (3 entries)
+
+**Impact:**
+- Eliminates redundant dependency resolution
+- Reduces Gradle sync and build time slightly
+- Cleaner dependency graph
+
+**Files Changed:**
+- `app/build.gradle` (removed 3 duplicate lines)
+
+---
+
 ## DX Principles
 
 1. **Small, safe, measurable improvements** - Focus on incremental changes
