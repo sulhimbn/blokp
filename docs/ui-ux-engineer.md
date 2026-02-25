@@ -29,6 +29,19 @@ Location: `app/src/main/res/layout/`
 
 ## Completed Tasks
 
+### Task 4: Fix deprecated margin attributes and textSize units in activity_menu.xml
+- **Date**: 2026-02-25
+- **Issue**: #458
+- **Changes Made**:
+  - Replaced deprecated `android:layout_marginLeft` with `android:layout_marginStart` (lines 13, 33, 94)
+  - Replaced deprecated `android:layout_marginRight` with `android:layout_marginEnd` (lines 15, 103)
+  - Fixed `android:textSize="15dp"` to `android:textSize="15sp"` (lines 57, 84, 121, 149)
+- **Impact**: Improved RTL layout support and proper text scaling
+- **Labels**: ui-ux-engineer
+- **Status**: In Progress
+
+### Task 1: Issue #358 - Missing contentDescription on ImageViews
+
 ### Task 1: Issue #358 - Missing contentDescription on ImageViews
 - **Date**: 2026-02-25
 - **Files Changed**:
