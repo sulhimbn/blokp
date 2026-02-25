@@ -6,19 +6,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.FragmentCommunityBinding
-import com.example.iurankomplek.model.CommunityPost
 import com.example.iurankomplek.network.ApiConfig
-import com.example.iurankomplek.utils.NetworkUtils
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.example.iurankomplek.utils.UiState
+import com.example.iurankomplek.viewmodel.CommunityViewModel
 
 class CommunityFragment : Fragment() {
 
     private lateinit var adapter: CommunityPostAdapter
     private lateinit var binding: FragmentCommunityBinding
+    private lateinit var communityViewModel: CommunityViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,47 +30,36 @@ class CommunityFragment : Fragment() {
         binding.rvCommunity.layoutManager = LinearLayoutManager(context)
         binding.rvCommunity.adapter = adapter
 
-        loadCommunityPosts()
+        // Initialize ViewModel
+        communityViewModel = ViewModelProvider(
+            this,
+            CommunityViewModel.Factory(ApiConfig.getApiService())
+        )[CommunityViewModel::class.java]
+
+        // Observe state with viewLifecycleOwner
+        observeCommunityState()
+
+        // Load data
+        communityViewModel.loadCommunityPosts()
 
         return binding.root
     }
 
-    private fun loadCommunityPosts() {
-        // Show progress bar when starting the API call
-        binding.progressBar.visibility = View.VISIBLE
-
-        if (!NetworkUtils.isNetworkAvailable(requireContext())) {
-            // Hide progress bar after failure
-            binding.progressBar.visibility = View.GONE
-            Toast.makeText(context, "No internet connection", Toast.LENGTH_LONG).show()
-            return
-        }
-
-        val apiService = ApiConfig.getApiService()
-        val call = apiService.getCommunityPosts()
-
-        call.enqueue(object : Callback<List<CommunityPost>> {
-            override fun onResponse(call: Call<List<CommunityPost>>, response: Response<List<CommunityPost>>) {
-                // Hide progress bar after response
-                binding.progressBar.visibility = View.GONE
-                
-                if (response.isSuccessful) {
-                    val posts = response.body()
-                    if (posts != null) {
-                        adapter.submitList(posts)
-                    } else {
-                        Toast.makeText(context, "No community posts available", Toast.LENGTH_LONG).show()
-                    }
-                } else {
-                    Toast.makeText(context, "Failed to load community posts", Toast.LENGTH_LONG).show()
+    private fun observeCommunityState() {
+        communityViewModel.communityState.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is UiState.Loading -> {
+                    binding.progressBar.visibility = View.VISIBLE
+                }
+                is UiState.Success -> {
+                    binding.progressBar.visibility = View.GONE
+                    adapter.submitList(state.data)
+                }
+                is UiState.Error -> {
+                    binding.progressBar.visibility = View.GONE
+                    Toast.makeText(context, state.error, Toast.LENGTH_LONG).show()
                 }
             }
-
-            override fun onFailure(call: Call<List<CommunityPost>>, t: retrofit2.Call<List<CommunityPost>>) {
-                // Hide progress bar after failure
-                binding.progressBar.visibility = View.GONE
-                Toast.makeText(context, "Network error: ${t.message}", Toast.LENGTH_LONG).show()
-            }
-        })
+        }
     }
 }

@@ -6,19 +6,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.FragmentAnnouncementsBinding
-import com.example.iurankomplek.model.Announcement
 import com.example.iurankomplek.network.ApiConfig
-import com.example.iurankomplek.utils.NetworkUtils
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.example.iurankomplek.utils.UiState
+import com.example.iurankomplek.viewmodel.AnnouncementsViewModel
 
 class AnnouncementsFragment : Fragment() {
 
     private lateinit var adapter: AnnouncementAdapter
     private lateinit var binding: FragmentAnnouncementsBinding
+    private lateinit var announcementsViewModel: AnnouncementsViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,47 +30,36 @@ class AnnouncementsFragment : Fragment() {
         binding.rvAnnouncements.layoutManager = LinearLayoutManager(context)
         binding.rvAnnouncements.adapter = adapter
 
-        loadAnnouncements()
+        // Initialize ViewModel
+        announcementsViewModel = ViewModelProvider(
+            this,
+            AnnouncementsViewModel.Factory(ApiConfig.getApiService())
+        )[AnnouncementsViewModel::class.java]
+
+        // Observe state with viewLifecycleOwner
+        observeAnnouncementsState()
+
+        // Load data
+        announcementsViewModel.loadAnnouncements()
 
         return binding.root
     }
 
-    private fun loadAnnouncements() {
-        // Show progress bar when starting the API call
-        binding.progressBar.visibility = View.VISIBLE
-
-        if (!NetworkUtils.isNetworkAvailable(requireContext())) {
-            // Hide progress bar after failure
-            binding.progressBar.visibility = View.GONE
-            Toast.makeText(context, "No internet connection", Toast.LENGTH_LONG).show()
-            return
-        }
-
-        val apiService = ApiConfig.getApiService()
-        val call = apiService.getAnnouncements()
-
-        call.enqueue(object : Callback<List<Announcement>> {
-            override fun onResponse(call: Call<List<Announcement>>, response: Response<List<Announcement>>) {
-                // Hide progress bar after response
-                binding.progressBar.visibility = View.GONE
-                
-                if (response.isSuccessful) {
-                    val announcements = response.body()
-                    if (announcements != null) {
-                        adapter.submitList(announcements)
-                    } else {
-                        Toast.makeText(context, "No announcements available", Toast.LENGTH_LONG).show()
-                    }
-                } else {
-                    Toast.makeText(context, "Failed to load announcements", Toast.LENGTH_LONG).show()
+    private fun observeAnnouncementsState() {
+        announcementsViewModel.announcementsState.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is UiState.Loading -> {
+                    binding.progressBar.visibility = View.VISIBLE
+                }
+                is UiState.Success -> {
+                    binding.progressBar.visibility = View.GONE
+                    adapter.submitList(state.data)
+                }
+                is UiState.Error -> {
+                    binding.progressBar.visibility = View.GONE
+                    Toast.makeText(context, state.error, Toast.LENGTH_LONG).show()
                 }
             }
-
-            override fun onFailure(call: Call<List<Announcement>>, t: retrofit2.Call<List<Announcement>>) {
-                // Hide progress bar after failure
-                binding.progressBar.visibility = View.GONE
-                Toast.makeText(context, "Network error: ${t.message}", Toast.LENGTH_LONG).show()
-            }
-        })
+        }
     }
 }
