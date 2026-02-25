@@ -125,6 +125,426 @@ Content-Type: application/json
 ```
 
 **Note:** This endpoint is deprecated and will be removed in future versions. Use `/users` endpoint instead.
+### 4. Announcements Endpoint
+
+#### GET /announcements
+Retrieves list of all announcements in the HOA system.
+
+**Request:**
+```http
+GET /data/QjX6hB1ST2IDKaxB/announcements
+Content-Type: application/json
+```
+
+**Response (200 OK):**
+```json
+{
+  "data": [
+    {
+      "id": "ann_001",
+      "title": "Monthly Meeting",
+      "content": "There will be a monthly community meeting this Saturday...",
+      "category": "meeting",
+      "priority": "high",
+      "createdAt": "2026-02-20T10:00:00Z",
+      "readBy": ["user_1", "user_2"]
+    }
+  ]
+}
+```
+
+**Response Schema:**
+```typescript
+interface Announcement {
+  id: string;
+  title: string;
+  content: string;
+  category: string;
+  priority: string;
+  createdAt: string;
+  readBy: string[];
+}
+```
+
+### 5. Messages Endpoints
+
+#### GET /messages
+Retrieves messages for a specific user.
+
+**Request:**
+```http
+GET /data/QjX6hB1ST2IDKaxB/messages?userId=user_001
+Content-Type: application/json
+```
+
+**Response (200 OK):**
+```json
+{
+  "data": [
+    {
+      "id": "msg_001",
+      "senderId": "user_001",
+      "receiverId": "user_002",
+      "content": "Hello, regarding the maintenance request...",
+      "timestamp": "2026-02-20T14:30:00Z",
+      "readStatus": false,
+      "attachments": []
+    }
+  ]
+}
+```
+
+#### GET /messages/{receiverId}
+Retrieves conversation between two users.
+
+**Request:**
+```http
+GET /data/QjX6hB1ST2IDKaxB/messages/user_002?senderId=user_001
+Content-Type: application/json
+```
+
+#### POST /messages
+Send a message to another user.
+
+**Request:**
+```http
+POST /data/QjX6hB1ST2IDKaxB/messages?senderId=user_001&receiverId=user_002&content=Hello
+Content-Type: application/json
+```
+
+**Response Schema:**
+```typescript
+interface Message {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  content: string;
+  timestamp: string;
+  readStatus: boolean;
+  attachments: string[];
+}
+```
+
+### 6. Community Posts Endpoint
+
+#### GET /community-posts
+Retrieves community discussion posts.
+
+**Request:**
+```http
+GET /data/QjX6hB1ST2IDKaxB/community-posts
+Content-Type: application/json
+```
+
+**Response (200 OK):**
+```json
+{
+  "data": [
+    {
+      "id": "post_001",
+      "authorId": "user_001",
+      "title": "Pool Maintenance Schedule",
+      "content": "The pool will be closed for maintenance next week...",
+      "category": "maintenance",
+      "likes": 15,
+      "comments": [
+        {
+          "id": "comment_001",
+          "authorId": "user_002",
+          "content": "Thank you for the update!",
+          "timestamp": "2026-02-20T15:00:00Z"
+        }
+      ],
+      "createdAt": "2026-02-20T12:00:00Z"
+    }
+  ]
+}
+```
+
+#### POST /community-posts
+Create a new community post.
+
+**Request:**
+```http
+POST /data/QjX6hB1ST2IDKaxB/community-posts?authorId=user_001&title=New+Post&content=Content&category=general
+Content-Type: application/json
+```
+
+**Response Schema:**
+```typescript
+interface Comment {
+  id: string;
+  authorId: string;
+  content: string;
+  timestamp: string;
+}
+
+interface CommunityPost {
+  id: string;
+  authorId: string;
+  title: string;
+  content: string;
+  category: string;
+  likes: number;
+  comments: Comment[];
+  createdAt: string;
+}
+```
+
+### 7. Payment Endpoints
+
+#### POST /payments/initiate
+Initiate a new payment transaction.
+
+**Request:**
+```http
+POST /data/QjX6hB1ST2IDKaxB/payments/initiate?amount=500000&description=Monthly+Iuran&customerId=user_001&paymentMethod=bank_transfer
+Content-Type: application/json
+```
+
+**Response (200 OK):**
+```json
+{
+  "transactionId": "txn_001",
+  "status": "pending",
+  "paymentMethod": "bank_transfer",
+  "amount": "500000",
+  "currency": "IDR",
+  "transactionTime": 1708444800000,
+  "referenceNumber": "REF-20260220-001"
+}
+```
+
+#### GET /payments/{id}/status
+Get payment transaction status.
+
+**Request:**
+```http
+GET /data/QjX6hB1ST2IDKaxB/payments/txn_001/status
+Content-Type: application/json
+```
+
+#### POST /payments/{id}/confirm
+Confirm a pending payment.
+
+**Request:**
+```http
+POST /data/QjX6hB1ST2IDKaxB/payments/txn_001/confirm
+Content-Type: application/json
+```
+
+**Response Schema:**
+```typescript
+interface PaymentResponse {
+  transactionId: string;
+  status: string;
+  paymentMethod: string;
+  amount: string;
+  currency: string;
+  transactionTime: number;
+  referenceNumber: string;
+}
+
+interface PaymentStatusResponse {
+  transactionId: string;
+  status: string;
+  amount: string;
+  currency: string;
+  updatedAt: number;
+}
+
+interface PaymentConfirmationResponse {
+  transactionId: string;
+  status: string;
+  confirmationTime: number;
+}
+```
+
+### 8. Vendor Management Endpoints
+
+#### GET /vendors
+Retrieves list of all vendors.
+
+**Request:**
+```http
+GET /data/QjX6hB1ST2IDKaxB/vendors
+Content-Type: application/json
+```
+
+**Response (200 OK):**
+```json
+{
+  "data": [
+    {
+      "id": "vendor_001",
+      "name": "PT Jaya Makmur",
+      "contactPerson": "John Doe",
+      "phoneNumber": "+62812345678",
+      "email": "john@jayamakmur.com",
+      "specialty": "plumbing",
+      "address": "Jl. Merdeka No. 45",
+      "licenseNumber": "LIC-2024-001",
+      "insuranceInfo": "insured",
+      "certifications": ["ISO 9001"],
+      "rating": 4.5,
+      "totalReviews": 28,
+      "contractStart": "2024-01-01",
+      "contractEnd": "2025-12-31",
+      "isActive": true
+    }
+  ]
+}
+```
+
+#### GET /vendors/{id}
+Retrieves a specific vendor by ID.
+
+**Request:**
+```http
+GET /data/QjX6hB1ST2IDKaxB/vendors/vendor_001
+Content-Type: application/json
+```
+
+#### POST /vendors
+Create a new vendor.
+
+**Request:**
+```http
+POST /data/QjX6hB1ST2IDKaxB/vendors?name=PT+Jaya+Makmur&contactPerson=John+Doe&phoneNumber=+62812345678&email=john@jayamakmur.com&specialty=plumbing&address=Jl.+Merdeka+No.+45&licenseNumber=LIC-2024-001&insuranceInfo=insured&contractStart=2024-01-01&contractEnd=2025-12-31
+Content-Type: application/json
+```
+
+#### PUT /vendors/{id}
+Update an existing vendor.
+
+**Request:**
+```http
+PUT /data/QjX6hB1ST2IDKaxB/vendors/vendor_001?name=PT+Jaya+Makmur&contactPerson=John+Doe&phoneNumber=+62812345678&email=john@jayamakmur.com&specialty=plumbing&address=Jl.+Merdeka+No.+45&licenseNumber=LIC-2024-001&insuranceInfo=insured&contractStart=2024-01-01&contractEnd=2025-12-31&isActive=true
+Content-Type: application/json
+```
+
+**Response Schema:**
+```typescript
+interface Vendor {
+  id: string;
+  name: string;
+  contactPerson: string;
+  phoneNumber: string;
+  email: string;
+  specialty: string;
+  address: string;
+  licenseNumber: string;
+  insuranceInfo: string;
+  certifications: string[];
+  rating: number;
+  totalReviews: number;
+  contractStart: string;
+  contractEnd: string;
+  isActive: boolean;
+}
+```
+
+### 9. Work Order Endpoints
+
+#### GET /work-orders
+Retrieves all work orders.
+
+**Request:**
+```http
+GET /data/QjX6hB1ST2IDKaxB/work-orders
+Content-Type: application/json
+```
+
+**Response (200 OK):**
+```json
+{
+  "data": [
+    {
+      "id": "wo_001",
+      "title": "Fix Leaking Faucet",
+      "description": "The faucet in block A is leaking",
+      "category": "plumbing",
+      "priority": "medium",
+      "status": "pending",
+      "vendorId": null,
+      "vendorName": null,
+      "assignedAt": null,
+      "scheduledDate": null,
+      "completedAt": null,
+      "estimatedCost": 150000,
+      "actualCost": 0,
+      "propertyId": "prop_001",
+      "reporterId": "user_001",
+      "createdAt": "2026-02-20T10:00:00Z",
+      "updatedAt": "2026-02-20T10:00:00Z",
+      "attachments": [],
+      "notes": []
+    }
+  ]
+}
+```
+
+#### GET /work-orders/{id}
+Retrieves a specific work order by ID.
+
+**Request:**
+```http
+GET /data/QjX6hB1ST2IDKaxB/work-orders/wo_001
+Content-Type: application/json
+```
+
+#### POST /work-orders
+Create a new work order.
+
+**Request:**
+```http
+POST /data/QjX6hB1ST2IDKaxB/work-orders?title=Fix+Leaking+Faucet&description=The+faucet+in+block+A+is+leaking&category=plumbing&priority=medium&propertyId=prop_001&reporterId=user_001&estimatedCost=150000
+Content-Type: application/json
+```
+
+#### PUT /work-orders/{id}/assign
+Assign a vendor to a work order.
+
+**Request:**
+```http
+PUT /data/QjX6hB1ST2IDKaxB/work-orders/wo_001/assign?vendorId=vendor_001&scheduledDate=2026-02-25
+Content-Type: application/json
+```
+
+#### PUT /work-orders/{id}/status
+Update work order status.
+
+**Request:**
+```http
+PUT /data/QjX6hB1ST2IDKaxB/work-orders/wo_001/status?status=in_progress&notes=Work+started
+Content-Type: application/json
+```
+
+**Response Schema:**
+```typescript
+interface WorkOrder {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  priority: string;
+  status: string;
+  vendorId: string | null;
+  vendorName: string | null;
+  assignedAt: string | null;
+  scheduledDate: string | null;
+  completedAt: string | null;
+  estimatedCost: number;
+  actualCost: number;
+  propertyId: string;
+  reporterId: string;
+  createdAt: string;
+  updatedAt: string;
+  attachments: string[];
+  notes: string[];
+}
+```
+
 
 ## Data Models
 
