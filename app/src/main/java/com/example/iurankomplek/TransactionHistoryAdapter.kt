@@ -27,6 +27,11 @@ import java.util.Locale
  *                              creating new instances in ViewHolders which causes memory leaks.
  */
 class TransactionHistoryAdapter(
+    private val transactionRepository: TransactionRepository,
+    private val externalScope: CoroutineScope? = null
+) : ListAdapter<Transaction, TransactionHistoryAdapter.TransactionViewHolder>(TransactionDiffCallback()) {
+
+    private val scope: CoroutineScope = externalScope ?: CoroutineScope(Dispatchers.IO)
     private val transactionRepository: TransactionRepository
 ) : ListAdapter<Transaction, TransactionHistoryAdapter.TransactionViewHolder>(TransactionDiffCallback()) {
 
@@ -66,7 +71,7 @@ class TransactionHistoryAdapter(
                 btnRefund.setOnClickListener {
                     // Process refund using the injected repository instance
                     // This avoids creating new instances on each click, fixing memory leak (Issue #225)
-                    CoroutineScope(Dispatchers.IO).launch {
+                    scope.launch {
                         val result = transactionRepository.refundPayment(transaction.id, "User requested refund")
                         if (result.isSuccess) {
                             runOnUiThread {
