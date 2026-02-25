@@ -31,6 +31,13 @@ object Constants {
         val ALL_CERTIFICATE_PINS = arrayOf(CERTIFICATE_PINNER, BACKUP_CERTIFICATE_PINNER)
 
         // Webhook Security Constants
+        // PRODUCTION: MUST set BuildConfig.WEBHOOK_SECRET via CI/CD secrets
+        // DEBUG: Falls back to this placeholder (should never be used in production)
+        const val WEBHOOK_SECRET_KEY = "whsec_placeholder_replace_in_production"
+        const val WEBHOOK_SIGNATURE_HEADER = "X-Webhook-Signature"
+        // PRODUCTION: MUST set BuildConfig.WEBHOOK_SECRET via CI/CD secrets
+        // DEBUG: Falls back to this placeholder (should never be used in production)
+        const val WEBHOOK_SECRET_KEY = "whsec_placeholder_replace_in_production"
         // IMPORTANT: In production, load these from BuildConfig or secure storage
         const val WEBHOOK_SECRET_KEY = "whsec_placeholder_replace_in_production"
         const val WEBHOOK_SIGNATURE_HEADER = "X-Webhook-Signature"

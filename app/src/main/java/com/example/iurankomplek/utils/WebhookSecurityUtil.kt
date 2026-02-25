@@ -1,6 +1,7 @@
 package com.example.iurankomplek.utils
 
 import android.util.Log
+import com.example.iurankomplek.BuildConfig
 import java.nio.charset.StandardCharsets
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
@@ -17,6 +18,25 @@ import kotlin.math.abs
  * (e.g., BuildConfig, encrypted preferences, or a secrets management service).
  */
 object WebhookSecurityUtil {
+    private val TAG = Constants.Tags.WEBHOOK_RECEIVER
+    
+    // Get webhook secret: prefer BuildConfig (CI/CD set) over Constants (placeholder)
+    private val webhookSecret: String
+        get() = if (BuildConfig.WEBHOOK_SECRET.isNotBlank()) {
+            BuildConfig.WEBHOOK_SECRET
+        } else {
+            Log.w(TAG, "WARNING: Using placeholder webhook secret - MUST configure BuildConfig.WEBHOOK_SECRET in production")
+            Constants.Security.WEBHOOK_SECRET_KEY
+        }
+    
+    /**
+    private val webhookSecret: String
+        get() = if (BuildConfig.WEBHOOK_SECRET.isNotBlank()) {
+            BuildConfig.WEBHOOK_SECRET
+        } else {
+            Log.w(TAG, "WARNING: Using placeholder webhook secret - MUST configure BuildConfig.WEBHOOK_SECRET in production")
+            Constants.Security.WEBHOOK_SECRET_KEY
+        }
     private val TAG = Constants.Tags.WEBHOOK_RECEIVER
     
     /**
@@ -121,7 +141,7 @@ object WebhookSecurityUtil {
 
             // Compute expected signature: HMAC-SHA256(timestamp.payload, secret)
             val signedContent = "$timestamp.$payload"
-            val computedHash = computeHmacSha256(signedContent, Constants.Security.WEBHOOK_SECRET_KEY)
+            val computedHash = computeHmacSha256(signedContent, webhookSecret)
 
             // Constant-time comparison to prevent timing attacks
             if (constantTimeEquals(providedHash, computedHash)) {
@@ -182,7 +202,7 @@ object WebhookSecurityUtil {
      */
     fun generateTestSignature(payload: String, timestamp: String): String {
         val signedContent = "$timestamp.$payload"
-        val hash = computeHmacSha256(signedContent, Constants.Security.WEBHOOK_SECRET_KEY)
+        val hash = computeHmacSha256(signedContent, webhookSecret)
         return "sha256=$hash"
     }
 }

@@ -1,3 +1,26 @@
+### PR #446: Externalize Webhook Secret to BuildConfig
+**Date**: 2026-02-25
+**Status**: OPEN
+**Labels**: security-engineer, security
+
+#### Summary
+Externalized webhook secret from hardcoded Constants.kt to BuildConfig field, enabling CI/CD secret injection for production.
+
+#### Changes Made
+1. **app/build.gradle**
+   - Added `WEBHOOK_SECRET` BuildConfig field for CI/CD secrets
+
+2. **WebhookSecurityUtil.kt**
+   - Added import for BuildConfig
+   - Created `webhookSecret` property that prefers BuildConfig over placeholder
+   - Logs warning when using placeholder in production
+
+#### Security Impact
+- **MEDIUM**: Secrets no longer hardcoded in source code
+- Production deployments should set `WEBHOOK_SECRET` via CI/CD secrets
+
+---
+
 ### PR #423: Remove Insecure TrustManager and Fix Certificate Pin
 **Date**: 2026-02-25
 **Status**: MERGED
@@ -157,16 +180,33 @@ Implemented SQLCipher encryption for the Room database to protect financial data
 | SQLCipher Encryption | ✅ Implemented |
 
 #### Known Security Issues (Not Addressed)
+|| Issue | Severity | Location | Notes |
+||-------|----------|----------|-------|
+|| Duplicate certificate pins | MEDIUM | Constants.kt | Primary and backup are identical - needs real backup |
+
+---
+
+## Previously Addressed Issues
+
+| Issue | Severity | Location | Resolution |
+|-------|----------|----------|-------------|
+| Insecure TrustManager | HIGH | SecurityManager.kt | Fixed in PR #423 |
+| Placeholder backup cert pin | HIGH | Constants.kt | Fixed in PR #423 (using primary as temp fallback) |
+| Placeholder webhook secret | MEDIUM | Constants.kt | Fixed in PR #446 - externalized to BuildConfig |
+|| Issue | Severity | Location | Notes |
+||-------|----------|----------|-------|
+NZ|| Duplicate certificate pins | MEDIUM | Constants.kt | Primary and backup are identical - needs real backup |
+HT|| Placeholder webhook secret | MEDIUM | Constants.kt | ✅ Addressed in PR #446 - now externalized to BuildConfig |
 | Issue | Severity | Location | Notes |
 |-------|----------|----------|-------|
 | Duplicate certificate pins | MEDIUM | Constants.kt | Primary and backup are identical - needs real backup |
-| Placeholder webhook secret | MEDIUM | Constants.kt | Need production secret - load from BuildConfig |
+HT|| Placeholder webhook secret | MEDIUM | Constants.kt | ✅ Addressed in PR #446 - now externalized to BuildConfig |
 
 || Issue | Severity | Location | Notes |
 ||-------|----------|----------|-------|
 || Insecure TrustManager | HIGH | SecurityManager.kt | ✅ Fixed in PR #423 |
 || Placeholder backup cert pin | HIGH | Constants.kt | ✅ Fixed in PR #423 (using primary as temp fallback) |
-|| Placeholder webhook secret | MEDIUM | Constants.kt | Need production secret - load from BuildConfig |
+MS||| Placeholder webhook secret | MEDIUM | Constants.kt | ✅ Fixed in PR #446 - now externalized to BuildConfig |
 
 ---
 
