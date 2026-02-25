@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.payment.PaymentStatus
 import com.example.iurankomplek.transaction.Transaction
 import com.example.iurankomplek.transaction.TransactionRepository
+import com.example.iurankomplek.utils.Constants
 import android.os.Handler
 import android.os.Looper
 import kotlinx.coroutines.CoroutineScope
@@ -75,11 +76,11 @@ class TransactionHistoryAdapter(
                             runOnUiThread {
                                 tvStatus.text = PaymentStatus.REFUNDED.name
                                 btnRefund.visibility = View.GONE
-                                Toast.makeText(context, context.getString(R.string.refund_processed_successfully), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.refund_processed_successfully), Constants.Toast.DURATION_SHORT).show()
                             }
                         } else {
                             runOnUiThread {
-                                Toast.makeText(context, context.getString(R.string.refund_failed, result.exceptionOrNull()?.message ?: "Unknown error"), Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, context.getString(R.string.refund_failed, result.exceptionOrNull()?.message ?: "Unknown error"), Constants.Toast.DURATION_LONG).show()
                             }
                         }
                     }
