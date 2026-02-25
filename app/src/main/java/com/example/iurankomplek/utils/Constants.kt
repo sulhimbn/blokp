@@ -22,15 +22,16 @@ object Constants {
         const val CERTIFICATE_PINNER = "sha256/PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0="
         
         // Backup certificate pin for certificate rotation
-        // IMPORTANT: Replace with actual backup pin from your certificate provider
+        // Using primary pin as fallback - in production, obtain backup pin from certificate provider
         // To generate: openssl s_client -servername api.apispreadsheets.com -connect api.apispreadsheets.com:443 2>/dev/null | openssl x509 -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | openssl enc -base64
-        const val BACKUP_CERTIFICATE_PINNER = "sha256/BACKUP_CERTIFICATE_PIN_PLACEHOLDER"
+        const val BACKUP_CERTIFICATE_PINNER = "sha256/PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0="
         
         // Array of all certificate pins for redundancy
         val ALL_CERTIFICATE_PINS = arrayOf(CERTIFICATE_PINNER, BACKUP_CERTIFICATE_PINNER)
 
         // Webhook Security Constants
-        // IMPORTANT: In production, load these from BuildConfig or secure storage
+        // IMPORTANT: In production, override these values in BuildConfig
+        // Default values are placeholders that must be replaced before production use
         const val WEBHOOK_SECRET_KEY = "whsec_placeholder_replace_in_production"
         const val WEBHOOK_SIGNATURE_HEADER = "X-Webhook-Signature"
         const val WEBHOOK_TIMESTAMP_HEADER = "X-Webhook-Timestamp"
