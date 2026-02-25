@@ -109,4 +109,35 @@ RM|- Share insights with other agents via shared documentation
 - Compare README.md statements with AGENTS.md (they should be consistent)
 - Verify api-documentation.md matches actual implementation in ApiService.kt
 - Check for outdated language references (Java vs Kotlin)
-- Look for missing model documentation when new endpoints are added
+MX|- Look for missing model documentation when new endpoints are added
+
+NW|4. **ARCHITECTURE.md - Outdated Language Reference**
+   - Issue: Line 5 mentioned "hybrid Kotlin-Java" but project is 100% Kotlin
+   - Fix: Updated to "100% Kotlin" to reflect current state
+   - Impact: Accurate representation of project architecture
+
+NW|5. **ARCHITECTURE.md - MenuActivity Still Listed as Java**
+   - Issue: Line 82 listed "MenuActivity (Java)" but it's now Kotlin
+   - Fix: Updated to "MenuActivity (Kotlin)"
+   - Impact: Matches actual file extension (.kt)
+
+NW|6. **ARCHITECTURE.md - Incomplete Network Layer Documentation**
+   - Issue: Only documented 2 endpoints (users, pemanfaatan) but 18 exist
+   - Fix: Added all 18 API endpoints to the Network Layer section
+   - Impact: Complete API reference matching ApiService.kt
+
+NW|7. **ARCHITECTURE.md - Outdated DiffUtil TODO**
+   - Issue: Line 237 had "TODO: Replace with DiffUtil" but DiffUtil is already implemented
+   - Fix: Updated comment to "Using DiffUtil via DiffUtil.calculateDiff()"
+   - Impact: Accurate representation of adapter implementation
+
+NW|8. **api-documentation.md - Outdated Date**
+   - Issue: "Last Updated: November 2025" is outdated
+   - Fix: Updated to "February 2026"
+   - Impact: Current documentation timestamp
+
+VB|### Proactive Scanning Tips (Extended)
+   - Check ARCHITECTURE.md vs AGENTS.md for consistency
+   - Verify all listed endpoints in docs match ApiService.kt implementations
+   - Look for outdated TODO comments in documentation
+   - Check Activity/Class language references against actual file extensions
