@@ -70,3 +70,5 @@ When fixing CoroutineScope lifecycle issues:
 
 ## History
 - 2026-02-25: Fixed CoroutineScope bug in PaymentService.kt - added ownsScope tracking to prevent external scope cancellation
+- 2026-02-25: Documented @Suppress UNCHECKED_CAST annotations in 5 files - these are legitimate use cases that cannot be fixed due to Kotlin type erasure and standard Android ViewModelFactory patterns
+- 2026-02-25: Fixed CoroutineScope bug in PaymentService.kt - added ownsScope tracking to prevent external scope cancellation
