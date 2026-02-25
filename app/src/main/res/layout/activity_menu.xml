@@ -107,7 +107,11 @@
                      android:layout_height="50dp"
                      android:layout_margin="5dp"
                      android:layout_weight="1"
+<<<<<<< HEAD
+                     android:contentDescription="Menu Komunikasi"
+=======
                      android:contentDescription="@string/content_komunikasi"
+>>>>>>> origin/main
                      app:srcCompat="@drawable/profile" />
 
                  <TextView
@@ -135,7 +139,11 @@
                      android:layout_height="50dp"
                      android:layout_margin="5dp"
                      android:layout_weight="1"
+<<<<<<< HEAD
+                     android:contentDescription="Menu Pembayaran"
+=======
                      android:contentDescription="@string/content_pembayaran"
+>>>>>>> origin/main
                      app:srcCompat="@drawable/kas" />
 
                  <TextView
