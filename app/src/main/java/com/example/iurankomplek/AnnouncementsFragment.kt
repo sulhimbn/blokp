@@ -70,7 +70,7 @@ class AnnouncementsFragment : Fragment() {
             override fun onFailure(call: Call<List<Announcement>>, t: retrofit2.Call<List<Announcement>>) {
                 // Hide progress bar after failure
                 binding.progressBar.visibility = View.GONE
-        Toast.makeText(requireContext(), "Network error: ${t.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), "Network error: ${t.message}", Toast.LENGTH_LONG).show()
             }
         })
     }
