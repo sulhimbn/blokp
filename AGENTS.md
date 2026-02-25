@@ -11,7 +11,7 @@ This file provides guidance to agents when working with code in this repository.
 - Compile Kotlin: `./gradlew :app:compileDebugKotlin`
 
 ## Project-Specific Patterns
-- Mixed Kotlin/Java codebase: MainActivity.kt, LaporanActivity.kt, MenuActivity.kt, adapters, dan network layer menggunakan Kotlin
+- 100% Kotlin codebase: MainActivity.kt, LaporanActivity.kt, MenuActivity.kt, adapters, dan network layer menggunakan Kotlin
 - **Architecture Pattern**: MVVM with ViewModels in `presentation/viewmodel/` package (e.g., PaymentViewModel.kt)
 - API endpoints now use distinct paths: `@GET("users")` and `@GET("pemanfaatan")` in ApiService.kt for better clarity and maintainability
 - API responses use specific models: UserResponse for user endpoint and PemanfaatanResponse for financial data endpoint to improve type safety
@@ -27,7 +27,7 @@ This file provides guidance to agents when working with code in this repository.
 - **AI Agent Engineering**: docs/ai-agent-engineer.md (autonomous agent ecosystem, workflows, best practices)
 
 - Kotlin menggunakan "official" code style (kotlin.code.style=official)
-- Proyek mixed language: prefer Kotlin untuk fitur baru tapi maintain kompatibilitas Java
+- Proyek 100% Kotlin: semua fitur baru dikembangkan dalam Kotlin
 - RecyclerView adapters mengikuti pola standar dengan DiffUtil untuk efisiensi update
 - Retrofit API calls menggunakan enqueue dengan Callback objects
 - Error handling menampilkan Toast messages dan print stack traces

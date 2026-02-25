@@ -141,3 +141,29 @@ VB|### Proactive Scanning Tips (Extended)
    - Verify all listed endpoints in docs match ApiService.kt implementations
    - Look for outdated TODO comments in documentation
    - Check Activity/Class language references against actual file extensions
+
+9. **README.md - Git Stash Conflict Marker**
+   - Issue: Lines 8-11 contained unresolved git stash markers (`=======` and `>>>>>>> Stashed changes`)
+   - Fix: Removed duplicate content and conflict markers
+   - Impact: Clean documentation without merge artifacts
+
+10. **README.md - MenuActivity Language Reference**
+    - Issue: Line 208 listed "MenuActivity (Java)" but file is .kt (Kotlin)
+    - Fix: Updated to "MenuActivity (Kotlin)"
+    - Impact: Consistent with actual file extensions
+
+11. **AGENTS.md - Mixed Language Reference**
+    - Issue: Line 14 said "Mixed Kotlin/Java codebase" but project is 100% Kotlin
+    - Fix: Updated to "100% Kotlin codebase"
+    - Impact: Accurate representation of project language
+
+12. **AGENTS.md - Outdated Mixed Language Section**
+    - Issue: Line 30 mentioned "maintain kompatibilitas Java" (maintain Java compatibility)
+    - Fix: Updated to "Proyek 100% Kotlin: semua fitur baru dikembangkan dalam Kotlin"
+    - Impact: Reflects current project state
+
+### Proactive Scanning Tips (2026-02-25)
+    - Scan for git conflict markers (`<<<<<<`, `======`, `>>>>>>`) in markdown files
+    - Verify Activity class language references match actual file extensions (.kt vs .java)
+    - Check AGENTS.md and README.md for consistency in language descriptions
+    - Use `grep -n "MenuActivity" README.md` to find all references to verify consistency
