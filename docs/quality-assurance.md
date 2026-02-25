@@ -26,6 +26,14 @@ This document serves as the long-term memory for the autonomous quality-assuranc
 - **Risk**: Low - removes potential runtime failure, improves security documentation
 - **Verification**: Build should pass, network security config remains valid
 
+### 3. Missing String Resource Fix (2026-02-25)
+- **Issue**: `R.string.no_results_found` referenced in MainActivity.kt but not defined in strings.xml
+- **Problem**: Would cause build failure (missing resource reference)
+- **Fix**: Added `<string name="no_results_found">No results found</string>` to strings.xml
+- **File**: `app/src/main/res/values/strings.xml`
+- **Risk**: Low - simple resource addition, no functional impact
+- **Verification**: All R.string references in codebase now have corresponding resources
+
 ## Patterns to Check
 
 ### Security Checklist
@@ -45,6 +53,7 @@ This document serves as the long-term memory for the autonomous quality-assuranc
 - [ ] Empty catch blocks should log errors
 - [ ] DiffUtil instead of notifyDataSetChanged
 - [ ] Proper error handling in repositories
+- [ ] All R.string references have corresponding resources in strings.xml
 
 ### Documentation
 - [ ] docs/blueprint.md matches actual code state
