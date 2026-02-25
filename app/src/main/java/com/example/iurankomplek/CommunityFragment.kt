@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.FragmentCommunityBinding
 import com.example.iurankomplek.model.CommunityPost
 import com.example.iurankomplek.network.ApiConfig
+import com.example.iurankomplek.utils.Constants
 import com.example.iurankomplek.utils.NetworkUtils
 import retrofit2.Call
 import retrofit2.Callback
@@ -43,7 +44,7 @@ class CommunityFragment : Fragment() {
         if (!NetworkUtils.isNetworkAvailable(requireContext())) {
             // Hide progress bar after failure
             binding.progressBar.visibility = View.GONE
-            Toast.makeText(requireContext(), getString(R.string.no_internet_connection), Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), getString(R.string.no_internet_connection), Constants.Toast.DURATION_LONG).show()
             return
         }
 
@@ -61,10 +62,10 @@ class CommunityFragment : Fragment() {
                     if (posts != null) {
                         adapter.submitList(posts)
                     } else {
-                        Toast.makeText(requireContext(), getString(R.string.no_community_posts_available), Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), getString(R.string.no_community_posts_available), Constants.Toast.DURATION_LONG).show()
                     }
                 } else {
-                    Toast.makeText(requireContext(), getString(R.string.failed_to_load_community_posts), Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), getString(R.string.failed_to_load_community_posts), Constants.Toast.DURATION_LONG).show()
                 }
             }
 
@@ -72,7 +73,7 @@ class CommunityFragment : Fragment() {
                 // Hide progress bar after failure - check if fragment is still attached
                 if (!isAdded) return
                 binding.progressBar.visibility = View.GONE
-                Toast.makeText(requireContext(), getString(R.string.network_error_community_posts, t.message), Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), getString(R.string.network_error_community_posts, t.message), Constants.Toast.DURATION_LONG).show()
             }
         })
     }

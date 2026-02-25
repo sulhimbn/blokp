@@ -9,7 +9,38 @@ This document serves as the long-term memory for the DX-engineer agent, tracking
 - **Architecture**: MVVM with Hilt dependency injection
 - **Language**: Mixed Kotlin (new code) and Java (legacy)
 
-## DX Improvements Made
+NK|## DX Improvements Made
+BQ|
+TM|### 2026-02-25: Centralized Toast Duration Constants
+RJ|
+MN|**Changes:**
+ZS|- Replaced hardcoded `Toast.LENGTH_SHORT` and `Toast.LENGTH_LONG` with `Constants.Toast.DURATION_SHORT` and `Constants.Toast.DURATION_LONG`
+VV|- Updated 13 files across the codebase to use centralized constants
+YT|- Added `import com.example.iurankomplek.utils.Constants` to each file
+SB|**Impact:**
+MS|- Easier to change toast duration app-wide (single point of change)
+BR|- Better consistency across the codebase
+JP|- Follows existing pattern from PR #389 (MainActivity was already fixed)
+KW|
+VT|**Files Changed:**
+KH|- VendorManagementActivity.kt
+QQ|- VendorDatabaseFragment.kt
+ZK|- WorkOrderManagementFragment.kt
+JZ|- DashboardActivity.kt
+RX|- AnnouncementsFragment.kt
+JQ|- MessagesFragment.kt
+SN|- CommunityFragment.kt
+YJ|- LaporanActivity.kt
+BS|- PaymentActivity.kt
+XT|- WorkOrderDetailActivity.kt
+QV|- TransactionHistoryActivity.kt
+PW|- TransactionHistoryAdapter.kt
+NM|- VendorCommunicationFragment.kt
+
+SB|**Total:** 13 files, 40 occurrences replaced
+
+SY|---
+YJ|
 
 ### 2026-02-25: Gradle Build Performance v2
 
