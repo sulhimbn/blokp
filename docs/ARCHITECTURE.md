@@ -384,7 +384,7 @@ GitHub Actions
 
 ## Conclusion
 
-Arsitektur IuranKomplek saat ini memberikan fondasi yang solid untuk aplikasi manajemen iuran komplek. Arsitektur hybrid Kotlin-Java memungkinkan transisi bertahap ke Kotlin sepenuhnya sambil mempertahankan kompatibilitas.
+Arsitektur IuranKomplek saat ini memberikan fondasi yang solid untuk aplikasi manajemen iuran komplek. Arsitektur 100% Kotlin memungkinkan pengembangan modern dengan fitur-fitur terbaru Kotlin.
 
 **Key Strengths:**
 - Clean separation of concerns

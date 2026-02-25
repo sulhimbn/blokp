@@ -163,6 +163,21 @@ VB|### Proactive Scanning Tips (Extended)
     - Impact: Reflects current project state
 
 ### Proactive Scanning Tips (2026-02-25)
+- Scan for git conflict markers (`<<<<<<`, `======`, `>>>>>>`) in markdown files
+- Verify Activity class language references match actual file extensions (.kt vs .java)
+- Check AGENTS.md and README.md for consistency in language descriptions
+- Use `grep -n "MenuActivity" README.md` to find all references to verify consistency
+
+13. **Multiple Docs - Outdated Java References**
+   - Issue: 5 documentation files still referenced "hybrid Kotlin-Java" or "Mixed Kotlin/Java" language
+   - Fix: Updated all references to reflect 100% Kotlin:
+     - docs/ARCHITECTURE.md: "Arsitektur hybrid Kotlin-Java" → "Arsitektur 100% Kotlin"
+     - docs/DX-engineer.md: "Android Application (Kotlin/Java)" → "Android Application (Kotlin)"
+     - docs/DX-engineer.md: "Mixed Kotlin (new code) and Java (legacy)" → "100% Kotlin codebase"
+     - docs/ai-agent-engineer.md: "Mixed Kotlin/Java codebase" → "100% Kotlin codebase"
+     - docs/ROADMAP.md: "Arsitektur hybrid Kotlin-Java" → "Arsitektur 100% Kotlin"
+     - docs/frontend-engineer.md: "Mixed Kotlin/Java Android project" → "100% Kotlin Android project"
+   - Impact: All documentation now accurately reflects 100% Kotlin project state
     - Scan for git conflict markers (`<<<<<<`, `======`, `>>>>>>`) in markdown files
     - Verify Activity class language references match actual file extensions (.kt vs .java)
     - Check AGENTS.md and README.md for consistency in language descriptions

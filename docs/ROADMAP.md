@@ -8,7 +8,7 @@ Roadmap ini menggambarkan rencana pengembangan aplikasi IuranKomplek untuk jangk
 
 ### Strengths
 - ✅ Core functionality berfungsi (manajemen pengguna, laporan keuangan)
-- ✅ Arsitektur hybrid Kotlin-Java yang terstruktur
+- ✅ Arsitektur 100% Kotlin yang terstruktur
 - ✅ Docker development environment yang siap
 - ✅ GitHub Actions workflow untuk otomasi
 - ✅ Unit tests untuk logika perhitungan keuangan

@@ -126,7 +126,7 @@
 - "frontend-engineer" label now exists in repository
 
 ## Repository - Patterns Identified
-- Mixed Kotlin/Java Android project
+- 100% Kotlin Android project
 - XML layouts in `app/src/main/res/layout/`
 - Colors defined in `app/src/main/res/values/colors.xml`
 - Strings defined in `app/src/main/res/values/strings.xml`
