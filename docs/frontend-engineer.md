@@ -1,3 +1,30 @@
+### PR #449: Use Constants.Toast for Toast duration (2026-02-25)
+**Status**: Open
+**Date**: 2026-02-25
+
+**Changes Made:**
+1. **Refactored 13 files** to use centralized Constants.Toast:
+   - VendorManagementActivity.kt - 2 occurrences
+   - VendorDatabaseFragment.kt - 2 occurrences
+   - LaporanActivity.kt - 9 occurrences
+   - MessagesFragment.kt - 4 occurrences
+   - WorkOrderManagementFragment.kt - 2 occurrences
+   - DashboardActivity.kt - 1 occurrence
+   - TransactionHistoryAdapter.kt - 2 occurrences
+   - AnnouncementsFragment.kt - 4 occurrences
+   - PaymentActivity.kt - 3 occurrences
+   - TransactionHistoryActivity.kt - 1 occurrence
+   - WorkOrderDetailActivity.kt - 2 occurrences
+   - CommunityFragment.kt - 4 occurrences
+   - VendorCommunicationFragment.kt - 2 occurrences
+
+2. **Total**: 38 hardcoded Toast.LENGTH_SHORT/LONG replaced with Constants.Toast.DURATION_SHORT/LONG
+
+**Issue**: Closes #431
+
+---
+
+
 ### PR #429: Fix TransactionHistoryAdapter duplicate constructor (2026-02-25)
 **Fix Applied**: 2026-02-25
 
@@ -104,7 +131,7 @@
 - Colors defined in `app/src/main/res/values/colors.xml`
 - Strings defined in `app/src/main/res/values/strings.xml`
 - Common issue: ImageViews missing contentDescription for accessibility
-- Common issue: Hardcoded strings in Toast messages
+ZZ|- [FIXED] Common issue: Hardcoded Toast.LENGTH_SHORT/LONG (now uses Constants.Toast)
 - Common issue: Duplicate code in adapters causing compilation errors
 
 ## Areas for Future Improvement
