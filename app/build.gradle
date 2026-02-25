@@ -24,12 +24,7 @@ android {
         // Webhook secret - MUST be set via CI/CD secrets for production
         // In debug builds, uses placeholder value from Constants.kt if not configured
         buildConfigField "String", "WEBHOOK_SECRET", "\"\""
-        // API Configuration - default spreadsheet ID
-        buildConfigField "String", "API_SPREADSHEET_ID", "\"QjX6hB1ST2IDKaxB\""
-        
-        // Webhook secret - MUST be set via CI/CD secrets for production
-        // In debug builds, uses placeholder value from Constants.kt if not configured
-        buildConfigField "String", "WEBHOOK_SECRET", "\"\""
+    }
     }
 
     buildTypes {

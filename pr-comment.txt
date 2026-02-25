@@ -1,0 +1,18 @@
+This PR cannot be merged because it contains broken code. The changes incorrectly replace Toast.makeText(...).show() calls with just Constants.Toast.DURATION_LONG, which removes the Toast messages entirely instead of just changing the duration.
+
+For example, this:
+```kotlin
+Toast.makeText(requireContext(), getString(R.string.no_internet_connection), Toast.LENGTH_LONG).show()
+```
+
+Was changed to:
+```kotlin
+Constants.Toast.DURATION_LONG
+```
+
+This is incorrect - it should be:
+```kotlin
+Toast.makeText(requireContext(), getString(R.string.no_internet_connection), Constants.Toast.DURATION_LONG).show()
+```
+
+Please see PR #449, #448, #447, or #442 for the correct implementation.
