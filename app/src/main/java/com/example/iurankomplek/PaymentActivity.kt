@@ -47,11 +47,19 @@ class PaymentActivity : AppCompatActivity() {
                         if (!safeState.isProcessing && safeState.errorMessage != null) {
                             Toast.makeText(
                                 this@PaymentActivity,
+                                getString(R.string.payment_validation_failed, safeState.errorMessage),
+                                Toast.LENGTH_LONG
+                            ).show()
+                                this@PaymentActivity,
                                 "Payment failed: ${safeState.errorMessage}",
                                 Toast.LENGTH_LONG
                             ).show()
                         } else if (!safeState.isProcessing && safeState.errorMessage == null && safeState.amount > BigDecimal.ZERO) {
                             Toast.makeText(
+                                this@PaymentActivity,
+                                getString(R.string.payment_success),
+                                Toast.LENGTH_LONG
+                            ).show()
                                 this@PaymentActivity,
                                 "Payment processed successfully!",
                                 Toast.LENGTH_LONG

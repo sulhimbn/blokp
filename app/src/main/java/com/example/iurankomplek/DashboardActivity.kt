@@ -81,7 +81,7 @@ class DashboardActivity : BaseActivity() {
                     is UiState.Error -> {
                         binding.progressBar.visibility = View.GONE
                         binding.swipeRefreshLayout.isRefreshing = false
-                        Toast.makeText(this@DashboardActivity, state.error, Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@DashboardActivity, getString(R.string.error_loading_dashboard), Toast.LENGTH_LONG).show()
                     }
                 }
             }

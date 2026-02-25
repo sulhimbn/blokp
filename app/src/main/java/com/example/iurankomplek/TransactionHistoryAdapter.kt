@@ -77,11 +77,11 @@ class TransactionHistoryAdapter(
                             runOnUiThread {
                                 tvStatus.text = PaymentStatus.REFUNDED.name
                                 btnRefund.visibility = View.GONE
-                                Toast.makeText(context, "Refund processed successfully", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.refund_processed_successfully), Toast.LENGTH_SHORT).show()
                             }
                         } else {
                             runOnUiThread {
-                                Toast.makeText(context, "Refund failed: ${result.exceptionOrNull()?.message}", Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, context.getString(R.string.refund_failed, result.exceptionOrNull()?.message ?: "Unknown error"), Toast.LENGTH_LONG).show()
                             }
                         }
                     }

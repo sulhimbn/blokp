@@ -30,7 +30,7 @@ class VendorManagementActivity : AppCompatActivity() {
         vendorRecyclerView = findViewById(R.id.vendorRecyclerView)
         vendorAdapter = VendorAdapter { vendor ->
             // Handle vendor click - could navigate to vendor details
-            Toast.makeText(this, "Vendor: ${vendor.name}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.vendor_selected, vendor.name), Toast.LENGTH_SHORT).show()
         }
         
         vendorRecyclerView.apply {
@@ -49,7 +49,7 @@ class VendorManagementActivity : AppCompatActivity() {
                     vendorAdapter.submitList(state.data.data)
                 }
                 is UiState.Error -> {
-                    Toast.makeText(this, "Error: ${state.error}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.error_loading_data), Toast.LENGTH_SHORT).show()
                 }
             }
         }

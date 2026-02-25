@@ -25,7 +25,7 @@ class WorkOrderDetailActivity : AppCompatActivity() {
             observeWorkOrderDetails()
             viewModel.loadWorkOrderDetail(workOrderId)
         } else {
-            Toast.makeText(this, "Work order ID not provided", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.work_order_id_not_provided), Toast.LENGTH_SHORT).show()
             finish()
         }
     }
@@ -40,7 +40,7 @@ class WorkOrderDetailActivity : AppCompatActivity() {
                     displayWorkOrderDetails(state.data.data)
                 }
                 is UiState.Error -> {
-                    Toast.makeText(this, "Error: ${state.error}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.error_loading_data), Toast.LENGTH_SHORT).show()
                     finish()
                 }
             }
