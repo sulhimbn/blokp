@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityTransactionHistoryBinding
 import com.example.iurankomplek.payment.PaymentStatus
 import com.example.iurankomplek.transaction.TransactionDatabase
-import com.example.iurankomplek.transaction.TransactionRepository
+import com.example.iurankomplek.transaction.TransactionRepositoryImpl
 import com.example.iurankomplek.utils.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 class TransactionHistoryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityTransactionHistoryBinding
     private lateinit var transactionAdapter: TransactionHistoryAdapter
-    private lateinit var transactionRepository: TransactionRepository
+    private lateinit var transactionRepository: TransactionRepositoryImpl
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +33,7 @@ class TransactionHistoryActivity : AppCompatActivity() {
         val transactionDatabase = TransactionDatabase.getDatabase(this)
         val transactionDao = transactionDatabase.transactionDao()
         val mockPaymentGateway = com.example.iurankomplek.payment.MockPaymentGateway()
-        transactionRepository = TransactionRepository(mockPaymentGateway, transactionDao)
+        transactionRepository = TransactionRepositoryImpl(mockPaymentGateway, transactionDao)
 
         // Initialize the adapter with injected repository and lifecycleScope (Fixes Issue #225: Memory Leak)
         transactionAdapter = TransactionHistoryAdapter(transactionRepository, lifecycleScope)
