@@ -5,6 +5,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.example.iurankomplek.utils.Constants
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.VendorViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,7 +26,7 @@ class WorkOrderDetailActivity : AppCompatActivity() {
             observeWorkOrderDetails()
             viewModel.loadWorkOrderDetail(workOrderId)
         } else {
-            Toast.makeText(this, getString(R.string.work_order_id_not_provided), Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.work_order_id_not_provided), Constants.Toast.DURATION_SHORT).show()
             finish()
         }
     }
@@ -40,7 +41,7 @@ class WorkOrderDetailActivity : AppCompatActivity() {
                     displayWorkOrderDetails(state.data.data)
                 }
                 is UiState.Error -> {
-                    Toast.makeText(this, getString(R.string.error_loading_data), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.error_loading_data), Constants.Toast.DURATION_SHORT).show()
                     finish()
                 }
             }

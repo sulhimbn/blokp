@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityDashboardBinding
 import com.example.iurankomplek.model.DashboardData
 import com.example.iurankomplek.model.PaymentStatus
+import com.example.iurankomplek.utils.Constants
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.DashboardViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -81,7 +82,7 @@ class DashboardActivity : BaseActivity() {
                     is UiState.Error -> {
                         binding.progressBar.visibility = View.GONE
                         binding.swipeRefreshLayout.isRefreshing = false
-                        Toast.makeText(this@DashboardActivity, getString(R.string.error_loading_dashboard), Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@DashboardActivity, getString(R.string.error_loading_dashboard), Constants.Toast.DURATION_LONG).show()
                     }
                 }
             }

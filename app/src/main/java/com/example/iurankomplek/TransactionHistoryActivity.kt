@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityTransactionHistoryBinding
 import com.example.iurankomplek.payment.PaymentStatus
 import com.example.iurankomplek.transaction.TransactionDatabase
+import com.example.iurankomplek.utils.Constants
 import com.example.iurankomplek.transaction.TransactionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -65,7 +66,7 @@ class TransactionHistoryActivity : AppCompatActivity() {
                     binding.progressBar.visibility = View.GONE
                     Toast.makeText(this@TransactionHistoryActivity, 
                         "Failed to load transaction history: ${e.message}", 
-                        Toast.LENGTH_LONG).show()
+                        Constants.Toast.DURATION_LONG).show()
                 }
             }
         }

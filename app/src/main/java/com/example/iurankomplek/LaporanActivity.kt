@@ -15,6 +15,7 @@ import com.example.iurankomplek.export.ExportFormat
 import com.example.iurankomplek.export.ReportExporter
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.model.LaporanSummaryItem
+import com.example.iurankomplek.utils.Constants
 import com.example.iurankomplek.utils.DataValidator
 import com.example.iurankomplek.viewmodel.FinancialDataState
 import com.example.iurankomplek.viewmodel.FinancialViewModel
@@ -81,7 +82,7 @@ class LaporanActivity : BaseActivity() {
 
     private fun exportReport(format: ExportFormat) {
         if (currentDataItems.isEmpty() || currentSummaryItems.isEmpty()) {
-            Toast.makeText(this, getString(R.string.no_data_to_export), Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.no_data_to_export), Constants.Toast.DURATION_LONG).show()
             return
         }
 
@@ -99,14 +100,14 @@ class LaporanActivity : BaseActivity() {
                         Toast.makeText(
                             this@LaporanActivity,
                             getString(R.string.export_success),
-                            Toast.LENGTH_LONG
+                            Constants.Toast.DURATION_LONG
                         ).show()
                     },
                     onFailure = { error ->
                         Toast.makeText(
                             this@LaporanActivity,
                             getString(R.string.export_failed) + ": ${error.message}",
-                            Toast.LENGTH_LONG
+                            Constants.Toast.DURATION_LONG
                         ).show()
                     }
                 )
@@ -129,7 +130,7 @@ class LaporanActivity : BaseActivity() {
 
     private fun shareReport(format: ExportFormat) {
         if (currentDataItems.isEmpty() || currentSummaryItems.isEmpty()) {
-            Toast.makeText(this, getString(R.string.no_data_to_export), Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.no_data_to_export), Constants.Toast.DURATION_LONG).show()
             return
         }
 
@@ -153,7 +154,7 @@ class LaporanActivity : BaseActivity() {
                         Toast.makeText(
                             this@LaporanActivity,
                             getString(R.string.export_failed) + ": ${error.message}",
-                            Toast.LENGTH_LONG
+                            Constants.Toast.DURATION_LONG
                         ).show()
                     }
                 )
@@ -181,7 +182,7 @@ class LaporanActivity : BaseActivity() {
                         
                         state.response.data.let { dataArray ->
                             if (dataArray.isEmpty()) {
-                                Toast.makeText(this@LaporanActivity, getString(R.string.no_financial_data_available), Toast.LENGTH_LONG).show()
+                                Toast.makeText(this@LaporanActivity, getString(R.string.no_financial_data_available), Constants.Toast.DURATION_LONG).show()
                                 return@let
                             }
                             
@@ -193,7 +194,7 @@ class LaporanActivity : BaseActivity() {
                             val summary = state.summary
                             
                             if (!summary.isValid) {
-                                Toast.makeText(this@LaporanActivity, getString(R.string.invalid_financial_data_detected), Toast.LENGTH_LONG).show()
+                                Toast.makeText(this@LaporanActivity, getString(R.string.invalid_financial_data_detected), Constants.Toast.DURATION_LONG).show()
                                 return@let
                             }
                             
@@ -215,7 +216,7 @@ class LaporanActivity : BaseActivity() {
                                 Toast.makeText(
                                     this@LaporanActivity,
                                     "Integrated ${summary.completedTransactionsCount} payment transactions (Total: ${DataValidator.formatCurrency(summary.totalPaymentsProcessed)})",
-                                    Toast.LENGTH_LONG
+                                    Constants.Toast.DURATION_LONG
                                 ).show()
                             }
                             
@@ -226,7 +227,7 @@ class LaporanActivity : BaseActivity() {
                     is FinancialDataState.Error -> {
                         binding.progressBar.visibility = View.GONE
                         binding.swipeRefreshLayout.isRefreshing = false
-                        Toast.makeText(this@LaporanActivity, state.message, Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@LaporanActivity, state.message, Constants.Toast.DURATION_LONG).show()
                     }
                 }
             }
