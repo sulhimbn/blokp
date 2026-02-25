@@ -83,7 +83,13 @@ Roadmap ini menggambarkan rencana pengembangan aplikasi IuranKomplek untuk jangk
 **Priority: HIGH**
 
 #### Week 3: Architecture Standardization
-- [ ] **Convert MenuActivity to Kotlin** (#214) - **NEW**
+- [x] **Convert MenuActivity to Kotlin** (#214) - **COMPLETED**
+  - Migrated MenuActivity.java to MenuActivity.kt
+  - Updated imports and dependencies
+  - Tested functionality after conversion
+  - **Impact**: Consistent language across codebase
+
+- [ ] **Fix Package Declaration** (#213) - **NEW**
   - Migrate MenuActivity.java to MenuActivity.kt
   - Update imports and dependencies
   - Test functionality after conversion
