@@ -15,11 +15,7 @@
         android:fontFamily="@font/font"
         android:gravity="center"
         android:padding="16dp"
-        android:text="DAFTAR IURAN WARGA KONOHA"
-        android:textColor="@android:color/white"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:text="@string/title_daftar_iuran"
 
     <com.example.iurankomplek.ui.component.SearchFilterView
         android:id="@+id/searchFilterView"
