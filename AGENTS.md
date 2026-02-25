@@ -26,8 +26,6 @@ This file provides guidance to agents when working with code in this repository.
 - Troubleshooting guide in docs/TROUBLESHOOTING.md
 - **AI Agent Engineering**: docs/ai-agent-engineer.md (autonomous agent ecosystem, workflows, best practices)
 
-## Code Style
-## Code Style
 - Kotlin menggunakan "official" code style (kotlin.code.style=official)
 - Proyek mixed language: prefer Kotlin untuk fitur baru tapi maintain kompatibilitas Java
 - RecyclerView adapters mengikuti pola standar dengan DiffUtil untuk efisiensi update
