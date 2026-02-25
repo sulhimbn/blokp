@@ -11,6 +11,25 @@ This document serves as the long-term memory for the DX-engineer agent, tracking
 
 ## DX Improvements Made
 
+### 2026-02-25: Gradle Build Performance v2
+
+**Changes:**
+- Enabled `org.gradle.configuration-cache=true` in gradle.properties
+- Added `kotlin.daemon.jvmargs=-Xmx1536m` for better Kotlin compilation performance
+
+**Impact:**
+- Configuration cache caches the configuration phase, significantly speeding up subsequent builds
+- Kotlin daemon gets dedicated memory for faster Kotlin compilation
+- Combined with existing parallel, daemon, and caching settings
+
+**Configuration:**
+```properties
+org.gradle.configuration-cache=true
+kotlin.daemon.jvmargs=-Xmx1536m
+```
+
+---
+
 ### 2026-02-25: Comprehensive .gitignore
 
 **Changes:**
@@ -32,9 +51,6 @@ This document serves as the long-term memory for the DX-engineer agent, tracking
 - `.gitignore` (72 additions, 2 deletions)
 
 ---
-
-### 2025-02-25: Gradle Build Performance
-## DX Improvements Made
 
 ### 2025-02-25: Gradle Build Performance
 
