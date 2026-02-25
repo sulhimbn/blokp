@@ -3,7 +3,7 @@ package com.example.iurankomplek.payment
 import com.example.iurankomplek.receipt.ReceiptGenerator
 import com.example.iurankomplek.transaction.Transaction
 import com.example.iurankomplek.transaction.TransactionDao
-import com.example.iurankomplek.transaction.TransactionRepository
+import com.example.iurankomplek.transaction.TransactionRepositoryImpl
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertTrue
@@ -17,14 +17,14 @@ import java.util.Date
 class PaymentProcessingTest {
     private lateinit var mockPaymentGateway: PaymentGateway
     private lateinit var mockTransactionDao: TransactionDao
-    private lateinit var transactionRepository: TransactionRepository
+    private lateinit var transactionRepository: TransactionRepositoryImpl
     private lateinit var receiptGenerator: ReceiptGenerator
 
     @Before
     fun setup() {
         mockPaymentGateway = mock(PaymentGateway::class.java)
         mockTransactionDao = mock(TransactionDao::class.java)
-        transactionRepository = TransactionRepository(mockPaymentGateway, mockTransactionDao)
+        transactionRepository = TransactionRepositoryImpl(mockPaymentGateway, mockTransactionDao)
         receiptGenerator = ReceiptGenerator()
     }
 
