@@ -25,6 +25,11 @@ This file provides guidance to agents when working with code in this repository.
 - Architecture documentation in docs/ARCHITECTURE.md
 - Development guidelines in docs/development-guidelines.md
 - Troubleshooting guide in docs/TROUBLESHOOTING.md
+- **AI Agent Engineering**: docs/ai-agent-engineer.md (autonomous agent ecosystem, workflows, best practices)
+- Complete API documentation available in docs/API.md
+- Architecture documentation in docs/ARCHITECTURE.md
+- Development guidelines in docs/DEVELOPMENT.md
+- Troubleshooting guide in docs/TROUBLESHOOTING.md
 
 ## Code Style
 - Kotlin menggunakan "official" code style (kotlin.code.style=official)
