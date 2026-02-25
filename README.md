@@ -244,9 +244,9 @@ Aplikasi ini dalam tahap pengembangan aktif dengan fitur-fitur inti yang telah b
 ## For Developers
 
 ### Documentation
-- [API Documentation](docs/API.md) - Complete API endpoint specifications
+- [API Documentation](docs/api-documentation.md) - Complete API endpoint specifications
 - [Architecture Documentation](docs/ARCHITECTURE.md) - System architecture and component relationships  
-- [Development Guidelines](docs/DEVELOPMENT.md) - Coding standards and development workflow
+- [Development Guidelines](docs/development-guidelines.md) - Coding standards and development workflow
 - [Troubleshooting Guide](docs/TROUBLESHOOTING.md) - Common issues and solutions
 
 ### Project Structure
