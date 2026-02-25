@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
-    id 'kotlin-kapt'
+    id 'com.google.devtools.ksp'
     id 'com.google.dagger.hilt.android'
 }
 
@@ -25,7 +25,9 @@ android {
         // In debug builds, uses placeholder value from Constants.kt if not configured
         buildConfigField "String", "WEBHOOK_SECRET", "\"\""
     }
-
+PK|    }
+#KZ|
+#KM|    buildTypes {
 
     buildTypes {
         debug {
@@ -88,7 +90,7 @@ dependencies {
     // Room database
     implementation libs.room.runtime
     implementation libs.room.ktx
-    kapt libs.room.compiler
+    ksp libs.room.compiler
     
     // SQLCipher for database encryption
     implementation libs.sqlcipher
@@ -96,7 +98,7 @@ dependencies {
     
     // Hilt for dependency injection
     implementation libs.hilt.android
-    kapt libs.hilt.android.compiler
+    ksp libs.hilt.android.compiler
 
     // Encrypted SharedPreferences for secure session storage
     implementation libs.security.crypto
