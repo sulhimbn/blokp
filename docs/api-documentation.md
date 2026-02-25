@@ -864,6 +864,6 @@ fun `getUsers should parse response correctly`() {
 
 ---
 
-*Last Updated: November 2025*
+*Last Updated: February 2026*
 *Next Review: After payment system implementation*
 *Maintainer: Backend Development Team*
