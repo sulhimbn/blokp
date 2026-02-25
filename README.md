@@ -4,7 +4,11 @@ Aplikasi Android untuk mengelola pembayaran iuran blok perumahan/apartemen. Memu
 
 ## Deskripsi Singkat
 
+Aplikasi ini dibangun dengan teknologi Android modern menggunakan Kotlin sebagai bahasa pemrograman utama. Aplikasi menyediakan interface yang intuitif untuk pengelola blok dalam mengatur data pembayaran iuran warga secara efisien.
 Aplikasi Iuran BlokP adalah solusi lengkap untuk mengelola pembayaran iuran blok perumahan/apartemen. Aplikasi ini dibangun dengan teknologi Android modern menggunakan Kotlin sebagai bahasa pemrograman utama. Aplikasi menyediakan interface yang intuitif untuk pengelola blok dalam mengatur data pembayaran iuran warga secara efisien.
+=======
+Aplikasi ini dibangun dengan teknologi Android modern menggunakan Kotlin sebagai bahasa pemrograman utama. Aplikasi menyediakan interface yang intuitif untuk pengelola blok dalam mengatur data pembayaran iuran warga secara efisien.
+>>>>>>> Stashed changes
 
 ## Fitur Utama
 
