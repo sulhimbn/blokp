@@ -1,4 +1,5 @@
 package com.example.iurankomplek
+import com.example.iurankomplek.utils.Constants
 
 import android.content.Intent
 import android.os.Bundle
@@ -81,7 +82,7 @@ class DashboardActivity : BaseActivity() {
                     is UiState.Error -> {
                         binding.progressBar.visibility = View.GONE
                         binding.swipeRefreshLayout.isRefreshing = false
-                        Toast.makeText(this@DashboardActivity, getString(R.string.error_loading_dashboard), Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@DashboardActivity, getString(R.string.error_loading_dashboard), Constants.Toast.DURATION_LONG).show()
                     }
                 }
             }

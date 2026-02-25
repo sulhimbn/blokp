@@ -1,4 +1,5 @@
 package com.example.iurankomplek
+import com.example.iurankomplek.utils.Constants
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -44,7 +45,7 @@ class MessagesFragment : Fragment() {
         if (!NetworkUtils.isNetworkAvailable(requireContext())) {
             // Hide progress bar after failure
             binding.progressBar.visibility = View.GONE
-            Toast.makeText(requireContext(), getString(R.string.no_internet_connection), Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), getString(R.string.no_internet_connection), Constants.Toast.DURATION_LONG).show()
             return
         }
 
@@ -62,10 +63,10 @@ class MessagesFragment : Fragment() {
                     if (messages != null) {
                         adapter.submitList(messages)
                     } else {
-                        Toast.makeText(requireContext(), getString(R.string.no_messages_available), Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), getString(R.string.no_messages_available), Constants.Toast.DURATION_LONG).show()
                     }
                 } else {
-                    Toast.makeText(requireContext(), getString(R.string.failed_to_load_messages), Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), getString(R.string.failed_to_load_messages), Constants.Toast.DURATION_LONG).show()
                 }
             }
 
@@ -73,7 +74,7 @@ class MessagesFragment : Fragment() {
                 // Hide progress bar after failure - check if fragment is still attached
                 if (!isAdded) return
                 binding.progressBar.visibility = View.GONE
-                Toast.makeText(requireContext(), getString(R.string.network_error_messages, t.message), Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), getString(R.string.network_error_messages, t.message), Constants.Toast.DURATION_LONG).show()
             }
         })
     }

@@ -1,4 +1,5 @@
 package com.example.iurankomplek
+import com.example.iurankomplek.utils.Constants
 
 import android.os.Bundle
 import android.view.View
@@ -65,7 +66,7 @@ class TransactionHistoryActivity : AppCompatActivity() {
                     binding.progressBar.visibility = View.GONE
                     Toast.makeText(this@TransactionHistoryActivity, 
                         "Failed to load transaction history: ${e.message}", 
-                        Toast.LENGTH_LONG).show()
+                        Constants.Toast.DURATION_LONG).show()
                 }
             }
         }
