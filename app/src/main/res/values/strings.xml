@@ -39,3 +39,5 @@
     <string name="menu_laporan">Laporan</string>
     <string name="menu_komunikasi">Komunikasi</string>
     <string name="title_daftar_iuran">DAFTAR IURAN WARGA KONOHA</string>
+    <string name="content_pembayaran">Menu Pembayaran</string>
+    <string name="no_results_found">No results found</string>
