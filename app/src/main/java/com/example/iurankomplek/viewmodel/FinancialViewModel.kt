@@ -129,6 +129,12 @@ class FinancialViewModelFactory(
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(FinancialViewModel::class.java)) {
+            // NOTE: UNCHECKED_CAST is required for ViewModelProvider.Factory.
+            // The create() method returns T but we must cast from concrete ViewModel.
+            // This is the standard Android pattern for ViewModel factories.
+            // Safety: The isAssignableFrom check ensures type safety before casting.
+            // Note: This factory is legacy - FinancialViewModel now uses @HiltViewModel
+            // and is injected via Hilt. This factory remains for backward compatibility.
             @Suppress("UNCHECKED_CAST")
             return FinancialViewModel(pemanfaatanRepository, eventBus, transactionRepository) as T
         }
