@@ -207,7 +207,7 @@ All agent workflows request these permissions:
 
 ### Architecture
 - MVVM with ViewModels in `presentation/viewmodel/`
-- Mixed Kotlin/Java codebase
+- 100% Kotlin codebase
 - Retrofit for API communication
 
 ### Key Files
