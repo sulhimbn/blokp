@@ -38,6 +38,16 @@ Location: `app/src/main/res/layout/`
 - **Labels**: ui-ux-engineer
 - **Status**: Open
 
+### Task 2: Fix Merge Conflict Markers in activity_menu.xml
+- **Date**: 2026-02-25
+- **Issue Found**: Unresolved merge conflict markers (`<<<<<<< HEAD`, `=======`, `>>>>>>> origin/main`) in activity_menu.xml
+- **Impact**: Would cause build failure due to invalid XML
+- **Files Changed**:
+  - `app/src/main/res/layout/activity_menu.xml` - Removed merge conflict markers, kept string resources version
+- **PR**: https://github.com/sulhimbn/blokp/pull/387
+- **Labels**: ui-ux-engineer
+- **Status**: Open
+
 ## Notes
 - Build verification couldn't run due to missing Android SDK in environment
 - XML changes are syntactically correct and follow Android best practices
