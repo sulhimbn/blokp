@@ -37,6 +37,18 @@ The Technical Writer agent is responsible for maintaining and improving document
 - Ensure all relative links point to existing files
 - Verify file names match references (case-sensitive on Linux)
 - Check for duplicate sections that may cause confusion
+- **IMPORTANT**: Always grep for ALL occurrences of a term before claiming to have removed it
+
+### PR Review Finding (2026-02-25)
+
+**Issue**: PR #409 claimed to "remove Java compatibility reference" but only fixed ONE occurrence in README.md, leaving another instance on line 7
+- **Fix applied**: Removed remaining "Java untuk kompatibilitas" reference
+- **Lesson**: Always verify full file with grep before claiming complete fix
+- **Verification**: Run `grep -n "Java" README.md` to ensure all instances addressed
+
+- Ensure all relative links point to existing files
+- Verify file names match references (case-sensitive on Linux)
+- Check for duplicate sections that may cause confusion
 
 ## Workflow
 
