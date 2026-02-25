@@ -99,8 +99,8 @@ LaporanActivity (Kotlin)
 ### Network Layer
 ```
 ApiService (Interface)
-├── @GET(".") getUsers()
-└── @GET(".") getPemanfaatan()
+├── @GET("users") getUsers()
+└── @GET("pemanfaatan") getPemanfaatan()
 
 ApiConfig (Object)
 ├── Retrofit builder

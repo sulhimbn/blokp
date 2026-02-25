@@ -19,18 +19,14 @@ This file provides guidance to agents when working with code in this repository.
 - Network debugging menggunakan Chucker (hanya di debugImplementation) untuk inspeksi traffic API
 - Glide image loading dengan CircleCrop transform untuk menampilkan avatar pengguna berbentuk bulat
 - RecyclerView adapters now use DiffUtil for efficient updates instead of notifyDataSetChanged() for better performance
-
 ## Documentation
 - Complete API documentation available in docs/api-documentation.md
 - Architecture documentation in docs/ARCHITECTURE.md
 - Development guidelines in docs/development-guidelines.md
 - Troubleshooting guide in docs/TROUBLESHOOTING.md
 - **AI Agent Engineering**: docs/ai-agent-engineer.md (autonomous agent ecosystem, workflows, best practices)
-- Complete API documentation available in docs/api-documentation.md
-- Architecture documentation in docs/ARCHITECTURE.md
-- Development guidelines in docs/development-guidelines.md
-- Troubleshooting guide in docs/TROUBLESHOOTING.md
 
+## Code Style
 ## Code Style
 - Kotlin menggunakan "official" code style (kotlin.code.style=official)
 - Proyek mixed language: prefer Kotlin untuk fitur baru tapi maintain kompatibilitas Java
