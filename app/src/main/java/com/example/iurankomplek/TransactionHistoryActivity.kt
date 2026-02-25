@@ -35,8 +35,8 @@ class TransactionHistoryActivity : AppCompatActivity() {
         val mockPaymentGateway = com.example.iurankomplek.payment.MockPaymentGateway()
         transactionRepository = TransactionRepository(mockPaymentGateway, transactionDao)
 
-        // Initialize the adapter with injected repository (Fixes Issue #225: Memory Leak)
-        transactionAdapter = TransactionHistoryAdapter(transactionRepository)
+        // Initialize the adapter with injected repository and lifecycleScope (Fixes Issue #225: Memory Leak)
+        transactionAdapter = TransactionHistoryAdapter(transactionRepository, lifecycleScope)
 
         // Setup RecyclerView
         binding.rvTransactionHistory.layoutManager = LinearLayoutManager(this)

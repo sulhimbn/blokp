@@ -6,11 +6,30 @@ This document serves as the long-term memory for the RnD specialist working on t
 ## Active Work Items
 
 ### Current Cycle
+- **Issue #421**: Additional CoroutineScope leaks in WebhookReceiver and TransactionHistoryActivity
+- **Status**: PR #444 created
+- **Date**: 2026-02-25
+
+### Current Cycle
 - **Issue #414**: Duplicate calculateDelay Function in BaseRepository.kt
 - **Status**: Fix applied, PR #424 created
 - **Date**: 2026-02-25
 
 ## Completed Work
+
+### Issue #421: Additional CoroutineScope Memory Leaks
+- **Description**: WebhookReceiver had duplicate class definition block and nested CoroutineScope(Dispatchers.IO).launch causing memory leak; TransactionHistoryActivity was not passing lifecycleScope to adapter
+- **Risk Level**: Low (performance - follows pattern from PR #404)
+- **Files Changed**:
+  - `app/src/main/java/com/example/iurankomplek/payment/WebhookReceiver.kt`
+  - `app/src/main/java/com/example/iurankomplek/TransactionHistoryActivity.kt`
+- **Changes**:
+  1. Removed duplicate class definition block in WebhookReceiver (lines 20-24)
+  2. Replaced nested CoroutineScope(Dispatchers.IO).launch with scope.launch
+  3. Passed lifecycleScope to TransactionHistoryAdapter for lifecycle-aware scope
+- **PR**: #444
+
+### Issue #414: Duplicate calculateDelay Function
 
 ### Issue #414: Duplicate calculateDelay Function
 - **Description**: BaseRepository.kt had duplicate `calculateDelay` function - one inside the class (line 124) and another orphaned outside the class (lines 188-196)
