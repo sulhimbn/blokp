@@ -120,39 +120,6 @@ class DashboardActivity : BaseActivity() {
             val syncTime = java.text.SimpleDateFormat("MMM dd, HH:mm", java.util.Locale.getDefault())
                 .format(java.util.Date(data.lastSyncTime))
             tvLastSync.text = getString(R.string.label_last_synced, syncTime)
-                PaymentStatus.EXCELLENT -> getString(R.string.status_excellent)
-                PaymentStatus.GOOD -> getString(R.string.status_good)
-                PaymentStatus.FAIR -> getString(R.string.status_fair)
-                PaymentStatus.POOR -> getString(R.string.status_poor)
-            }
-
-                PaymentStatus.EXCELLENT -> getString(R.string.status_excellent)
-                PaymentStatus.GOOD -> getString(R.string.status_good)
-                PaymentStatus.FAIR -> getString(R.string.status_fair)
-                PaymentStatus.POOR -> getString(R.string.status_poor)
-            }
-                PaymentStatus.EXCELLENT -> "Excellent"
-                PaymentStatus.GOOD -> "Good"
-                PaymentStatus.FAIR -> "Fair"
-                PaymentStatus.POOR -> "Poor"
-            }
-            
-            val statusColor = when (summary.paymentStatus) {
-                PaymentStatus.EXCELLENT -> android.R.color.holo_green_dark
-                PaymentStatus.GOOD -> android.R.color.holo_green_light
-                PaymentStatus.FAIR -> android.R.color.holo_orange_light
-                PaymentStatus.POOR -> android.R.color.holo_red_light
-            }
-            tvPaymentStatus.setTextColor(resources.getColor(statusColor, theme))
-            
-            tvResidentStats.text = "${summary.paidResidents}/${summary.totalResidents} Residents Paid"
-            
-            tvUnreadAnnouncements.text = data.unreadAnnouncements.toString()
-            tvUnreadMessages.text = data.unreadMessages.toString()
-            
-            val syncTime = java.text.SimpleDateFormat("MMM dd, HH:mm", java.util.Locale.getDefault())
-                .format(java.util.Date(data.lastSyncTime))
-            tvLastSync.text = "Last synced: $syncTime"
         }
     }
 }
