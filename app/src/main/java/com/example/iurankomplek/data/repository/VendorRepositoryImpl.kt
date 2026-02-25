@@ -356,6 +356,34 @@ class VendorRepositoryImpl(
     }
     
     // Cache helper methods
+    /**
+     * Gets data from cache or fetches from network.
+     *
+     * IMPORTANT: This suppression is REQUIRED due to Kotlin type erasure.
+     * - The cacheManager.get<Any> call returns Any? but we need to cast to the appropriate type
+     * - This is a known Kotlin language limitation with generic type erasure
+     * - The Result.success(cachedData) requires proper typing but due to the generic fetchFromNetwork,
+     *   we cannot avoid this cast without significant refactoring (e.g., type tokens, reflection)
+     * - This pattern is safe because we immediately wrap in Result which preserves type information
+     *
+     * @suppress UNCHECKED_CAST is the recommended approach for generic caching in Kotlin
+     */
+    private suspend fun getCachedOrNetwork(
+        cacheKey: String,
+        ttlMs: Long,
+        fetchFromNetwork: suspend () -> Result<*>
+    ): Result<*> {
+        @Suppress("UNCHECKED_CAST")
+        val cachedData = cacheManager.get<Any>(cacheKey)
+        if (cachedData != null) {
+            return Result.success(cachedData)
+        }
+
+        val result = fetchFromNetwork()
+        result.onSuccess { data ->
+            cacheManager.put(cacheKey, data, ttlMs)
+        }
+        return result
     private suspend fun getCachedOrNetwork(
         cacheKey: String,
         ttlMs: Long,

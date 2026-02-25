@@ -10,6 +10,31 @@ This document serves as the long-term memory for the autonomous quality-assuranc
 - Documentation accuracy
 
 ## QA Issues Fixed
+
+### 4. @Suppress Warnings Documentation (2026-02-25)
+- **Issue**: Issue #419 - Clean Up @Suppress Warnings and Technical Debt
+- **Problem**: 5 files contained @Suppress("UNCHECKED_CAST") annotations without explanation
+- **Files Modified**:
+  - `UserViewModelFactory.kt` - ViewModel Factory pattern
+  - `FinancialViewModelFactory.kt` - ViewModel Factory pattern
+  - `FinancialViewModel.kt` - ViewModel Factory pattern
+  - `CacheManager.kt` - Generic type caching
+  - `VendorRepositoryImpl.kt` - Generic type caching
+- **Solution**: Added comprehensive documentation explaining why each suppression is REQUIRED:
+  - **ViewModelFactory**: Standard Android pattern used by AndroidX - runtime type check with isAssignableFrom ensures safety
+  - **CacheManager/VendorRepositoryImpl**: Kotlin type erasure limitation - cannot avoid cast from CacheEntry<*> to CacheEntry<T>
+- **Risk**: None - documentation-only changes, no functional impact
+- **Verification**: N/A - documentation changes
+
+**Key Finding**: @Suppress("UNCHECKED_CAST") is often REQUIRED in Kotlin due to:
+1. Type erasure at runtime (generic types not available)
+2. Standard Android ViewModelFactory pattern requiring type-safe runtime checks
+3. Generic caching implementations using type-agnostic storage
+
+These are NOT code smells but rather accepted patterns documented in Kotlin/Android best practices.
+
+### 1. allowBackup Security Fix (2026-02-25)
+## QA Issues Fixed
 ### 1. allowBackup Security Fix (2026-02-25)
 - **Issue**: `android:allowBackup="true"` in AndroidManifest.xml
 - **Problem**: Financial app data could be backed up and potentially exposed

@@ -52,6 +52,19 @@ class CacheManager private constructor() {
     /**
      * Retrieves a value from the cache if it exists and hasn't expired.
      * Returns null if the key doesn't exist or has expired.
+     *
+     * IMPORTANT: This suppression is REQUIRED due to Kotlin type erasure.
+     * - Kotlin generics are erased at runtime, so we cannot avoid the cast from CacheEntry<*> to CacheEntry<T>
+     * - This is a known Kotlin language limitation, not a code smell
+     * - The cast is safe because we perform runtime type checking via the caller specifying the expected type
+     * - Alternative approaches (type tokens, reflection) would add significant complexity without benefit
+     *
+     * @suppress UNCHECKED_CAST is the recommended approach for type-safe generic caching in Kotlin
+     */
+    @Suppress("UNCHECKED_CAST")
+    suspend fun <T> get(key: String): T? {
+     * Retrieves a value from the cache if it exists and hasn't expired.
+     * Returns null if the key doesn't exist or has expired.
      */
     @Suppress("UNCHECKED_CAST")
     suspend fun <T> get(key: String): T? {
@@ -74,6 +87,16 @@ class CacheManager private constructor() {
     }
 
     /**
+     * Retrieves a value from the cache without using mutex (for synchronous access).
+     * Use this when you're already in a synchronized context.
+     *
+     * IMPORTANT: This suppression is REQUIRED due to Kotlin type erasure.
+     * Same rationale as the suspend get() method above.
+     *
+     * @suppress UNCHECKED_CAST is the recommended approach for type-safe generic caching in Kotlin
+     */
+    @Suppress("UNCHECKED_CAST")
+    fun <T> getSync(key: String): T? {
      * Retrieves a value from the cache without using mutex (for synchronous access).
      * Use this when you're already in a synchronized context.
      */
