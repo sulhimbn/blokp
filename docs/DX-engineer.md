@@ -11,6 +11,42 @@ This document serves as the long-term memory for the DX-engineer agent, tracking
 
 ## DX Improvements Made
 
+### 2026-02-25: KSP Migration (Kotlin Symbol Processing)
+
+**Changes:**
+- Replaced `kotlin-kapt` plugin with `com.google.devtools.ksp` in app/build.gradle
+- Added KSP plugin (`com.google.devtools.ksp` version 1.9.20-1.0.14) to root build.gradle
+- Replaced `kapt` with `ksp` for Room compiler dependency
+- Replaced `kapt` with `ksp` for Hilt compiler dependency
+
+**Impact:**
+- KSP is 2-3x faster than kapt for annotation processing
+- Reduced build times for clean and incremental builds
+- More accurate incremental compilation
+- Better IDE support (faster code completion)
+
+**Configuration:**
+```groovy
+// root build.gradle
+plugins {
+    id 'com.google.devtools.ksp' version '1.9.20-1.0.14' apply false
+}
+
+// app/build.gradle
+plugins {
+    id 'com.google.devtools.ksp'
+}
+
+dependencies {
+    ksp libs.room.compiler
+    ksp libs.hilt.android.compiler
+}
+```
+
+---
+
+### 2026-02-25: Gradle Build Performance v2
+
 ### 2026-02-25: Gradle Build Performance v2
 
 **Changes:**
@@ -89,6 +125,9 @@ org.gradle.caching=true
 - Static analysis
 
 ## Future Improvements Ideas
+
+- Add Gradle build scan for better diagnostics
+- Add CI caching for dependencies
 
 - Add Gradle build scan for better diagnostics
 - Explore kapt incremental compilation
