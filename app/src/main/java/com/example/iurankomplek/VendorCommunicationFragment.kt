@@ -6,19 +6,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.iurankomplek.data.repository.VendorRepositoryImpl
-import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.VendorViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class VendorCommunicationFragment : Fragment() {
     
     private lateinit var vendorRecyclerView: RecyclerView
     private lateinit var vendorAdapter: VendorAdapter
-    private lateinit var vendorViewModel: VendorViewModel
+    private val viewModel: VendorViewModel by viewModels()
     
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,23 +31,16 @@ class VendorCommunicationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
-        // Initialize ViewModel
-        val repository = VendorRepositoryImpl(ApiConfig.getApiService())
-        vendorViewModel = ViewModelProvider(
-            this,
-            VendorViewModel.Factory(repository)
-        )[VendorViewModel::class.java]
-        
         setupViews(view)
         observeVendors()
-        vendorViewModel.loadVendors()
+        viewModel.loadVendors()
     }
 
     private fun setupViews(view: View) {
         vendorRecyclerView = view.findViewById(R.id.vendorRecyclerView)
         vendorAdapter = VendorAdapter { vendor ->
             // Handle vendor click - could initiate communication
-            Toast.makeText(context, "Communicate with: ${vendor.name}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Communicate with: ${vendor.name}", Toast.LENGTH_SHORT).show()
         }
         
         vendorRecyclerView.apply {
@@ -57,7 +50,7 @@ class VendorCommunicationFragment : Fragment() {
     }
     
     private fun observeVendors() {
-        vendorViewModel.vendorState.observe(viewLifecycleOwner) { state ->
+        viewModel.vendorState.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is UiState.Loading -> {
                     // Show loading indicator
@@ -66,7 +59,7 @@ class VendorCommunicationFragment : Fragment() {
                     vendorAdapter.submitList(state.data.data)
                 }
                 is UiState.Error -> {
-                    Toast.makeText(context, "Error: ${state.error}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Error: ${state.error}", Toast.LENGTH_SHORT).show()
                 }
             }
         }

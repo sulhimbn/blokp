@@ -43,7 +43,7 @@ class AnnouncementsFragment : Fragment() {
         if (!NetworkUtils.isNetworkAvailable(requireContext())) {
             // Hide progress bar after failure
             binding.progressBar.visibility = View.GONE
-            Toast.makeText(context, "No internet connection", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "No internet connection", Toast.LENGTH_LONG).show()
             return
         }
 
@@ -52,7 +52,8 @@ class AnnouncementsFragment : Fragment() {
 
         call.enqueue(object : Callback<List<Announcement>> {
             override fun onResponse(call: Call<List<Announcement>>, response: Response<List<Announcement>>) {
-                // Hide progress bar after response
+                // Hide progress bar after response - check if fragment is still attached
+                if (!isAdded) return
                 binding.progressBar.visibility = View.GONE
                 
                 if (response.isSuccessful) {
@@ -60,17 +61,18 @@ class AnnouncementsFragment : Fragment() {
                     if (announcements != null) {
                         adapter.submitList(announcements)
                     } else {
-                        Toast.makeText(context, "No announcements available", Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), "No announcements available", Toast.LENGTH_LONG).show()
                     }
                 } else {
-                    Toast.makeText(context, "Failed to load announcements", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), "Failed to load announcements", Toast.LENGTH_LONG).show()
                 }
             }
 
             override fun onFailure(call: Call<List<Announcement>>, t: retrofit2.Call<List<Announcement>>) {
-                // Hide progress bar after failure
+                // Hide progress bar after failure - check if fragment is still attached
+                if (!isAdded) return
                 binding.progressBar.visibility = View.GONE
-                Toast.makeText(context, "Network error: ${t.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), "Network error: ${t.message}", Toast.LENGTH_LONG).show()
             }
         })
     }

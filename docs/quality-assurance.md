@@ -10,7 +10,6 @@ This document serves as the long-term memory for the autonomous quality-assuranc
 - Documentation accuracy
 
 ## QA Issues Fixed
-
 ### 1. allowBackup Security Fix (2026-02-25)
 - **Issue**: `android:allowBackup="true"` in AndroidManifest.xml
 - **Problem**: Financial app data could be backed up and potentially exposed
@@ -19,6 +18,14 @@ This document serves as the long-term memory for the autonomous quality-assuranc
 - **Risk**: Low - no functional impact, only security hardening
 - **Verification**: Build should pass, no behavioral changes
 
+### 2. Certificate Pinning Security Fix (2026-02-25)
+- **Issue**: Placeholder backup certificate pin in network_security_config.xml
+- **Problem**: Invalid placeholder `BACKUP_CERTIFICATE_PIN_PLACEHOLDER` could cause runtime failures
+- **Fix**: Removed placeholder, added clear documentation for obtaining actual backup pin
+- **File**: `app/src/main/res/xml/network_security_config.xml`
+- **Risk**: Low - removes potential runtime failure, improves security documentation
+- **Verification**: Build should pass, network security config remains valid
+
 ## Patterns to Check
 
 ### Security Checklist
@@ -26,6 +33,13 @@ This document serves as the long-term memory for the autonomous quality-assuranc
 - [ ] No hardcoded secrets in source code
 - [ ] Webhook signature verification implemented
 - [ ] Room database encryption for sensitive data
+- [ ] Certificate pinning pins must be valid (no placeholders)
+- [ ] Backup certificate pins obtained before production deployment
+- [ ] allowBackup should be false for financial apps
+- [ ] No hardcoded secrets in source code
+- [ ] Webhook signature verification implemented
+- [ ] Room database encryption for sensitive data
+- [ ] Certificate pinning pins must be valid (no placeholders)
 
 ### Code Quality
 - [ ] Empty catch blocks should log errors

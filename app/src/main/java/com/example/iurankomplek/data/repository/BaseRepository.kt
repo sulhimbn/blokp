@@ -1,6 +1,7 @@
 package com.example.iurankomplek.data.repository
 
 import com.example.iurankomplek.utils.ErrorHandler
+import com.example.iurankomplek.utils.CacheManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
@@ -118,6 +119,72 @@ abstract class BaseNetworkRepository {
     }
     
     /**
+     * Calculates delay for retry using exponential backoff with jitter
+     */
+    protected fun calculateDelay(currentRetry: Int, initialDelayMs: Long, maxDelayMs: Long): Long {
+        // Implement exponential backoff with jitter and max delay
+        val exponentialDelay = (initialDelayMs * 2.0.pow(currentRetry - 1)).toLong()
+        // Add jitter to prevent thundering herd problem
+        val jitter = (Math.random() * initialDelayMs).toLong()
+        return min(exponentialDelay + jitter, maxDelayMs)
+    }
+    
+    // ==================== Caching Support ====================
+    
+    protected val cacheManager: CacheManager
+        get() = CacheManager.getInstance()
+    
+    /**
+     * Gets cached data if available and not expired, otherwise fetches from network.
+     * 
+     * @param cacheKey Unique key for this cached data
+     * @param ttlMs Time-to-live in milliseconds (default: 5 minutes)
+     * @param fetchFromNetwork Function to fetch data from network
+     * @return Result containing the data (either from cache or network)
+     */
+    protected suspend fun <T> getCachedOrNetwork(
+        cacheKey: String,
+        ttlMs: Long = CacheManager.DEFAULT_TTL_MS,
+        fetchFromNetwork: suspend () -> Result<T>
+    ): Result<T> {
+        // Try to get from cache first
+        val cachedData = cacheManager.get<T>(cacheKey)
+        if (cachedData != null) {
+            return Result.success(cachedData)
+        }
+        
+        // Cache miss - fetch from network
+        val result = fetchFromNetwork()
+        
+        // If successful, store in cache
+        result.onSuccess { data ->
+            cacheManager.put(cacheKey, data, ttlMs)
+        }
+        
+        return result
+    }
+    
+    /**
+     * Invalidates cache for a specific key.
+     */
+    protected suspend fun invalidateCache(cacheKey: String) {
+        cacheManager.remove(cacheKey)
+    }
+    
+    /**
+     * Clears all cached data.
+     */
+    protected suspend fun clearAllCache() {
+        cacheManager.clear()
+    }
+    
+    /**
+     * Checks if cached data exists for a key (and hasn't expired).
+     */
+    protected fun hasCachedData(cacheKey: String): Boolean {
+        return cacheManager.contains(cacheKey)
+    }
+}
      * Calculates delay for retry using exponential backoff with jitter
      */
     protected fun calculateDelay(currentRetry: Int, initialDelayMs: Long, maxDelayMs: Long): Long {

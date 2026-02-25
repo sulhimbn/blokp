@@ -51,7 +51,7 @@
                     android:layout_width="160dp"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/font"
-                    android:text="Warga"
+                    android:text="@string/menu_warga"
                     android:textAlignment="center"
                     android:textColor="@color/teal_200"
                     android:textSize="15dp"
@@ -78,7 +78,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/font"
-                    android:text="Laporan"
+                    android:text="@string/menu_laporan"
                     android:textAlignment="center"
                     android:textColor="@color/teal_200"
                     android:textSize="15dp"
@@ -107,11 +107,7 @@
                      android:layout_height="50dp"
                      android:layout_margin="5dp"
                      android:layout_weight="1"
-<<<<<<< HEAD
-                     android:contentDescription="Menu Komunikasi"
-=======
                      android:contentDescription="@string/content_komunikasi"
->>>>>>> origin/main
                      app:srcCompat="@drawable/profile" />
 
                  <TextView
@@ -119,7 +115,7 @@
                      android:layout_width="match_parent"
                      android:layout_height="wrap_content"
                      android:fontFamily="@font/font"
-                     android:text="Komunikasi"
+                     android:text="@string/menu_komunikasi"
                      android:textAlignment="center"
                      android:textColor="@color/teal_200"
                      android:textSize="15dp"
@@ -139,11 +135,7 @@
                      android:layout_height="50dp"
                      android:layout_margin="5dp"
                      android:layout_weight="1"
-<<<<<<< HEAD
-                     android:contentDescription="Menu Pembayaran"
-=======
                      android:contentDescription="@string/content_pembayaran"
->>>>>>> origin/main
                      app:srcCompat="@drawable/kas" />
 
                  <TextView
@@ -151,7 +143,7 @@
                      android:layout_width="match_parent"
                      android:layout_height="wrap_content"
                      android:fontFamily="@font/font"
-                     android:text="Pembayaran"
+                     android:text="@string/menu_pembayaran"
                      android:textAlignment="center"
                      android:textColor="@color/teal_200"
                      android:textSize="15dp"
