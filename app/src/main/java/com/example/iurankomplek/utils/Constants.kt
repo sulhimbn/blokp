@@ -22,9 +22,10 @@ object Constants {
         const val CERTIFICATE_PINNER = "sha256/PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0="
         
         // Backup certificate pin for certificate rotation
-        // IMPORTANT: Replace with actual backup pin from your certificate provider
+        // TEMPORARY: Using primary pin as fallback until real backup pin is obtained from certificate provider
+        // For production: Obtain backup pin from your certificate provider (e.g., Let's Encrypt, DigiCert)
         // To generate: openssl s_client -servername api.apispreadsheets.com -connect api.apispreadsheets.com:443 2>/dev/null | openssl x509 -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | openssl enc -base64
-        const val BACKUP_CERTIFICATE_PINNER = "sha256/BACKUP_CERTIFICATE_PIN_PLACEHOLDER"
+        const val BACKUP_CERTIFICATE_PINNER = "sha256/PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0="
         
         // Array of all certificate pins for redundancy
         val ALL_CERTIFICATE_PINS = arrayOf(CERTIFICATE_PINNER, BACKUP_CERTIFICATE_PINNER)
