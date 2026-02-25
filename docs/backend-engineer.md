@@ -86,3 +86,15 @@ suspend fun getTransactionById(id: String): Transaction? {
   - Fixed by adding externalScope parameter to TransactionHistoryAdapter and WebhookReceiver
   - TransactionHistoryActivity now uses lifecycleScope for proper lifecycle management
   - Follows the same pattern as Issue #401/PR #404
+
+
+
+## Known Issues Fixed (2026-02-25)
+
+- Issue #451: Duplicate TransactionDatabase Implementations with Conflicting Encryption
+  - Fixed by removing duplicate database class implementation in TransactionDatabase.kt
+  - File originally had two complete implementations (185 lines instead of ~95)
+  - First implementation used Base64 encoding (correct), second used UTF-8 (incorrect)
+  - UTF-8 approach would cause data corruption when encrypting/decrypting database
+  - Kept Base64 implementation, removed duplicate code
+  - Also fixed pre-existing build.gradle syntax error (extra closing brace)
