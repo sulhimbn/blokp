@@ -7,6 +7,31 @@
 
 ## Completed Work
 
+### PR #376: Fix fragment lifecycle - ViewModel + viewLifecycleOwner
+**Status**: Open
+**Date**: 2026-02-25
+
+**Changes Made:**
+1. Created ViewModels with StateFlow + UiState pattern:
+   - CommunityViewModel.kt
+   - MessagesViewModel.kt
+   - AnnouncementsViewModel.kt
+
+2. Refactored fragments to use ViewModel + viewLifecycleOwner:
+   - CommunityFragment.kt
+   - MessagesFragment.kt
+   - AnnouncementsFragment.kt
+
+3. Benefits:
+   - Prevents context leaks after Fragment destruction
+   - Lifecycle-aware UI updates using viewLifecycleOwner
+   - Follows existing pattern from VendorDatabaseFragment
+   - Uses StateFlow for reactive state management
+
+**Issue**: Closes #352
+
+---
+
 ### PR #363: Fix accessibility - ImageView content descriptions and color contrast
 **Status**: Open
 **Date**: 2026-02-25
@@ -24,10 +49,12 @@
 
 **Issue**: Closes #358
 
+---
+
 ## Workflow
 1. **INITIATE**: Scan for frontend issues, check existing PRs, check issues
 2. **PLAN**: Create todo list with specific tasks
-3. **IMPLEMENT**: Make targeted XML changes
+3. **IMPLEMENT**: Make targeted changes (ViewModels, Fragments, XML)
 4. **VERIFY**: Run build (requires Android SDK)
 5. **SELF-REVIEW**: Review own changes
 6. **SELF-EVOLVE**: Document findings for future improvements
@@ -35,15 +62,18 @@
 
 ## Known Limitations
 - Build verification requires Android SDK (not available in current CI environment)
-- No "frontend-engineer" label exists in the "enhancement" as fallback
+- Code follows established patterns from VendorDatabaseFragment/VendorViewModel
 
-## repository - using Patterns Identified
+## Repository Patterns Identified
 - Mixed Kotlin/Java Android project
 - XML layouts in `app/src/main/res/layout/`
 - Colors defined in `app/src/main/res/values/colors.xml`
-- Common issue: ImageViews missing contentDescription for accessibility
+- ViewModels use StateFlow + UiState (Loading/Success/Error)
+- Fragments observe state with viewLifecycleOwner
+- Adapters extend ListAdapter with DiffUtil
 
 ## Areas for Future Improvement
 - Add contentDescription to more ImageViews across layouts
 - Review color contrast ratios throughout the app
 - Add accessibility testing to CI pipeline
+- Consider replacing remaining callback-based fragments with ViewModel pattern
