@@ -28,6 +28,13 @@ object Constants {
         
         // Array of all certificate pins for redundancy
         val ALL_CERTIFICATE_PINS = arrayOf(CERTIFICATE_PINNER, BACKUP_CERTIFICATE_PINNER)
+
+        // Webhook Security Constants
+        // IMPORTANT: In production, load these from BuildConfig or secure storage
+        const val WEBHOOK_SECRET_KEY = "whsec_placeholder_replace_in_production"
+        const val WEBHOOK_SIGNATURE_HEADER = "X-Webhook-Signature"
+        const val WEBHOOK_TIMESTAMP_HEADER = "X-Webhook-Timestamp"
+        const val WEBHOOK_TIMESTAMP_TOLERANCE_MS = 5 * 60 * 1000L // 5 minutes
     }
     
     // Financial Constants
