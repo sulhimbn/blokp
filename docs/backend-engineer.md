@@ -49,6 +49,7 @@ suspend fun getTransactionById(id: String): Transaction? {
 - Missing data validation
 - No caching in repositories
 - Incorrect error handling
+- Duplicate function definitions
 
 ### Network Layer Issues
 - Missing retry logic
@@ -57,6 +58,10 @@ suspend fun getTransactionById(id: String): Transaction? {
 - Hardcoded secrets (security issue)
 
 ## Known Issues Fixed
+
+- PR #386: Duplicate Function Definitions in TransactionRepository
+  - Fixed by removing duplicate `processPayment` and `refundPayment` function definitions that caused compilation errors
+
 - Issue #357: Missing @Transaction Annotations in TransactionRepository
   - Fixed by adding @Transaction to `processPayment()` and `refundPayment()` methods
 
