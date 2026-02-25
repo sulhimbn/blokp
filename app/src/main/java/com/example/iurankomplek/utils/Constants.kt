@@ -35,12 +35,6 @@ object Constants {
         // DEBUG: Falls back to this placeholder (should never be used in production)
         const val WEBHOOK_SECRET_KEY = "whsec_placeholder_replace_in_production"
         const val WEBHOOK_SIGNATURE_HEADER = "X-Webhook-Signature"
-        // PRODUCTION: MUST set BuildConfig.WEBHOOK_SECRET via CI/CD secrets
-        // DEBUG: Falls back to this placeholder (should never be used in production)
-        const val WEBHOOK_SECRET_KEY = "whsec_placeholder_replace_in_production"
-        // IMPORTANT: In production, load these from BuildConfig or secure storage
-        const val WEBHOOK_SECRET_KEY = "whsec_placeholder_replace_in_production"
-        const val WEBHOOK_SIGNATURE_HEADER = "X-Webhook-Signature"
         const val WEBHOOK_TIMESTAMP_HEADER = "X-Webhook-Timestamp"
         const val WEBHOOK_TIMESTAMP_TOLERANCE_MS = 5 * 60 * 1000L // 5 minutes
     }
@@ -68,13 +62,13 @@ object Constants {
         const val MAIN_ACTIVITY = "MainActivity"
         const val LAPORAN_ACTIVITY = "LaporanActivity"
     }
-
+    
     // Toast Duration Constants
     object Toast {
         const val DURATION_SHORT = android.widget.Toast.LENGTH_SHORT
         const val DURATION_LONG = android.widget.Toast.LENGTH_LONG
     }
-
+    
     // Payment Constants
     object Payment {
         const val DEFAULT_REFUND_AMOUNT_MIN = 1000
