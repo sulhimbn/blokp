@@ -168,6 +168,32 @@ Agents operate using the following Git identity:
 - Proper issue/PR linking
 - Clear communication in comments
 
+## GitHub Actions Workflows
+
+### Main CI/CD Workflows
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `on-push.yml` | Push to main | Sequential 00-11 agent pipeline |
+| `on-pull.yml` | PR opened/synced | PR handler with state machine |
+| `parallel.yml` | Push to main | 4-stage parallel specialist execution |
+
+### Autonomous Agent Workflows
+| Workflow | Schedule | Purpose |
+|----------|----------|---------|
+| `oc-issue-solver.yml` | Every 30 min | Handles open issues end-to-end |
+| `oc-pr-handler.yml` | 9am, 3pm, 9pm | Maintains PRs, resolves feedback, merges |
+| `oc-maintainer.yml` | Daily 3 AM | Repository health scans, maintenance |
+| `oc-repo-manager.yml` | Every 6 hours | Issue/PR coordination, project management |
+| `oc-problem-finder.yml` | Daily midnight | Proactive issue discovery |
+| `oc-code-quality-analyzer.yml` | On-demand | Code quality analysis |
+| `oc-researcher.yml` | On-demand | Research and investigation |
+| `oc-release-manager.yml` | On-demand | Release management |
+
+### Execution Patterns
+- **Sequential** (`on-push.yml`): Runs 12 specialized agents one-by-one (~6 hours)
+- **Parallel** (`parallel.yml`): Runs 4 specialist stages concurrently (~30 min)
+- **Scheduled** (oc-*): Time-based autonomous maintenance
+
 ## Self-Evolution
 
 This document should be updated when:
