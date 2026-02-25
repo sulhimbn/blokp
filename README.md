@@ -57,7 +57,7 @@ BlokP/
  │   │   │   ├── java/com/example/iurankomplek/     # Kode sumber utama
  │   │   │   │   ├── MainActivity.kt                 # Activity daftar pengguna
  │   │   │   │   ├── LaporanActivity.kt              # Activity laporan keuangan
- │   │   │   │   ├── MenuActivity.java               # Activity menu utama
+ │   │   │   │   │   ├── MenuActivity.kt               # Activity menu utama
 │   │   │   │   ├── UserAdapter.kt                  # Adapter RecyclerView untuk pengguna
 │   │   │   │   └── PemanfaatanAdapter.kt           # Adapter RecyclerView untuk pemanfaatan
 │   │   │   │   └── network/                        # Networking layer
@@ -227,7 +227,8 @@ Aktivitas yang menampilkan laporan keuangan iuran:
 ## Arsitektur Kode
 
 ### Mixed Language
-- **Kotlin**: MainActivity.kt, LaporanActivity.kt, adapters, network layer
+- **Kotlin**: MainActivity.kt, LaporanActivity.kt, MenuActivity.kt, adapters, network layer
+- **Java**: None (100% Kotlin achieved)
 - **Java**: MenuActivity.java untuk kompatibilitas dan legacy support
 
 ### Design Patterns
@@ -244,9 +245,9 @@ Aplikasi ini dalam tahap pengembangan aktif dengan fitur-fitur inti yang telah b
 ## For Developers
 
 ### Documentation
-- [API Documentation](docs/API.md) - Complete API endpoint specifications
+- [API Documentation](docs/api-documentation.md) - Complete API endpoint specifications
 - [Architecture Documentation](docs/ARCHITECTURE.md) - System architecture and component relationships  
-- [Development Guidelines](docs/DEVELOPMENT.md) - Coding standards and development workflow
+- [Development Guidelines](docs/development-guidelines.md) - Coding standards and development workflow
 - [Troubleshooting Guide](docs/TROUBLESHOOTING.md) - Common issues and solutions
 
 ### Project Structure
@@ -255,7 +256,7 @@ This project follows a simplified MVVM pattern with the following key components
 **Activities (View Layer):**
 - `MainActivity.kt` - Displays user list with UserAdapter
 - `LaporanActivity.kt` - Displays financial reports with PemanfaatanAdapter
-- `MenuActivity.java` - Main menu navigation (Java for compatibility)
+- `MenuActivity.kt` - Main menu navigation (100% Kotlin)
 
 **Network Layer:**
 - `ApiConfig.kt` - Retrofit configuration with conditional base URLs
