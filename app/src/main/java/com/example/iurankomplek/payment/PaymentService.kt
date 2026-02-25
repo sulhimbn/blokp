@@ -16,7 +16,10 @@ class PaymentService(
     private val externalScope: CoroutineScope? = null
 ) {
     // Managed coroutine scope to prevent memory leaks
-    private val serviceScope = externalScope ?: CoroutineScope(Dispatchers.IO + SupervisorJob())
+    // Track if we own the scope (created it ourselves) vs external
+    private val ownsScope: Boolean = externalScope == null
+    private val serviceScope: CoroutineScope = externalScope
+        ?: CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val jobs = mutableListOf<Job>()
 
     fun processPayment(
@@ -76,6 +79,9 @@ class PaymentService(
     fun destroy() {
         jobs.forEach { it.cancel() }
         jobs.clear()
-        serviceScope.cancel()
+        // Only cancel scope if we created it; don't cancel external scopes
+        if (ownsScope) {
+            serviceScope.cancel()
+        }
     }
 }
