@@ -52,6 +52,11 @@ class CacheManager private constructor() {
     /**
      * Retrieves a value from the cache if it exists and hasn't expired.
      * Returns null if the key doesn't exist or has expired.
+     *
+     * NOTE: UNCHECKED_CAST is required due to Kotlin type erasure.
+     * CacheEntry<*> cannot be cast to CacheEntry<T> at runtime.
+     * This is a fundamental Kotlin/Java generic limitation.
+     * Safety: The cast is safe because we control the cache internally.
      */
     @Suppress("UNCHECKED_CAST")
     suspend fun <T> get(key: String): T? {
@@ -76,6 +81,11 @@ class CacheManager private constructor() {
     /**
      * Retrieves a value from the cache without using mutex (for synchronous access).
      * Use this when you're already in a synchronized context.
+     *
+     * NOTE: UNCHECKED_CAST is required due to Kotlin type erasure.
+     * CacheEntry<*> cannot be cast to CacheEntry<T> at runtime.
+     * This is a fundamental Kotlin/Java generic limitation.
+     * Safety: The cast is safe because we control the cache internally.
      */
     @Suppress("UNCHECKED_CAST")
     fun <T> getSync(key: String): T? {
