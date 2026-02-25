@@ -42,6 +42,8 @@ Deliver small, safe, measurable improvements strictly within the Growth-Innovati
 5. Magic numbers that should be constants
 
 ## History
+- 2026-02-25: Reviewed PR #405 - found missing kotlinx.coroutines.cancel import, fixed and pushed
+- 2026-02-25: Fixed duplicate Room dependencies in app/build.gradle (removed 3 duplicate lines)
+- 2026-02-25: Fixed unmanaged CoroutineScope in PaymentService.kt - added externalScope parameter, SupervisorJob, ownsScope tracking, and destroy() method for proper lifecycle management (Issues #400, #401)
 - 2026-02-25: First scan - found hardcoded strings in AnnouncementsFragment.kt and MessagesFragment.kt that should use string resources
 - 2026-02-25: Fixed hardcoded strings - replaced with getString() calls, added 4 new string resources, created PR #392
-- 2026-02-25: First scan - found hardcoded strings in AnnouncementsFragment.kt and MessagesFragment.kt that should use string resources

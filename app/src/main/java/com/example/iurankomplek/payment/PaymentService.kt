@@ -2,15 +2,26 @@ package com.example.iurankomplek.payment
 
 import com.example.iurankomplek.receipt.ReceiptGenerator
 import com.example.iurankomplek.transaction.TransactionRepository
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
 class PaymentService(
     private val transactionRepository: TransactionRepository,
-    private val receiptGenerator: ReceiptGenerator
+    private val receiptGenerator: ReceiptGenerator,
+    private val externalScope: CoroutineScope? = null
 ) {
+    // Managed coroutine scope to prevent memory leaks
+    // Track if we own the scope (created it ourselves) vs external
+    private val ownsScope: Boolean = externalScope == null
+    private val serviceScope: CoroutineScope = externalScope
+        ?: CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val jobs = mutableListOf<Job>()
+
     fun processPayment(
         amount: BigDecimal,
         description: String,
@@ -19,7 +30,7 @@ class PaymentService(
         onSuccess: (com.example.iurankomplek.receipt.Receipt) -> Unit,
         onError: (String) -> Unit
     ) {
-        CoroutineScope(Dispatchers.IO).launch {
+        val job = serviceScope.launch {
             val request = PaymentRequest(
                 amount = amount,
                 description = description,
@@ -38,6 +49,7 @@ class PaymentService(
                 }
             )
         }
+        jobs.add(job)
     }
     
     fun refundPayment(
@@ -46,7 +58,7 @@ class PaymentService(
         onSuccess: (RefundResponse) -> Unit,
         onError: (String) -> Unit
     ) {
-        CoroutineScope(Dispatchers.IO).launch {
+        val job = serviceScope.launch {
             val result = transactionRepository.refundPayment(transactionId, reason)
             result.fold(
                 onSuccess = { response ->
@@ -56,6 +68,20 @@ class PaymentService(
                     onError(error.message ?: "Unknown error occurred")
                 }
             )
+        }
+        jobs.add(job)
+    }
+
+    /**
+     * Cleanup method to cancel all running coroutines and prevent memory leaks.
+     * Must be called when the service is no longer needed (e.g., in onDestroy for Android components).
+     */
+    fun destroy() {
+        jobs.forEach { it.cancel() }
+        jobs.clear()
+        // Only cancel scope if we created it; don't cancel external scopes
+        if (ownsScope) {
+            serviceScope.cancel()
         }
     }
 }
