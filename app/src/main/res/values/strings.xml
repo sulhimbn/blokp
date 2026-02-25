@@ -36,6 +36,7 @@
     <string name="announcements_label">Announcements</string>
     <string name="messages_label">Messages</string>
     <string name="news_label">News</string>
+    <string name="community_label">Community</string>
     <string name="history_label">History</string>
     <string name="vendors_label">Vendors</string>
     <string name="quick_actions_label">Quick Actions</string>

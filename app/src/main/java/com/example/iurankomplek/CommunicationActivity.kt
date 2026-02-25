@@ -30,9 +30,9 @@ class CommunicationActivity : AppCompatActivity() {
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             when (position) {
-                0 -> tab.text = "Announcements"
-                1 -> tab.text = "Messages"
-                2 -> tab.text = "Community"
+                0 -> tab.text = getString(R.string.announcements_label)
+                1 -> tab.text = getString(R.string.messages_label)
+                2 -> tab.text = getString(R.string.community_label)
             }
         }.attach()
     }
