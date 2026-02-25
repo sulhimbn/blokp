@@ -4,10 +4,6 @@
   "autoupdate": true,
   "model": "iflowcn/big-pickle",
   "small_model": "opencode/big-pickle",
-  "compaction": {
-    "auto": true,
-    "prune": true
-  },
   "watcher": {
     "ignore": [
       "node_modules/**",

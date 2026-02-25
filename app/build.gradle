@@ -28,7 +28,6 @@ android {
 PK|    }
 #KZ|
 #KM|    buildTypes {
-
     buildTypes {
         debug {
             testCoverageEnabled true
