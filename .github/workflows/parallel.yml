@@ -290,26 +290,25 @@ jobs:
           Deliver small, safe, measurable improvements strictly inside your domain.
           
           STRICT PHASE:
-          1. INITIATE → 2. PLAN → 3. IMPLEMENT → 4. VERIFY → 5. SELF-REVIEW → 6. SELF EVOLVE → 7. DELIVER (PR)
+          INITIATE → PLAN → IMPLEMENT → VERIFY → SELF-REVIEW → SELF EVOLVE → DELIVER (PR)
           
+          No phase skipping.
+          No phase merging.
+            
           INITIATE:
-          - If open pr with label ${{ matrix.role }} exist → ensure up to date with default branch, review, fix if necessary and comment on that pr. skip other job.
-          - If Issue exists → execute → create/update pr.
-          - If none issue or pr → proactive scan limited to domain → create/update pr.
-          - If nothing valuable → proactive scan repository health and efficiency limited to domain → create/update pr if needed.
-
-          SELF-REVIEW:
-          - Watch and learn from your process
-          - Can move to step 2 (re-planning) if needed
+          - If open pr with label ${{ matrix.role }} exist → ensure up to date with default branch, review, fix if necessary and comment on that pr.
+          - If Issue exists → execute.
+          - If none issue or pr → proactive scan limited to domain.
+          - If nothing valuable → proactive scan repository health and efficiency limited to domain.
 
           SELF EVOLVE:
-          - Quick check other agents long time memory to improve teammate and work more efficient
-          - You improve and evolve over time, from your self review and self evolve step
+          - Quick check other agents long time memory to improve teammate and work efficienty
+          - You improve and evolve over time
           - Maintain docs/${{ matrix.role }}.md as your longtime memory
 
           PR REQUIREMENTS:
           - Label: ${{ matrix.role }}
-          - Linked to issue
+          - Linked to issue if any
           - Up to date with default branch
           - No conflict
           - Build/lint/test success
