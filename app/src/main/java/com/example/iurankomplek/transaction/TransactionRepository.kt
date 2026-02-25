@@ -41,7 +41,6 @@ class TransactionRepository @Inject constructor(
           }
     @Transaction
     suspend fun processPayment(request: PaymentRequest): Result<Transaction> {
-    suspend fun processPayment(request: PaymentRequest): Result<Transaction> {
         return try {
             val transaction = Transaction.create(request)
             transactionDao.insert(transaction)
@@ -84,7 +83,6 @@ class TransactionRepository @Inject constructor(
     }
 
     @Transaction
-    suspend fun refundPayment(transactionId: String, reason: String?): Result<com.example.iurankomplek.payment.RefundResponse> {
     suspend fun refundPayment(transactionId: String, reason: String?): Result<com.example.iurankomplek.payment.RefundResponse> {
         return try {
             val refundResult = paymentGateway.refundPayment(transactionId)
