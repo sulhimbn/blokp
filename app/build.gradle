@@ -46,6 +46,17 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    lint {
+        abortOnError false
+        checkReleaseBuilds true
+        htmlReport true
+        xmlReport true
+        warningsAsErrors false
+        enable 'StopShip'
+        disable 'InvalidPackage', 'PrivateResource', 'GradleOverrides'
+        lintConfig file('src/main/res/xml/lint.xml')
+    }
+
 }
 
 dependencies {
