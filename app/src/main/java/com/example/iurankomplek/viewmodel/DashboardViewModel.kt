@@ -12,6 +12,7 @@ import com.example.iurankomplek.model.DashboardData
 import com.example.iurankomplek.model.FinancialSummary
 import com.example.iurankomplek.model.Message
 import com.example.iurankomplek.model.PaymentStatus
+import com.example.iurankomplek.utils.Constants
 import com.example.iurankomplek.utils.FinancialCalculator
 import com.example.iurankomplek.utils.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -115,9 +116,9 @@ class DashboardViewModel @Inject constructor(
         val totalDue = FinancialCalculator.calculateTotalIuranBulanan(dataItems)
 
         val paymentStatus = when {
-            balance > totalDue * 0.8 -> PaymentStatus.EXCELLENT
-            balance > totalDue * 0.5 -> PaymentStatus.GOOD
-            balance > totalDue * 0.2 -> PaymentStatus.FAIR
+            balance > totalDue * Constants.PaymentStatusThreshold.EXCELLENT_RATIO -> PaymentStatus.EXCELLENT
+            balance > totalDue * Constants.PaymentStatusThreshold.GOOD_RATIO -> PaymentStatus.GOOD
+            balance > totalDue * Constants.PaymentStatusThreshold.FAIR_RATIO -> PaymentStatus.FAIR
             else -> PaymentStatus.POOR
         }
 

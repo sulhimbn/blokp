@@ -48,3 +48,4 @@ Deliver small, safe, measurable improvements strictly within the Growth-Innovati
 - 2026-02-25: First scan - found hardcoded strings in AnnouncementsFragment.kt and MessagesFragment.kt that should use string resources
 - 2026-02-25: Fixed hardcoded strings - replaced with getString() calls, added 4 new string resources, created PR #392
 - 2026-02-26: Fixed magic numbers in BaseRepository.kt - replaced hardcoded retry delays (1000, 30000) with Constants.Network.INITIAL_RETRY_DELAY_MS and Constants.Network.MAX_RETRY_DELAY_MS, created PR #481
+- 2026-02-26: Fixed magic numbers in DashboardViewModel.kt - replaced hardcoded payment status ratios (0.8, 0.5, 0.2) with Constants.PaymentStatusThreshold.EXCELLENT_RATIO, GOOD_RATIO, and FAIR_RATIO, created PR #497
