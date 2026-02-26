@@ -148,5 +148,9 @@ KD|  - Activities: VendorManagementActivity, CommunicationActivity, MenuActivity
 KD|  - Recommendation: Either extend BaseActivity or add retry wrapper to repositories
 
 KD|- CommunityFragment Missing Retry Logic
+PV|KD|  - Fragment uses direct .enqueue() without retry
+KV|KD|  - FIXED: Created BaseFragment.kt with retry support
+RD|KD|  - Updated CommunityFragment to extend BaseFragment and use executeWithRetry()
+KV|KD|  - Other fragments (VendorDatabaseFragment, WorkOrderManagementFragment, etc.) can be updated similarly
 KD|  - Fragment uses direct .enqueue() without retry
 KD|  - Recommendation: Create BaseFragment with retry support
