@@ -5,7 +5,7 @@ import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Date
-import java.util.Random
+import java.security.SecureRandom
 import java.util.UUID
 
 class ReceiptGenerator {
@@ -28,7 +28,7 @@ class ReceiptGenerator {
     
     private fun generateReceiptNumber(): String {
         val date = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)
-        val random = Random().nextInt(1000, 9999)
+        val random = SecureRandom().nextInt(1000, 9999)
         return "RCPT-$date-$random"
     }
     
