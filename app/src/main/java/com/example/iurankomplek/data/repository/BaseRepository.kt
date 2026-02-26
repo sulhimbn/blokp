@@ -2,6 +2,7 @@ package com.example.iurankomplek.data.repository
 
 import com.example.iurankomplek.utils.ErrorHandler
 import com.example.iurankomplek.utils.CacheManager
+import com.example.iurankomplek.utils.Constants
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
@@ -65,7 +66,7 @@ abstract class BaseNetworkRepository {
                 } else {
                     val isRetryable = isRetryableError(response.code())
                     if (currentRetry < maxRetries && isRetryable) {
-                        val delayMillis = calculateDelay(currentRetry + 1, 1000, 30000)
+                        val delayMillis = calculateDelay(currentRetry + 1, Constants.Network.INITIAL_RETRY_DELAY_MS, Constants.Network.MAX_RETRY_DELAY_MS)
                         delay(delayMillis)
                         currentRetry++
                         continue
@@ -78,7 +79,7 @@ abstract class BaseNetworkRepository {
                 
                 val isRetryable = isRetryableException(e)
                 if (currentRetry < maxRetries && isRetryable) {
-                    val delayMillis = calculateDelay(currentRetry + 1, 1000, 30000)
+                    val delayMillis = calculateDelay(currentRetry + 1, Constants.Network.INITIAL_RETRY_DELAY_MS, Constants.Network.MAX_RETRY_DELAY_MS)
                     delay(delayMillis)
                     currentRetry++
                 } else {
