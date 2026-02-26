@@ -1,21 +1,7 @@
-    <string name="iuran_komplek_konoha">IURAN KOMPLEK KONOHA</string>
-    <string name="vendor_communication_title">Vendor Communication</string>
-    <string name="vendor_performance_title">Vendor Performance Analytics</string>
-    <string name="vendor_database_title_new">Vendor Database</string>
-    <string name="transaction_history_title">Transaction History</string>
-    <string name="komunitas_label">Community</string>
-    <string name="announcements_label_new">Announcements</string>
-    <string name="messages_label_new">Messages</string>
-    <string name="communication_center_title">COMMUNICATION CENTER</string>
-    <string name="payment_title_new">Payment</string>
-    <string name="payment_method_label_new">Payment Method</string>
-    <string name="pay_now_label_new">Pay Now</string>
-    <string name="view_transaction_history_label_new">View Transaction History</string>
-    <string name="laporan_kas_rt_title_new">LAPORAN KAS RT</string>
-    <string name="pemanfaatan_label_new">2. Pemanfaatan : </string>
-    <string name="work_order_management_title_new">Work Order Management</string>
-    <string name="vendor_management_title_new">Vendor Management</string>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="iuran_komplek_konoha">IURAN KOMPLEK KONOHA</string>
+
     <string name="app_name">BlokP</string>
     <string name="work_order_description_label">Description:</string>
     <string name="work_order_category_label">Category:</string>
