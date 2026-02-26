@@ -5,11 +5,14 @@ Conducted comprehensive proactive security scans covering:
 1. **Hardcoded Secrets** - Verified no hardcoded secrets in production
 2. **Insecure Network Config** - Verified secure configuration
 3. **Crypto Vulnerabilities** - Verified SecureRandom usage
-4. **Data Exposure** - Found and fixed keyboard cache exposure
+4. **Data Exposure** - Verified keyboard cache exposure fixed
 5. **Intent Security** - Verified proper intent handling
 6. **File Provider** - Verified secure file sharing
 7. **Database Security** - Verified SQLCipher encryption
 8. **Session Management** - Verified EncryptedSharedPreferences
+9. **WebView Security** - No WebViews used (secure)
+10. **Intent Security** - Scanned for exported component issues
+11. **Deprecated Crypto APIs** - No weak crypto found
 
 ### Findings
 All major security issues from previous sessions have been addressed:
@@ -20,10 +23,22 @@ All major security issues from previous sessions have been addressed:
 - ✅ ProGuard/R8 enabled (PR #379)
 - ✅ SQLCipher implemented (PR #388)
 - ✅ Keyboard cache exposure fixed (PR #511)
+- ✅ No WebView vulnerabilities (not used)
+- ✅ No deprecated crypto APIs found (HMAC-SHA256 used)
+
+### New Findings from This Scan:
+1. **API Spreadsheet ID Exposed** (MEDIUM) - Public ID in BuildConfig, acceptable for this use case
+2. **Intent Security: Implicit Share Intent** (LOW-MEDIUM) - ReportExporter uses implicit Intent for sharing
+3. **Intent Extra Validation** (LOW) - WorkOrderDetailActivity receives extras without package verification
+4. **External Storage Reports** (LOW-MEDIUM) - Financial reports written to app-specific external storage
+
+### Recommendations:
+- Consider using explicit Intent for sensitive data sharing
+- Add package verification for activities receiving sensitive data via Intent
+- Obtain real backup certificate pin from API provider for production
 
 ### Remaining Known Issue
 - **Certificate Pin Duplication**: Both primary and backup certificate pins are identical (MEDIUM). This requires obtaining a real backup certificate pin from the API provider for production deployment.
-
 ### Security Scan Performed (2026-02-26)
 Conducted comprehensive proactive security scans covering:
 1. **Hardcoded Secrets** - Verified no hardcoded secrets in production
