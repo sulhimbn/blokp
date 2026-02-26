@@ -8,7 +8,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Payment"
+        android:text="@string/payment_title"
         android:textSize="24sp"
         android:textStyle="bold"
         android:gravity="center"
@@ -23,7 +23,7 @@
             android:id="@+id/et_amount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Amount"
+        android:hint="@string/amount_hint"
             android:inputType="numberDecimal" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -31,7 +31,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Payment Method"
+        android:text="@string/payment_method_label"
         android:textSize="16sp"
         android:layout_marginBottom="8dp" />
 
@@ -46,14 +46,14 @@
         android:id="@+id/btn_pay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Pay Now"
+        android:text="@string/pay_now_label"
         android:textSize="16sp" />
 
     <Button
         android:id="@+id/btn_view_history"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="View Transaction History"
+        android:text="@string/view_transaction_history_label"
         android:layout_marginTop="16dp"
         android:textSize="16sp" />
 
