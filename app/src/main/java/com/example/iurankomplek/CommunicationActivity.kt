@@ -12,6 +12,7 @@ import com.example.iurankomplek.utils.NetworkUtils
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import androidx.viewpager2.widget.ViewPager2
+import com.example.iurankomplek.presentation.adapter.CommunicationPagerAdapter
 
 class CommunicationActivity : AppCompatActivity() {
 
@@ -35,18 +36,5 @@ class CommunicationActivity : AppCompatActivity() {
                 2 -> tab.text = getString(R.string.community_label)
             }
         }.attach()
-    }
-
-    private class CommunicationPagerAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
-        override fun getItemCount(): Int = 3
-
-        override fun createFragment(position: Int): Fragment {
-            return when (position) {
-                0 -> AnnouncementsFragment()
-                1 -> MessagesFragment()
-                2 -> CommunityFragment()
-                else -> AnnouncementsFragment()
-            }
-        }
     }
 }
