@@ -11,7 +11,34 @@ This document serves as the long-term memory for the platform-engineer agent, tr
 
 ## Platform Improvements Made
 
-### 2026-02-25: opencode.json Configuration Fix
+### 2026-02-26: Centralize Dependency Versions to Version Catalog
+
+**Issue:** Three dependencies in `app/build.gradle` used hardcoded versions instead of centralized version management:
+- `androidx.swiperefreshlayout:swiperefreshlayout:1.1.0`
+- `com.itextpdf:itext7-core:7.2.5`
+- `org.apache.commons:commons-csv:1.10.0`
+
+**Root Cause:** Inconsistent dependency management - most dependencies used the version catalog, but these three did not.
+
+**Changes:**
+- Added version entries to `gradle/libs.versions.toml`
+- Added library definitions for each dependency
+- Updated `app/build.gradle` to use version catalog references
+
+**Impact:**
+- All dependencies now use centralized version management
+- Version changes only need to be made in one place
+- Follows Gradle best practices for dependency management
+
+**Files Changed:**
+- `gradle/libs.versions.toml`
+- `app/build.gradle`
+
+**PR:** #494
+
+---
+
+### 20225: opencode6-02-.json Configuration Fix
 
 **Issue:** CI workflow was failing with error:
 ```
@@ -64,3 +91,4 @@ For future platform-engineer work:
 - [ ] Check for duplicate braces/brackets in build files
 - [ ] Ensure ANDROID_HOME is set correctly in CI environment
 - [ ] Monitor workflow runs for platform-related failures
+- [ ] Check for hardcoded dependency versions (use version catalog)
