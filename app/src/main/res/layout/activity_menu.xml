@@ -44,7 +44,7 @@
                     android:layout_margin="5dp"
                     android:layout_weight="1"
                     android:contentDescription="@string/content_warga"
-                    app:srcCompat="@drawable/profile" />
+                    app:srcCompat="@drawable/ic_menu_warga"
 
                 <TextView
                     android:id="@+id/textView3"
@@ -71,7 +71,7 @@
                     android:layout_margin="5dp"
                     android:layout_weight="1"
                     android:contentDescription="@string/content_laporan"
-                    app:srcCompat="@drawable/kas" />
+                    app:srcCompat="@drawable/ic_menu_laporan"
 
                 <TextView
                     android:id="@+id/textView2"
@@ -108,7 +108,7 @@
                      android:layout_margin="5dp"
                      android:layout_weight="1"
                      android:contentDescription="@string/content_komunikasi"
-                     app:srcCompat="@drawable/profile" />
+                     app:srcCompat="@drawable/ic_menu_komunikasi"
 
                  <TextView
                      android:id="@+id/textView4"
@@ -136,7 +136,7 @@
                      android:layout_margin="5dp"
                      android:layout_weight="1"
                      android:contentDescription="@string/content_pembayaran"
-                     app:srcCompat="@drawable/kas" />
+                     app:srcCompat="@drawable/ic_menu_pembayaran"
 
                  <TextView
                      android:id="@+id/textView5"
