@@ -6,24 +6,46 @@ This document serves as the long-term memory for the RnD specialist working on t
 ## Active Work Items
 
 ### Current Cycle
-- **Issue #451**: Duplicate return statements in AppModule.kt causing compilation failure
-- **Status**: PR #496 created
+- **Issue**: Duplicate class definition in BlokPApplication.kt (compilation blocker)
+- **Status**: PR in preparation
 - **Date**: 2026-02-26
-- **Issue #451**: Duplicate return statements in AppModule.kt causing compilation failure
-- **Status**: Fix applied, preparing PR
+- **Issue**: Memory leak in NetworkStatusListener.kt coroutine scope
+- **Status**: Fix applied
 - **Date**: 2026-02-26
 
 ### Previous Cycles
+- **Issue #451**: Duplicate return statements in AppModule.kt causing compilation failure
+- **Status**: PR #496 created
+- **Date**: 2026-02-26
+
 - **Issue #421**: Additional CoroutineScope leaks in WebhookReceiver and TransactionHistoryActivity
 - **Status**: PR #444 created
 - **Date**: 2026-02-25
 
 - **Issue #414**: Duplicate calculateDelay Function in BaseRepository.kt
-- **Status**: Fix applied, PR #424 created
+- **Status**: PR #424 created
 - **Date**: 2026-02-25
 
 
 ## Completed Work
+
+### Issue: Duplicate Class Definition in BlokPApplication.kt + Memory Leak Fixes
+- **Description**: 
+  1. BlokPApplication.kt had duplicate class definition (lines 22-30) causing compilation failure
+  2. NetworkStatusListener.kt created unmanaged CoroutineScope that was never cancelled (memory leak)
+  3. Multiple files had duplicate import statements
+- **Risk Level**: Critical (compilation blocker) + Medium (memory leak)
+- **Files Changed**: 
+  - `app/src/main/java/com/example/iurankomplek/BlokPApplication.kt`
+  - `app/src/main/java/com/example/iurankomplek/network/NetworkStatusListener.kt`
+  - `app/src/main/java/com/example/iurankomplek/TransactionHistoryActivity.kt`
+  - `app/src/main/java/com/example/iurankomplek/VendorManagementActivity.kt`
+- **Changes**:
+  1. Removed duplicate class definition block in BlokPApplication.kt (lines 22-30)
+  2. Added destroy() method to NetworkStatusListener.kt to cancel coroutine scope
+  3. Removed duplicate imports from TransactionHistoryActivity.kt
+  4. Removed duplicate import from VendorManagementActivity.kt
+
 
 ### Issue #451: Duplicate Return Statements in AppModule.kt
 - **Description**: AppModule.kt had duplicate return statements in provideTransactionRepository function - one valid return and another referencing non-existent TransactionRepositoryImpl class. Also had duplicate dagger.Module import.

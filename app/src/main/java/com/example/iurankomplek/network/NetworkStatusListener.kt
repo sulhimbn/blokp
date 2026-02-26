@@ -11,7 +11,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.cancel
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -41,6 +41,14 @@ class NetworkStatusListener @Inject constructor(
     
     fun stopListening() {
         connectivityManager.unregisterNetworkCallback(this)
+    }
+    
+    /**
+     * Cleanup method to cancel the coroutine scope and prevent memory leaks.
+     * Should be called when the NetworkStatusListener is no longer needed.
+     */
+    fun destroy() {
+        scope.cancel()
     }
     
     private fun checkInitialNetworkState(): Boolean {
