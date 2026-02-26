@@ -47,3 +47,4 @@ Deliver small, safe, measurable improvements strictly within the Growth-Innovati
 - 2026-02-25: Fixed unmanaged CoroutineScope in PaymentService.kt - added externalScope parameter, SupervisorJob, ownsScope tracking, and destroy() method for proper lifecycle management (Issues #400, #401)
 - 2026-02-25: First scan - found hardcoded strings in AnnouncementsFragment.kt and MessagesFragment.kt that should use string resources
 - 2026-02-25: Fixed hardcoded strings - replaced with getString() calls, added 4 new string resources, created PR #392
+- 2026-02-26: Fixed magic numbers in BaseRepository.kt - replaced hardcoded retry delays (1000, 30000) with Constants.Network.INITIAL_RETRY_DELAY_MS and Constants.Network.MAX_RETRY_DELAY_MS, created PR #481
