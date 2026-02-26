@@ -292,7 +292,24 @@ This document should be updated when:
 3. New patterns or conventions are established
 4. Agent-related issues are discovered and resolved
 
----
+#KM|### 2026-02-26: OpenCode Config Fix
+#JB|
+#QV|#### Problem
+#NV|- All OpenCode-powered agent workflows were failing with: `Unrecognized key: "compaction"`
+#TH|- Error: `Config file at /home/runner/work/blokp/blokp/opencode.json is invalid`
+#NM|
+#PQ|#### Root Cause
+#NP|- The `compaction` key in `opencode.json` is no longer valid in current OpenCode version
+#XZ|
+#BM|#### Solution
+#NM|- Removed the `compaction` section from `opencode.json`
+#PM|- Fixed workflow failures for: oc-issue-solver, oc-problem-finder, oc-maintainer, oc-repo-manager
+#NV|
+#PH|#### Prevention
+#XZ|- Monitor workflow run status regularly
+#NM|- Keep OpenCode configuration in sync with OpenCode CLI version updates
+#NQ|
+#YQ|---
 
-*Last Updated: 2026-02-25*
-*Domain: ai-agent-engineer*
+#HY|*Last Updated: 2026-02-26*
+#JH|*Domain: ai-agent-engineer*
