@@ -54,7 +54,7 @@ dependencies {
      implementation libs.androidx.appcompat
      implementation libs.material
      implementation libs.androidx.constraintlayout
-     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+     implementation libs.androidx.swiperefreshlayout
     
     // Testing dependencies
     testImplementation libs.junit
@@ -107,8 +107,8 @@ dependencies {
     implementation libs.lifecycle.livedata.ktx
     
     // PDF Export - iText for Android
-    implementation 'com.itextpdf:itext7-core:7.2.5'
+    implementation libs.itextpdf
     
     // CSV Export - Apache Commons CSV
-    implementation 'org.apache.commons:commons-csv:1.10.0'
+    implementation libs.apache.commons.csv
 }
