@@ -6,16 +6,33 @@ This document serves as the long-term memory for the RnD specialist working on t
 ## Active Work Items
 
 ### Current Cycle
-- **Issue #421**: Additional CoroutineScope leaks in WebhookReceiver and TransactionHistoryActivity
-- **Status**: PR #444 created
-- **Date**: 2026-02-25
-
-### Current Cycle
-- **Issue #414**: Duplicate calculateDelay Function in BaseRepository.kt
-- **Status**: Fix applied, PR #424 created
-- **Date**: 2026-02-25
+- **Issue #452**: Unbounded CacheManager Can Cause Memory Overflow
+- **Status**: PR #472 created
+- **Date**: 2026-02-26
 
 ## Completed Work
+
+### Issue #452: Unbounded CacheManager Can Cause Memory Overflow
+- **Description**: CacheManager used unbounded ConcurrentHashMap with no size limit, causing potential memory overflow
+- **Risk Level**: High (performance - prevents memory overflow)
+- **Files Changed**: `app/src/main/java/com/example/iurankomplek/utils/CacheManager.kt`
+- **Changes**:
+  1. Replaced ConcurrentHashMap with LinkedHashMap (access-order=true) for LRU support
+  2. Added DEFAULT_MAX_SIZE = 100 to prevent unbounded memory growth
+  3. Added constructor(maxSize: Int) for customizable cache size
+  4. Added getInstance(maxSize: Int) for custom cache instances
+  5. Added LRU eviction logging when cache reaches capacity
+- **PR**: #472
+
+### Issue #451: Duplicate TransactionDatabase Implementations
+- **Description**: TransactionDatabase.kt had two conflicting database implementations with different encryption methods
+- **Risk Level**: Critical (data integrity - conflicting encryption)
+- **Files Changed**: `app/src/main/java/com/example/iurankomplek/transaction/TransactionDatabase.kt`
+- **Changes**:
+  1. Removed duplicate class definition block (92 lines)
+  2. Kept the correct implementation using proper Base64 encoding
+  3. The duplicate had conflicting encryption methods causing data corruption risk
+- **PR**: #467
 
 ### Issue #421: Additional CoroutineScope Memory Leaks
 - **Description**: WebhookReceiver had duplicate class definition block and nested CoroutineScope(Dispatchers.IO).launch causing memory leak; TransactionHistoryActivity was not passing lifecycleScope to adapter
@@ -28,8 +45,6 @@ This document serves as the long-term memory for the RnD specialist working on t
   2. Replaced nested CoroutineScope(Dispatchers.IO).launch with scope.launch
   3. Passed lifecycleScope to TransactionHistoryAdapter for lifecycle-aware scope
 - **PR**: #444
-
-### Issue #414: Duplicate calculateDelay Function
 
 ### Issue #414: Duplicate calculateDelay Function
 - **Description**: BaseRepository.kt had duplicate `calculateDelay` function - one inside the class (line 124) and another orphaned outside the class (lines 188-196)
