@@ -10,9 +10,8 @@ import com.example.iurankomplek.databinding.ActivityTransactionHistoryBinding
 import com.example.iurankomplek.payment.PaymentStatus
 import com.example.iurankomplek.presentation.adapter.TransactionHistoryAdapter
 import com.example.iurankomplek.transaction.TransactionDatabase
-import com.example.iurankomplek.payment.PaymentStatus
-import com.example.iurankomplek.transaction.TransactionDatabase
 import com.example.iurankomplek.data.repository.TransactionRepository
+
 import com.example.iurankomplek.utils.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
