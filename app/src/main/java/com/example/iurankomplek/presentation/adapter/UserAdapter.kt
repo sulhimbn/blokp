@@ -96,19 +96,6 @@ class UserAdapter(
           holder.binding.itemIuranIndividu.text = "Total Iuran Individu ${DataValidator.formatCurrency(totalIuranIndividuValue)}"
       }
 
-    class ListViewHolder(val binding: ItemListBinding): RecyclerView.ViewHolder(binding.root){
-        val tvUserName: TextView
-            get() = binding.itemName
-        val tvEmail: TextView
-            get() = binding.itemEmail
-        val tvAvatar: ImageView
-            get() = binding.itemAvatar
-        val tvAddress: TextView
-            get() = binding.itemAddress
-        val tvIuranPerwarga: TextView
-            get() = binding.itemIuranPerwarga
-        val tvIuranIndividu: TextView
-            get() = binding.itemIuranIndividu
     }
     
     class UserDiffCallback(

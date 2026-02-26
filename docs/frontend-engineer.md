@@ -1,3 +1,20 @@
+### PR #484: Use string resources in item_list.xml and remove dead code
+**Status**: Open
+**Date**: 2026-02-26
+
+**Changes Made:**
+1. **item_list.xml**: Replaced 5 hardcoded strings with @string references:
+   - `name_label`, `email_label`, `address_label`
+   - `iuran_perwarga_label`, `total_iuran_individu_label`
+
+2. **UserAdapter.kt**: Removed 13 lines of dead code
+   - Unused ViewHolder getter properties (never referenced in codebase)
+
+**Issue**: Proactive improvement - i18n and code cleanliness
+
+---
+
+
 ### PR #449: Use Constants.Toast for Toast duration (2026-02-25)
 **Status**: Open
 **Date**: 2026-02-25
