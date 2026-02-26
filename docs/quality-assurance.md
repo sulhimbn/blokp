@@ -66,6 +66,20 @@ This document serves as the long-term memory for the autonomous quality-assuranc
 - **Risk**: Low - test additions only, no production code changes
 - **Test Count**: 23 test methods
 
+### 7. UserSessionManager Unit Tests (2026-02-26)
+- **Issue**: UserSessionManager.kt mentioned as untested in Issue #402 (Critical Test Coverage Gaps)
+- **Problem**: No unit tests for UserSessionManager - critical session management utility
+- **Fix**: Created comprehensive unit tests covering:
+  - setCurrentUser stores user in StateFlow correctly
+  - clearSession resets user state properly
+  - currentUserId returns correct ID after setting user
+  - isLoggedIn state transitions (false -> true -> false)
+  - Multiple user switches work correctly
+  - Null avatar handling
+- **File**: `app/src/test/java/com/example/iurankomplek/session/UserSessionManagerTest.kt`
+- **Risk**: Low - test additions only, no production code changes
+- **Test Count**: 9 test methods
+
 ## Patterns to Check
 
 ### Security Checklist
