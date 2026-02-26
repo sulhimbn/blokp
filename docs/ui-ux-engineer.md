@@ -45,7 +45,17 @@ Location: `app/src/main/res/drawable/`
   - `app/src/main/res/values/strings.xml` - Added 7 new string resources
 - **New Strings Added**: users_label, reports_label, pay_label, payment_status_label, payment_status_good, residents_paid_status, last_synced_never_display
 - **Labels**: ui-ux-engineer
-- **Status**: Completed (PR #503)
+### Task 7: Externalize hardcoded strings in transaction, payment, and communication layouts
+- **Date**: 2026-02-26
+- **Issue Found**: Hardcoded strings in 3 layout files (item_transaction_history.xml, activity_payment.xml, activity_communication.xml)
+- **Impact**: Improved localization support and consistency with other layout files
+- **Files Changed**:
+  - `app/src/main/res/layout/item_transaction_history.xml` - Changed 5 strings to @string references
+  - `app/src/main/res/layout/activity_payment.xml` - Changed 4 strings to @string references
+  - `app/src/main/res/layout/activity_communication.xml` - Changed 4 strings to @string references
+  - `app/src/main/res/values/strings.xml` - Added 1 new string resource (communication_center_title)
+- **Labels**: ui-ux-engineer
+- **Status**: Completed (PR #509)
 
 ### Task 5: Fix missing/inconsistent menu icons in activity_menu.xml
 - **Date**: 2026-02-26

@@ -27,6 +27,7 @@
     <string name="total_iuran_individu_label">Total Iuran Individu</string>
     <string name="amount_label">Amount:</string>
     <string name="date_label_trailing">Date: </string>
+    <string name="date_label">Date:</string>
     <string name="status_label_trailing">Status: </string>
     <string name="method_label_trailing">Method: </string>
     <string name="status_label">Status:</string>
@@ -42,6 +43,7 @@
     <string name="messages_label">Messages</string>
     <string name="news_label">News</string>
     <string name="community_label">Community</string>
+    <string name="communication_center_title">Communication Center</string>
     <string name="history_label">History</string>
     <string name="vendors_label">Vendors</string>
     <string name="quick_actions_label">Quick Actions</string>
