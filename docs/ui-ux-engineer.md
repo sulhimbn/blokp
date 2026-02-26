@@ -29,6 +29,19 @@ Location: `app/src/main/res/layout/`
 
 ## Completed Tasks
 
+### Task 5: Externalize hardcoded string 'IURAN KOMPLEK KONOHA' in activity_menu.xml
+- **Date**: 2026-02-26
+- **Issue**: Proactive scan - hardcoded string found
+- **Changes Made**:
+  - Added `app_title_header` string resource in `app/src/main/res/values/strings.xml`
+  - Replaced hardcoded `android:text="IURAN KOMPLEK KONOHA"` with `@string/app_title_header` in `activity_menu.xml` (line 24)
+- **Impact**: Improves maintainability and localization support
+- **Labels**: ui-ux-engineer
+- **PR**: https://github.com/sulhimbn/blokp/pull/469
+- **Status**: Open
+
+### Task 4: Fix deprecated margin attributes and textSize units in activity_menu.xml
+
 ### Task 4: Fix deprecated margin attributes and textSize units in activity_menu.xml
 - **Date**: 2026-02-25
 - **Issue**: #458
