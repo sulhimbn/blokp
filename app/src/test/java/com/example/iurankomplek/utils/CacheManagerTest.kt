@@ -442,8 +442,3 @@ class CacheManagerTest {
         assertEquals(1, cacheManager.getEvictionCount())
     }
 }
-    private data class TestData(
-        val name: String,
-        val value: Int
-    )
-}

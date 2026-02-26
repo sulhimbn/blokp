@@ -265,8 +265,7 @@ class CacheManager private constructor(private val maxSize: Int = DEFAULT_MAX_SI
             if (expiredKeys.isNotEmpty()) {
                 Log.d(TAG, "Evicted ${expiredKeys.size} expired cache entries")
             }
-                LogKeys.isNotEmpty.d(TAG, "Evicted ${expiredKeys.size} expired cache entries")
-            }
+
         }
     }
 
