@@ -9,7 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.iurankomplek.databinding.ActivityPaymentBinding
 import com.example.iurankomplek.payment.PaymentMethod
-import com.example.iurankomplek.presentation.viewmodel.PaymentViewModel
+import com.example.iurankomplek.viewmodel.PaymentViewModel
 import com.example.iurankomplek.utils.Constants
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
