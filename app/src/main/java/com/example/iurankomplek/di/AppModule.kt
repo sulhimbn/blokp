@@ -14,7 +14,8 @@ import com.example.iurankomplek.payment.PaymentGateway
 import com.example.iurankomplek.payment.RealPaymentGateway
 import com.example.iurankomplek.transaction.TransactionDao
 import com.example.iurankomplek.transaction.TransactionDatabase
-import com.example.iurankomplek.transaction.TransactionRepository
+import com.example.iurankomplek.data.repository.TransactionRepository
+import dagger.Module
 import com.example.iurankomplek.transaction.TransactionRepositoryImpl
 import dagger.Module
 import dagger.Provides
@@ -74,7 +75,8 @@ object AppModule {
     fun provideTransactionRepository(
         paymentGateway: PaymentGateway,
         transactionDao: TransactionDao
-    ): TransactionRepository {
+    ): com.example.iurankomplek.data.repository.TransactionRepository {
+        return TransactionRepository(paymentGateway, transactionDao)
         return TransactionRepositoryImpl(paymentGateway, transactionDao)
     }
 
