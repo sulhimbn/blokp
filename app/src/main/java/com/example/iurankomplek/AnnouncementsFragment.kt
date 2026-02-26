@@ -6,24 +6,25 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.FragmentAnnouncementsBinding
-import com.example.iurankomplek.model.Announcement
-import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.presentation.adapter.AnnouncementAdapter
-import com.example.iurankomplek.utils.NetworkUtils
-import com.example.iurankomplek.model.Announcement
-import com.example.iurankomplek.network.ApiConfig
-import com.example.iurankomplek.utils.NetworkUtils
 import com.example.iurankomplek.utils.Constants
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.example.iurankomplek.utils.UiState
+import com.example.iurankomplek.viewmodel.AnnouncementViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class AnnouncementsFragment : Fragment() {
 
     private lateinit var adapter: AnnouncementAdapter
     private lateinit var binding: FragmentAnnouncementsBinding
+    private val viewModel: AnnouncementViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,49 +37,30 @@ class AnnouncementsFragment : Fragment() {
         binding.rvAnnouncements.layoutManager = LinearLayoutManager(context)
         binding.rvAnnouncements.adapter = adapter
 
-        loadAnnouncements()
+        observeViewModel()
 
         return binding.root
     }
 
-    private fun loadAnnouncements() {
-        // Show progress bar when starting the API call
-        binding.progressBar.visibility = View.VISIBLE
-
-        if (!NetworkUtils.isNetworkAvailable(requireContext())) {
-            // Hide progress bar after failure
-            binding.progressBar.visibility = View.GONE
-            Toast.makeText(requireContext(), getString(R.string.no_internet_connection), Constants.Toast.DURATION_LONG).show()
-            return
-        }
-
-        val apiService = ApiConfig.getApiService()
-        val call = apiService.getAnnouncements()
-
-        call.enqueue(object : Callback<List<Announcement>> {
-            override fun onResponse(call: Call<List<Announcement>>, response: Response<List<Announcement>>) {
-                // Hide progress bar after response - check if fragment is still attached
-                if (!isAdded) return
-                binding.progressBar.visibility = View.GONE
-                
-                if (response.isSuccessful) {
-                    val announcements = response.body()
-                    if (announcements != null) {
-                        adapter.submitList(announcements)
-                    } else {
-                        Toast.makeText(requireContext(), getString(R.string.no_announcements_available), Constants.Toast.DURATION_LONG).show()
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.announcementsState.collect { state ->
+                    when (state) {
+                        is UiState.Loading -> {
+                            binding.progressBar.visibility = View.VISIBLE
+                        }
+                        is UiState.Success -> {
+                            binding.progressBar.visibility = View.GONE
+                            adapter.submitList(state.data)
+                        }
+                        is UiState.Error -> {
+                            binding.progressBar.visibility = View.GONE
+                            Toast.makeText(requireContext(), state.error, Constants.Toast.DURATION_LONG).show()
+                        }
                     }
-                } else {
-                    Toast.makeText(requireContext(), getString(R.string.failed_to_load_announcements), Constants.Toast.DURATION_LONG).show()
                 }
             }
-
-            override fun onFailure(call: Call<List<Announcement>>, t: retrofit2.Call<List<Announcement>>) {
-                // Hide progress bar after failure - check if fragment is still attached
-                if (!isAdded) return
-                binding.progressBar.visibility = View.GONE
-                Toast.makeText(requireContext(), getString(R.string.network_error_announcements, t.message), Constants.Toast.DURATION_LONG).show()
-            }
-        })
+        }
     }
 }
