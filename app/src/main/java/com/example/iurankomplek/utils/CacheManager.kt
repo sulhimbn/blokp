@@ -3,7 +3,7 @@ package com.example.iurankomplek.utils
 import android.util.Log
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.util.concurrent.ConcurrentHashMap
+import java.util.LinkedHashMap
 
 /**
  * Thread-safe in-memory cache manager with TTL support.
@@ -11,9 +11,15 @@ import java.util.concurrent.ConcurrentHashMap
  * and improve app performance.
  */
 class CacheManager private constructor() {
-
-    private val cache = ConcurrentHashMap<String, CacheEntry<*>>()
+    // LinkedHashMap with access-order=true for LRU eviction
+    private val cache = object : LinkedHashMap<String, CacheEntry<*>>(16, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, CacheEntry<*>>?): Boolean {
+            return size > maxSize
+        }
+    }()
     private val mutex = Mutex()
+
+    private val maxSize: Int
 
     companion object {
         private const val TAG = "CacheManager"
@@ -21,15 +27,28 @@ class CacheManager private constructor() {
         // Default TTL: 5 minutes
         const val DEFAULT_TTL_MS = 5 * 60 * 1000L
         
+        // Default max cache size to prevent memory overflow
+        const val DEFAULT_MAX_SIZE = 100
+        
         // Singleton instance
         @Volatile
         private var instance: CacheManager? = null
 
         fun getInstance(): CacheManager {
             return instance ?: synchronized(this) {
-                instance ?: CacheManager().also { instance = it }
+                instance ?: CacheManager(DEFAULT_MAX_SIZE).also { instance = it }
             }
         }
+
+        fun getInstance(maxSize: Int): CacheManager {
+            return instance ?: synchronized(this) {
+                instance ?: CacheManager(maxSize).also { instance = it }
+            }
+        }
+    }
+
+    constructor(maxSize: Int) : this() {
+        this.maxSize = maxSize
     }
 
     /**
@@ -39,14 +58,16 @@ class CacheManager private constructor() {
         put(key, value, DEFAULT_TTL_MS)
     }
 
-    /**
-     * Stores a value in the cache with a specified TTL.
-     */
     fun <T> put(key: String, value: T, ttlMs: Long) {
         val expiryTime = System.currentTimeMillis() + ttlMs
         val entry = CacheEntry(value, expiryTime)
+        val oldSize = cache.size
         cache[key] = entry
-        Log.d(TAG, "Cached entry for key: $key, TTL: ${ttlMs}ms")
+        if (cache.size > oldSize) {
+            // LRU eviction occurred
+            Log.d(TAG, "LRU eviction: cache at capacity ($maxSize), removed eldest entry")
+        }
+        Log.d(TAG, "Cached entry for key: $key, TTL: ${ttlMs}ms, size: ${cache.size}")
     }
 
     /**
