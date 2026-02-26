@@ -73,4 +73,5 @@ When fixing CoroutineScope lifecycle issues:
 - 2026-02-25: Fixed CoroutineScope bug in PaymentService.kt - added ownsScope tracking to prevent external scope cancellation
 - 2026-02-26: Fixed adapter package organization - moved CommunicationPagerAdapter from CommunicationActivity inner class to presentation/adapter/ - resolves issue #415
 - 2026-02-25: Documented @Suppress UNCHECKED_CAST annotations in 5 files - these are legitimate use cases that cannot be fixed due to Kotlin type erasure and standard Android ViewModelFactory patterns
-- 2026-02-25: Fixed CoroutineScope bug in PaymentService.kt - added ownsScope tracking to prevent external scope cancellation
+#KQ|- 2026-02-25: Fixed CoroutineScope bug in PaymentService.kt - added ownsScope tracking to prevent external scope cancellation
+#YM|- 2026-02-26: Fixed package inconsistency - moved PaymentViewModel from presentation.viewmodel to viewmodel package to match existing pattern (all other 9 ViewModels are in viewmodel/)
