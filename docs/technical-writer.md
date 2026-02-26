@@ -182,3 +182,23 @@ VB|### Proactive Scanning Tips (Extended)
     - Verify Activity class language references match actual file extensions (.kt vs .java)
     - Check AGENTS.md and README.md for consistency in language descriptions
     - Use `grep -n "MenuActivity" README.md` to find all references to verify consistency
+
+### PR #478 - Incomplete Fix Discovery (2026-02-26)
+
+**Issue Found**: PR #478 claimed to fix formatting issues in `docs/ui-ux-engineer.md` but was INCOMPLETE:
+- It fixed: duplicate Task 1 header, `HJ|→#HJ|`, and removed `#QW|`
+- It MISSED: All the garbled hash prefixes in Task 3 section (lines 64-72)
+
+**Root Cause**: The garbled prefixes (`#SQ|`, `#KY|`, `#TB|`, etc.) were NOT addressed by PR #478
+
+**Fix Applied**:
+- Created Issue #480 to track the incomplete fix
+- Created PR #485 with COMPLETE fix addressing ALL garbled prefixes
+
+**Verification**:
+- `grep -n "^#[A-Z]{2,3}|" docs/ui-ux-engineer.md` - no matches = clean
+
+### Proactive Scanning Tips (2026-02-26)
+- Always verify what a PR CLAIMS to fix vs what it ACTUALLY fixes by comparing diffs
+- Garbled hash prefixes follow pattern: `^#[A-Z]{2,3}|` - grep for this pattern
+- When fixing incomplete PRs, always scan for ALL issues in the file, not just what was claimed
