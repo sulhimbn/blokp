@@ -21,7 +21,7 @@
             android:layout_gravity="center"
             android:layout_marginBottom="20dp"
             android:fontFamily="@font/font"
-            android:text="IURAN KOMPLEK KONOHA"
+            android:text="@string/iuran_komplek_konoha"
             android:textAlignment="center"
             android:textColor="@color/teal_200"
             android:textSize="25sp"

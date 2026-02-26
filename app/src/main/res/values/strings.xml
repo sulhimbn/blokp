@@ -1,4 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="iuran_komplek_konoha">IURAN KOMPLEK KONOHA</string>
+
     <string name="app_name">BlokP</string>
     <string name="work_order_description_label">Description:</string>
     <string name="work_order_category_label">Category:</string>
@@ -23,7 +26,9 @@
     <string name="iuran_perwarga_label">Iuran Perwarga</string>
     <string name="total_iuran_individu_label">Total Iuran Individu</string>
     <string name="amount_label">Amount:</string>
-    <string name="date_label">Date:</string>
+    <string name="date_label_trailing">Date: </string>
+    <string name="status_label_trailing">Status: </string>
+    <string name="method_label_trailing">Method: </string>
     <string name="status_label">Status:</string>
     <string name="method_label">Method:</string>
     <string name="refund_label">Refund</string>
