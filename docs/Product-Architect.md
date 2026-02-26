@@ -52,6 +52,14 @@ This document serves as the long-term memory for the Product-Architect agent, tr
 
 ## Key Lessons Learned
 
+### Migration Pattern: Fragment to ViewModel
+When migrating Fragments from direct API calls to ViewModels:
+- Create ViewModel following existing patterns (e.g., AnnouncementViewModel)
+- Use @HiltViewModel annotation with @Inject constructor
+- Use MutableStateFlow for internal state and StateFlow for exposed state
+- Use viewModelScope.launch for coroutine operations
+- In Fragment: use viewModels() delegate and observe via lifecycleScope.launch
+
 ### Bug Fix Pattern: External Scope Management
 When fixing CoroutineScope lifecycle issues:
 - Always track whether scope is owned (created internally) vs external (passed in)
@@ -69,9 +77,9 @@ When fixing CoroutineScope lifecycle issues:
 - Update relevant agent docs when patterns are discovered
 
 ## History
+- 2026-02-26: Migrated CommunityFragment to use CommunityViewModel - moved API calls from Fragment to ViewModel following the same pattern as AnnouncementViewModel - consistent with other fragments (VendorDatabaseFragment, WorkOrderManagementFragment, VendorCommunicationFragment)
 - 2026-02-26: Added ViewModels to AnnouncementsFragment and MessagesFragment - moved API calls from Fragments to ViewModels following MVVM pattern - resolves issue #454
 - 2026-02-25: Fixed CoroutineScope bug in PaymentService.kt - added ownsScope tracking to prevent external scope cancellation
 - 2026-02-26: Fixed adapter package organization - moved CommunicationPagerAdapter from CommunicationActivity inner class to presentation/adapter/ - resolves issue #415
 - 2026-02-25: Documented @Suppress UNCHECKED_CAST annotations in 5 files - these are legitimate use cases that cannot be fixed due to Kotlin type erasure and standard Android ViewModelFactory patterns
-#KQ|- 2026-02-25: Fixed CoroutineScope bug in PaymentService.kt - added ownsScope tracking to prevent external scope cancellation
-#YM|- 2026-02-26: Fixed package inconsistency - moved PaymentViewModel from presentation.viewmodel to viewmodel package to match existing pattern (all other 9 ViewModels are in viewmodel/)
+- 2026-02-26: Fixed package inconsistency - moved PaymentViewModel from presentation.viewmodel to viewmodel package to match existing pattern (all other 9 ViewModels are in viewmodel/)
