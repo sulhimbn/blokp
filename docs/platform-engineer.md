@@ -4,10 +4,10 @@ This document serves as the long-term memory for the platform-engineer agent, tr
 
 ## Repository Context
 
-- **Project Type**: Android Application (Kotlin/Java)
+- **Project Type**: Android Application (Kotlin)
 - **Build System**: Gradle 8.1.0 with Android Gradle Plugin
 - **Architecture**: MVVM with Hilt dependency injection
-- **Language**: Mixed Kotlin (new code) and Java (legacy)
+- **Language**: 100% Kotlin codebase
 
 ## Platform Improvements Made
 

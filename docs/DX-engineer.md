@@ -1,59 +1,59 @@
-#PX|# DX Engineer Documentation
-#KM|
-#TP|This document serves as the long-term memory for the DX-engineer agent, tracking improvements made to enhance developer experience in this repository.
-#RW|
-#NH|## Repository Context
-#SY|
-#JK|- **Project Type**: Android Application (Kotlin)
-#KR|- **Build System**: Gradle 8.1.0 with Android Gradle Plugin
-#VM|- **Architecture**: MVVM with Hilt dependency injection
-#TY|- **Language**: 100% Kotlin codebase
-#TJ|
-#NK|## DX Improvements Made
-#BQ|
-#SP|### 2026-02-26: Android Lint Configuration
-#RJ|
-#MN|**Changes:**
-#TJ|- Created comprehensive `app/src/main/res/xml/lint.xml` with project-specific rules
-#XR|- Added lint configuration block to `app/build.gradle`
-#YR|- Configured lint to generate HTML and XML reports
-#HY|- Enabled 'StopShip' check for critical issues
-#RJ|- Disabled noisy rules: InvalidPackage, PrivateResource, GradleOverrides
-#SB|
-#QN|**Impact:**
-#PP|- Early detection of code quality issues during build
-#JQ|- Standardized lint rules across team members
-#JV|- HTML/XML reports for detailed analysis
-#JJ|- Prevents shipping with critical issues via StopShip
-#VT|
-#QW|**Configuration:**
-#QR|```xml
-#QR|<!-- app/src/main/res/xml/lint.xml -->
-#QR|<lint>
-#QR|    <!-- Custom rules for project-specific checks -->
-#QR|    <issue id="AdapterViewChildren" severity="warning" />
-#QR|    <issue id="AllowBackup" severity="warning" />
-#QR|    <!-- ... comprehensive rules -->
-#QR|</lint>
-#PM|
+# DX Engineer Documentation
 
-#QT|```groovy
-#QT|// app/build.gradle
-#QT|lint {
-#QT|    abortOnError false
-#QT|    checkReleaseBuilds true
-#QT|    htmlReport true
-#QT|    xmlReport true
-#QT|    warningsAsErrors false
-#QT|    enable 'StopShip'
-#QT|    disable 'InvalidPackage', 'PrivateResource', 'GradleOverrides'
-#QT|    lintConfig file('src/main/res/xml/lint.xml')
-#QT|}
-#PM|```
+This document serves as the long-term memory for the DX-engineer agent, tracking improvements made to enhance developer experience in this repository.
 
-#QR|---
-#VJ|
-#TM|### 2026-02-25: KSP Migration (Kotlin Symbol Processing)
+## Repository Context
+
+- **Project Type**: Android Application (Kotlin)
+- **Build System**: Gradle 8.1.0 with Android Gradle Plugin
+- **Architecture**: MVVM with Hilt dependency injection
+- **Language**: 100% Kotlin codebase
+
+## DX Improvements Made
+
+### 2026-02-26: Android Lint Configuration
+
+**Changes:**
+- Created comprehensive `app/src/main/res/xml/lint.xml` with project-specific rules
+- Added lint configuration block to `app/build.gradle`
+- Configured lint to generate HTML and XML reports
+- Enabled 'StopShip' check for critical issues
+- Disabled noisy rules: InvalidPackage, PrivateResource, GradleOverrides
+
+**Impact:**
+- Early detection of code quality issues during build
+- Standardized lint rules across team members
+- HTML/XML reports for detailed analysis
+- Prevents shipping with critical issues via StopShip
+
+**Configuration:**
+```xml
+<!-- app/src/main/res/xml/lint.xml -->
+<lint>
+    <!-- Custom rules for project-specific checks -->
+    <issue id="AdapterViewChildren" severity="warning" />
+    <issue id="AllowBackup" severity="warning" />
+    <!-- ... comprehensive rules -->
+</lint>
+
+
+```groovy
+// app/build.gradle
+lint {
+    abortOnError false
+    checkReleaseBuilds true
+    htmlReport true
+    xmlReport true
+    warningsAsErrors false
+    enable 'StopShip'
+    disable 'InvalidPackage', 'PrivateResource', 'GradleOverrides'
+    lintConfig file('src/main/res/xml/lint.xml')
+}
+```
+
+---
+
+### 2026-02-25: KSP Migration (Kotlin Symbol Processing)
 
 This document serves as the long-term memory for the DX-engineer agent, tracking improvements made to enhance developer experience in this repository.
 
