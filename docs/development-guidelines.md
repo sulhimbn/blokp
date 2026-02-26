@@ -741,6 +741,6 @@ class SecurePreferences @Inject constructor(
 
 ---
 
-*Last Updated: November 2025*
+*Last Updated: February 2026*
 *Next Review: Monthly or after major feature releases*
 *Maintainer: Development Team Lead*
