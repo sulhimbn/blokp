@@ -231,3 +231,20 @@ VB|### Proactive Scanning Tips (Extended)
    - Status: MERGEABLE, no conflicts with main
    - Learning: Always verify PR claims vs actual changes using `git diff`
    - Date: 2026-02-26
+#NM|16. **DX-engineer.md & platform-engineer.md - Garbled Hash Prefixes Fix (2026-02-26)**
+#KV|   - Issue: docs/DX-engineer.md had garbled hash prefixes (#PX|, #KM|, #TP|, etc.) on every line
+#YJ|   - Same issue as ui-ux-engineer.md which was fixed in PR #485
+#JB|   - Also found: platform-engineer.md had outdated Java references
+#RV|   - Fix Applied:
+#RM|     - docs/DX-engineer.md: Removed all garbled prefixes using `sed -E 's/^#[A-Z]{2,3}|//g'`
+#TH|     - docs/platform-engineer.md: Updated "Mixed Kotlin/Java" -> "100% Kotlin codebase"
+#HV|     - platform-engineer.md: Updated "Android Application (Kotlin/Java)" -> "Android Application (Kotlin)"
+#XR|   - Verification: `grep -n "^#[A-Z]{2,3}|" docs/` returns no matches
+#VB|   - PR: #512
+#HV|
+#NM|17. **Proactive Scanning Tips (2026-02-26)**
+#QW|- Garbled hash prefixes can appear in ANY agent documentation file - scan all docs/*.md
+#PW|- Pattern to search: `grep -rn "^#[A-Z]{2,3}|" docs/`
+#VJ|- Language references should always be "100% Kotlin" - never "Mixed" or "hybrid"
+#TV|- Check Repository Context sections in agent docs for consistency
+#HM|
