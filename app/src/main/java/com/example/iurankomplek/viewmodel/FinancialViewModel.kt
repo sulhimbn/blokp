@@ -9,7 +9,7 @@ import com.example.iurankomplek.event.EventBus
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.model.PemanfaatanResponse
 import com.example.iurankomplek.payment.PaymentStatus
-import com.example.iurankomplek.transaction.TransactionRepository
+import com.example.iurankomplek.data.repository.TransactionRepository
 import com.example.iurankomplek.utils.FinancialCalculator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
