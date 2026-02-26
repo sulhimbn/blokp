@@ -20,7 +20,7 @@ object ImageLoader {
         url: String?,
         placeholderResId: Int = R.drawable.icon_avatar,
         errorResId: Int = R.drawable.icon_avatar,
-        size: Int = 80
+        size: Int = Constants.ImageLoader.DEFAULT_IMAGE_SIZE
     ) {
         // More robust URL validation and handling
         val validUrl = url?.trim()?.takeIf { 
@@ -37,7 +37,7 @@ object ImageLoader {
                     .diskCacheStrategy(DiskCacheStrategy.ALL)  // Cache both original and resized images
                     .skipMemoryCache(false)  // Enable memory caching
                     .dontAnimate() // Prevent flickering during loading
-                    .timeout(10000) // 10 second timeout for image loading
+                    .timeout(Constants.ImageLoader.TIMEOUT_MS) // 10 second timeout for image loading
             )
             .transform(CircleCrop())
             .listener(object : RequestListener<Drawable> {
