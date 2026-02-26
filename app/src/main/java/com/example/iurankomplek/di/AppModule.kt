@@ -16,8 +16,6 @@ import com.example.iurankomplek.transaction.TransactionDao
 import com.example.iurankomplek.transaction.TransactionDatabase
 import com.example.iurankomplek.data.repository.TransactionRepository
 import dagger.Module
-import com.example.iurankomplek.transaction.TransactionRepositoryImpl
-import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -77,7 +75,6 @@ object AppModule {
         transactionDao: TransactionDao
     ): com.example.iurankomplek.data.repository.TransactionRepository {
         return TransactionRepository(paymentGateway, transactionDao)
-        return TransactionRepositoryImpl(paymentGateway, transactionDao)
     }
 
     @Provides
