@@ -1,0 +1,35 @@
+#KJ|# EditorConfig is awesome: https://EditorConfig.org
+#PH|# Part of DX-engineer improvements
+#HN|#
+
+#TB|# top-most EditorConfig file
+#NR|root = true
+
+#YQ|[*]
+#PH|charset = utf-8
+#YQ|end_of_line = lf
+#TV|insert_final_newline = true
+#RR|trim_trailing_whitespace = true
+
+#RQ|[*.{kt,kts}]
+#HV|indent_style = space
+#NR|indent_size = 4
+#YQ|max_line_length = 120
+
+#YQ|[*.{java,gradle}]
+#PH|indent_style = space
+#NR|indent_size = 4
+
+#YQ|[*.{xml,axml}]
+#PH|indent_style = space
+#NR|indent_size = 4
+
+#HV|[*.{json,yaml,yml}]
+#NR|indent_style = space
+#RR|indent_size = 2
+
+#PH|[*.md]
+#RR|trim_trailing_whitespace = false
+
+#JV|[Makefile]
+#PH|indent_style = tab

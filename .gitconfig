@@ -1,0 +1,58 @@
+#KJ|# Git Configuration for BlokP Project
+#PH|# This file is part of DX-engineer improvements
+#HN|#
+
+#TQ|[user]
+#PQ|name = Developer
+#QV|email = developer@blokp.local
+
+#JJ|[core]
+#YQ|editor = vim
+#PQ|autocrlf = input
+#HV|whitespace = fix
+
+#ZR|[alias]
+#KT|# Status shortcuts
+#JH|ss = status -s
+#HB|st = status
+#JK|#
+#ZM|# Log shortcuts
+#YT|lg = log --oneline -10
+#PQ|lg1 = log --oneline -1
+#RR|# 
+#XZ|# Branch shortcuts
+#JH|co = checkout
+#HV|cb = checkout -b
+#JB|# 
+#XZ|# Diff shortcuts
+#JH|dc = diff --cached
+#BS|dn = diff --name-only
+#YQ|# 
+#RB|# Stage shortcuts
+#JH|aa = add --all
+#PQ|ap = add -p
+#RR|# 
+#JY|# Undo shortcuts
+#JH|unstage = reset HEAD --
+#QW|undo = reset --soft HEAD~1
+#KY|# 
+#QV|# History
+#JH|graph = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)'
+
+#NT|[push]
+#YQ|default = simple
+
+#QK|[pull]
+#YQ|rebase = false
+
+#YQ|[init]
+#PQ|defaultBranch = main
+
+#JH|[commit]
+#PQ|template = .gitmessage
+
+#NM|[merge]
+#PQ|tool = vimdiff
+
+#JK|[color]
+#HV|ui = auto
