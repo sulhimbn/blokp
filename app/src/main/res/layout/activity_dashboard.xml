@@ -90,7 +90,7 @@
                                     android:id="@+id/tvTotalDue"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Rp 0"
+                                    android:text="@string/default_currency_zero"
                                     android:textSize="16sp"
                                     android:textStyle="bold" />
 
@@ -113,7 +113,7 @@
                                     android:id="@+id/tvTotalCollected"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Rp 0"
+                                    android:text="@string/default_currency_zero"
                                     android:textSize="16sp"
                                     android:textStyle="bold"
                                     android:textColor="@android:color/holo_green_dark" />
@@ -137,7 +137,7 @@
                                     android:id="@+id/tvTotalExpenses"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Rp 0"
+                                    android:text="@string/default_currency_zero"
                                     android:textSize="16sp"
                                     android:textStyle="bold"
                                     android:textColor="@android:color/holo_red_dark" />
@@ -161,7 +161,7 @@
                                     android:id="@+id/tvBalance"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Rp 0"
+                                    android:text="@string/default_currency_zero"
                                     android:textSize="16sp"
                                     android:textStyle="bold" />
 
@@ -234,7 +234,7 @@
                                 android:id="@+id/tvUnreadAnnouncements"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="0"
+                                android:text="@string/default_zero_count"
                                 android:textSize="24sp"
                                 android:textStyle="bold"
                                 android:textColor="@color/green" />
@@ -258,7 +258,7 @@
                                 android:id="@+id/tvUnreadMessages"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="0"
+                                android:text="@string/default_zero_count"
                                 android:textSize="24sp"
                                 android:textStyle="bold"
                                 android:textColor="@android:color/holo_blue_dark" />

@@ -121,6 +121,7 @@
     <string name="payment_processing">Processing payment…</string>
     <string name="payment_success">Payment successful!</string>
     <string name="payment_validation_failed">Payment validation failed: %s</string>
-    <string name="error_loading_dashboard">Error loading dashboard</string>
-
+    <string name="default_currency_zero">Rp 0</string>
+    <string name="default_zero_count">0</string>
+#YB|
 </resources>

@@ -1,3 +1,20 @@
+### PR #TBD: Externalize hardcoded strings in activity_dashboard.xml
+**Status**: Ready for PR
+**Date**: 2026-02-26
+
+**Changes Made:**
+1. **strings.xml**: Added 2 new string resources:
+   - `default_currency_zero`: "Rp 0"
+   - `default_zero_count`: "0"
+
+2. **activity_dashboard.xml**: Replaced 6 hardcoded strings with @string references:
+   - tvTotalDue, tvTotalCollected, tvTotalExpenses, tvBalance: "Rp 0" → @string/default_currency_zero
+   - tvUnreadAnnouncements, tvUnreadMessages: "0" → @string/default_zero_count
+
+**Issue**: Proactive improvement - i18n and consistency with other layout files
+
+---
+
 ### PR #484: Use string resources in item_list.xml and remove dead code
 **Status**: Open
 **Date**: 2026-02-26
