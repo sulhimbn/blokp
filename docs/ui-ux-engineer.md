@@ -42,7 +42,6 @@ Location: `app/src/main/res/layout/`
 
 ### Task 1: Issue #358 - Missing contentDescription on ImageViews
 
-### Task 1: Issue #358 - Missing contentDescription on ImageViews
 - **Date**: 2026-02-25
 - **Files Changed**:
   - `app/src/main/res/layout/activity_menu.xml` - Added contentDescription to 4 ImageViews
@@ -59,8 +58,7 @@ Location: `app/src/main/res/layout/`
   - `app/src/main/res/layout/activity_menu.xml` - Removed merge conflict markers, kept string resources version
 - **PR**: https://github.com/sulhimbn/blokp/pull/387
 - **Labels**: ui-ux-engineer
-HJ|- **Status**: Open
-#QW|
+#HJ|- **Status**: Open
 #SQ|### Task 3: Hardcoded contentDescription in item_list.xml
 #KY|- **Date**: 2026-02-25
 #TB|- **Issue Found**: Hardcoded `android:contentDescription="Avatar"` in item_list.xml
