@@ -5,18 +5,23 @@ import com.example.iurankomplek.data.repository.TransactionRepository
 import com.example.iurankomplek.utils.Constants
 import com.example.iurankomplek.utils.WebhookSecurityUtil
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
-import java.io.IOException
 
+/**
+ * Webhook receiver for handling payment events.
+ *
+ * @param transactionRepository Repository for transaction operations
+ * @param externalScope CoroutineScope for coroutine operations - must be lifecycle-aware.
+ *                      This parameter is REQUIRED - callers MUST provide a proper scope to avoid memory leaks.
+ */
 class WebhookReceiver(
     private val transactionRepository: TransactionRepository,
-    private val externalScope: CoroutineScope? = null
+    private val externalScope: CoroutineScope
 ) {
     private val client = OkHttpClient()
     private val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
-    private val scope: CoroutineScope = externalScope ?: CoroutineScope(Dispatchers.IO)
+    private val scope: CoroutineScope = externalScope
 
     companion object {
         private val TAG = Constants.Tags.WEBHOOK_RECEIVER
