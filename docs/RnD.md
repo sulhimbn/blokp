@@ -6,16 +6,34 @@ This document serves as the long-term memory for the RnD specialist working on t
 ## Active Work Items
 
 ### Current Cycle
+- **Issue #451**: Duplicate return statements in AppModule.kt causing compilation failure
+- **Status**: Fix applied, preparing PR
+- **Date**: 2026-02-26
+
+### Previous Cycles
 - **Issue #421**: Additional CoroutineScope leaks in WebhookReceiver and TransactionHistoryActivity
 - **Status**: PR #444 created
 - **Date**: 2026-02-25
 
-### Current Cycle
 - **Issue #414**: Duplicate calculateDelay Function in BaseRepository.kt
 - **Status**: Fix applied, PR #424 created
 - **Date**: 2026-02-25
 
+
 ## Completed Work
+
+### Issue #451: Duplicate Return Statements in AppModule.kt
+- **Description**: AppModule.kt had duplicate return statements in provideTransactionRepository function - one valid return and another referencing non-existent TransactionRepositoryImpl class. Also had duplicate dagger.Module import.
+- **Risk Level**: Critical (compilation blocker)
+- **Files Changed**: `app/src/main/java/com/example/iurankomplek/di/AppModule.kt`
+- **Changes**:
+  1. Removed duplicate return statement `return TransactionRepositoryImpl(paymentGateway, transactionDao)`
+  2. Removed non-existent import `com.example.iurankomplek.transaction.TransactionRepositoryImpl`
+  3. Removed duplicate import `import dagger.Module`
+  4. Fixed function signature to have proper closing brace
+- **Related Issue**: #451
+
+### Issue #421: Additional CoroutineScope Memory Leaks
 
 ### Issue #421: Additional CoroutineScope Memory Leaks
 - **Description**: WebhookReceiver had duplicate class definition block and nested CoroutineScope(Dispatchers.IO).launch causing memory leak; TransactionHistoryActivity was not passing lifecycleScope to adapter
