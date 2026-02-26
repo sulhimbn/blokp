@@ -25,11 +25,9 @@ android {
         // In debug builds, uses placeholder value from Constants.kt if not configured
         buildConfigField "String", "WEBHOOK_SECRET", "\"\""
     }
-PK|    }
-#KZ|
-#KM|    buildTypes {
 
     buildTypes {
+
         debug {
             testCoverageEnabled true
         }

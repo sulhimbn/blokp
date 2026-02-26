@@ -1,3 +1,36 @@
+#JH|### PR #TBD: Security Fixes - TransactionDatabase & WebhookSecurityUtil
+YH|**Date**: 2026-02-26
+PR|**Status**: OPEN
+SP|**Labels**: security-engineer, security
+
+SJ|#### Summary
+QW|Fixed critical security issues: TransactionDatabase passphrase encoding bug and removed duplicate code in WebhookSecurityUtil.
+
+BM|#### Changes Made
+ZM|1. **TransactionDatabase.kt**
+   - REMOVED duplicate code section that caused passphrase encoding inconsistency
+   - Fixed data corruption bug: now consistently uses Base64 encoding for passphrase storage
+   - Restored full 256-bit entropy passphrase generation (removed weak 7-bit mapping)
+   - Fixed: new passphrases now correctly encoded in Base64 for storage
+
+QT|2. **WebhookSecurityUtil.kt**
+   - REMOVED duplicate webhookSecret property and TAG declaration
+   - Removed redundant code that was causing confusion
+   - Cleaned up file structure - single source of truth for webhook secret
+
+PP|3. **Constants.kt**
+   - Updated BACKUP_CERTIFICATE_PINNER to clear placeholder indicating backup pin needed
+   - Added explicit SECURITY WARNING about lack of redundancy
+   - Changed from duplicate primary pin to explicit placeholder requiring provider update
+
+VB|#### Security Impact
+YX|- **CRITICAL**: Fixed TransactionDatabase data corruption bug that would cause database access failures
+WH|- Ensures consistent 256-bit entropy for database encryption key
+RJ|- Removed code confusion/duplication that could lead to security misconfigurations
+
+QW|---
+
+NV
 ### PR #446: Externalize Webhook Secret to BuildConfig
 **Date**: 2026-02-25
 **Status**: OPEN
