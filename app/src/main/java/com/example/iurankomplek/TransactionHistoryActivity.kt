@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityTransactionHistoryBinding
 import com.example.iurankomplek.payment.PaymentStatus
 import com.example.iurankomplek.transaction.TransactionDatabase
-import com.example.iurankomplek.transaction.TransactionRepositoryImpl
+import com.example.iurankomplek.data.repository.TransactionRepository
 import com.example.iurankomplek.utils.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 class TransactionHistoryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityTransactionHistoryBinding
     private lateinit var transactionAdapter: TransactionHistoryAdapter
-    private lateinit var transactionRepository: TransactionRepositoryImpl
+    private lateinit var transactionRepository: TransactionRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

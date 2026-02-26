@@ -8,7 +8,7 @@ import com.example.iurankomplek.payment.PaymentMethod
 import com.example.iurankomplek.payment.PaymentRequest
 import com.example.iurankomplek.receipt.ReceiptGenerator
 import com.example.iurankomplek.session.UserSessionManager
-import com.example.iurankomplek.transaction.TransactionRepository
+import com.example.iurankomplek.data.repository.TransactionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

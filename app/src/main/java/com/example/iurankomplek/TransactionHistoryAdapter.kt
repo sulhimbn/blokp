@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.payment.PaymentStatus
 import com.example.iurankomplek.transaction.Transaction
-import com.example.iurankomplek.transaction.TransactionRepository
+import com.example.iurankomplek.data.repository.TransactionRepository
 import com.example.iurankomplek.utils.Constants
 import android.os.Handler
 import android.os.Looper
