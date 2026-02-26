@@ -15,9 +15,9 @@ import com.example.iurankomplek.transaction.TransactionRepository
 import com.example.iurankomplek.utils.Constants
 import android.os.Handler
 import android.os.Looper
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
+import java.text.NumberFormat
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -29,11 +29,10 @@ import java.util.Locale
  */
 class TransactionHistoryAdapter(
     private val transactionRepository: TransactionRepository,
-    private val externalScope: CoroutineScope? = null
+    private val externalScope: CoroutineScope
 ) : ListAdapter<Transaction, TransactionHistoryAdapter.TransactionViewHolder>(TransactionDiffCallback()) {
 
-    private val scope: CoroutineScope = externalScope ?: CoroutineScope(Dispatchers.IO)
-
+    private val scope: CoroutineScope = externalScope
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_transaction_history, parent, false)

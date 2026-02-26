@@ -83,6 +83,8 @@ suspend fun getTransactionById(id: String): Transaction? {
     - Falls back to default scope for backward compatibility
 
 - Issue #421: Additional CoroutineScope leaks in TransactionHistoryAdapter, WebhookReceiver, and TransactionHistoryActivity
-  - Fixed by adding externalScope parameter to TransactionHistoryAdapter and WebhookReceiver
-  - TransactionHistoryActivity now uses lifecycleScope for proper lifecycle management
+  - Fixed by making externalScope parameter REQUIRED (non-null) in TransactionHistoryAdapter and WebhookReceiver
+  - Removed unsafe fallback `CoroutineScope(Dispatchers.IO)` that caused memory leaks
+  - TransactionHistoryActivity already passes lifecycleScope - no changes needed there
   - Follows the same pattern as Issue #401/PR #404
+  - NOTE: Previous fix in PR #439 was incomplete - the externalScope parameter was added but the fallback was NOT removed
