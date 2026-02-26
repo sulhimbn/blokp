@@ -75,4 +75,11 @@ object Constants {
         const val REFUND_AMOUNT_RANGE_MIN = 1000
         const val REFUND_AMOUNT_RANGE_MAX = 9999
     }
+    // Payment Status Threshold Constants
+    // Used in DashboardViewModel to determine payment status based on balance vs total due
+    object PaymentStatusThreshold {
+        const val EXCELLENT_RATIO = 0.8  // 80% of total due
+        const val GOOD_RATIO = 0.5       // 50% of total due
+        const val FAIR_RATIO = 0.2       // 20% of total due
+    }
 }
