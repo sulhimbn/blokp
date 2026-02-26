@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">BlokP</string>
+    <string name="app_title_header">IURAN KOMPLEK KONOHA</string>
     <string name="work_order_description_label">Description:</string>
     <string name="work_order_category_label">Category:</string>
     <string name="work_order_status_label">Status:</string>
