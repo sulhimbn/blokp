@@ -92,3 +92,37 @@ For future platform-engineer work:
 - [ ] Ensure ANDROID_HOME is set correctly in CI environment
 - [ ] Monitor workflow runs for platform-related failures
 - [ ] Check for hardcoded dependency versions (use version catalog)
+
+
+---
+
+### 2026-02-26: PR #494 Review
+
+**Action:** Reviewed open PR #494 "Centralize dependency versions to version catalog"
+
+**Verification performed:**
+- Rebased branch on latest main (already up to date)
+- Verified version catalog entries are correctly formatted
+- Verified build.gradle references use proper `libs.xxx` format
+- Added review comment: Approve
+
+**Note:** Full build could not be run due to missing Android SDK in environment. Code syntax verified valid.
+
+**PR Status:** Open, mergeable, awaiting review
+
+---
+
+### 2026-02-26: Upgrade iText PDF Library to 7.2.6
+
+**Issue:** #416 - iText PDF Library version 7.2.5 was from 2022, newer version available
+
+**Changes:**
+- Upgraded iText version from 7.2.5 to 7.2.6 in `gradle/libs.versions.toml`
+
+**Rationale:**
+- 7.2.6 is a minor patch within same major version - safe upgrade
+- Latest 7.x series version (8.x/9.x would be breaking changes)
+- Includes bug fixes while maintaining compatibility
+
+**Files Changed:**
+- `gradle/libs.versions.toml`

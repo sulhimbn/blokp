@@ -30,7 +30,7 @@ kotlinx-coroutines-android = "1.7.3"
 lifecycle = "2.7.0"
 sqlcipher = "4.9.0"
 swiperefreshlayout = "1.1.0"
-itextpdf = "7.2.5"
+itextpdf = "7.2.6"
 apache-commons-csv = "1.10.0"
 
 [libraries]
