@@ -21,7 +21,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Description:"
+            android:text="@string/work_order_description_label"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_marginTop="8dp" />
@@ -36,7 +36,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Category:"
+            android:text="@string/work_order_category_label"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_marginTop="8dp" />
@@ -51,7 +51,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Status:"
+            android:text="@string/work_order_status_label"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_marginTop="8dp" />
@@ -66,7 +66,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Priority:"
+            android:text="@string/work_order_priority_label"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_marginTop="8dp" />
@@ -81,7 +81,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Assigned Vendor:"
+            android:text="@string/work_order_assigned_vendor_label"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_marginTop="8dp" />
@@ -96,7 +96,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Estimated Cost:"
+            android:text="@string/work_order_estimated_cost_label"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_marginTop="8dp" />
@@ -111,7 +111,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Actual Cost:"
+            android:text="@string/work_order_actual_cost_label"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_marginTop="8dp" />
@@ -126,7 +126,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Property ID:"
+            android:text="@string/work_order_property_id_label"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_marginTop="8dp" />
@@ -141,7 +141,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Created At:"
+            android:text="@string/work_order_created_at_label"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_marginTop="8dp" />

@@ -36,6 +36,17 @@ Location: `app/src/main/res/drawable/`
 
 ## Completed Tasks
 
+### Task 6: Extract hardcoded strings from activity_dashboard.xml
+- **Date**: 2026-02-26
+- **Issue Found**: 21 hardcoded strings in activity_dashboard.xml
+- **Impact**: Improved localization support and consistency with other layout files
+- **Files Changed**:
+  - `app/src/main/res/layout/activity_dashboard.xml` - Changed 21 strings to @string references
+  - `app/src/main/res/values/strings.xml` - Added 7 new string resources
+- **New Strings Added**: users_label, reports_label, pay_label, payment_status_label, payment_status_good, residents_paid_status, last_synced_never_display
+- **Labels**: ui-ux-engineer
+- **Status**: Completed (PR #503)
+
 ### Task 5: Fix missing/inconsistent menu icons in activity_menu.xml
 - **Date**: 2026-02-26
 - **Issue**: Menu icons were using non-existent drawables (@drawable/profile, @drawable/kas) and using wrong icons for different menus (profile used for both warga and komunikasi)

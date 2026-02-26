@@ -42,6 +42,13 @@
     <string name="quick_actions_label">Quick Actions</string>
     <string name="last_synced_label">Last Synced</string>
     <string name="last_synced_never">Never</string>
+    <string name="users_label">Users</string>
+    <string name="reports_label">Reports</string>
+    <string name="pay_label">Pay</string>
+    <string name="payment_status_label">Payment Status: </string>
+    <string name="payment_status_good">Good</string>
+    <string name="residents_paid_status">0/0 Residents Paid</string>
+    <string name="last_synced_never_display">Last synced: Never</string>
     <string name="laporan_kas_rt_title">LAPORAN KAS RT</string>
     <string name="payment_title">Payment</string>
     <string name="amount_hint">Amount</string>
@@ -110,3 +117,5 @@
     <string name="payment_success">Payment successful!</string>
     <string name="payment_validation_failed">Payment validation failed: %s</string>
     <string name="error_loading_dashboard">Error loading dashboard</string>
+
+</resources>
