@@ -62,5 +62,24 @@ For future platform-engineer work:
 - [ ] Validate opencode.json JSON syntax before committing
 - [ ] Verify Gradle configuration with `./gradlew help` before CI runs
 - [ ] Check for duplicate braces/brackets in build files
-- [ ] Ensure ANDROID_HOME is set correctly in CI environment
-- [ ] Monitor workflow runs for platform-related failures
+NB|- [ ] Monitor workflow runs for platform-related failures
+
+---
+
+## Key Learnings
+
+### Merge Conflict Resolution
+When fixing old branches with merge conflicts:
+1. Check if commits on the branch are still relevant to main
+2. Use `git cherry-pick` instead of rebase when only specific commits are needed
+3. Resolve content conflicts carefully - check both sides of conflict markers
+
+### CI/Workflow Debugging
+- Scheduled CI runs may fail even after fix is merged (due to timing)
+- Always verify the CI run timestamp vs merge timestamp
+- Check workflow logs for specific error messages
+
+### Git Branch Management
+- PRs with `platform-engineer` label should be kept up to date with main
+- Force push with `--force-with-lease` to update PR branches safely
+- Verify mergeability status after pushing changes
