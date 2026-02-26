@@ -126,3 +126,24 @@ For future platform-engineer work:
 
 **Files Changed:**
 - `gradle/libs.versions.toml`
+### 2026-02-26: CI Java 17 & Android SDK Setup (Issue #346)
+
+**Issue:** #346 - CI workflows fail with "Android Gradle plugin requires Java 17 to run. You are currently using Java 11."
+
+**Root Cause:** Both workflow files (.github/workflows/on-pull.yml and .github/workflows/oc-pr-handler.yml) run Gradle commands but don't configure Java 17 or Android SDK.
+
+**Changes Implemented:**
+- Added `setup-java` action with Java 17 (temurin distribution) to both workflow files
+- Added `setup-android` action to both workflow files after checkout step
+
+**Files Changed:**
+- `.github/workflows/on-pull.yml`
+- `.github/workflows/oc-pr-handler.yml`
+
+**Status:** Implementation complete - Created issue #514 to track manual PR requirement
+
+**Limitation:** GitHub App (github-actions[bot) lacks `workflow` permission required to push workflow file changes. Manual push or permission grant required.
+
+---
+
+## Platform Engineering Checklist
