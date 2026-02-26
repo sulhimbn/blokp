@@ -45,6 +45,7 @@ object ApiConfig {
             val clientBuilder = OkHttpClient.Builder()
                 .connectTimeout(Constants.Network.CONNECT_TIMEOUT, java.util.concurrent.TimeUnit.SECONDS)
                 .readTimeout(Constants.Network.READ_TIMEOUT, java.util.concurrent.TimeUnit.SECONDS)
+                .writeTimeout(Constants.Network.WRITE_TIMEOUT, java.util.concurrent.TimeUnit.SECONDS)
                 .connectionPool(connectionPool)
             
             // Add logging interceptor only for debug builds
