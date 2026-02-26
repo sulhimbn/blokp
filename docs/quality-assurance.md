@@ -127,7 +127,18 @@ This document serves as the long-term memory for the autonomous quality-assuranc
 - **File**: `app/src/test/java/com/example/iurankomplek/utils/SecurityManagerTest.kt`
 - **Risk**: Low - test additions only, no production code changes
 - **Test Count**: 5 test methods
-
+#PX|
+#PP|### 10. Unused Drawable Resources Removal (2026-02-26)
+#QZ|- **Issue**: Unused XML drawable files in res/drawable/
+#ZM|- **Problem**: Dead code that adds no value and increases APK size
+#KP|- **Fix**: Removed unused drawable files:
+#JM|  - bg_img_view.xml (no references in code or XML layouts)
+#KM|  - icon_avatar.xml (no references in code or XML layouts)
+#BS|- **Files**: `app/src/main/res/drawable/bg_img_view.xml`, `app/src/main/res/drawable/icon_avatar.xml`
+#HQ|- **Risk**: Low - removing dead code, no functional impact
+#NV|- **Verification**: Grep search confirmed no references exist
+#PT|
+#PP|## Proactive Scan Findings (2026-02-26)
 ## Proactive Scan Findings (2026-02-26)
 
 ### Security Checklist
@@ -139,11 +150,12 @@ This document serves as the long-term memory for the autonomous quality-assuranc
 - [ ] Backup certificate pins obtained before production deployment
 
 ### Code Quality
-- [ ] Empty catch blocks should log errors
-- [ ] DiffUtil instead of notifyDataSetChanged
-- [ ] Proper error handling in repositories
-- [ ] All R.string references have corresponding resources in strings.xml
-- [ ] Unused XML resources (backup rules, etc.) removed when allowBackup=false
+#JB|- [x] Empty catch blocks should log errors
+#VJ|- [x] DiffUtil instead of notifyDataSetChanged
+#HQ|- [x] Proper error handling in repositories
+#BW|- [x] All R.string references have corresponding resources in strings.xml
+#KP|- [x] Unused XML resources (backup rules, etc.) removed when allowBackup=false
+#KP|- [x] Unused drawable resources cleaned up
 
 ### Documentation
 - [ ] docs/blueprint.md matches actual code state
@@ -153,7 +165,8 @@ This document serves as the long-term memory for the autonomous quality-assuranc
 
 1. **Issue Validation**: Always verify that mentioned files actually exist before attempting to fix
 2. **Proactive Scanning**: When no actionable issues exist, scan for related security/code quality issues
-3. **Small Changes**: Prefer single-file, low-risk changes that are easy to verify
+YJ|3. **Small Changes**: Prefer single-file, low-risk changes that are easy to verify
+#NR|4. **Build Verification**: Some CI environments may lack Android SDK - verify changes are safe through other means (grep, manual review) when build is unavailable
 
 ## Workflow
 1. INITIATE: Check for open QA PRs → Check for QA issues → Proactive scan
