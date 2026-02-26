@@ -123,5 +123,8 @@
     <string name="payment_validation_failed">Payment validation failed: %s</string>
     <string name="default_currency_zero">Rp 0</string>
     <string name="default_zero_count">0</string>
-#YB|
+    <string name="error_loading_dashboard">Error loading dashboard</string>
+
+    <string name="vendor_performance_placeholder">Vendor performance analytics will be displayed here\n\nThis would include:\n- Response time metrics\n- Cost analysis by vendor\n- Quality ratings\n- Work completion rates\n- Budget variance tracking</string>
+
 </resources>

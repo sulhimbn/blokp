@@ -60,7 +60,14 @@ grep -r "^import" --include="*.kt" | sort | uniq -d
 - Small atomic diff (<50 lines changed)
 - Zero behavior changes
 
-## Key Learnings
+VX|## Key Learnings
+TM|1. When fixing duplicate imports, always keep ONE copy and verify the import is still needed
+WQ|2. Some files had not just duplicate imports but duplicate CLASS definitions - these need special attention
+TT|3. Always verify the file still compiles after changes (check that all needed imports remain)
+BY|4. Small, safe fixes are better than large refactors for this domain
+HR|5. Hardcoded strings in fragments can be moved to strings.xml for i18n support
+NK|6. This codebase is well-maintained - few obvious code quality issues found
+XS|7. When editing XML files, verify the XML is well-formed (closing tags correct)
 1. When fixing duplicate imports, always keep ONE copy and verify the import is still needed
 2. Some files had not just duplicate imports but duplicate CLASS definitions - these need special attention
 3. Always verify the file still compiles after changes (check that all needed imports remain)
