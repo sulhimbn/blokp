@@ -10,10 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.FragmentCommunityBinding
 import com.example.iurankomplek.model.CommunityPost
 import com.example.iurankomplek.network.ApiConfig
-import com.example.iurankomplek.presentation.adapter.CommunityPostAdapter
-import com.example.iurankomplek.utils.NetworkUtils
-import com.example.iurankomplek.model.CommunityPost
-import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.utils.NetworkUtils
 import com.example.iurankomplek.utils.Constants
 import retrofit2.Call
