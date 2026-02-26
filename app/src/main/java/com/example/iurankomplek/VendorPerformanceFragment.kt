@@ -21,12 +21,6 @@ class VendorPerformanceFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         
         val analyticsTextView = view.findViewById<TextView>(R.id.analyticsTextView)
-        analyticsTextView.text = "Vendor performance analytics will be displayed here\n\n" +
-                "This would include:\n" +
-                "- Response time metrics\n" +
-                "- Cost analysis by vendor\n" +
-                "- Quality ratings\n" +
-                "- Work completion rates\n" +
-                "- Budget variance tracking"
+        analyticsTextView.text = getString(R.string.vendor_performance_placeholder)
     }
 }
