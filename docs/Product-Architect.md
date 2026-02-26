@@ -52,6 +52,15 @@ This document serves as the long-term memory for the Product-Architect agent, tr
 
 ## Key Lessons Learned
 
+### LRU Cache Implementation
+When implementing LRU cache in Kotlin:
+- Use `LinkedHashMap` with `accessOrder=true` for automatic LRU tracking
+- Override `removeEldestEntry()` to control when eviction happens
+- Use `tryLock()` instead of `withLock()` in put() to avoid deadlocks when eviction is called from another lock holder
+- Track statistics (hits, misses, evictions) for monitoring cache performance
+
+### Bug Fix Pattern: External Scope Management
+
 ### Bug Fix Pattern: External Scope Management
 When fixing CoroutineScope lifecycle issues:
 - Always track whether scope is owned (created internally) vs external (passed in)
@@ -69,6 +78,10 @@ When fixing CoroutineScope lifecycle issues:
 - Update relevant agent docs when patterns are discovered
 
 ## History
+- 2026-02-26: Fixed CacheManager unbounded memory issue #452 - Added LRU eviction using LinkedHashMap with max size limit of 100 entries, added cache statistics
+- 2026-02-25: Fixed CoroutineScope bug in PaymentService.kt - added ownsScope tracking to prevent external scope cancellation
+- 2026-02-25: Documented @Suppress UNCHECKED_CAST annotations in 5 files - these are legitimate use cases that cannot be fixed due to Kotlin type erasure and standard Android ViewModelFactory patterns
+- 2026-02-25: Fixed CoroutineScope bug in PaymentService.kt - added ownsScope tracking to prevent external scope cancellation
 - 2026-02-25: Fixed CoroutineScope bug in PaymentService.kt - added ownsScope tracking to prevent external scope cancellation
 - 2026-02-25: Documented @Suppress UNCHECKED_CAST annotations in 5 files - these are legitimate use cases that cannot be fixed due to Kotlin type erasure and standard Android ViewModelFactory patterns
 - 2026-02-25: Fixed CoroutineScope bug in PaymentService.kt - added ownsScope tracking to prevent external scope cancellation
