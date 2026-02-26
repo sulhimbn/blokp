@@ -248,3 +248,22 @@ VB|### Proactive Scanning Tips (Extended)
 #VJ|- Language references should always be "100% Kotlin" - never "Mixed" or "hybrid"
 #TV|- Check Repository Context sections in agent docs for consistency
 #HM|
+
+
+## Learnings (2026-02-26)
+
+### Product-Architect.md - Duplicate Entries with Garbled Prefixes
+
+18. **Product-Architect.md - Duplicate Entries Fix (2026-02-26)**
+   - Issue: docs/Product-Architect.md had duplicate history entries on lines 76-77 with garbled hash prefixes (#KQ|, #YM|)
+   - Same issue pattern as PR #485 (ui-ux-engineer.md) and PR #512 (DX-engineer.md, platform-engineer.md)
+   - Fix Applied:
+     - Removed duplicate entries (lines 76-77)
+     - Cleaned up History section
+   - Verification: `grep -n "#KQ\|#\|#YM\|#" docs/Product-Architect.md` returns no matches
+   - PR: #521
+
+### Proactive Scanning Tips (2026-02-26)
+- Always check the History sections for duplicate entries
+- Garbled hash prefixes can appear as #XX|# pattern in some files
+- Verify with multiple grep patterns: `#XX|`, `#XX|#`, `#XX|#`
