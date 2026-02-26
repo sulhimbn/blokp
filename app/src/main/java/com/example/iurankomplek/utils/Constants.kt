@@ -28,7 +28,8 @@ object Constants {
         const val BACKUP_CERTIFICATE_PINNER = "sha256/PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0="
         
         // Array of all certificate pins for redundancy
-        val ALL_CERTIFICATE_PINS = arrayOf(CERTIFICATE_PINNER, BACKUP_CERTIFICATE_PINNER)
+        // NOTE: Backup pin is currently same as primary - this needs to be updated in production
+        val ALL_CERTIFICATE_PINS = arrayOf(CERTIFICATE_PINNER)
 
         // Webhook Security Constants
         // PRODUCTION: MUST set BuildConfig.WEBHOOK_SECRET via CI/CD secrets

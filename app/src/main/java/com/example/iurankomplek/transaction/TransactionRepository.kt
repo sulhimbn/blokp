@@ -46,6 +46,17 @@ class TransactionRepository @Inject constructor(
 
     @Transaction
     override suspend fun processPayment(request: PaymentRequest): Result<Transaction> {
+        // Validate payment request before processing
+        if (request.amount <= BigDecimal.ZERO) {
+            return Result.failure(IllegalArgumentException("Amount must be greater than zero"))
+        }
+        if (request.description.isBlank()) {
+            return Result.failure(IllegalArgumentException("Description cannot be blank"))
+        }
+        if (request.customerId.isBlank()) {
+            return Result.failure(IllegalArgumentException("Customer ID cannot be blank"))
+        }
+        
         return try {
             val transaction = Transaction.create(request)
             transactionDao.insert(transaction)
