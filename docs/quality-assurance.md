@@ -97,7 +97,38 @@ This document serves as the long-term memory for the autonomous quality-assuranc
 - **Risk**: Low - test additions only, no production code changes
 - **Test Count**: 12 test methods
 
-## Patterns to Check
+### 8. EventBus Unit Tests (2026-02-26)
+- **Issue**: EventBus.kt mentioned as untested - critical cross-ViewModel communication utility
+- **Problem**: No unit tests for EventBus - a core component for app-wide event handling using SharedFlow
+- **Fix**: Created comprehensive unit tests covering:
+  - publish() sends events to subscribers
+  - Multiple events delivered correctly
+  - publishBlocking() delivers events
+  - Event data classes pass correct data
+  - Object events work correctly (UserLoggedOut, FinancialDataUpdated, etc.)
+  - Work order events (created, updated)
+  - Message events (new message, message read)
+  - Announcement events
+  - Cache events
+  - SharedFlow configuration (replay=0)
+- **File**: `app/src/test/java/com/example/iurankomplek/event/EventBusTest.kt`
+- **Risk**: Low - test additions only, no production code changes
+- **Test Count**: 12 test methods
+
+### 9. SecurityManager Unit Tests (2026-02-26)
+- **Issue**: SecurityManager.kt mentioned as untested - security utility with testable methods
+- **Problem**: No unit tests for SecurityManager - contains security checking methods
+- **Fix**: Created unit tests covering:
+  - isSecureEnvironment() returns true in default state
+  - validateSecurityConfiguration() returns true in default state
+  - checkSecurityThreats() returns empty list when secure
+  - checkSecurityThreats() returns List instance
+  - monitorCertificateExpiration() does not throw
+- **File**: `app/src/test/java/com/example/iurankomplek/utils/SecurityManagerTest.kt`
+- **Risk**: Low - test additions only, no production code changes
+- **Test Count**: 5 test methods
+
+## Proactive Scan Findings (2026-02-26)
 
 ### Security Checklist
 - [ ] allowBackup should be false for financial apps
