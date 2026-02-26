@@ -1,6 +1,9 @@
 package com.example.iurankomplek
 
 import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.presentation.adapter.PemanfaatanAdapter
+
+import com.example.iurankomplek.model.DataItem
 import org.junit.Before
 import org.junit.Test
 import org.junit.Assert.*

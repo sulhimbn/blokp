@@ -7,6 +7,7 @@ import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.ActivityMainBinding
+import com.example.iurankomplek.presentation.adapter.UserAdapter
 import com.example.iurankomplek.ui.component.UserSearchFilterViewModel
 import com.example.iurankomplek.utils.Constants
 import com.example.iurankomplek.utils.UiState

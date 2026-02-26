@@ -10,6 +10,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.FragmentAnnouncementsBinding
 import com.example.iurankomplek.model.Announcement
 import com.example.iurankomplek.network.ApiConfig
+import com.example.iurankomplek.presentation.adapter.AnnouncementAdapter
+import com.example.iurankomplek.utils.NetworkUtils
+import com.example.iurankomplek.model.Announcement
+import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.utils.NetworkUtils
 import com.example.iurankomplek.utils.Constants
 import retrofit2.Call
