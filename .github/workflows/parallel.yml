@@ -378,6 +378,7 @@ jobs:
           - Check if open PR breaks existing functionality in other modules (Inter-dependency check).
 
           PHASE 2: MULTI-DOMAIN EVALUATION (The 6 Pillars):
+          For each pr (one at a time), review:
           1. SECURITY: Any injection risk, hardcoded secrets, or weak Auth patterns?
           2. LOGIC: Does it solve the ROOT CAUSE or just the symptom? Any edge-case failures?
           3. CLEAN CODE: Is it SOLID? Is there 'Code Smell' or 'Hidden Debt' (YAGNI/DRY violations)?
@@ -386,15 +387,16 @@ jobs:
           6. ERROR HANDLING: Is it graceful or will it crash the serverless function?
 
           PHASE 3: DECISION & ACTION
-          - Post a structured 'ROAST' if quality is low. Format:
+          For each PR:
+          - Comment on PR body, a structured 'ROAST' if quality is low. Format:
             ### 🔍 AUDIT REPORT
             - **CRITICAL BLOCKED**: (List fatal flaws)
             - **REFACTOR SUGGESTION**: (List technical debt/clean code issues)
             - **THE GOOD**: (What was done well)
           - LABELING:
-            - Add 'REJECTED' + Close PR if SECURITY/LOGIC is compromised.
-            - Add 'STAMP-OF-QUALITY' only if score is 9/10+.
-            - Add 'NEEDS-FIX' for minor issues.
+            - Add 'REJECTED' label if SECURITY/LOGIC is compromised.
+            - Add 'STAMP-OF-QUALITY' label only if score is 9/10+.
+            - Add 'NEEDS-FIX' label for minor issues.
 
           STRICT RULE: Be Autonomous, You are in noninteractive environment. Be tech-stack agnostic but production-obsessed. If the code is 'Trash', say it is 'Trash' and explain why.
           " \
