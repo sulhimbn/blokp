@@ -290,17 +290,17 @@ jobs:
             - **Objective:** Establish the current system state before any modification.
             - **Workflow:**
                 1. **Issue Analysis:** List all GitHub issues with the `${{ matrix.role }}` label.
-                2. **Structural Inspection:** Map the repository tree, source layouts, and dependency graphs relevant to the `${{ matrix.role }}` domain.
+                2. **Structural Inspection:** Map the repository tree, source layouts, and dependency graphs relevant to the `${{ matrix.role }}` .
                 3. **State Identification:** - Identify "Active Work": Any task lacking a `DONE`/`COMPLETED` marker or existing in "Todo/In-Progress" sections is considered active.
                     - **Cycle Detection:** Read `/docs/${{ matrix.role }}/journal.md`. Count the number of existing entries to determine the **Current Cycle (1-5)**.
-                4. **Baseline Diagnostic:** Run a silent audit to calculate a preliminary **DOMAIN SCORE**.
+                4. **Baseline Diagnostic:** Run a silent audit to calculate a preliminary ** SCORE**.
 
             ### 2. LOGIC GATE A — WORKLOAD ROUTING
-            - **CONDITION 1 (URGENT REPAIR):** If there are ANY active GitHub issues within the `${{ matrix.role }}` domain:
+            - **CONDITION 1 (URGENT REPAIR):** If there are ANY active GitHub issues within the `${{ matrix.role }}` :
                 → Proceed IMMEDIATELY to **PHASE 1 (Audit)** and then **PHASE 2 (Targeted Execution)**.
-            - **CONDITION 2 (STABILITY DEFICIT):** If no GitHub issues exist BUT `${{ matrix.role }}` DOMAIN SCORE is < 90:
+            - **CONDITION 2 (STABILITY DEFICIT):** If no GitHub issues exist BUT `${{ matrix.role }}` SCORE is < 90:
                 → Proceed to **PHASE 3 (Feature Hardening & Integration)**.
-            - **CONDITION 3 (GROWTH ELIGIBILITY):** If no GitHub issues exist AND `${{ matrix.role }}` DOMAIN SCORE is ≥ 90:
+            - **CONDITION 3 (GROWTH ELIGIBILITY):** If no GitHub issues exist AND `${{ matrix.role }}` SCORE is ≥ 90:
                 → Proceed to **PHASE 4 (Strategic Expansion)**.
 
             ### 3. LOGIC GATE B — INTEGRITY CHECK
@@ -316,18 +316,18 @@ jobs:
             **Objective:** Produce a defensible, evidence-based quality assessment. This phase is STRICTLY READ-ONLY.
 
             ### 1. ANALYSIS STEP
-            - Perform a deep-dive analysis of the `${{ matrix.role }}` domain logic, architecture, and code quality.
+            - Perform a deep-dive analysis of the `${{ matrix.role }}`  logic, architecture, and code quality.
 
             ### 2. CRITERIA GENERATION STEP
-            - Generate a weighted evaluation matrix specific to the `${{ matrix.role }}` domain.
+            - Generate a weighted evaluation matrix specific to the `${{ matrix.role }}` .
             - **Required Criteria Structure:**
                 - **Observations:** What is currently implemented?
                 - **Evidence:** Exact file paths, line numbers, or configuration snippets.
                 - **Impact/Risk:** How this affects system stability, security, or performance.
                 - **Score Rationale:** Explicit justification for points deducted (Deductions must be evidence-based).
 
-            ### 3. DOMAIN SCORE CALCULATION
-            - The `${{ matrix.role }}` DOMAIN score is a weighted aggregation of all criteria.
+            ### 3.  SCORE CALCULATION
+            - The `${{ matrix.role }}`  score is a weighted aggregation of all criteria.
             - **Scale:** 0 (Critical Failure) to 100 (Operational Excellence).
 
             ---
@@ -360,7 +360,7 @@ jobs:
 
             ### ALLOWED ACTIONS:
             - **Decoupling:** Reduce architectural coupling between existing components.
-            - **Consistency:** Align data flow and state management across the domain.
+            - **Consistency:** Align data flow and state management across the .
             - **Redundancy:** Eliminate logic duplication.
             - **Invariants:** Strengthen system contracts, boundaries, and error propagation.
             - **Observability:** Improve logging and telemetry for existing features.
@@ -369,7 +369,7 @@ jobs:
 
             ## V. PHASE 4: STRATEGIC EXPANSION (PRODUCT MODE)
 
-            **Objective:** Add ONE high-leverage functional capability within the `${{ matrix.role }}` domain.
+            **Objective:** Add ONE high-leverage functional capability within the `${{ matrix.role }}` .
 
             1. **CRITERIA FOR EXPANSION:**
                 - Must address a documented gap in the system.
@@ -413,7 +413,7 @@ jobs:
             - **Title:** Action taken (Repair/Harden/Expand).
             - **Label:** `${{ matrix.role }}`, Priority (P0-P4).
             - **Body:**
-                - **Domain Score Table:** (Criteria vs Score).
+                - ** Score Table:** (Criteria vs Score).
                 - **Evidence:** Linked file changes.
                 - **Risks:** Top 3 systemic risks identified.
                 - **Outcome:** Problem solved and the proposed/implemented solution.
@@ -455,7 +455,7 @@ jobs:
           - Cross-reference open PR changes with docs/blueprint.md. 
           - Check if open PR breaks existing functionality in other modules (Inter-dependency check).
 
-          PHASE 2: MULTI-DOMAIN EVALUATION (The 6 Pillars):
+          PHASE 2: MULTI- EVALUATION (The 6 Pillars):
           For each pr (one at a time), review:
           1. SECURITY: Any injection risk, hardcoded secrets, or weak Auth patterns?
           2. LOGIC: Does it solve the ROOT CAUSE or just the symptom? Any edge-case failures?
