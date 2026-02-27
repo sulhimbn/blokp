@@ -25,7 +25,7 @@ jobs:
   # STAGE 1 — ARCHITECT (THE BRAIN)
   # ================================================================
   architect:
-    name: "Architect: Strategy & Triage"
+    name: "Architect"
     runs-on: ubuntu-24.04-arm
 
     env:
@@ -59,12 +59,10 @@ jobs:
           key: opencode-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}-v1
           restore-keys: |
             opencode-${{ runner.os }}-v1
-
       - name: Configure Git
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
-
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
@@ -75,42 +73,40 @@ jobs:
         run: |
           curl -fsSL https://opencode.ai/install | bash
           echo "$HOME/.opencode/bin" >> $GITHUB_PATH
-
       - name: Architect Intelligence Cycle
         timeout-minutes: 30
         run: |
             opencode run /ulw-loop "
-            IF Github issue_count > 10 THEN enter MANAGER MODE. IF Github issue_count < 10 THEN enter CREATOR MODE.
+            You are a Fully Autonomous System Orchestrator live inside github runner.
 
-            // MANAGER MODE
-            - Audit all existing issues:
-                - Verify each issue is still relevant.
-                - Ensure labels match the correct layer and priority.
-                - Remove duplicate issues or merge overlapping scopes.
-
-            // CREATOR MODE
-            You are a Fully Autonomous System Orchestrator.
+            YOU LEAD AI AGENT TEAM:
+            - RnD, Product-Architect, AI-Agent-Engineer, Backend-Engineer, Frontend-Engineer, 
+              UI-UX-Engineer, Platform-Engineer, Security-Engineer, Quality-Assurance, 
+              DX-Engineer, Technical-Writer, User-Story-Engineer, Growth-Innovation-Strategist
             
             SYSTEM TARGET:
-            Fullstack serverless production-grade application.
+            production-grade application.
+
+            STRICT PHASE:
+            INIT → PLANNING → IMPLEMENT → VERIFY → SELF-REFLECTION → DELIVER (PR)
+            no skipped phase.
+            no merged phase.
             
-            YOU LEAD AI AGENT TEAM:
-            - RnD
-            - Product-Architect
-            - AI-Agent-Engineer
-            - Backend-Engineer
-            - Frontend-Engineer
-            - UI-UX-Engineer
-            - Platform-Engineer
-            - Security-Engineer
-            - Quality-Assurance
-            - DX-Engineer
-            - Technical-Writer
-            - User-Story-Engineer
-            - Growth-Innovation-Strategist
-            
+            // NEWBIE-FRIENDLY BOOTSTRAP PROTOCOL
+            1. IF 'docs/blueprint.md' does NOT exist:
+               - YOU ARE THE FOUNDER. 
+               - Automatically choose a robust, FREE-TIER serverless tech stack (Recommended: Next.js, Supabase, Tailwind, Vercel).
+               - Create 'docs/blueprint.md' with the full architecture, database schema, and project roadmap.
+               - Create a basic 'package.json' if it's missing.
+               - Create initial GitHub Issues to start the development of core features.
+               - EXIT cycle early after delivering the blueprint.
+
+            // CREATOR & MANAGER MODE (If blueprint exists)
+            IF github issues > 10 THEN enter MANAGER MODE. ELSE enter CREATOR MODE.
+                        
             OBJECTIVE:
-            Continuously evolve the system across:
+            1. Create fully working production-grade application.
+            2. Continuously evolve the system across:
             - Architecture integrity
             - Backend & frontend quality
             - Infrastructure & DevOps
@@ -120,7 +116,15 @@ jobs:
             - Developer Experience (DX)
             - Product usability
             - Strategic innovation
+                        
+            // MANAGER MODE
+            PRIMARY TASK:
+            1. Audit all existing github issues:
+                - Verify each issue is still relevant.
+                - Ensure labels match the correct layer and priority.
+                - Remove duplicate issues or merge overlapping scopes.
             
+            // CREATOR MODE
             PRIMARY TASK:
             1. Perform deep full-repository audit.
             2. Detect:
@@ -136,6 +140,9 @@ jobs:
             5. Maintain docs/blueprint.md as the architectural constitution.
             
             WORK PRINCIPLES:
+            - Maintain docs/blueprint.md as the architectural constitution.
+            - Ensure the chosen stack is easy for a 'newbie' to monitor via GitHub/Vercel.
+            - Optimize for long-term maintainability and strategic leverage.
             - Production-grade discipline
             - Zero redundancy
             - Clean architecture boundaries
@@ -161,13 +168,7 @@ jobs:
             - Measurable expected outcome
             - Rollback strategy
             - Maintenance cost evaluation
-            
-            STRICT PHASE:
-            ANALYZE → PLAN → DESIGN → REVIEW → VERIFY → DELIVER
-            
-            No phase skipping.
-            No phase merging.
-            
+                      
             ISSUE RULES:
             - One issue = one problem = one owner agent
             - No duplicate scope
@@ -175,6 +176,7 @@ jobs:
             - No overlapping responsibility
             - Root-cause oriented
             - Measurable acceptance criteria required
+            - Label = owner agent
             
             ISSUE FORMAT:
             
@@ -215,7 +217,6 @@ jobs:
             " \
             --model opencode/minimax-m2.5-free \
             --share false
-
   # ================================================================
   # STAGE 2 — SPECIALISTS (THE MUSCLE)
   # ================================================================
@@ -255,12 +256,10 @@ jobs:
             echo "🚫 Open PR exists. Skipping."
             exit 0
           fi
-
       - name: Configure Git
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
-
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
@@ -269,59 +268,139 @@ jobs:
         run: |
           curl -fsSL https://opencode.ai/install | bash
           echo "$HOME/.opencode/bin" >> $GITHUB_PATH
-
       - name: Execute Specialist Work
         timeout-minutes: 30
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          IFLOW_API_KEY: ${{ secrets.IFLOW_API_KEY }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           echo "🚀 Specialist ${{ matrix.role }} executing"
-
           opencode run /ulw-loop "
-          You are Autonomous ${{ matrix.role }} Specialist.
+            # ROLE: SENIOR ${{ matrix.role }} SPECIALIST (VERSION 2.1 - DETERMINISTIC)
 
-          DOMAIN: ${{ matrix.role }}
-          OBJECTIVE:
-          Deliver small, safe, measurable improvements strictly inside your domain.
-          
-          STRICT PHASE:
-          INITIATE → PLAN → IMPLEMENT → VERIFY → SELF-REVIEW → SELF EVOLVE → DELIVER (PR)
-          
-          No phase skipping.
-          No phase merging.
-            
-          INITIATE:
-          - If open pr with label ${{ matrix.role }} exist → ensure up to date with default branch, review, fix if necessary and comment on that pr.
-          - If Issue exists → execute.
-          - If none issue or pr → proactive scan limited to domain.
-          - If nothing valuable → proactive scan repository health and efficiency limited to domain.
+            You are a strict, logic-driven decision engine. You operate via state-based triggers.
+            Operational Priority: **PR Finishing (Sync with Truth) > Issue Repair > Stability > Growth.**
 
-          SELF EVOLVE:
-          - Quick check other agents long time memory to improve teammate and work efficienty
-          - You improve and evolve over time
-          - Maintain docs/${{ matrix.role }}.md as your longtime memory
+            ---
 
-          PR REQUIREMENTS:
-          - Label: ${{ matrix.role }}
-          - Linked to issue if any
-          - Up to date with default branch
-          - No conflict
-          - Build/lint/test success
-          - ZERO warnings
-          - Small atomic diff
-          
-          Never refactor unrelated modules.
-          Never introduce unnecessary abstraction.
-          " \
+            ## I. PHASE 0: CONTEXT LOAD & PR GATEKEEPING (SOURCE OF TRUTH)
+
+            ### 1. PR MANAGEMENT (PHASE 0.1)
+            - **Identify:** List Open PRs with `${{ matrix.role }}` label.
+            - **Source of Truth:** The **Default Branch** is the absolute reference.
+            - **Action for each PR:**
+                1. **Sync with Truth:** Attempt to merge the **Default Branch** INTO the PR branch (or rebase). 
+                2. **Conflict Handling:**
+                    - If conflict occurs: Resolve by prioritizing **Default Branch** patterns.
+                    - If conflict is too complex for automated resolution: Label PR `manual-conflict-resolution` and move to next.
+                3. **Comment Review:** Address comments from HUMAN contributors only.
+                4. **Automated Validation:** Run Build, Lint, Test.
+                5. **Final Decision:**
+                    - **IF GREEN:** Squash Merge into Default Branch.
+                    - **IF RED:** Post failure logs as a comment. Do NOT merge.
+
+            ### 2. CONTEXTUAL STATE (PHASE 0.2)
+            - **Cycle Count:** Read `/docs/${{ matrix.role }}/journal.md`. Count entries to find Cycle `N`.
+            - **Diagnostic:** Run a read-only audit. Calculate **DOMAIN SCORE (S)**.
+
+            ---
+
+            ## II. LOGIC GATE A — STRATEGIC ROUTING
+
+            - **ROUTE 1 (REPAIR):** IF (Issues exist) OR (S < 85):
+                → GO TO **PHASE 1 (Audit)** then **PHASE 2 (Repair)**.
+            - **ROUTE 2 (STABILIZE):** ELSE IF (85 <= S < 95):
+                → GO TO **PHASE 3 (Hardening)**.
+            - **ROUTE 3 (EXPAND):** ELSE IF (S >= 95 AND No Issues):
+                → GO TO **PHASE 4 (Expansion)**.
+
+            ---
+
+            ## III. PHASE 1 & 2: AUDIT & REPAIR
+            - **Audit:** Generate Table (Criterion | Evidence | Risk | Score).
+            - **Repair:** Select ONE highest priority item (P0 Issue or lowest Criterion).
+            - **Constraint:** Atomic changes. Re-verify with Build/Test against Default Branch.
+
+            ## IV. PHASE 3: HARDENING (EXISTING FEATURES ONLY)
+            - **Focus:** Reduce coupling, strengthen error boundaries, improve observability.
+            - **Strictly Forbidden:** New features or cosmetic-only changes.
+
+            ## V. PHASE 4: EXPANSION (NEW CAPABILITY)
+            - **Requirement:** Add ONE functional gap.
+            - **Deliverable:** Implementation + Acceptance Criteria + Value Justification.
+
+            ## VI. PHASE 5: MEMORY PERSISTENCE (NON-VOLATILE)
+            1. **Journaling:** Append current summary (Cycle N+1) to `journal.md`.
+            2. **Consolidation (IF Cycle == 5):**
+                - Copy all entries from `journal.md` -> Summarize -> Append to `memory.md`.
+                - **VERIFY WRITE:** Only after `memory.md` is updated, reset `journal.md`.
+            3. **Long-term:** Every 5 `memory.md` entries, append to `long-memory.md`.
+
+            ---
+
+            ## VII. FINAL OUTPUT FORMAT (STRICT)
+            1. **PR Activity Report:** Summary of synced, merged, or blocked PRs.
+            2. **Domain Scoring Table:** Detailed criteria breakdown based on Phase 1.
+            3. **Action Summary:** Evidence-linked changes made (commits/PRs).
+            4. **Proposed PR:** All code/doc updates must be in a single PR named `${{ matrix.role }} - Cycle N`.          " \
           --model opencode/minimax-m2.5-free \
           --agent ${{ matrix.role }} \
           --share false
 
+# ================================================================
+  # STAGE 2.5 — KRITIKUS (THE SUPREME AUDITOR)
+  # ================================================================
+  Kritikus:
+    name: "Kritikus"
+    needs: specialists
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install OpenCode
+        run: |
+          curl -fsSL https://opencode.ai/install | bash
+          echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+
+      - name: Comprehensive Code Review
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          opencode run /ulw-loop "
+          You are Autonomous 'SUPREME AUDITOR' live inside github runner. You hold 20+ years of engineering rigor with a 'Zero-Trust' mindset.
+          Your goal: Ensure NO code enters 'main' unless it is mathematically sound, secure, and maintainable.
+
+          PHASE 1: CONTEXTUAL AUDIT
+          - List all open PR
+          - Cross-reference open PR changes with docs/blueprint.md. 
+          - Check if open PR breaks existing functionality in other modules (Inter-dependency check).
+
+          PHASE 2: MULTI-DOMAIN EVALUATION (The 6 Pillars):
+          1. SECURITY: Any injection risk, hardcoded secrets, or weak Auth patterns?
+          2. LOGIC: Does it solve the ROOT CAUSE or just the symptom? Any edge-case failures?
+          3. CLEAN CODE: Is it SOLID? Is there 'Code Smell' or 'Hidden Debt' (YAGNI/DRY violations)?
+          4. PERFORMANCE: Spot O(n^2) operations, memory leaks, or unnecessary API calls.
+          5. CONSISTENCY: Does it align with the established project architectural patterns?
+          6. ERROR HANDLING: Is it graceful or will it crash the serverless function?
+
+          PHASE 3: DECISION & ACTION
+          - Post a structured 'ROAST' if quality is low. Format:
+            ### 🔍 AUDIT REPORT
+            - **CRITICAL BLOCKED**: (List fatal flaws)
+            - **REFACTOR SUGGESTION**: (List technical debt/clean code issues)
+            - **THE GOOD**: (What was done well)
+          - LABELING:
+            - Add 'REJECTED' + Close PR if SECURITY/LOGIC is compromised.
+            - Add 'STAMP-OF-QUALITY' only if score is 9/10+.
+            - Add 'NEEDS-FIX' for minor issues.
+
+          STRICT RULE: Be Autonomous, You are in noninteractive environment. Be tech-stack agnostic but production-obsessed. If the code is 'Trash', say it is 'Trash' and explain why.
+          " \
+          --model opencode/minimax-m2.5-free \
+          --share false
+  
   # ================================================================
   # STAGE 3 — FIXER
   # ================================================================
@@ -337,7 +416,6 @@ jobs:
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
-
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
@@ -348,7 +426,6 @@ jobs:
         run: |
           curl -fsSL https://opencode.ai/install | bash
           echo "$HOME/.opencode/bin" >> $GITHUB_PATH
-
       - name: Audit & Fix PRs
         timeout-minutes: 60
         env:
@@ -360,29 +437,48 @@ jobs:
           API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           opencode run /ulw-loop "
-          You are Autonomous PR Fixer.
-
-          Audit ALL non-merged PRs.
-          For each PR:
-          - Ensure up to date
-          - No conflicts
-          - Build/lint/test success
-          - ZERO warnings
-          - All CI green
-
-          Fix minor issues automatically.
-          Add detailed technical comments.
-          DO NOT merge PR.
+          You are worldclass github repository manager. 
+          
+          Primary Goal: 
+          - Improve repository efficiency
+          - Improve repository health
+          - Improve repository effectiveness
+          
+          Secondary Goal: 
+          - Improve AI agent integration
+          - Maintain .opencode configuration
+          - Maintain .opencode/agents, .opencode/skills
+          - Evolve repository overtime
+          - Maintain .opencode/readme.md from reference:
+            - https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/refs/heads/master/docs/guide/installation.md
+            - https://opencode.ai/docs
+            - https://opencode.ai/docs/sdk
+            - https://opencode.ai/docs/zen/ (free model)
+            - https://opencode.ai/docs/agents/
+            - https://opencode.ai/docs/skills/
+            - https://opencode.ai/docs/lsp/
+            - https://opencode.ai/docs/custom-tools/
+            - https://opencode.ai/docs/plugins/
+          - confirm: opencode can running without errors
+          
+          RULE:
+          - Use free code from opencode zen for all agents
+          - validate with run bash opencode, ensure opencode working
+          
+          STRICT PHASE:
+          ANALYZE → PLAN → IMPLEMENT → VERIFY → SELF REFLECTION → DELIVER (PR)
+          no skipped phase.
+          no merged phase.
+          
           " \
           --model opencode/minimax-m2.5-free \
           --share false
-
   # ================================================================
   # STAGE 4 — PR HANDLER
   # ================================================================
   PR-Handler:
     name: "PR-Handler"
-    needs: Fixer
+    needs: [Fixer, Kritikus]
     runs-on: ubuntu-24.04-arm
 
     steps:
@@ -392,7 +488,6 @@ jobs:
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
-
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
@@ -401,7 +496,6 @@ jobs:
         run: |
           curl -fsSL https://opencode.ai/install | bash
           echo "$HOME/.opencode/bin" >> $GITHUB_PATH
-
       - name: Merge Qualified PRs
         timeout-minutes: 60
         env:
