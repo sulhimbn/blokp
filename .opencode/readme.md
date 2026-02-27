@@ -1,6 +1,24 @@
-# OpenCode Configuration for Iuran BlokP
+---
+description: OpenCode Configuration for Iuran BlokP
+mode: subagent
+model: opencode/big-pickle
+tools:
+  bash: true
+  write: true
+  edit: true
+  read: true
+  grep: true
+  glob: true
+  patch: true
+  todowrite: true
+  todoread: true
+  webfetch: true
+  websearch: true
+  codesearch: true
+  skill: true
+---
 
-This file provides project-specific guidance for AI agents working on this repository.
+# OpenCode Configuration for Iuran BlokP
 
 ## Quick Start
 
@@ -10,23 +28,21 @@ This file provides project-specific guidance for AI agents working on this repos
 
 ## Models (FREE)
 
-This project uses **OpenCode Zen free models**:
-
-- **Main Model**: `opencode/big-pickle` (FREE - all usage)
-- **Small Model**: `opencode/minimax-m2.5-free` (FREE - all usage)
-
-> **Note**: These models are completely free to use. No payment required.
-> 
-> Big Pickle and MiniMax M2.5 Free are available at no cost through OpenCode Zen.
-
-## OpenCode Zen - Free Models
-
-OpenCode Zen provides curated models that are tested and verified for coding agents. This project uses the following free models:
+This project uses **OpenCode Zen free models** - completely free to use:
 
 | Model | Type | Cost |
 |-------|------|------|
 | `opencode/big-pickle` | Main Model | FREE |
 | `opencode/minimax-m2.5-free` | Small Model | FREE |
+
+> **Note**: Big Pickle and MiniMax M2.5 Free are available at no cost through OpenCode Zen.
+
+## OpenCode Zen - Free Models
+
+OpenCode Zen provides curated models that are tested and verified for coding agents:
+
+- **Big Pickle**: Stealth model, free on OpenCode for a limited time
+- **MiniMax M2.5 Free**: Available on OpenCode for a limited time
 
 For more information about OpenCode Zen and other available models, see:
 - [OpenCode Zen Documentation](https://opencode.ai/docs/zen/)
@@ -122,7 +138,7 @@ Custom agents are defined in `.opencode/agents/`:
 
 ### oh-my-opencode Agents
 
-This project uses oh-my-opencode plugin for enhanced agent capabilities. The following agents are available:
+This project uses oh-my-opencode plugin for enhanced agent capabilities:
 
 - **Sisyphus**: Main orchestration agent (uses `opencode/big-pickle`)
 - **Oracle**: Debugging and architecture consultation
@@ -145,7 +161,7 @@ For more information about skills, see:
 ## LSP Support
 
 This project has LSP (Language Server Protocol) support for:
-- Kotlin development
+- Kotlin development (auto-installed for Kotlin projects)
 - Android SDK
 
 For more information about LSP configuration, see:
