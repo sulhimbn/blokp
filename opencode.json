@@ -2,8 +2,8 @@
   "$schema": "https://opencode.ai/config.json",
   "share": "disabled",
   "autoupdate": true,
-  "model": "iflowcn/big-pickle",
-  "small_model": "opencode/big-pickle",
+  "model": "opencode/big-pickle",
+  "small_model": "opencode/minimax-m2.5-free",
   "watcher": {
     "ignore": [
       "node_modules/**",
