@@ -11,10 +11,25 @@ This file provides project-specific guidance for AI agents working on this repos
 ## Models (FREE)
 
 This project uses **OpenCode Zen free models**:
+
 - **Main Model**: `opencode/big-pickle` (FREE - all usage)
 - **Small Model**: `opencode/minimax-m2.5-free` (FREE - all usage)
 
 > **Note**: These models are completely free to use. No payment required.
+> 
+> Big Pickle and MiniMax M2.5 Free are available at no cost through OpenCode Zen.
+
+## OpenCode Zen - Free Models
+
+OpenCode Zen provides curated models that are tested and verified for coding agents. This project uses the following free models:
+
+| Model | Type | Cost |
+|-------|------|------|
+| `opencode/big-pickle` | Main Model | FREE |
+| `opencode/minimax-m2.5-free` | Small Model | FREE |
+
+For more information about OpenCode Zen and other available models, see:
+- [OpenCode Zen Documentation](https://opencode.ai/docs/zen/)
 
 ## Project Overview
 
@@ -104,6 +119,77 @@ Glide.with(context)
 Custom agents are defined in `.opencode/agents/`:
 
 - **android-developer**: Android/Kotlin development specialist
+
+### oh-my-opencode Agents
+
+This project uses oh-my-opencode plugin for enhanced agent capabilities. The following agents are available:
+
+- **Sisyphus**: Main orchestration agent (uses `opencode/big-pickle`)
+- **Oracle**: Debugging and architecture consultation
+- **Explore**: Codebase exploration and pattern discovery
+- **Librarian**: External documentation and reference lookup
+- **android-developer**: Project-specific Android development specialist
+
+For more information about agents, see:
+- [Agents Documentation](https://opencode.ai/docs/agents/)
+
+## Available Skills
+
+This project defines custom skills for specialized tasks:
+
+- **android-build**: Build and test Android APK using Gradle
+
+For more information about skills, see:
+- [Skills Documentation](https://opencode.ai/docs/skills/)
+
+## LSP Support
+
+This project has LSP (Language Server Protocol) support for:
+- Kotlin development
+- Android SDK
+
+For more information about LSP configuration, see:
+- [LSP Documentation](https://opencode.ai/docs/lsp/)
+
+## Custom Tools
+
+OpenCode supports custom tools for enhanced functionality. This project uses:
+- Android build tools via Gradle
+- Git operations
+- Web search and fetch
+
+For more information about custom tools, see:
+- [Custom Tools Documentation](https://opencode.ai/docs/custom-tools/)
+
+## Plugins
+
+This project uses the following OpenCode plugins:
+
+- **oh-my-opencode**: Enhanced agent orchestration and autonomous workflows
+
+For more information about plugins, see:
+- [Plugins Documentation](https://opencode.ai/docs/plugins/)
+
+## SDK & Development
+
+For information about OpenCode SDK and development tools:
+- [OpenCode SDK Documentation](https://opencode.ai/docs/sdk/)
+
+## Installation Reference
+
+For detailed installation instructions and oh-my-opencode setup:
+- [oh-my-opencode Installation Guide](https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/refs/heads/master/docs/guide/installation.md)
+
+## General OpenCode Documentation
+
+- [OpenCode Official Docs](https://opencode.ai/docs)
+- [OpenCode Zen - Free Models](https://opencode.ai/docs/zen/)
+- [Agents](https://opencode.ai/docs/agents/)
+- [Skills](https://opencode.ai/docs/skills/)
+- [LSP Servers](https://opencode.ai/docs/lsp/)
+- [Custom Tools](https://opencode.ai/docs/custom-tools/)
+- [Plugins](https://opencode.ai/docs/plugins/)
+- [SDK](https://opencode.ai/docs/sdk/)
 
 ## Documentation
 
