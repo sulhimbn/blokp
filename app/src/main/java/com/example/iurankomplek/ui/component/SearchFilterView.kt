@@ -22,7 +22,7 @@ class SearchFilterView @JvmOverloads constructor(
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
     private val binding = ViewSearchFilterBinding.inflate(
-        LayoutInflater.from(context), this, true
+        LayoutInflater.from(context), this
     )
     
     private var onSearchQueryChanged: ((String) -> Unit)? = null

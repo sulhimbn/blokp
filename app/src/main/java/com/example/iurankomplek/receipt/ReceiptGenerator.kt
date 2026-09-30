@@ -28,7 +28,7 @@ class ReceiptGenerator {
     
     private fun generateReceiptNumber(): String {
         val date = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)
-        val random = SecureRandom().nextInt(1000, 9999)
+        val random = 1000 + SecureRandom().nextInt(9000)
         return "RCPT-$date-$random"
     }
     

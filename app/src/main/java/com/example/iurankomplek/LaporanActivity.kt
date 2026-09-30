@@ -45,7 +45,7 @@ class LaporanActivity : BaseActivity() {
 
         reportExporter = ReportExporter(this)
 
-        adapter = PemanfaatkanAdapter(mutableListOf(), lifecycleScope)
+        adapter = PemanfaatanAdapter(mutableListOf(), lifecycleScope)
         summaryAdapter = LaporanSummaryAdapter()
         
         binding.rvLaporan.layoutManager = LinearLayoutManager(this)

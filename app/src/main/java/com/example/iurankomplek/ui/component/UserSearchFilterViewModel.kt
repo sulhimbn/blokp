@@ -22,10 +22,10 @@ class UserSearchFilterViewModel : SearchFilterViewModel<DataItem>() {
     
     override fun matchesQuery(item: DataItem, query: String): Boolean {
         val normalizedQuery = query.lowercase()
-        return item.first_name.lowercase().contains(normalizedQuery) ||
-               item.last_name.lowercase().contains(normalizedQuery) ||
-               item.email.lowercase().contains(normalizedQuery) ||
-               item.alamat.lowercase().contains(normalizedQuery)
+        return item.first_name?.lowercase()?.contains(normalizedQuery) == true ||
+               item.last_name?.lowercase()?.contains(normalizedQuery) == true ||
+               item.email?.lowercase()?.contains(normalizedQuery) == true ||
+               item.alamat?.lowercase()?.contains(normalizedQuery) == true
     }
     
     override fun compareItems(item1: DataItem, item2: DataItem, sort: SortOption): Int {
