@@ -7,7 +7,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import net.sqlcipher.database.SupportFactory
+import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 import java.security.SecureRandom
 
 @Database(
@@ -30,7 +30,7 @@ abstract class TransactionDatabase : RoomDatabase() {
         fun getDatabase(context: Context): TransactionDatabase {
             return INSTANCE ?: synchronized(this) {
                 val passphrase = getOrCreatePassphrase(context)
-                val factory = SupportFactory(passphrase)
+                val factory = SupportOpenHelperFactory(passphrase)
 
                 val instance = Room.databaseBuilder(
                     context.applicationContext,

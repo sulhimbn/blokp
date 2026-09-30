@@ -333,7 +333,7 @@ MS||| Placeholder webhook secret | MEDIUM | Constants.kt | ✅ Fixed in PR #446 
 
 | Library | Version | Purpose |
 |---------|---------|---------|
-| net.zetetic:android-database-sqlcipher | 4.9.0 | Database encryption |
+| net.zetetic:sqlcipher-android | 4.9.0 | Database encryption |
 | androidx.security:security-crypto | 1.1.0-alpha06 | Secure key storage |
 
 ---
