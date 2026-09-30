@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.iurankomplek.databinding.ViewSearchFilterBinding
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import com.example.iurankomplek.R
 
 class SearchFilterView @JvmOverloads constructor(
     context: Context,

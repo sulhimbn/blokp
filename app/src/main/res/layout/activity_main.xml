@@ -15,7 +15,7 @@
         android:fontFamily="@font/font"
         android:gravity="center"
         android:padding="16dp"
-        android:text="@string/title_daftar_iuran"
+        android:text="@string/title_daftar_iuran" />
 
     <com.example.iurankomplek.ui.component.SearchFilterView
         android:id="@+id/searchFilterView"

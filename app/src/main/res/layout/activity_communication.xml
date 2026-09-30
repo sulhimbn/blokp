@@ -31,17 +31,17 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/announcements_label"
+            android:text="@string/announcements_label" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/messages_label"
+            android:text="@string/messages_label" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/community_label"
+            android:text="@string/community_label" />
 
     </com.google.android.material.tabs.TabLayout>
 

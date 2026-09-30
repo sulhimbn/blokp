@@ -94,11 +94,11 @@ class UserAdapter(
           // Safely display total iuran individu with validation
           val totalIuranIndividuValue = if (user.total_iuran_individu >= 0) user.total_iuran_individu else 0
           holder.binding.itemIuranIndividu.text = "Total Iuran Individu ${DataValidator.formatCurrency(totalIuranIndividuValue)}"
-      }
+        }
 
-    }
-    
-    class UserDiffCallback(
+        class ListViewHolder(val binding: ItemListBinding) : RecyclerView.ViewHolder(binding.root)
+
+        class UserDiffCallback(
         private val oldList: List<DataItem>,
         private val newList: List<DataItem>
     ) : DiffUtil.Callback() {
