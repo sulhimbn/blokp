@@ -7,8 +7,9 @@ import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.security.SecureRandom
 import java.util.UUID
+import javax.inject.Inject
 
-class ReceiptGenerator {
+class ReceiptGenerator @Inject constructor() {
     fun generateReceipt(transaction: Transaction): Receipt {
         val receiptNumber = generateReceiptNumber()
         val qrCode = generateQRCode(transaction.id)
