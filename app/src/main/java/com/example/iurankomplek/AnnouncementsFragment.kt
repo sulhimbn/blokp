@@ -34,8 +34,8 @@ class AnnouncementsFragment : Fragment() {
         binding = FragmentAnnouncementsBinding.inflate(inflater, container, false)
 
         adapter = AnnouncementAdapter()
-        binding.rv_announcements.layoutManager = LinearLayoutManager(context)
-        binding.rv_announcements.adapter = adapter
+        binding.rvAnnouncements.layoutManager = LinearLayoutManager(context)
+        binding.rvAnnouncements.adapter = adapter
 
         observeViewModel()
 

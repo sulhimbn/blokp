@@ -34,8 +34,8 @@ class MessagesFragment : Fragment() {
         binding = FragmentMessagesBinding.inflate(inflater, container, false)
 
         adapter = MessageAdapter()
-        binding.rv_messages.layoutManager = LinearLayoutManager(context)
-        binding.rv_messages.adapter = adapter
+        binding.rvMessages.layoutManager = LinearLayoutManager(context)
+        binding.rvMessages.adapter = adapter
 
         observeViewModel()
 

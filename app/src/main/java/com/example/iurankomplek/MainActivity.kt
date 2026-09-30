@@ -29,8 +29,8 @@ class MainActivity : BaseActivity() {
         setContentView(binding.root)
 
         adapter = UserAdapter(mutableListOf(), lifecycleScope)
-        binding.rv_users.layoutManager = LinearLayoutManager(this)
-        binding.rv_users.adapter = adapter
+        binding.rvUsers.layoutManager = LinearLayoutManager(this)
+        binding.rvUsers.adapter = adapter
 
         setupSearchFilter()
         setupSwipeRefresh()

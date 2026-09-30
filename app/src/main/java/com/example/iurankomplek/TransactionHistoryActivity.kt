@@ -9,10 +9,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.payment.PaymentStatus
 import com.example.iurankomplek.presentation.adapter.TransactionHistoryAdapter
 import com.example.iurankomplek.transaction.TransactionDatabase
-import com.example.iurankomplek.data.repository.TransactionRepository
+import com.example.iurankomplek.databinding.ActivityTransactionHistoryBinding
+import com.example.iurankomplek.transaction.TransactionRepository
 
 import com.example.iurankomplek.utils.Constants
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class TransactionHistoryActivity : AppCompatActivity() {
@@ -34,14 +36,14 @@ class TransactionHistoryActivity : AppCompatActivity() {
         val transactionDatabase = TransactionDatabase.getDatabase(this)
         val transactionDao = transactionDatabase.transactionDao()
         val mockPaymentGateway = com.example.iurankomplek.payment.MockPaymentGateway()
-        transactionRepository = TransactionRepositoryImpl(mockPaymentGateway, transactionDao)
+        transactionRepository = TransactionRepository(mockPaymentGateway, transactionDao)
 
         // Initialize the adapter with injected repository and lifecycleScope (Fixes Issue #225: Memory Leak)
         transactionAdapter = TransactionHistoryAdapter(transactionRepository, lifecycleScope)
 
         // Setup RecyclerView
-        binding.rv_transaction_history.layoutManager = LinearLayoutManager(this)
-        binding.rv_transaction_history.adapter = transactionAdapter
+        binding.rvTransactionHistory.layoutManager = LinearLayoutManager(this)
+        binding.rvTransactionHistory.adapter = transactionAdapter
     }
 
     private fun loadTransactionHistory() {
@@ -55,7 +57,7 @@ class TransactionHistoryActivity : AppCompatActivity() {
             try {
                 // For now, we'll get all transactions - in a real app, we'd filter by actual user ID
                 // Using a placeholder user ID for demo purposes
-                val transactions = transactionRepository.getTransactionsByStatus(PaymentStatus.COMPLETED).value
+                val transactions = transactionRepository.getTransactionsByStatus(PaymentStatus.COMPLETED).first()
                 runOnUiThread {
                     // Hide progress bar after successful load
                     binding.progressBar.visibility = View.GONE

@@ -48,11 +48,11 @@ class LaporanActivity : BaseActivity() {
         adapter = PemanfaatkanAdapter(mutableListOf(), lifecycleScope)
         summaryAdapter = LaporanSummaryAdapter()
         
-        binding.rv_laporan.layoutManager = LinearLayoutManager(this)
-        binding.rv_laporan.adapter = adapter
+        binding.rvLaporan.layoutManager = LinearLayoutManager(this)
+        binding.rvLaporan.adapter = adapter
         
-        binding.rv_summary.layoutManager = LinearLayoutManager(this)
-        binding.rv_summary.adapter = summaryAdapter
+        binding.rvSummary.layoutManager = LinearLayoutManager(this)
+        binding.rvSummary.adapter = summaryAdapter
 
         setupSwipeRefresh()
         observeFinancialState()

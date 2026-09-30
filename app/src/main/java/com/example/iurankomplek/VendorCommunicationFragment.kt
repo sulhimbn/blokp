@@ -7,12 +7,17 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.utils.Constants
+import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.VendorViewModel
 import com.example.iurankomplek.presentation.adapter.VendorAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class VendorCommunicationFragment : Fragment() {
@@ -51,16 +56,20 @@ class VendorCommunicationFragment : Fragment() {
     }
     
     private fun observeVendors() {
-        viewModel.vendorState.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is UiState.Loading -> {
-                    // Show loading indicator
-                }
-                is UiState.Success -> {
-                    vendorAdapter.submitList(state.data.data)
-                }
-                is UiState.Error -> {
-                    Toast.makeText(requireContext(), getString(R.string.error_loading_data), Constants.Toast.DURATION_SHORT).show()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.vendorState.collect { state ->
+                    when (state) {
+                        is UiState.Loading -> {
+                            // Show loading indicator
+                        }
+                        is UiState.Success -> {
+                            vendorAdapter.submitList(state.data.data)
+                        }
+                        is UiState.Error -> {
+                            Toast.makeText(requireContext(), getString(R.string.error_loading_data), Constants.Toast.DURATION_SHORT).show()
+                        }
+                    }
                 }
             }
         }

@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.FragmentCommunityBinding
+import com.example.iurankomplek.presentation.adapter.CommunityPostAdapter
 import com.example.iurankomplek.utils.Constants
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.CommunityViewModel
@@ -37,8 +38,8 @@ class CommunityFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         
         adapter = CommunityPostAdapter()
-        binding.rv_community.layoutManager = LinearLayoutManager(context)
-        binding.rv_community.adapter = adapter
+        binding.rvCommunity.layoutManager = LinearLayoutManager(context)
+        binding.rvCommunity.adapter = adapter
         
         observeCommunityPosts()
     }
