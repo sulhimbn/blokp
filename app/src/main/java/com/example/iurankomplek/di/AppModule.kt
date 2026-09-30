@@ -41,7 +41,7 @@ object AppModule {
     @Provides
     @Singleton
     fun providePemanfaatanRepository(apiService: ApiService): PemanfaatanRepository {
-        return PemafaatanRepositoryImpl(apiService)
+        return PemanfaatanRepositoryImpl(apiService)
     }
 
     @Provides

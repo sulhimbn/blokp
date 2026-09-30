@@ -48,7 +48,7 @@ data class ValidatedDataItem(
                 total_iuran_individu = dataItem.total_iuran_individu,
                 pengeluaran_iuran_warga = dataItem.pengeluaran_iuran_warga,
                 pemanfaatan_iuran = DataValidator.sanitizePemanfaatan(dataItem.pemanfaatan_iuran),
-                avatar = dataItem.avatar
+                avatar = dataItem.avatar ?: ""
             )
         }
         

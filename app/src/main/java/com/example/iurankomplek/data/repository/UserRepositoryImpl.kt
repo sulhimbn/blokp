@@ -38,10 +38,10 @@ class UserRepositoryImpl @Inject constructor(
                     val user = response.data?.find { it.email == email }
                     if (user != null) {
                         val authenticatedUser = User(
-                            id = user.email,
-                            email = user.email,
-                            firstName = user.first_name,
-                            lastName = user.last_name,
+                            id = email,
+                            email = email,
+                            firstName = user.first_name ?: "",
+                            lastName = user.last_name ?: "",
                             avatar = user.avatar
                         )
                         sessionManager.setCurrentUser(authenticatedUser)

@@ -99,7 +99,7 @@ class ReportExporter(private val context: Context) {
             .setWidth(UnitValue.createPercentValue(100f))
         
         summaryItems.forEach { item ->
-            summaryTable.addCell(createCell(item.label))
+            summaryTable.addCell(createCell(item.title))
             summaryTable.addCell(createCell(item.value, TextAlignment.RIGHT))
         }
         
@@ -123,7 +123,7 @@ class ReportExporter(private val context: Context) {
         
         dataItems.forEach { item ->
             detailTable.addCell(createCell("${item.first_name} ${item.last_name}"))
-            detailTable.addCell(createCell(item.pemanfaatan_iuran))
+            detailTable.addCell(createCell(item.pemanfaatan_iuran ?: ""))
             detailTable.addCell(createCell(
                 "Rp ${item.pengeluaran_iuran_warga}",
                 TextAlignment.RIGHT
@@ -161,7 +161,7 @@ class ReportExporter(private val context: Context) {
             
             csvPrinter.printRecord("RINGKASAN")
             summaryItems.forEach { item ->
-                csvPrinter.printRecord(item.label, item.value)
+                csvPrinter.printRecord(item.title, item.value)
             }
             csvPrinter.println()
             
