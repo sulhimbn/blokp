@@ -35,9 +35,14 @@ jobs:
 
       # No android-actions/setup-android here: v3 shells out to `sdkmanager tools`,
       # and Google removed that package from the command-line tools repository, so it
-      # exits 1 on current runners before any build runs. GitHub's ubuntu-latest image
-      # already ships the Android SDK and sdkmanager on PATH; we only add the packages
-      # this project pins.
+      # exits 1 on current runners before any build runs. The ubuntu-24.04 image ships
+      # the SDK under ANDROID_HOME but does not put sdkmanager on PATH, so we locate it.
+      - name: Locate Android SDK
+        run: |
+          sdk_root="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          echo "ANDROID_HOME=$sdk_root" >> "$GITHUB_ENV"
+          echo "$sdk_root/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+
       - name: Install Android SDK packages
         run: |
           yes | sdkmanager --licenses > /dev/null 2>&1 || true
