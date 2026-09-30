@@ -33,9 +33,11 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
+      # No android-actions/setup-android here: v3 shells out to `sdkmanager tools`,
+      # and Google removed that package from the command-line tools repository, so it
+      # exits 1 on current runners before any build runs. GitHub's ubuntu-latest image
+      # already ships the Android SDK and sdkmanager on PATH; we only add the packages
+      # this project pins.
       - name: Install Android SDK packages
         run: |
           yes | sdkmanager --licenses > /dev/null 2>&1 || true
