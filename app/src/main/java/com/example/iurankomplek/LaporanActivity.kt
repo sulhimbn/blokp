@@ -14,8 +14,8 @@ import com.example.iurankomplek.databinding.ActivityLaporanBinding
 import com.example.iurankomplek.export.ExportFormat
 import com.example.iurankomplek.export.ReportExporter
 import com.example.iurankomplek.model.DataItem
-import com.example.iurankomplek.model.LaporanSummaryItem
 import com.example.iurankomplek.presentation.adapter.LaporanSummaryAdapter
+import com.example.iurankomplek.presentation.adapter.LaporanSummaryItem
 import com.example.iurankomplek.presentation.adapter.PemanfaatanAdapter
 import com.example.iurankomplek.utils.DataValidator
 import com.example.iurankomplek.utils.Constants
@@ -48,11 +48,11 @@ class LaporanActivity : BaseActivity() {
         adapter = PemanfaatkanAdapter(mutableListOf(), lifecycleScope)
         summaryAdapter = LaporanSummaryAdapter()
         
-        binding.rvLaporan.layoutManager = LinearLayoutManager(this)
-        binding.rvLaporan.adapter = adapter
+        binding.rv_laporan.layoutManager = LinearLayoutManager(this)
+        binding.rv_laporan.adapter = adapter
         
-        binding.rvSummary.layoutManager = LinearLayoutManager(this)
-        binding.rvSummary.adapter = summaryAdapter
+        binding.rv_summary.layoutManager = LinearLayoutManager(this)
+        binding.rv_summary.adapter = summaryAdapter
 
         setupSwipeRefresh()
         observeFinancialState()

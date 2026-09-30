@@ -40,8 +40,8 @@ class TransactionHistoryActivity : AppCompatActivity() {
         transactionAdapter = TransactionHistoryAdapter(transactionRepository, lifecycleScope)
 
         // Setup RecyclerView
-        binding.rvTransactionHistory.layoutManager = LinearLayoutManager(this)
-        binding.rvTransactionHistory.adapter = transactionAdapter
+        binding.rv_transaction_history.layoutManager = LinearLayoutManager(this)
+        binding.rv_transaction_history.adapter = transactionAdapter
     }
 
     private fun loadTransactionHistory() {

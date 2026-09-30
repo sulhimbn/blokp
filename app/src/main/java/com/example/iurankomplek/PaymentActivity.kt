@@ -31,11 +31,11 @@ class PaymentActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        binding.btnPay.setOnClickListener {
+        binding.btn_pay.setOnClickListener {
             processPayment()
         }
 
-        binding.btnViewHistory.setOnClickListener {
+        binding.btn_view_history.setOnClickListener {
             startActivity(android.content.Intent(this, TransactionHistoryActivity::class.java))
         }
     }
@@ -69,7 +69,7 @@ class PaymentActivity : AppCompatActivity() {
     }
 
     private fun processPayment() {
-        val amountText = binding.etAmount.text.toString()
+        val amountText = binding.et_amount.text.toString()
         
         when (val validationResult = validatePaymentAmount(amountText)) {
             is ValidationResult.Failure -> {
@@ -78,7 +78,7 @@ class PaymentActivity : AppCompatActivity() {
             }
             is ValidationResult.Success -> {
                 val amount = validationResult.amount
-                val selectedMethod = when (binding.spinnerPaymentMethod.selectedItemPosition) {
+                val selectedMethod = when (binding.spinner_payment_method.selectedItemPosition) {
                     0 -> PaymentMethod.CREDIT_CARD
                     1 -> PaymentMethod.BANK_TRANSFER
                     2 -> PaymentMethod.E_WALLET

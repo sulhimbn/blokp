@@ -37,8 +37,8 @@ class CommunityFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         
         adapter = CommunityPostAdapter()
-        binding.rvCommunity.layoutManager = LinearLayoutManager(context)
-        binding.rvCommunity.adapter = adapter
+        binding.rv_community.layoutManager = LinearLayoutManager(context)
+        binding.rv_community.adapter = adapter
         
         observeCommunityPosts()
     }

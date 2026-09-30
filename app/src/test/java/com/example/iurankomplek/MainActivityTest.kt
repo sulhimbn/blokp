@@ -56,7 +56,7 @@ class MainActivityTest {
         assertNotNull("RecyclerView should be initialized", recyclerView)
         
         // Verify that ProgressBar is found
-        val progressBar = activity.findViewById<ProgressBar>(R.id.progress_bar)
+        val progressBar = activity.findViewById<ProgressBar>(R.id.progressBar)
         assertNotNull("ProgressBar should be initialized", progressBar)
     }
 
@@ -91,7 +91,7 @@ class MainActivityTest {
         activity = activityController.get()
         
         // Access the UI elements
-        val progressBar = activity.findViewById<ProgressBar>(R.id.progress_bar)
+        val progressBar = activity.findViewById<ProgressBar>(R.id.progressBar)
         assertNotNull(progressBar)
         
         // Initially, progress bar visibility would depend on the initial state
@@ -126,7 +126,7 @@ class MainActivityTest {
         activity = activityController.get()
         
         // Access UI elements
-        val progressBar = activity.findViewById<ProgressBar>(R.id.progress_bar)
+        val progressBar = activity.findViewById<ProgressBar>(R.id.progressBar)
         val recyclerView = activity.findViewById<RecyclerView>(R.id.rv_users)
         
         assertNotNull(progressBar)
@@ -143,7 +143,7 @@ class MainActivityTest {
         activity = activityController.setup().get()
         
         // Access UI elements
-        val progressBar = activity.findViewById<ProgressBar>(R.id.progress_bar)
+        val progressBar = activity.findViewById<ProgressBar>(R.id.progressBar)
         
         assertNotNull(progressBar)
         assertEquals(View.GONE, progressBar.visibility) // Error state should hide progress bar
@@ -160,7 +160,7 @@ class MainActivityTest {
         activity = activityController.setup().get()
         
         // Access UI elements
-        val progressBar = activity.findViewById<ProgressBar>(R.id.progress_bar)
+        val progressBar = activity.findViewById<ProgressBar>(R.id.progressBar)
         
         assertNotNull(progressBar)
         assertEquals(View.GONE, progressBar.visibility) // Success state should hide progress bar
@@ -177,7 +177,7 @@ class MainActivityTest {
         activity = activityController.setup().get()
         
         // Access UI elements
-        val progressBar = activity.findViewById<ProgressBar>(R.id.progress_bar)
+        val progressBar = activity.findViewById<ProgressBar>(R.id.progressBar)
         
         assertNotNull(progressBar)
         assertEquals(View.GONE, progressBar.visibility) // Success state should hide progress bar
