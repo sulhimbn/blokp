@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.model.Vendor
+import com.example.iurankomplek.R
 
 class VendorAdapter(
     private val onVendorClick: (Vendor) -> Unit

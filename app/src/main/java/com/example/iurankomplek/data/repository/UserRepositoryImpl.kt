@@ -1,3 +1,5 @@
+package com.example.iurankomplek.data.repository
+
 import com.example.iurankomplek.model.User
 import com.example.iurankomplek.model.UserResponse
 import com.example.iurankomplek.network.ApiService

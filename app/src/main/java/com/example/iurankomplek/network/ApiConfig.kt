@@ -5,11 +5,12 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import com.example.iurankomplek.BuildConfig
+import com.example.iurankomplek.utils.Constants
 import java.util.concurrent.TimeUnit
 
 object ApiConfig {
     // Use mock API in debug mode or when running in Docker
-    private const val USE_MOCK_API = BuildConfig.DEBUG || System.getenv("DOCKER_ENV") != null
+    private val USE_MOCK_API = BuildConfig.DEBUG || System.getenv("DOCKER_ENV") != null
     private val BASE_URL = if (USE_MOCK_API) {
         "http://api-mock:5000/data/${BuildConfig.API_SPREADSHEET_ID}/"
     } else {

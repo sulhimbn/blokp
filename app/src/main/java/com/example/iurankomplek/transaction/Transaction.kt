@@ -6,6 +6,7 @@ import com.example.iurankomplek.payment.PaymentMethod
 import com.example.iurankomplek.payment.PaymentStatus
 import java.math.BigDecimal
 import java.util.Calendar
+import java.util.Date
 
 @Entity(tableName = "transactions")
 data class Transaction(
