@@ -2,7 +2,6 @@ package com.example.iurankomplek
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
-import net.sqlcipher.database.SQLiteDatabase
 
 /**
  * Application class with Hilt dependency injection support.
@@ -15,6 +14,6 @@ class BlokPApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         // Load SQLCipher native library for encrypted Room database
-        SQLiteDatabase.loadLibs(this)
+        System.loadLibrary("sqlcipher")
     }
 }
