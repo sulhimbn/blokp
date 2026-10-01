@@ -1,0 +1,31 @@
+name: workflow-permissions
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workflow-permissions-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  permissions:
+    name: Workflow permissions
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      # --self-test additionally injects the grant this guard exists to catch
+      # into every workflow and requires each injection to be rejected, so a
+      # future rewrite of the checker cannot silently stop biting.
+      - name: Check permission grants
+        run: python3 scripts/check_workflow_permissions.py --self-test

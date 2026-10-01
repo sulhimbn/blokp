@@ -67,6 +67,9 @@ lint/tmp/
 # Kotlin
 .kotlin/
 
+# Python (scripts/check_workflow_permissions.py)
+__pycache__/
+
 # Mac OS
 .DS_Store
 
