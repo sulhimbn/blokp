@@ -58,6 +58,11 @@ vcs.xml
 # Agent run-state (per-session bookkeeping, keyed by ephemeral session id)
 .omo/
 
+# Agent scratch output (transient PR/comment drafts; content belongs in the PR or issue)
+pr-comment.txt
+comment_body.txt
+pr_intel/
+
 # lint
 lint/intermediates/
 lint/generated/
