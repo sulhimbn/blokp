@@ -55,6 +55,9 @@ fastlane/readme.md
 # Version control
 vcs.xml
 
+# Agent run-state (per-session bookkeeping, keyed by ephemeral session id)
+.omo/
+
 # lint
 lint/intermediates/
 lint/generated/
