@@ -14,11 +14,7 @@ on:
         type: boolean
 
 permissions:
-  id-token: write
   contents: write
-  pull-requests: write
-  issues: write
-  actions: write
 
 # global lock: only 1 instance of this workflow running across events
 concurrency:
@@ -31,11 +27,7 @@ jobs:
     runs-on: ubuntu-slim
     timeout-minutes: 40
     permissions:
-      id-token: write
       contents: write
-      pull-requests: write
-      issues: write
-      actions: write
       
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}

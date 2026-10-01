@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
   issues: write
-  pull-requests: read
 
 # global lock: only 1 instance of this workflow running across events
 concurrency:
@@ -27,15 +27,9 @@ jobs:
     
 
     permissions:
-      id-token: write
       contents: write
       pull-requests: write
       issues: write
-      actions: write
-      deployments: write
-      packages: write
-      pages: write
-      security-events: write
       
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
