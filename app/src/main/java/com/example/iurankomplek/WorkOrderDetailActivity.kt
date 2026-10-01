@@ -4,11 +4,15 @@ import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.utils.Constants
 import com.example.iurankomplek.viewmodel.VendorViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class WorkOrderDetailActivity : AppCompatActivity() {
@@ -32,17 +36,21 @@ class WorkOrderDetailActivity : AppCompatActivity() {
     }
     
     private fun observeWorkOrderDetails() {
-        viewModel.workOrderDetailState.observe(this) { state ->
-            when (state) {
-                is UiState.Loading -> {
-                    // Show loading indicator
-                }
-                is UiState.Success -> {
-                    displayWorkOrderDetails(state.data.data)
-                }
-                is UiState.Error -> {
-                    Toast.makeText(this, getString(R.string.error_loading_data), Constants.Toast.DURATION_SHORT).show()
-                    finish()
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.workOrderDetailState.collect { state ->
+                    when (state) {
+                        is UiState.Loading -> {
+                            // Show loading indicator
+                        }
+                        is UiState.Success -> {
+                            displayWorkOrderDetails(state.data.data)
+                        }
+                        is UiState.Error -> {
+                            Toast.makeText(this@WorkOrderDetailActivity, getString(R.string.error_loading_data), Constants.Toast.DURATION_SHORT).show()
+                            finish()
+                        }
+                    }
                 }
             }
         }

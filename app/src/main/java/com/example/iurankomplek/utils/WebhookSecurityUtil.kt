@@ -30,16 +30,6 @@ object WebhookSecurityUtil {
         }
     
     /**
-    private val webhookSecret: String
-        get() = if (BuildConfig.WEBHOOK_SECRET.isNotBlank()) {
-            BuildConfig.WEBHOOK_SECRET
-        } else {
-            Log.w(TAG, "WARNING: Using placeholder webhook secret - MUST configure BuildConfig.WEBHOOK_SECRET in production")
-            Constants.Security.WEBHOOK_SECRET_KEY
-        }
-    private val TAG = Constants.Tags.WEBHOOK_RECEIVER
-    
-    /**
      * Result of webhook verification
      */
     sealed class VerificationResult {

@@ -1,16 +1,20 @@
-import com.example.iurankomplek.utils.Constants
 package com.example.iurankomplek
 
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.utils.UiState
+import com.example.iurankomplek.utils.Constants
 import com.example.iurankomplek.presentation.adapter.VendorAdapter
 import com.example.iurankomplek.viewmodel.VendorViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class VendorManagementActivity : AppCompatActivity() {
@@ -42,16 +46,20 @@ class VendorManagementActivity : AppCompatActivity() {
     }
     
     private fun observeVendors() {
-        viewModel.vendorState.observe(this) { state ->
-            when (state) {
-                is UiState.Loading -> {
-                    // Show loading indicator
-                }
-                is UiState.Success -> {
-                    vendorAdapter.submitList(state.data.data)
-                }
-                is UiState.Error -> {
-                    Toast.makeText(this, getString(R.string.error_loading_data), Constants.Toast.DURATION_SHORT).show()
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.vendorState.collect { state ->
+                    when (state) {
+                        is UiState.Loading -> {
+                            // Show loading indicator
+                        }
+                        is UiState.Success -> {
+                            vendorAdapter.submitList(state.data.data)
+                        }
+                        is UiState.Error -> {
+                            Toast.makeText(this@VendorManagementActivity, getString(R.string.error_loading_data), Constants.Toast.DURATION_SHORT).show()
+                        }
+                    }
                 }
             }
         }

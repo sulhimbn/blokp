@@ -1,0 +1,59 @@
+name: build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      # No android-actions/setup-android here: v3 shells out to `sdkmanager tools`,
+      # and Google removed that package from the command-line tools repository, so it
+      # exits 1 on current runners before any build runs. The ubuntu-24.04 image ships
+      # the SDK under ANDROID_HOME but does not put sdkmanager on PATH, so we locate it.
+      - name: Locate Android SDK
+        run: |
+          sdk_root="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          echo "ANDROID_HOME=$sdk_root" >> "$GITHUB_ENV"
+          echo "$sdk_root/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+
+      - name: Install Android SDK packages
+        run: |
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager --install "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Assemble debug APK
+        run: ./gradlew --no-daemon :app:assembleDebug
+
+      # :app:testDebugUnitTest is deliberately absent. src/test has never been
+      # compiled: it targets model shapes that no longer exist (PemanfaatanItem,
+      # UserResponse.success/status, Announcement.author, Vendor.contact, and
+      # incomplete Vendor/WorkOrder/DataItem constructors). Adding the step before
+      # #558 is repaired would swap one red gate for another. It returns in the
+      # PR that fixes the suite.

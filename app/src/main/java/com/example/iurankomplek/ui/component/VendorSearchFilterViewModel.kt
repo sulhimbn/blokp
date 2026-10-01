@@ -23,8 +23,8 @@ class VendorSearchFilterViewModel : SearchFilterViewModel<Vendor>() {
     override fun matchesQuery(item: Vendor, query: String): Boolean {
         val normalizedQuery = query.lowercase()
         return item.name.lowercase().contains(normalizedQuery) ||
-               item.category.lowercase().contains(normalizedQuery) ||
-               item.contact.lowercase().contains(normalizedQuery)
+               item.specialty.lowercase().contains(normalizedQuery) ||
+               item.contactPerson.lowercase().contains(normalizedQuery)
     }
     
     override fun compareItems(item1: Vendor, item2: Vendor, sort: SortOption): Int {

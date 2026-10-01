@@ -7,8 +7,8 @@ import com.example.iurankomplek.payment.PaymentStatus
 import com.example.iurankomplek.payment.RefundResponse
 import com.example.iurankomplek.payment.toApiPaymentResponse
 import com.example.iurankomplek.data.api.models.PaymentResponse
-import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
+import java.math.BigDecimal
 import java.util.Calendar
 import javax.inject.Inject
 
@@ -44,7 +44,6 @@ class TransactionRepository @Inject constructor(
         }
     }
 
-    @Transaction
     override suspend fun processPayment(request: PaymentRequest): Result<Transaction> {
         // Validate payment request before processing
         if (request.amount <= BigDecimal.ZERO) {
@@ -98,7 +97,6 @@ class TransactionRepository @Inject constructor(
         transactionDao.update(transaction)
     }
 
-    @Transaction
     override suspend fun refundPayment(transactionId: String, reason: String?): Result<RefundResponse> {
         return try {
             val refundResult = paymentGateway.refundPayment(transactionId)

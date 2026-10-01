@@ -8,6 +8,7 @@ import com.example.iurankomplek.data.repository.UserRepositoryImpl
 import com.example.iurankomplek.data.repository.VendorRepository
 import com.example.iurankomplek.data.repository.VendorRepositoryImpl
 import com.example.iurankomplek.network.ApiConfig
+import com.example.iurankomplek.session.UserSessionManager
 import com.example.iurankomplek.network.ApiService
 import com.example.iurankomplek.network.NetworkStatusListener
 import com.example.iurankomplek.payment.PaymentGateway
@@ -34,14 +35,17 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideUserRepository(apiService: ApiService): UserRepository {
-        return UserRepositoryImpl(apiService)
+    fun provideUserRepository(
+        apiService: ApiService,
+        sessionManager: UserSessionManager
+    ): UserRepository {
+        return UserRepositoryImpl(apiService, sessionManager)
     }
 
     @Provides
     @Singleton
     fun providePemanfaatanRepository(apiService: ApiService): PemanfaatanRepository {
-        return PemafaatanRepositoryImpl(apiService)
+        return PemanfaatanRepositoryImpl(apiService)
     }
 
     @Provides
@@ -74,7 +78,7 @@ object AppModule {
         paymentGateway: PaymentGateway,
         transactionDao: TransactionDao
     ): com.example.iurankomplek.data.repository.TransactionRepository {
-        return TransactionRepository(paymentGateway, transactionDao)
+        return com.example.iurankomplek.transaction.TransactionRepository(paymentGateway, transactionDao)
     }
 
     @Provides

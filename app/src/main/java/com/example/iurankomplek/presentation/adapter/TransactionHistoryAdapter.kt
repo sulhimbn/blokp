@@ -19,6 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
+import com.example.iurankomplek.R
 
 /**
  * Adapter for displaying transaction history in a RecyclerView.
@@ -38,7 +39,7 @@ class TransactionHistoryAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_transaction_history, parent, false)
-        return TransactionViewHolder(view, transactionRepository)
+        return TransactionViewHolder(view, transactionRepository, scope)
     }
 
     override fun onBindViewHolder(holder: TransactionViewHolder, position: Int) {
@@ -47,7 +48,8 @@ class TransactionHistoryAdapter(
 
     class TransactionViewHolder(
         itemView: View,
-        private val transactionRepository: TransactionRepository
+        private val transactionRepository: TransactionRepository,
+        private val scope: CoroutineScope
     ) : RecyclerView.ViewHolder(itemView) {
         private val tvAmount: TextView = itemView.findViewById(R.id.tv_amount)
         private val tvDescription: TextView = itemView.findViewById(R.id.tv_description)

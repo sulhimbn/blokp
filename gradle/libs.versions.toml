@@ -28,6 +28,8 @@ hilt = "2.48"
 security-crypto = "1.1.0-alpha06"
 kotlinx-coroutines-android = "1.7.3"
 lifecycle = "2.7.0"
+fragment = "1.6.2"
+activity = "1.8.2"
 sqlcipher = "4.9.0"
 swiperefreshlayout = "1.1.0"
 itextpdf = "7.2.6"
@@ -64,10 +66,13 @@ room-compiler = { group = "androidx.room", name = "room-compiler", version.ref =
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinx-coroutines-android" }
+androidx-fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragment" }
+androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity" }
+lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
 lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }
 security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "security-crypto" }
-sqlcipher = { group = "net.zetetic", name = "android-database-sqlcipher", version.ref = "sqlcipher" }
+sqlcipher = { group = "net.zetetic", name = "sqlcipher-android", version.ref = "sqlcipher" }
 androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
 itextpdf = { group = "com.itextpdf", name = "itext7-core", version.ref = "itextpdf" }
 apache-commons-csv = { group = "org.apache.commons", name = "commons-csv", version.ref = "apache-commons-csv" }

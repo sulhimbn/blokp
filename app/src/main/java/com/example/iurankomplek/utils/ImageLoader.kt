@@ -44,7 +44,7 @@ object ImageLoader {
                 override fun onLoadFailed(
                     e: GlideException?,
                     model: Any?,
-                    target: Target<Drawable>?,
+                    target: Target<Drawable>,
                     isFirstResource: Boolean
                 ): Boolean {
                     // Log the error for debugging purposes
@@ -56,9 +56,9 @@ object ImageLoader {
 
                 override fun onResourceReady(
                     resource: Drawable,
-                    model: Any?,
+                    model: Any,
                     target: Target<Drawable>?,
-                    dataSource: DataSource?,
+                    dataSource: DataSource,
                     isFirstResource: Boolean
                 ): Boolean {
                     return false // Allow Glide to handle the resource normally

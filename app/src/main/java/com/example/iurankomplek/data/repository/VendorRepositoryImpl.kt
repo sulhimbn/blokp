@@ -356,17 +356,13 @@ class VendorRepositoryImpl(
     }
     
     // Cache helper methods
-    private suspend fun getCachedOrNetwork(
+    private suspend fun <T> getCachedOrNetwork(
         cacheKey: String,
         ttlMs: Long,
-        fetchFromNetwork: suspend () -> Result<*>
-    ): Result<*> {
-        // NOTE: UNCHECKED_CAST is required when retrieving from generic cache.
-        // CacheManager.get<Any>() returns Any? which must be cast.
-        // This pattern is safe because we control both put and get operations.
-        // The Result<*> return type ensures type safety at call site.
+        fetchFromNetwork: suspend () -> Result<T>
+    ): Result<T> {
         @Suppress("UNCHECKED_CAST")
-        val cachedData = cacheManager.get<Any>(cacheKey)
+        val cachedData = cacheManager.get<T>(cacheKey)
         if (cachedData != null) {
             return Result.success(cachedData)
         }

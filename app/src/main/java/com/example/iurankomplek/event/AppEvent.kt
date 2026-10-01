@@ -74,10 +74,10 @@ sealed class AppEvent {
     ) : AppEvent()
     
     // Vendor Events
-    data class VendorDataUpdated : AppEvent()
+    object VendorDataUpdated : AppEvent()
     
     // Cache Events
-    data class CacheCleared : AppEvent()
+    object CacheCleared : AppEvent()
     
     // Refresh Events
     data object RefreshAllData : AppEvent()

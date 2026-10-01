@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.iurankomplek.databinding.ViewSearchFilterBinding
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import com.example.iurankomplek.R
 
 class SearchFilterView @JvmOverloads constructor(
     context: Context,
@@ -21,7 +22,7 @@ class SearchFilterView @JvmOverloads constructor(
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
     private val binding = ViewSearchFilterBinding.inflate(
-        LayoutInflater.from(context), this, true
+        LayoutInflater.from(context), this
     )
     
     private var onSearchQueryChanged: ((String) -> Unit)? = null

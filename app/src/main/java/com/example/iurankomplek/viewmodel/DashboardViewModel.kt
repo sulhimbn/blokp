@@ -13,6 +13,7 @@ import com.example.iurankomplek.model.FinancialSummary
 import com.example.iurankomplek.model.Message
 import com.example.iurankomplek.model.PaymentStatus
 import com.example.iurankomplek.utils.Constants
+import com.example.iurankomplek.utils.DataValidator
 import com.example.iurankomplek.utils.FinancialCalculator
 import com.example.iurankomplek.utils.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -135,6 +136,6 @@ class DashboardViewModel @Inject constructor(
     }
 
     fun formatCurrency(amount: Int): String {
-        return FinancialCalculator.formatCurrency(amount)
+        return DataValidator.formatCurrency(amount)
     }
 }

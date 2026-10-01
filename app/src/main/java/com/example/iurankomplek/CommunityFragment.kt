@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.iurankomplek.databinding.FragmentCommunityBinding
+import com.example.iurankomplek.presentation.adapter.CommunityPostAdapter
 import com.example.iurankomplek.utils.Constants
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.CommunityViewModel

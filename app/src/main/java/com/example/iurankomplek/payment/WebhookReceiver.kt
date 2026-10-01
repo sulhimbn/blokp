@@ -20,7 +20,6 @@ class WebhookReceiver(
     private val externalScope: CoroutineScope
 ) {
     private val client = OkHttpClient()
-    private val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
     private val scope: CoroutineScope = externalScope
 
     companion object {

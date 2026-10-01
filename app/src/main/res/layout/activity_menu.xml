@@ -30,7 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
-            android:layout_marginStart="40dp"
+            android:layout_marginStart="40dp">
             <LinearLayout
                 android:id="@+id/cdMenu1"
                 android:layout_width="150dp"
@@ -44,7 +44,7 @@
                     android:layout_margin="5dp"
                     android:layout_weight="1"
                     android:contentDescription="@string/content_warga"
-                    app:srcCompat="@drawable/ic_menu_warga"
+                    app:srcCompat="@drawable/ic_menu_warga" />
 
                 <TextView
                     android:id="@+id/textView3"
@@ -71,7 +71,7 @@
                     android:layout_margin="5dp"
                     android:layout_weight="1"
                     android:contentDescription="@string/content_laporan"
-                    app:srcCompat="@drawable/ic_menu_laporan"
+                    app:srcCompat="@drawable/ic_menu_laporan" />
 
                 <TextView
                     android:id="@+id/textView2"
@@ -100,7 +100,7 @@
                  android:layout_height="wrap_content"
                  android:background="@drawable/bg_card_view"
                  android:orientation="vertical"
-                android:layout_marginEnd="10dp"
+                 android:layout_marginEnd="10dp">
                  <ImageView
                      android:id="@+id/imageView3"
                      android:layout_width="match_parent"
@@ -108,7 +108,7 @@
                      android:layout_margin="5dp"
                      android:layout_weight="1"
                      android:contentDescription="@string/content_komunikasi"
-                     app:srcCompat="@drawable/ic_menu_komunikasi"
+                     app:srcCompat="@drawable/ic_menu_komunikasi" />
 
                  <TextView
                      android:id="@+id/textView4"
@@ -136,7 +136,7 @@
                      android:layout_margin="5dp"
                      android:layout_weight="1"
                      android:contentDescription="@string/content_pembayaran"
-                     app:srcCompat="@drawable/ic_menu_pembayaran"
+                     app:srcCompat="@drawable/ic_menu_pembayaran" />
 
                  <TextView
                      android:id="@+id/textView5"
