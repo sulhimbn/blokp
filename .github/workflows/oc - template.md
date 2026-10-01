@@ -5,12 +5,14 @@ on:
     - cron: '* * * * *'
   workflow_dispatch:
 
+# Widen only what the agent in this job actually does, and list every grant in
+# ALLOWED in scripts/check_workflow_permissions.py or `workflow-permissions`
+# fails the build. Do not add `id-token: write`: nothing here mints an OIDC
+# token, and it was copied out of this template into ten workflows (#560).
 permissions:
-  id-token: write
-  contents: write
-  pull-requests: write
-  issues: write
-  actions: write
+  contents: read
+  pull-requests: read
+  issues: read
 
 # global lock: only 1 instance of this workflow running across events
 concurrency:
@@ -23,11 +25,9 @@ jobs:
     runs-on: ubuntu-slim
     timeout-minutes: 40
     permissions:
-      id-token: write
-      contents: write
-      pull-requests: write
-      issues: write
-      actions: write
+      contents: read
+      pull-requests: read
+      issues: read
       
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
