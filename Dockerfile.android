@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     unzip \
     zip \
-    openjdk-8-jdk \
+    openjdk-17-jdk \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and install Android SDK build tools
@@ -23,7 +23,7 @@ RUN echo "y" | sdkmanager --install "build-tools;34.0.0" "platform-tools" "platf
 # Set environment variables
 ENV ANDROID_SDK_ROOT=/opt/android-sdk
 ENV PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
-ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 
 # Copy Gradle wrapper
 COPY gradle/ /workspace/gradle/

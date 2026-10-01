@@ -15,7 +15,10 @@ gen/
 out/
 
 # Gradle files
-*.gradle
+# NOTE: do not add a blanket `*.gradle` ignore here. It silently drops real build
+# scripts (e.g. app/<newmodule>/build.gradle) from commits; the tracked ones only
+# survive because they predate the rule. Generated output is covered by the two
+# patterns below.
 .gradle/**
 build/
 
@@ -57,6 +60,11 @@ vcs.xml
 
 # Agent run-state (per-session bookkeeping, keyed by ephemeral session id)
 .omo/
+
+# Agent scratch output (transient PR/comment drafts; content belongs in the PR or issue)
+pr-comment.txt
+comment_body.txt
+pr_intel/
 
 # lint
 lint/intermediates/

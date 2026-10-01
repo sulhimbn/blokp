@@ -86,7 +86,7 @@ BlokP/
 ### Setup Manual dengan Android Studio
 **Prasyarat:**
 - Android Studio Flamingo atau versi terbaru
-- JDK 8 atau lebih baru
+- JDK 17 (wajib — Android Gradle Plugin 8.1.0 tidak berjalan di Java 11 atau 8)
 - Android SDK API level 34
 - Koneksi internet untuk mengunduh dependencies
 
