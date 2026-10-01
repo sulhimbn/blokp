@@ -47,6 +47,8 @@ class FinancialViewModel @Inject constructor(
     private val _financialState = MutableStateFlow<FinancialDataState>(FinancialDataState.Loading)
     val financialState: StateFlow<FinancialDataState> = _financialState
 
+    private var isLoadingFinancialData = false
+
     init {
         observeEvents()
     }
@@ -66,7 +68,8 @@ class FinancialViewModel @Inject constructor(
     }
 
     fun loadFinancialData() {
-        if (_financialState.value is FinancialDataState.Loading) return
+        if (isLoadingFinancialData) return
+        isLoadingFinancialData = true
 
         viewModelScope.launch {
             _financialState.value = FinancialDataState.Loading
@@ -81,6 +84,7 @@ class FinancialViewModel @Inject constructor(
                         exception.message ?: "Unknown error occurred"
                     )
                 }
+            isLoadingFinancialData = false
         }
     }
 

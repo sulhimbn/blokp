@@ -51,9 +51,6 @@ jobs:
       - name: Assemble debug APK
         run: ./gradlew --no-daemon :app:assembleDebug
 
-      # :app:testDebugUnitTest is deliberately absent. src/test has never been
-      # compiled: it targets model shapes that no longer exist (PemanfaatanItem,
-      # UserResponse.success/status, Announcement.author, Vendor.contact, and
-      # incomplete Vendor/WorkOrder/DataItem constructors). Adding the step before
-      # #558 is repaired would swap one red gate for another. It returns in the
-      # PR that fixes the suite.
+      # The unit test step is intentionally absent while 10 of 298 tests fail;
+      # re-enabling it on a partial fix turns every PR red. Current inventory
+      # and the fix for each item are in docs/CI_FIX_REQUIRED.md.

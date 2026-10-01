@@ -2,21 +2,51 @@ package com.example.iurankomplek
 
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.presentation.adapter.UserAdapter
-
-import com.example.iurankomplek.model.DataItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 import org.junit.Assert.*
 
+@RunWith(RobolectricTestRunner::class)
 class UserAdapterTest {
+
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var adapter: UserAdapter
     private lateinit var testUsers: MutableList<DataItem>
+    private lateinit var scope: CoroutineScope
 
     @Before
     fun setup() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
         testUsers = mutableListOf()
-        adapter = UserAdapter(testUsers)
+        scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        adapter = UserAdapter(testUsers, scope)
+    }
+
+    @After
+    fun tearDown() {
+        scope.cancel()
+        Dispatchers.resetMain()
+    }
+
+    private fun awaitItemCount(expected: Int) {
+        val deadline = System.nanoTime() + 5_000_000_000L
+        while (adapter.itemCount != expected && System.nanoTime() < deadline) {
+            Thread.sleep(10)
+        }
     }
 
     @Test
@@ -52,9 +82,11 @@ class UserAdapterTest {
 
         adapter.setUsers(newUsers)
 
+        awaitItemCount(newUsers.size)
+
         assertEquals(newUsers.size, adapter.itemCount)
-        assertEquals("John", adapter.users[0].first_name)
-        assertEquals("jane.smith@example.com", adapter.users[1].email)
+        assertEquals("John", testUsers[0].first_name)
+        assertEquals("jane.smith@example.com", testUsers[1].email)
     }
 
     @Test
@@ -77,7 +109,7 @@ class UserAdapterTest {
         adapter.addUser(validUser)
 
         assertEquals(initialSize + 1, adapter.itemCount)
-        assertEquals("Test", adapter.users.last().first_name)
+        assertEquals("Test", testUsers.last().first_name)
     }
 
     @Test
@@ -172,9 +204,12 @@ class UserAdapterTest {
             )
         )
         adapter.setUsers(users)
+        awaitItemCount(users.size)
         assertEquals(1, adapter.itemCount)
 
         adapter.clear()
+
+        awaitItemCount(0)
 
         assertEquals(0, adapter.itemCount)
     }
@@ -188,6 +223,7 @@ class UserAdapterTest {
             createTestDataItem("Jane", "Smith", "jane@example.com")
         )
         adapter.setUsers(users)
+        awaitItemCount(users.size)
 
         assertEquals(2, adapter.itemCount)
     }

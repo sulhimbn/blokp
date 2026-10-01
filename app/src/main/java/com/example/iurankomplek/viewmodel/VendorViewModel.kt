@@ -30,10 +30,14 @@ class VendorViewModel @Inject constructor(
     
     private val _workOrderDetailState = MutableStateFlow<UiState<SingleWorkOrderResponse>>(UiState.Loading)
     val workOrderDetailState: StateFlow<UiState<SingleWorkOrderResponse>> = _workOrderDetailState
+
+    private var isLoadingVendors = false
+    private var isLoadingWorkOrders = false
     
     fun loadVendors() {
-        if (_vendorState.value is UiState.Loading) return // Prevent duplicate calls
-        
+        if (isLoadingVendors) return
+        isLoadingVendors = true
+
         viewModelScope.launch {
             _vendorState.value = UiState.Loading
             vendorRepository.getVendors()
@@ -43,12 +47,14 @@ class VendorViewModel @Inject constructor(
                 .onFailure { exception ->
                     _vendorState.value = UiState.Error(exception.message ?: "Unknown error occurred")
                 }
+            isLoadingVendors = false
         }
     }
-    
+
     fun loadWorkOrders() {
-        if (_workOrderState.value is UiState.Loading) return // Prevent duplicate calls
-        
+        if (isLoadingWorkOrders) return
+        isLoadingWorkOrders = true
+
         viewModelScope.launch {
             _workOrderState.value = UiState.Loading
             vendorRepository.getWorkOrders()
@@ -58,6 +64,7 @@ class VendorViewModel @Inject constructor(
                 .onFailure { exception ->
                     _workOrderState.value = UiState.Error(exception.message ?: "Unknown error occurred")
                 }
+            isLoadingWorkOrders = false
         }
     }
     

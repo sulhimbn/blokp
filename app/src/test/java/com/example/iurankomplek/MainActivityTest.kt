@@ -6,9 +6,9 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.RecyclerView
-import androidx.test.core.app.ApplicationProvider
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.model.UserResponse
+import com.example.iurankomplek.presentation.adapter.UserAdapter
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.UserViewModel
 import com.example.iurankomplek.data.repository.UserRepository
@@ -167,9 +167,8 @@ class MainActivityTest {
     }
 
     @Test
-    fun `MainActivity should handle null response data correctly`() {
-        // Test case where response.data is null
-        val testResponse = UserResponse(data = null)
+    fun `MainActivity should handle empty response data correctly`() {
+        val testResponse = UserResponse(data = emptyList())
         val testStateFlow = MutableStateFlow<UiState<UserResponse>>(UiState.Success(testResponse))
         
         // Create activity

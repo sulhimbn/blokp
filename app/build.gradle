@@ -46,6 +46,13 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    testOptions {
+        unitTests {
+            // android.util.Log and friends are stubbed in android.jar and throw by
+            // default, so any production code path that logs fails the whole test.
+            returnDefaultValues true
+        }
+    }
     lint {
         abortOnError false
         checkReleaseBuilds true

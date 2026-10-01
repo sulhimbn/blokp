@@ -1,35 +1,25 @@
 package com.example.iurankomplek
 
-import android.content.Context
-import android.view.View
-import androidx.recyclerview.widget.RecyclerView
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.iurankomplek.model.Vendor
 import com.example.iurankomplek.presentation.adapter.VendorAdapter
-
-import android.content.Context
-import android.view.View
-import androidx.recyclerview.widget.RecyclerView
-import com.example.iurankomplek.model.Vendor
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 import org.junit.Assert.*
-import org.mockito.Mock
-import org.mockito.MockitoAnnotations
 
+@RunWith(RobolectricTestRunner::class)
 class VendorAdapterTest {
-    
-    @Mock
-    private lateinit var mockContext: Context
-    
-    @Mock
-    private lateinit var mockView: View
-    
+
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
+
     private lateinit var vendorAdapter: VendorAdapter
-    
+
     @Before
     fun setup() {
-        MockitoAnnotations.openMocks(this)
-        
         val vendors = listOf(
             Vendor(
                 id = "1",
@@ -67,11 +57,11 @@ class VendorAdapterTest {
             )
         )
         
-        vendorAdapter = VendorAdapter { /* Handle vendor click */ }
+        vendorAdapter = VendorAdapter { }
         vendorAdapter.submitList(vendors)
     }
-    
-@Test
+
+    @Test
     fun `adapter should have correct item count`() {
         assertEquals(2, vendorAdapter.itemCount)
     }

@@ -364,38 +364,26 @@ class FinancialCalculatorTest {
 
     @Test(expected = ArithmeticException::class)
     fun testCalculateTotalIuranBulanan_throwsOnOverflow() {
-        val itemsWithLargeValues = listOf(
+        val ceiling = Int.MAX_VALUE / 2
+        val items = (1..3).map { index ->
             DataItem(
-                first_name = "John",
+                first_name = "User$index",
                 last_name = "Doe",
-                email = "john@example.com",
-                alamat = "Jl. Test 1",
-                iuran_perwarga = Int.MAX_VALUE - 1,  // Very large value that will cause overflow
+                email = "user$index@example.com",
+                alamat = "Jl. Test $index",
+                iuran_perwarga = ceiling,
                 total_iuran_rekap = 0,
                 jumlah_iuran_bulanan = 0,
                 total_iuran_individu = 50,
                 pengeluaran_iuran_warga = 25,
                 pemanfaatan_iuran = "Test",
                 avatar = ""
-            ),
-            DataItem(
-                first_name = "Jane",
-                last_name = "Doe",
-                email = "jane@example.com",
-                alamat = "Jl. Test 2",
-                iuran_perwarga = 100,
-                total_iuran_rekap = 0,
-                jumlah_iuran_bulanan = 0,
-                total_iuran_individu = 75,
-                pengeluaran_iuran_warga = 30,
-                pemanfaatan_iuran = "Test",
-                avatar = ""
             )
-        )
+        }
 
-        FinancialCalculator.calculateTotalIuranBulanan(itemsWithLargeValues)
+        FinancialCalculator.calculateTotalIuranBulanan(items)
     }
-    
+
     @Test
     fun testCalculateTotalIuranIndividu_preventsBugWhereOnlyLastItemIsUsed() {
         // This test specifically verifies that the bug mentioned in issue #18 is fixed
@@ -447,6 +435,6 @@ class FinancialCalculatorTest {
 
         // If the bug existed (only last item used), result would be 30 * 3 = 90
         // But with proper accumulation: (10*3) + (20*3) + (30*3) = 30 + 60 + 90 = 180
-        assertEquals(180, totalIuranIndividu, "Bug fix verification: totalIuranIndividu should accumulate all items, not just take the last item value")
+        assertEquals("Bug fix verification: totalIuranIndividu should accumulate all items, not just take the last item value", 180, totalIuranIndividu)
     }
 }

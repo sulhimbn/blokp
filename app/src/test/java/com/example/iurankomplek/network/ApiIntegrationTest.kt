@@ -5,6 +5,7 @@ import com.example.iurankomplek.model.PemanfaatanResponse
 import com.example.iurankomplek.model.UserResponse
 import com.google.gson.Gson
 import okhttp3.mockwebserver.MockResponse
+import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Assert.*
@@ -12,7 +13,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 @RunWith(RobolectricTestRunner::class)
 class ApiIntegrationTest {
@@ -25,7 +27,11 @@ class ApiIntegrationTest {
     fun setup() {
         mockWebServer = MockWebServer()
         mockWebServer.start(8080)
-        apiService = ApiConfig.getApiService()
+        apiService = Retrofit.Builder()
+            .baseUrl(mockWebServer.url("/"))
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
     }
 
     @After
@@ -51,11 +57,7 @@ class ApiIntegrationTest {
                 avatar = "https://example.com/avatar.jpg"
             )
         )
-        val mockResponse = UserResponse(
-            success = true,
-            message = "Users fetched successfully",
-            data = mockUsers
-        )
+        val mockResponse = UserResponse(data = mockUsers)
         
         val responseBody = gson.toJson(mockResponse)
         val response = MockResponse()
@@ -66,14 +68,11 @@ class ApiIntegrationTest {
         mockWebServer.enqueue(response)
 
         // When
-        val call = apiService.getUsers()
-        val result = call.execute()
+        val result = runBlocking { apiService.getUsers() }
 
         // Then
         assertTrue(result.isSuccessful)
         assertNotNull(result.body())
-        assertEquals(true, result.body()?.success)
-        assertEquals("Users fetched successfully", result.body()?.message)
         assertNotNull(result.body()?.data)
         assertEquals(1, result.body()?.data?.size)
         assertEquals("John", result.body()?.data?.get(0)?.first_name)
@@ -92,8 +91,7 @@ class ApiIntegrationTest {
         mockWebServer.enqueue(response)
 
         // When
-        val call = apiService.getUsers()
-        val result = call.execute()
+        val result = runBlocking { apiService.getUsers() }
 
         // Then
         assertFalse(result.isSuccessful)
@@ -103,11 +101,7 @@ class ApiIntegrationTest {
     @Test
     fun `getUsers should handle empty response`() {
         // Given
-        val mockResponse = UserResponse(
-            success = true,
-            message = "No users found",
-            data = emptyList()
-        )
+        val mockResponse = UserResponse(data = emptyList())
         
         val responseBody = gson.toJson(mockResponse)
         val response = MockResponse()
@@ -118,14 +112,11 @@ class ApiIntegrationTest {
         mockWebServer.enqueue(response)
 
         // When
-        val call = apiService.getUsers()
-        val result = call.execute()
+        val result = runBlocking { apiService.getUsers() }
 
         // Then
         assertTrue(result.isSuccessful)
         assertNotNull(result.body())
-        assertEquals(true, result.body()?.success)
-        assertEquals("No users found", result.body()?.message)
         assertNotNull(result.body()?.data)
         assertTrue(result.body()?.data?.isEmpty() == true)
     }
@@ -148,11 +139,7 @@ class ApiIntegrationTest {
                 avatar = "https://example.com/avatar2.jpg"
             )
         )
-        val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
-            data = mockFinancialData
-        )
+        val mockResponse = PemanfaatanResponse(data = mockFinancialData)
         
         val responseBody = gson.toJson(mockResponse)
         val response = MockResponse()
@@ -163,14 +150,11 @@ class ApiIntegrationTest {
         mockWebServer.enqueue(response)
 
         // When
-        val call = apiService.getPemanfaatan()
-        val result = call.execute()
+        val result = runBlocking { apiService.getPemanfaatan() }
 
         // Then
         assertTrue(result.isSuccessful)
         assertNotNull(result.body())
-        assertEquals(true, result.body()?.success)
-        assertEquals("Financial data fetched successfully", result.body()?.message)
         assertNotNull(result.body()?.data)
         assertEquals(1, result.body()?.data?.size)
         assertEquals("Jane", result.body()?.data?.get(0)?.first_name)
@@ -188,8 +172,7 @@ class ApiIntegrationTest {
         mockWebServer.enqueue(response)
 
         // When
-        val call = apiService.getPemanfaatan()
-        val result = call.execute()
+        val result = runBlocking { apiService.getPemanfaatan() }
 
         // Then
         assertFalse(result.isSuccessful)
