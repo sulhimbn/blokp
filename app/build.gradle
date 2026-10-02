@@ -20,6 +20,12 @@ android {
 
         // API Configuration - default spreadsheet ID
         buildConfigField "String", "API_SPREADSHEET_ID", "\"QjX6hB1ST2IDKaxB\""
+
+        // Debug/mock API host:port. Defaults to the docker-compose service name.
+        // Override for a local emulator or a standalone mock server:
+        //   ./gradlew assembleDebug -PmockApiHost=10.0.2.2:5000
+        def mockApiHost = project.findProperty("mockApiHost") ?: System.getenv("MOCK_API_HOST") ?: "api-mock:5000"
+        buildConfigField "String", "MOCK_API_HOST", "\"${mockApiHost}\""
         
         // Webhook secret - MUST be set via CI/CD secrets for production
         // In debug builds, uses placeholder value from Constants.kt if not configured
@@ -42,9 +48,16 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+        // ReceiptGenerator uses java.time, which needs desugaring to run on API 24/25
+        coreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+    testOptions {
+        unitTests {
+            returnDefaultValues = true
+        }
     }
     lint {
         abortOnError false
@@ -59,8 +72,19 @@ android {
 
 }
 
+// mockito-kotlin ships JVM 11 bytecode; unit tests that use its inline matchers
+// must compile at the same target or Kotlin refuses to inline it.
+tasks.configureEach { task ->
+    if (task.name.toLowerCase().contains('unittest')) {
+        if (task.hasProperty('kotlinOptions')) {
+            task.kotlinOptions.jvmTarget = '11'
+        }
+    }
+}
+
 dependencies {
 
+     coreLibraryDesugaring libs.desugar.jdk.libs
      implementation libs.androidx.core.ktx
      implementation libs.androidx.appcompat
      implementation libs.material

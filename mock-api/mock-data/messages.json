@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "id": "msg-1",
+      "senderId": "user1@example.com",
+      "receiverId": "user2@example.com",
+      "content": "Sudah transfer bulan ini.",
+      "timestamp": "2024-01-20T09:00:00Z",
+      "readStatus": true,
+      "attachments": []
+    },
+    {
+      "id": "msg-2",
+      "senderId": "user2@example.com",
+      "receiverId": "user1@example.com",
+      "content": "Terima kasih.",
+      "timestamp": "2024-01-20T09:05:00Z",
+      "readStatus": false,
+      "attachments": []
+    }
+  ]
+}

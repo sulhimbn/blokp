@@ -1,0 +1,42 @@
+{
+  "data": [
+    {
+      "id": "1",
+      "name": "Plumbing Services",
+      "contactPerson": "Andi",
+      "phoneNumber": "0812-0000-0001",
+      "email": "andi@plumbing.test",
+      "specialty": "plumbing",
+      "address": "Jl. Contoh No. 2",
+      "licenseNumber": "PL-12345",
+      "insuranceInfo": "Full coverage",
+      "certifications": [
+        "Licensed"
+      ],
+      "rating": 4.5,
+      "totalReviews": 25,
+      "contractStart": "2024-01-01",
+      "contractEnd": "2024-12-31",
+      "isActive": true
+    },
+    {
+      "id": "2",
+      "name": "Listrik Jaya",
+      "contactPerson": "Budi",
+      "phoneNumber": "0812-0000-0002",
+      "email": "budi@listrik.test",
+      "specialty": "electrical",
+      "address": "Jl. Contoh No. 3",
+      "licenseNumber": "EL-67890",
+      "insuranceInfo": "Full coverage",
+      "certifications": [
+        "Certified"
+      ],
+      "rating": 4.2,
+      "totalReviews": 11,
+      "contractStart": "2024-02-01",
+      "contractEnd": "2024-11-30",
+      "isActive": true
+    }
+  ]
+}

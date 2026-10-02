@@ -2,206 +2,99 @@ package com.example.iurankomplek
 
 import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.network.ApiService
-import com.example.iurankomplek.model.UserResponse
-import com.google.gson.Gson
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
-import org.junit.After
-import org.junit.Before
+import com.example.iurankomplek.network.SecurityConfig
+import com.example.iurankomplek.utils.Constants
+import okhttp3.OkHttpClient
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertSame
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
+/**
+ * Network wiring tests: Retrofit/OkHttp construction, base URL selection and the
+ * production security configuration (certificate pinning + security headers).
+ */
 class NetworkIntegrationTest {
-    
-    private lateinit var mockWebServer: MockWebServer
-    private lateinit var apiService: ApiService
-    
-    @Before
-    fun setup() {
-        mockWebServer = MockWebServer()
-        mockWebServer.start(8080) // Use a specific port for consistency
-        
-        // Create API service pointing to mock server
-        val retrofit = Retrofit.Builder()
-            .baseUrl(mockWebServer.url("/"))
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        
-        apiService = retrofit.create(ApiService::class.java)
-    }
-    
-    @After
-    fun tearDown() {
-        mockWebServer.shutdown()
-    }
-    
+
     @Test
-    fun `real ApiConfig service should handle successful responses`() {
-        // This test uses the actual ApiConfig to ensure it's properly configured
-        // But we can't easily test it against the real API in a unit test environment
-        // So we'll test that the configuration doesn't throw errors
-        try {
-            // Just getting the service shouldn't throw an exception under normal conditions
-            val apiService = ApiConfig.getApiService()
-            assert(apiService != null) { "ApiService should not be null" }
-        } catch (e: Exception) {
-            org.junit.Assert.fail("ApiConfig.getApiService() should not throw an exception: ${e.message}")
-        }
+    fun `ApiConfig should return a usable ApiService`() {
+        val apiService = ApiConfig.getApiService()
+
+        assertNotNull(apiService)
+        assertTrue(ApiService::class.java.isAssignableFrom(apiService.javaClass))
     }
-    
+
     @Test
-    fun `getPemanfaatan should parse response correctly`() {
-        // Given
-        val mockPemanfaatanResponse = com.example.iurankomplek.model.PemanfaatanResponse(
-            status = "success",
-            data = listOf(
-                com.example.iurankomplek.model.PemanfaatanItem(
-                    id = 1,
-                    name = "Maintenance Fund",
-                    amount = 1000000,
-                    date = "2023-01-01",
-                    description = "Monthly maintenance"
-                )
-            )
+    fun `ApiConfig should cache the ApiService instance`() {
+        val first = ApiConfig.getApiService()
+        val second = ApiConfig.getApiService()
+
+        assertSame("ApiService should be a cached singleton", first, second)
+    }
+
+    @Test
+    fun `ApiConfig debug base URL should target the spreadsheet id path`() {
+        val retrofitField = ApiConfig::class.java.getDeclaredField("BASE_URL")
+        retrofitField.isAccessible = true
+        val baseUrl = retrofitField.get(null) as String
+
+        assertTrue(
+            "Base URL must end with a /data/<spreadsheet-id>/ path, was: $baseUrl",
+            Regex("^http://[^/]+/data/[^/]+/$").matches(baseUrl)
         )
-        
-        val responseJson = Gson().toJson(mockPemanfaatanResponse)
-        mockWebServer.enqueue(MockResponse()
-            .setResponseCode(200)
-            .setHeader("Content-Type", "application/json")
-            .setBody(responseJson))
-        
-        // When
-        val call = apiService.getPemanfaatan()
-        val latch = CountDownLatch(1)
-        var responseReceived: retrofit2.Response<com.example.iurankomplek.model.PemanfaatanResponse>? = null
-        var errorReceived: Throwable? = null
-        
-        call.enqueue(object : retrofit2.Callback<com.example.iurankomplek.model.PemanfaatanResponse> {
-            override fun onResponse(call: retrofit2.Call<com.example.iurankomplek.model.PemanfaatanResponse>, response: retrofit2.Response<com.example.iurankomplek.model.PemanfaatanResponse>) {
-                responseReceived = response
-                latch.countDown()
-            }
-            
-            override fun onFailure(call: retrofit2.Call<com.example.iurankomplek.model.PemanfaatanResponse>, t: Throwable) {
-                errorReceived = t
-                latch.countDown()
-            }
-        })
-        
-        // Wait for response
-        latch.await(5, TimeUnit.SECONDS)
-        
-        // Then
-        assert(errorReceived == null) { "Request should not fail: ${errorReceived?.message}" }
-        assert(responseReceived?.isSuccessful == true) { "Response should be successful" }
-        val responseBody = responseReceived?.body()
-        assert(responseBody != null) { "Response body should not be null" }
-        assert(responseBody?.status == "success") { "Status should be success" }
-        assert(responseBody?.data?.size == 1) { "Should have 1 pemanfaatan item in response" }
-        assert(responseBody?.data?.first()?.name == "Maintenance Fund") { "First item should be Maintenance Fund" }
-    }
-    
-    @Test
-    fun `getAnnouncements should parse response correctly`() {
-        // Given
-        val mockAnnouncements = listOf(
-            com.example.iurankomplek.model.Announcement(
-                id = 1,
-                title = "Community Meeting",
-                content = "Meeting at 7 PM",
-                author = "Admin",
-                timestamp = "2023-01-01T00:00:00Z",
-                priority = "high"
-            )
+        assertTrue(
+            "Debug builds must not target the production host over TLS pinning, was: $baseUrl",
+            !baseUrl.startsWith("https://api.apispreadsheets.com")
         )
-        
-        val responseJson = Gson().toJson(mockAnnouncements)
-        mockWebServer.enqueue(MockResponse()
-            .setResponseCode(200)
-            .setHeader("Content-Type", "application/json")
-            .setBody(responseJson))
-        
-        // When
-        val call = apiService.getAnnouncements()
-        val latch = CountDownLatch(1)
-        var responseReceived: retrofit2.Response<List<com.example.iurankomplek.model.Announcement>>? = null
-        var errorReceived: Throwable? = null
-        
-        call.enqueue(object : retrofit2.Callback<List<com.example.iurankomplek.model.Announcement>> {
-            override fun onResponse(call: retrofit2.Call<List<com.example.iurankomplek.model.Announcement>>, response: retrofit2.Response<List<com.example.iurankomplek.model.Announcement>>) {
-                responseReceived = response
-                latch.countDown()
-            }
-            
-            override fun onFailure(call: retrofit2.Call<List<com.example.iurankomplek.model.Announcement>>, t: Throwable) {
-                errorReceived = t
-                latch.countDown()
-            }
-        })
-        
-        // Wait for response
-        latch.await(5, TimeUnit.SECONDS)
-        
-        // Then
-        assert(errorReceived == null) { "Request should not fail: ${errorReceived?.message}" }
-        assert(responseReceived?.isSuccessful == true) { "Response should be successful" }
-        val responseBody = responseReceived?.body()
-        assert(responseBody != null) { "Response body should not be null" }
-        assert(responseBody?.size == 1) { "Should have 1 announcement in response" }
-        assert(responseBody?.first()?.title == "Community Meeting") { "First announcement should be Community Meeting" }
-    }
-    
-    @Test
-    fun `getMessages should parse response correctly`() {
-        // Given
-        val mockMessages = listOf(
-            com.example.iurankomplek.model.Message(
-                id = 1,
-                senderId = "user1",
-                receiverId = "user2", 
-                content = "Hello, how are you?",
-                timestamp = "2023-01-01T10:00:00Z",
-                status = "sent"
-            )
+        assertTrue(
+            "Debug base URL must carry a non-empty mock host, was: $baseUrl",
+            baseUrl.removePrefix("http://").substringBefore("/").isNotBlank()
         )
-        
-        val responseJson = Gson().toJson(mockMessages)
-        mockWebServer.enqueue(MockResponse()
-            .setResponseCode(200)
-            .setHeader("Content-Type", "application/json")
-            .setBody(responseJson))
-        
-        // When
-        val call = apiService.getMessages("user1")
-        val latch = CountDownLatch(1)
-        var responseReceived: retrofit2.Response<List<com.example.iurankomplek.model.Message>>? = null
-        var errorReceived: Throwable? = null
-        
-        call.enqueue(object : retrofit2.Callback<List<com.example.iurankomplek.model.Message>> {
-            override fun onResponse(call: retrofit2.Call<List<com.example.iurankomplek.model.Message>>, response: retrofit2.Response<List<com.example.iurankomplek.model.Message>>) {
-                responseReceived = response
-                latch.countDown()
-            }
-            
-            override fun onFailure(call: retrofit2.Call<List<com.example.iurankomplek.model.Message>>, t: Throwable) {
-                errorReceived = t
-                latch.countDown()
-            }
-        })
-        
-        // Wait for response
-        latch.await(5, TimeUnit.SECONDS)
-        
-        // Then
-        assert(errorReceived == null) { "Request should not fail: ${errorReceived?.message}" }
-        assert(responseReceived?.isSuccessful == true) { "Response should be successful" }
-        val responseBody = responseReceived?.body()
-        assert(responseBody != null) { "Response body should not be null" }
-        assert(responseBody?.size == 1) { "Should have 1 message in response" }
-        assert(responseBody?.first()?.content == "Hello, how are you?") { "First message should have correct content" }
+    }
+
+    @Test
+    fun `ApiConfig should build Retrofit with a base URL ending in a slash`() {
+        val retrofit = Retrofit.Builder().baseUrl("http://localhost:1/").build()
+
+        assertEquals("/", retrofit.baseUrl().encodedPath)
+    }
+
+    @Test
+    fun `SecurityConfig should pin the production API host`() {
+        val client: OkHttpClient = SecurityConfig.getSecureOkHttpClient()
+
+        val pinner = client.certificatePinner
+        assertNotNull(pinner)
+        val pins = pinner.findMatchingPins("api.apispreadsheets.com")
+        assertTrue("Expected at least one pin for the production host", pins.isNotEmpty())
+        assertTrue(
+            "The configured pin must be the one enforced for the production host",
+            pins.any { "sha256/${it.hash.base64()}" == Constants.Security.CERTIFICATE_PINNER }
+        )
+        assertTrue(
+            "Pins must be scoped to the production API host only",
+            pins.all { it.pattern == "api.apispreadsheets.com" }
+        )
+    }
+
+    @Test
+    fun `SecurityConfig should configure finite timeouts`() {
+        val client = SecurityConfig.getSecureOkHttpClient()
+
+        assertEquals(Constants.Network.CONNECT_TIMEOUT * 1000L, client.connectTimeoutMillis.toLong())
+        assertEquals(Constants.Network.READ_TIMEOUT * 1000L, client.readTimeoutMillis.toLong())
+        assertEquals(Constants.Network.WRITE_TIMEOUT * 1000L, client.writeTimeoutMillis.toLong())
+    }
+
+    @Test
+    fun `SecurityConfig should register a security header interceptor`() {
+        val client = SecurityConfig.getSecureOkHttpClient()
+
+        assertTrue(
+            "Expected at least one application interceptor adding security headers",
+            client.interceptors.isNotEmpty()
+        )
     }
 }

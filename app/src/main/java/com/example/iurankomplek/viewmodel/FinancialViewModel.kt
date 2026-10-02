@@ -65,22 +65,29 @@ class FinancialViewModel @Inject constructor(
         }
     }
 
-    fun loadFinancialData() {
-        if (_financialState.value is FinancialDataState.Loading) return
+    private var isLoading = false
 
+    fun loadFinancialData() {
+        if (isLoading) return
+
+        isLoading = true
         viewModelScope.launch {
             _financialState.value = FinancialDataState.Loading
-            pemanfaatanRepository.getPemanfaatan()
-                .onSuccess { response ->
-                    val items = response.data
-                    val summary = calculateFinancialSummary(items)
-                    _financialState.value = FinancialDataState.Success(response, summary)
-                }
-                .onFailure { exception ->
-                    _financialState.value = FinancialDataState.Error(
-                        exception.message ?: "Unknown error occurred"
-                    )
-                }
+            try {
+                pemanfaatanRepository.getPemanfaatan()
+                    .onSuccess { response ->
+                        val items = response.data
+                        val summary = calculateFinancialSummary(items)
+                        _financialState.value = FinancialDataState.Success(response, summary)
+                    }
+                    .onFailure { exception ->
+                        _financialState.value = FinancialDataState.Error(
+                            exception.message ?: "Unknown error occurred"
+                        )
+                    }
+            } finally {
+                isLoading = false
+            }
         }
     }
 

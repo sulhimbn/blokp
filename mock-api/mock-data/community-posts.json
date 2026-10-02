@@ -1,0 +1,24 @@
+{
+  "data": [
+    {
+      "id": "post-1",
+      "authorId": "user1@example.com",
+      "title": "Barbecue",
+      "content": "Saturday 17:00 at the park.",
+      "category": "event",
+      "likes": 3,
+      "comments": [],
+      "createdAt": "2024-01-14T10:00:00Z"
+    },
+    {
+      "id": "post-2",
+      "authorId": "user2@example.com",
+      "title": "Recycling day",
+      "content": "Bring paper and plastic.",
+      "category": "info",
+      "likes": 5,
+      "comments": [],
+      "createdAt": "2024-01-16T10:00:00Z"
+    }
+  ]
+}

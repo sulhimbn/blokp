@@ -1,16 +1,21 @@
 package com.example.iurankomplek.utils
 
-import org.junit.Assert.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.ResponseBody.Companion.toResponseBody
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import retrofit2.HttpException
-import okhttp3.ResponseBody
-import java.net.UnknownHostException
-import java.net.SocketTimeoutException
+import retrofit2.Response
 import java.io.IOException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 
 class ErrorHandlerTest {
 
     private val errorHandler = ErrorHandler()
+
+    private fun httpException(code: Int, body: String): HttpException =
+        HttpException(Response.error<Any>(code, body.toResponseBody("text/plain".toMediaType())))
 
     @Test
     fun `handleError should return correct message for UnknownHostException`() {
@@ -28,61 +33,31 @@ class ErrorHandlerTest {
 
     @Test
     fun `handleError should return correct message for 401 HttpException`() {
-        val errorResponse = ResponseBody.create(null, "Unauthorized")
-        val exception = HttpException(response = okhttp3.Response.Builder()
-            .code(401)
-            .request(okhttp3.Request.Builder().url("https://test.com").build())
-            .message("Unauthorized")
-            .build())
-        val result = errorHandler.handleError(exception)
+        val result = errorHandler.handleError(httpException(401, "Unauthorized"))
         assertEquals("Unauthorized access", result)
     }
 
     @Test
     fun `handleError should return correct message for 403 HttpException`() {
-        val errorResponse = ResponseBody.create(null, "Forbidden")
-        val exception = HttpException(response = okhttp3.Response.Builder()
-            .code(403)
-            .request(okhttp3.Request.Builder().url("https://test.com").build())
-            .message("Forbidden")
-            .build())
-        val result = errorHandler.handleError(exception)
+        val result = errorHandler.handleError(httpException(403, "Forbidden"))
         assertEquals("Forbidden", result)
     }
 
     @Test
     fun `handleError should return correct message for 404 HttpException`() {
-        val errorResponse = ResponseBody.create(null, "Not Found")
-        val exception = HttpException(response = okhttp3.Response.Builder()
-            .code(404)
-            .request(okhttp3.Request.Builder().url("https://test.com").build())
-            .message("Not Found")
-            .build())
-        val result = errorHandler.handleError(exception)
+        val result = errorHandler.handleError(httpException(404, "Not Found"))
         assertEquals("Resource not found", result)
     }
 
     @Test
     fun `handleError should return correct message for 500 HttpException`() {
-        val errorResponse = ResponseBody.create(null, "Internal Server Error")
-        val exception = HttpException(response = okhttp3.Response.Builder()
-            .code(500)
-            .request(okhttp3.Request.Builder().url("https://test.com").build())
-            .message("Internal Server Error")
-            .build())
-        val result = errorHandler.handleError(exception)
+        val result = errorHandler.handleError(httpException(500, "Internal Server Error"))
         assertEquals("Server error", result)
     }
 
     @Test
     fun `handleError should return generic message for unknown HTTP error code`() {
-        val errorResponse = ResponseBody.create(null, "I'm a teapot")
-        val exception = HttpException(response = okhttp3.Response.Builder()
-            .code(418)
-            .request(okhttp3.Request.Builder().url("https://test.com").build())
-            .message("I'm a teapot")
-            .build())
-        val result = errorHandler.handleError(exception)
+        val result = errorHandler.handleError(httpException(418, "I'm a teapot"))
         assertEquals("HTTP Error: 418", result)
     }
 

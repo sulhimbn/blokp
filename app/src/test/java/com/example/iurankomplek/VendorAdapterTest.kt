@@ -5,17 +5,19 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.model.Vendor
 import com.example.iurankomplek.presentation.adapter.VendorAdapter
-
-import android.content.Context
-import android.view.View
-import androidx.recyclerview.widget.RecyclerView
-import com.example.iurankomplek.model.Vendor
 import org.junit.Before
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
+import android.os.Looper
+import org.robolectric.annotation.Config
 import org.junit.Test
 import org.junit.Assert.*
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [33])
 class VendorAdapterTest {
     
     @Mock
@@ -67,8 +69,9 @@ class VendorAdapterTest {
             )
         )
         
-        vendorAdapter = VendorAdapter { /* Handle vendor click */ }
+        vendorAdapter = VendorAdapter { }
         vendorAdapter.submitList(vendors)
+        shadowOf(Looper.getMainLooper()).idle()
     }
     
 @Test

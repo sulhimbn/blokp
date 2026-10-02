@@ -1,0 +1,46 @@
+{
+  "data": [
+    {
+      "id": "wo-1",
+      "title": "Leaking pipe",
+      "description": "Water leak in unit 12.",
+      "category": "plumbing",
+      "priority": "high",
+      "status": "pending",
+      "vendorId": null,
+      "vendorName": null,
+      "assignedAt": null,
+      "scheduledDate": null,
+      "completedAt": null,
+      "estimatedCost": 500000.0,
+      "actualCost": 0.0,
+      "propertyId": "unit-12",
+      "reporterId": "user1@example.com",
+      "createdAt": "2024-01-10T10:00:00Z",
+      "updatedAt": "2024-01-10T10:00:00Z",
+      "attachments": [],
+      "notes": []
+    },
+    {
+      "id": "wo-2",
+      "title": "Replace lamp",
+      "description": "Corridor lighting in block B.",
+      "category": "electrical",
+      "priority": "low",
+      "status": "assigned",
+      "vendorId": "2",
+      "vendorName": "Listrik Jaya",
+      "assignedAt": "2024-01-12T09:00:00Z",
+      "scheduledDate": "2024-02-05",
+      "completedAt": null,
+      "estimatedCost": 150000.0,
+      "actualCost": 0.0,
+      "propertyId": "block-b",
+      "reporterId": "user2@example.com",
+      "createdAt": "2024-01-11T10:00:00Z",
+      "updatedAt": "2024-01-12T09:00:00Z",
+      "attachments": [],
+      "notes": []
+    }
+  ]
+}
