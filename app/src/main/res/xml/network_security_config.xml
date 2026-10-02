@@ -5,10 +5,11 @@
         <domain includeSubdomains="true">api.apispreadsheets.com</domain>
         <pin-set expiration="2028-12-31">
             <!-- Primary certificate pin - DO NOT REMOVE until backup is confirmed working -->
-            <pin algorithm="sha256">PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=</pin>
+            <pin digest="SHA-256">PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=</pin>
             <!-- Backup certificate pin for certificate rotation redundancy -->
             <!-- IMPORTANT: Must obtain actual backup pin from API provider before production deployment -->
             <!-- Generate using: openssl s_client -servername api.apispreadsheets.com -connect api.apispreadsheets.com:443 2>/dev/null | openssl x509 -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | openssl enc -base64 -->
+            <backup-pin digest="SHA-256">PIdO5FV9mQyEclv5rMC4oGNTya7Q9S5/Sn1KTWpQov0=</backup-pin>
         </pin-set>
     </domain-config>
     

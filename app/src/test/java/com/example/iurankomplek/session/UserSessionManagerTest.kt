@@ -1,12 +1,13 @@
 package com.example.iurankomplek.session
 
+import android.app.Application
 import android.content.Context
 import com.example.iurankomplek.model.User
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.Robolectric
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -17,19 +18,21 @@ import org.robolectric.annotation.Config
  * Uses Robolectric for Android Context.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
+@Config(sdk = [33], application = Application::class)
 class UserSessionManagerTest {
 
     private lateinit var context: Context
     private lateinit var userSessionManager: UserSessionManager
+    private lateinit var prefs: android.content.SharedPreferences
 
     @Before
     fun setup() {
-        // Create Robolectric context
-        context = Robolectric.buildActivity(android.app.Activity::class.java).get()
-        
-        // Create fresh instance for each test
-        userSessionManager = UserSessionManager(context)
+        context = RuntimeEnvironment.getApplication().applicationContext
+        // The Android Keystore is unavailable on the JVM, so inject plain
+        // preferences; the production factory builds EncryptedSharedPreferences.
+        prefs = context.getSharedPreferences("test_session_prefs", Context.MODE_PRIVATE)
+        prefs.edit().clear().commit()
+        userSessionManager = UserSessionManager { prefs }
     }
 
     @Test

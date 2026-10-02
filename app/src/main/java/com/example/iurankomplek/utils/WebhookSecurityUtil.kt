@@ -19,7 +19,7 @@ import kotlin.math.abs
  */
 object WebhookSecurityUtil {
     private val TAG = Constants.Tags.WEBHOOK_RECEIVER
-    
+
     // Get webhook secret: prefer BuildConfig (CI/CD set) over Constants (placeholder)
     private val webhookSecret: String
         get() = if (BuildConfig.WEBHOOK_SECRET.isNotBlank()) {
@@ -28,7 +28,25 @@ object WebhookSecurityUtil {
             Log.w(TAG, "WARNING: Using placeholder webhook secret - MUST configure BuildConfig.WEBHOOK_SECRET in production")
             Constants.Security.WEBHOOK_SECRET_KEY
         }
-    
+
+private fun secretIsUsable(): Boolean =
+        secretIsUsable(BuildConfig.WEBHOOK_SECRET, BuildConfig.DEBUG)
+
+    internal fun secretIsUsable(configuredSecret: String, isDebug: Boolean): Boolean {
+        if (isDebug) {
+            return true
+        }
+        if (configuredSecret.isBlank()) {
+            Log.e(TAG, "SECURITY: release build has no webhook secret; refusing to verify")
+            return false
+        }
+        if (configuredSecret == Constants.Security.WEBHOOK_SECRET_KEY) {
+            Log.e(TAG, "SECURITY: release build still uses the published placeholder secret")
+            return false
+        }
+        return true
+    }
+
     /**
      * Result of webhook verification
      */
@@ -52,6 +70,10 @@ object WebhookSecurityUtil {
         signature: String?,
         timestamp: String?
     ): VerificationResult {
+        if (!secretIsUsable()) {
+            return VerificationResult.Error("Webhook secret is not configured")
+        }
+
         // Step 1: Validate signature presence
         if (signature.isNullOrBlank()) {
             Log.w(TAG, "Webhook verification failed: Missing signature header")

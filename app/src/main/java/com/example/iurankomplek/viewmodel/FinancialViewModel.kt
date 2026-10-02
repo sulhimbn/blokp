@@ -12,6 +12,7 @@ import com.example.iurankomplek.payment.PaymentStatus
 import com.example.iurankomplek.data.repository.TransactionRepository
 import com.example.iurankomplek.utils.FinancialCalculator
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -47,6 +48,8 @@ class FinancialViewModel @Inject constructor(
     private val _financialState = MutableStateFlow<FinancialDataState>(FinancialDataState.Loading)
     val financialState: StateFlow<FinancialDataState> = _financialState
 
+    private var activeLoadJob: Job? = null
+
     init {
         observeEvents()
     }
@@ -66,9 +69,9 @@ class FinancialViewModel @Inject constructor(
     }
 
     fun loadFinancialData() {
-        if (_financialState.value is FinancialDataState.Loading) return
+        if (activeLoadJob?.isActive == true) return
 
-        viewModelScope.launch {
+        activeLoadJob = viewModelScope.launch {
             _financialState.value = FinancialDataState.Loading
             pemanfaatanRepository.getPemanfaatan()
                 .onSuccess { response ->

@@ -362,19 +362,44 @@ class FinancialCalculatorTest {
         FinancialCalculator.calculateTotalIuranBulanan(invalidItems)
     }
 
-    @Test(expected = ArithmeticException::class)
-    fun testCalculateTotalIuranBulanan_throwsOnOverflow() {
+    @Test(expected = IllegalArgumentException::class)
+    fun testCalculateTotalIuranBulanan_rejectsValuesPastTheValidationCap() {
+        // Int.MAX_VALUE - 1 trips the per-item cap before the running sum can overflow.
         val itemsWithLargeValues = listOf(
             DataItem(
                 first_name = "John",
                 last_name = "Doe",
                 email = "john@example.com",
                 alamat = "Jl. Test 1",
-                iuran_perwarga = Int.MAX_VALUE - 1,  // Very large value that will cause overflow
+                iuran_perwarga = Int.MAX_VALUE - 1,
                 total_iuran_rekap = 0,
                 jumlah_iuran_bulanan = 0,
                 total_iuran_individu = 50,
                 pengeluaran_iuran_warga = 25,
+                pemanfaatan_iuran = "Test",
+                avatar = ""
+            )
+        )
+
+        FinancialCalculator.calculateTotalIuranBulanan(itemsWithLargeValues)
+    }
+
+    @Test(expected = ArithmeticException::class)
+    fun testCalculateTotalIuranBulanan_throwsOnAccumulatedOverflow() {
+        // Each item sits just under the per-item cap, so validation passes but
+        // the running sum overflows a signed 32-bit int.
+        val half = Int.MAX_VALUE / 2
+        val itemsThatOverflowWhenSummed = listOf(
+            DataItem(
+                first_name = "John",
+                last_name = "Doe",
+                email = "john@example.com",
+                alamat = "Jl. Test 1",
+                iuran_perwarga = half,
+                total_iuran_rekap = 0,
+                jumlah_iuran_bulanan = 0,
+                total_iuran_individu = 0,
+                pengeluaran_iuran_warga = 0,
                 pemanfaatan_iuran = "Test",
                 avatar = ""
             ),
@@ -383,17 +408,30 @@ class FinancialCalculatorTest {
                 last_name = "Doe",
                 email = "jane@example.com",
                 alamat = "Jl. Test 2",
-                iuran_perwarga = 100,
+                iuran_perwarga = half,
                 total_iuran_rekap = 0,
                 jumlah_iuran_bulanan = 0,
-                total_iuran_individu = 75,
-                pengeluaran_iuran_warga = 30,
+                total_iuran_individu = 0,
+                pengeluaran_iuran_warga = 0,
+                pemanfaatan_iuran = "Test",
+                avatar = ""
+            ),
+            DataItem(
+                first_name = "Bob",
+                last_name = "Doe",
+                email = "bob@example.com",
+                alamat = "Jl. Test 3",
+                iuran_perwarga = half,
+                total_iuran_rekap = 0,
+                jumlah_iuran_bulanan = 0,
+                total_iuran_individu = 0,
+                pengeluaran_iuran_warga = 0,
                 pemanfaatan_iuran = "Test",
                 avatar = ""
             )
         )
 
-        FinancialCalculator.calculateTotalIuranBulanan(itemsWithLargeValues)
+        FinancialCalculator.calculateTotalIuranBulanan(itemsThatOverflowWhenSummed)
     }
     
     @Test
@@ -447,6 +485,10 @@ class FinancialCalculatorTest {
 
         // If the bug existed (only last item used), result would be 30 * 3 = 90
         // But with proper accumulation: (10*3) + (20*3) + (30*3) = 30 + 60 + 90 = 180
-        assertEquals(180, totalIuranIndividu, "Bug fix verification: totalIuranIndividu should accumulate all items, not just take the last item value")
+        assertEquals(
+            "totalIuranIndividu must accumulate every item, not take the last one",
+            180,
+            totalIuranIndividu
+        )
     }
 }

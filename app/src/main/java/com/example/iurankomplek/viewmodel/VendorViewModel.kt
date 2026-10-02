@@ -9,6 +9,7 @@ import com.example.iurankomplek.data.api.models.WorkOrderResponse
 import com.example.iurankomplek.data.api.models.SingleWorkOrderResponse
 import com.example.iurankomplek.utils.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -30,11 +31,14 @@ class VendorViewModel @Inject constructor(
     
     private val _workOrderDetailState = MutableStateFlow<UiState<SingleWorkOrderResponse>>(UiState.Loading)
     val workOrderDetailState: StateFlow<UiState<SingleWorkOrderResponse>> = _workOrderDetailState
+
+    private var activeVendorJob: Job? = null
+    private var activeWorkOrderJob: Job? = null
     
     fun loadVendors() {
-        if (_vendorState.value is UiState.Loading) return // Prevent duplicate calls
-        
-        viewModelScope.launch {
+        if (activeVendorJob?.isActive == true) return
+
+        activeVendorJob = viewModelScope.launch {
             _vendorState.value = UiState.Loading
             vendorRepository.getVendors()
                 .onSuccess { response ->
@@ -47,9 +51,9 @@ class VendorViewModel @Inject constructor(
     }
     
     fun loadWorkOrders() {
-        if (_workOrderState.value is UiState.Loading) return // Prevent duplicate calls
-        
-        viewModelScope.launch {
+        if (activeWorkOrderJob?.isActive == true) return
+
+        activeWorkOrderJob = viewModelScope.launch {
             _workOrderState.value = UiState.Loading
             vendorRepository.getWorkOrders()
                 .onSuccess { response ->

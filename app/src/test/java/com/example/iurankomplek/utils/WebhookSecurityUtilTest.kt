@@ -178,4 +178,41 @@ class WebhookSecurityUtilTest {
         
         assertTrue(result is WebhookSecurityUtil.VerificationResult.Success)
     }
+
+    @Test
+    fun secretIsUsable_rejectsABlankSecretInRelease() {
+        assertFalse(WebhookSecurityUtil.secretIsUsable("", isDebug = false))
+        assertFalse(WebhookSecurityUtil.secretIsUsable("   ", isDebug = false))
+    }
+
+    @Test
+    fun secretIsUsable_rejectsThePublishedPlaceholderInRelease() {
+        assertFalse(
+            "a release build must never verify against the placeholder in the repo",
+            WebhookSecurityUtil.secretIsUsable(
+                Constants.Security.WEBHOOK_SECRET_KEY,
+                isDebug = false
+            )
+        )
+    }
+
+    @Test
+    fun secretIsUsable_allowsThePlaceholderOnlyForDebug() {
+        assertTrue(
+            WebhookSecurityUtil.secretIsUsable(
+                Constants.Security.WEBHOOK_SECRET_KEY,
+                isDebug = true
+            )
+        )
+        assertTrue(
+            "debug builds may fall back to the placeholder",
+            WebhookSecurityUtil.secretIsUsable("", isDebug = true)
+        )
+    }
+
+    @Test
+    fun secretIsUsable_acceptsAConfiguredSecret() {
+        assertTrue(WebhookSecurityUtil.secretIsUsable("whsec_from_ci", isDebug = false))
+        assertTrue(WebhookSecurityUtil.secretIsUsable("whsec_from_ci", isDebug = true))
+    }
 }

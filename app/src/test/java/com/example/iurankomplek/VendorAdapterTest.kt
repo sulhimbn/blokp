@@ -1,167 +1,70 @@
 package com.example.iurankomplek
+import android.app.Application
 
-import android.content.Context
-import android.view.View
-import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.model.Vendor
 import com.example.iurankomplek.presentation.adapter.VendorAdapter
-
-import android.content.Context
-import android.view.View
-import androidx.recyclerview.widget.RecyclerView
-import com.example.iurankomplek.model.Vendor
-import org.junit.Before
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.junit.Assert.*
-import org.mockito.Mock
-import org.mockito.MockitoAnnotations
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [33], application = Application::class)
 class VendorAdapterTest {
-    
-    @Mock
-    private lateinit var mockContext: Context
-    
-    @Mock
-    private lateinit var mockView: View
-    
-    private lateinit var vendorAdapter: VendorAdapter
-    
-    @Before
-    fun setup() {
-        MockitoAnnotations.openMocks(this)
-        
-        val vendors = listOf(
-            Vendor(
-                id = "1",
-                name = "Plumbing Services Inc",
-                contactPerson = "John Smith",
-                phoneNumber = "123-456-7890",
-                email = "contact@plumbing.com",
-                specialty = "plumbing",
-                address = "123 Main St",
-                licenseNumber = "PL-12345",
-                insuranceInfo = "General liability coverage",
-                certifications = listOf("Licensed", "Bonded"),
-                rating = 4.5,
-                totalReviews = 25,
-                contractStart = "2023-01-01",
-                contractEnd = "2024-12-31",
-                isActive = true
-            ),
-            Vendor(
-                id = "2",
-                name = "Electrical Services Co",
-                contactPerson = "Jane Doe",
-                phoneNumber = "098-765-4321",
-                email = "info@electrical.com",
-                specialty = "electrical",
-                address = "456 Oak Ave",
-                licenseNumber = "EL-67890",
-                insuranceInfo = "Professional liability",
-                certifications = listOf("Certified Electrician"),
-                rating = 4.2,
-                totalReviews = 18,
-                contractStart = "2023-02-01",
-                contractEnd = "2025-01-31",
-                isActive = true
-            )
-        )
-        
-        vendorAdapter = VendorAdapter { /* Handle vendor click */ }
-        vendorAdapter.submitList(vendors)
-    }
-    
-@Test
-    fun `adapter should have correct item count`() {
-        assertEquals(2, vendorAdapter.itemCount)
-    }
-    
-    
-    
+
+    private fun vendor(
+        id: String = "v1",
+        name: String = "CV Nusantara",
+        phone: String = "081234567890",
+        specialty: String = "plumbing",
+        rating: Double = 4.5
+    ) = Vendor(
+        id = id,
+        name = name,
+        contactPerson = "Budi",
+        phoneNumber = phone,
+        email = "budi@x.test",
+        specialty = specialty,
+        address = "Jl. Industri 5",
+        licenseNumber = "LIC-1",
+        insuranceInfo = "AS-1",
+        certifications = listOf("PIPA"),
+        rating = rating,
+        totalReviews = 10,
+        contractStart = "2026-01-01",
+        contractEnd = "2026-12-31",
+        isActive = true
+    )
+
     @Test
-    fun `diff callback should identify same items correctly`() {
-        val vendor1 = Vendor(
-            id = "1",
-            name = "Plumbing Services Inc",
-            contactPerson = "John Smith",
-            phoneNumber = "123-456-7890",
-            email = "contact@plumbing.com",
-            specialty = "plumbing",
-            address = "123 Main St",
-            licenseNumber = "PL-12345",
-            insuranceInfo = "General liability coverage",
-            certifications = listOf("Licensed", "Bonded"),
-            rating = 4.5,
-            totalReviews = 25,
-            contractStart = "2023-01-01",
-            contractEnd = "2024-12-31",
-            isActive = true
-        )
-        
-        val vendor2 = Vendor(
-            id = "1",  // Same ID
-            name = "Plumbing Services Updated",  // Different name
-            contactPerson = "John Smith",
-            phoneNumber = "123-456-7890",
-            email = "contact@plumbing.com",
-            specialty = "plumbing",
-            address = "123 Main St",
-            licenseNumber = "PL-12345",
-            insuranceInfo = "General liability coverage",
-            certifications = listOf("Licensed", "Bonded"),
-            rating = 4.5,
-            totalReviews = 25,
-            contractStart = "2023-01-01",
-            contractEnd = "2024-12-31",
-            isActive = true
-        )
-        
-        val diffCallback = VendorAdapter.VendorDiffCallback()
-        
-        assertTrue(diffCallback.areItemsTheSame(vendor1, vendor2))  // Same ID
-        assertFalse(diffCallback.areContentsTheSame(vendor1, vendor2))  // Different content
+    fun `diff callback matches on vendor id`() {
+        val callback = VendorAdapter.VendorDiffCallback()
+
+        assertTrue(callback.areItemsTheSame(vendor(id = "v1"), vendor(id = "v1", name = "Renamed")))
+        assertFalse(callback.areItemsTheSame(vendor(id = "v1"), vendor(id = "v2")))
     }
-    
+
     @Test
-    fun `diff callback should identify different items correctly`() {
-        val vendor1 = Vendor(
-            id = "1",
-            name = "Plumbing Services Inc",
-            contactPerson = "John Smith",
-            phoneNumber = "123-456-7890",
-            email = "contact@plumbing.com",
-            specialty = "plumbing",
-            address = "123 Main St",
-            licenseNumber = "PL-12345",
-            insuranceInfo = "General liability coverage",
-            certifications = listOf("Licensed", "Bonded"),
-            rating = 4.5,
-            totalReviews = 25,
-            contractStart = "2023-01-01",
-            contractEnd = "2024-12-31",
-            isActive = true
-        )
-        
-        val vendor2 = Vendor(
-            id = "2",  // Different ID
-            name = "Electrical Services Co",
-            contactPerson = "Jane Doe",
-            phoneNumber = "098-765-4321",
-            email = "info@electrical.com",
-            specialty = "electrical",
-            address = "456 Oak Ave",
-            licenseNumber = "EL-67890",
-            insuranceInfo = "Professional liability",
-            certifications = listOf("Certified Electrician"),
-            rating = 4.2,
-            totalReviews = 18,
-            contractStart = "2023-02-01",
-            contractEnd = "2025-01-31",
-            isActive = true
-        )
-        
-        val diffCallback = VendorAdapter.VendorDiffCallback()
-        
-        assertFalse(diffCallback.areItemsTheSame(vendor1, vendor2))  // Different IDs
+    fun `diff callback reports different contents when any field changes`() {
+        val callback = VendorAdapter.VendorDiffCallback()
+
+        assertTrue(callback.areContentsTheSame(vendor(), vendor()))
+        assertFalse(callback.areContentsTheSame(vendor(), vendor(rating = 3.0)))
+        assertFalse(callback.areContentsTheSame(vendor(), vendor(phone = "0800")))
+    }
+
+    @Test
+    fun `a click callback is required so the adapter cannot be built without one`() {
+        val clicked = mutableListOf<Vendor>()
+
+        val adapter = VendorAdapter { clicked += it }
+        adapter.submitList(listOf(vendor()))
+
+        assertEquals(1, adapter.itemCount)
+        assertEquals("v1", adapter.currentList.first().id)
     }
 }

@@ -29,7 +29,7 @@ object Constants {
         
         // Array of all certificate pins for redundancy
         // NOTE: Backup pin is currently same as primary - this needs to be updated in production
-        val ALL_CERTIFICATE_PINS = arrayOf(CERTIFICATE_PINNER)
+        val ALL_CERTIFICATE_PINS = arrayOf(CERTIFICATE_PINNER, BACKUP_CERTIFICATE_PINNER)
 
         // Webhook Security Constants
         // PRODUCTION: MUST set BuildConfig.WEBHOOK_SECRET via CI/CD secrets
