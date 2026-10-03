@@ -10,6 +10,8 @@ import com.example.iurankomplek.utils.DataValidator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 class PemanfaatanAdapter(
@@ -17,6 +19,8 @@ class PemanfaatanAdapter(
     private val coroutineScope: CoroutineScope
 ) :
     RecyclerView.Adapter<PemanfaatanAdapter.ListViewHolder>() {
+
+    private val updateMutex = Mutex()
     
     constructor(coroutineScope: CoroutineScope) : this(mutableListOf(), coroutineScope)
     
@@ -27,13 +31,15 @@ class PemanfaatanAdapter(
     
     fun setPemanfaatan(dataItems: List<DataItem>) {
         coroutineScope.launch(Dispatchers.Default) {
-            val diffCallback = PemanfaatanDiffCallback(this@PemanfaatanAdapter.pemanfaatan, dataItems)
-            val diffResult = DiffUtil.calculateDiff(diffCallback)
+            updateMutex.withLock {
+                val diffCallback = PemanfaatanDiffCallback(this@PemanfaatanAdapter.pemanfaatan, dataItems)
+                val diffResult = DiffUtil.calculateDiff(diffCallback)
             
-            withContext(Dispatchers.Main) {
-                this@PemanfaatanAdapter.pemanfaatan.clear()
-                this@PemanfaatanAdapter.pemanfaatan.addAll(dataItems)
-                diffResult.dispatchUpdatesTo(this@PemanfaatanAdapter)
+                withContext(Dispatchers.Main) {
+                    this@PemanfaatanAdapter.pemanfaatan.clear()
+                    this@PemanfaatanAdapter.pemanfaatan.addAll(dataItems)
+                    diffResult.dispatchUpdatesTo(this@PemanfaatanAdapter)
+                }
             }
         }
     }

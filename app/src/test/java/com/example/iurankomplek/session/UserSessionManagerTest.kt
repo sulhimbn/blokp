@@ -21,15 +21,33 @@ import org.robolectric.annotation.Config
 class UserSessionManagerTest {
 
     private lateinit var context: Context
+    private lateinit var store: InMemorySessionStore
     private lateinit var userSessionManager: UserSessionManager
 
     @Before
     fun setup() {
-        // Create Robolectric context
         context = Robolectric.buildActivity(android.app.Activity::class.java).get()
-        
-        // Create fresh instance for each test
-        userSessionManager = UserSessionManager(context)
+        store = InMemorySessionStore()
+        userSessionManager = UserSessionManager(store)
+    }
+
+    @Test
+    fun `restores a persisted user on construction`() {
+        store.save(
+            User(
+                id = "restored-1",
+                email = "restored@example.com",
+                firstName = "Restored",
+                lastName = "User",
+                avatar = null
+            )
+        )
+
+        val restored = UserSessionManager(store)
+
+        assertTrue(restored.isLoggedIn.value)
+        assertEquals("restored-1", restored.currentUserId)
+        assertEquals("restored@example.com", restored.currentUser.value?.email)
     }
 
     @Test

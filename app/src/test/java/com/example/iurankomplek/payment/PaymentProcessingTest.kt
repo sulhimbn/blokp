@@ -10,7 +10,11 @@ import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.*
+import org.mockito.Mockito
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
+import org.mockito.kotlin.any
 import java.math.BigDecimal
 import java.util.Date
 
@@ -48,15 +52,15 @@ class PaymentProcessingTest {
             referenceNumber = "ref123"
         )
         
-        `when`(mockPaymentGateway.processPayment(request)).thenReturn(Result.success(mockResponse))
+        Mockito.`when`(mockPaymentGateway.processPayment(request)).thenReturn(Result.success(mockResponse))
         
         // Act
         val result = transactionRepository.processPayment(request)
         
         // Assert
         assertTrue(result.isSuccess)
-        verify(mockTransactionDao, times(2)).insert(any(Transaction::class.java)) // Once for initial, once for update
-        verify(mockTransactionDao).update(any(Transaction::class.java))
+        verify(mockTransactionDao, times(1)).insert(any<Transaction>())
+        verify(mockTransactionDao, times(1)).update(any<Transaction>())
     }
 
     @Test
@@ -70,15 +74,15 @@ class PaymentProcessingTest {
         )
         
         val exception = Exception("Payment gateway error")
-        `when`(mockPaymentGateway.processPayment(request)).thenReturn(Result.failure(exception))
+        Mockito.`when`(mockPaymentGateway.processPayment(request)).thenReturn(Result.failure(exception))
         
         // Act
         val result = transactionRepository.processPayment(request)
         
         // Assert
         assertTrue(result.isFailure)
-        verify(mockTransactionDao, times(1)).insert(any(Transaction::class.java)) // Initial insert
-        verify(mockTransactionDao).update(any(Transaction::class.java)) // Status update to FAILED
+        verify(mockTransactionDao, times(1)).insert(any<Transaction>()) // Initial insert
+        verify(mockTransactionDao).update(any<Transaction>()) // Status update to FAILED
     }
 
     @Test
@@ -139,14 +143,25 @@ class PaymentProcessingTest {
             reason = "Test refund"
         )
 
-        `when`(mockPaymentGateway.refundPayment(transactionId)).thenReturn(Result.success(mockResponse))
+        val storedTransaction = Transaction.create(
+            PaymentRequest(
+                amount = BigDecimal("100.00"),
+                description = "Test payment",
+                customerId = "test_user",
+                paymentMethod = PaymentMethod.CREDIT_CARD
+            )
+        ).copy(id = transactionId)
+        Mockito.`when`(mockTransactionDao.getTransactionById(transactionId)).thenReturn(storedTransaction)
+        Mockito.`when`(mockPaymentGateway.refundPayment(transactionId)).thenReturn(Result.success(mockResponse))
 
         // Act
         val result = transactionRepository.refundPayment(transactionId, "Test refund")
 
         // Assert
         assertTrue(result.isSuccess)
-        verify(mockTransactionDao).update(any(Transaction::class.java))
+        val refundCaptor = org.mockito.kotlin.argumentCaptor<Transaction>()
+        verify(mockTransactionDao).update(refundCaptor.capture())
+        assertEquals(PaymentStatus.REFUNDED, refundCaptor.firstValue.status)
     }
 
     @Test
@@ -154,7 +169,7 @@ class PaymentProcessingTest {
         // Arrange
         val transactionId = "test_transaction_id"
         val exception = Exception("Refund gateway error")
-        `when`(mockPaymentGateway.refundPayment(transactionId)).thenReturn(Result.failure(exception))
+        Mockito.`when`(mockPaymentGateway.refundPayment(transactionId)).thenReturn(Result.failure(exception))
 
         // Act
         val result = transactionRepository.refundPayment(transactionId, "Test refund")

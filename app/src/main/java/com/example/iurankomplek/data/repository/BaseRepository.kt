@@ -3,7 +3,9 @@ package com.example.iurankomplek.data.repository
 import com.example.iurankomplek.utils.ErrorHandler
 import com.example.iurankomplek.utils.CacheManager
 import com.example.iurankomplek.utils.Constants
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 import java.net.SocketTimeoutException
@@ -49,7 +51,7 @@ abstract class BaseNetworkRepository {
     protected suspend fun <T, R> executeWithRetry(
         operation: suspend () -> Response<T>,
         transform: (T) -> R
-    ): Result<R> {
+    ): Result<R> = withContext(Dispatchers.IO) {
         var currentRetry = 0
         var lastException: Exception? = null
         
@@ -59,9 +61,9 @@ abstract class BaseNetworkRepository {
                 if (response.isSuccessful) {
                     val responseBody = response.body()
                     if (responseBody != null) {
-                        return Result.success(transform(responseBody))
+                        return@withContext Result.success(transform(responseBody))
                     } else {
-                        return Result.failure(Exception("Response body is null"))
+                        return@withContext Result.failure(Exception("Response body is null"))
                     }
                 } else {
                     val isRetryable = isRetryableError(response.code())
@@ -94,7 +96,7 @@ abstract class BaseNetworkRepository {
             "Unknown error occurred"
         }
         
-        return Result.failure(Exception(errorMessage))
+        Result.failure(Exception(errorMessage))
     }
     
     /**

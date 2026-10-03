@@ -13,6 +13,8 @@ import com.example.iurankomplek.utils.DataValidator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 class UserAdapter(
@@ -20,6 +22,8 @@ class UserAdapter(
     private val coroutineScope: CoroutineScope
 ):
     RecyclerView.Adapter<UserAdapter.ListViewHolder>(){
+
+    private val updateMutex = Mutex()
     
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
         val binding = ItemListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -28,13 +32,15 @@ class UserAdapter(
     
     fun setUsers(newUsers: List<DataItem>) {
         coroutineScope.launch(Dispatchers.Default) {
-            val diffCallback = UserDiffCallback(this@UserAdapter.users, newUsers)
-            val diffResult = DiffUtil.calculateDiff(diffCallback)
+            updateMutex.withLock {
+                val diffCallback = UserDiffCallback(this@UserAdapter.users, newUsers)
+                val diffResult = DiffUtil.calculateDiff(diffCallback)
             
-            withContext(Dispatchers.Main) {
-                this@UserAdapter.users.clear()
-                this@UserAdapter.users.addAll(newUsers)
-                diffResult.dispatchUpdatesTo(this@UserAdapter)
+                withContext(Dispatchers.Main) {
+                    this@UserAdapter.users.clear()
+                    this@UserAdapter.users.addAll(newUsers)
+                    diffResult.dispatchUpdatesTo(this@UserAdapter)
+                }
             }
         }
     }

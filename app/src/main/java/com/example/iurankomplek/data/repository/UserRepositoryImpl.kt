@@ -33,9 +33,12 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun login(email: String, password: String): Result<User> {
         return try {
+            if (email.isBlank() || password.isBlank()) {
+                return Result.failure(Exception("Invalid credentials"))
+            }
             getUsers().fold(
                 onSuccess = { response ->
-                    val user = response.data?.find { it.email == email }
+                    val user = response.data?.find { it.email.equals(email, ignoreCase = true) }
                     if (user != null) {
                         val authenticatedUser = User(
                             id = email,

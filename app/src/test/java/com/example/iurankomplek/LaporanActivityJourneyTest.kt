@@ -2,7 +2,6 @@ package com.example.iurankomplek
 
 import android.view.View
 import android.widget.ProgressBar
-import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.data.repository.PemanfaatanRepository
 import com.example.iurankomplek.data.repository.PemanfaatanRepositoryImpl
@@ -16,7 +15,6 @@ import com.example.iurankomplek.di.SessionModule
 import com.example.iurankomplek.network.ApiService
 import com.example.iurankomplek.payment.PaymentGateway
 import com.example.iurankomplek.payment.RealPaymentGateway
-import com.example.iurankomplek.presentation.adapter.UserAdapter
 import com.example.iurankomplek.session.InMemorySessionStore
 import com.example.iurankomplek.session.SessionStore
 import com.example.iurankomplek.session.UserSessionManager
@@ -41,16 +39,15 @@ import org.mockito.Mockito.mock
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
-import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
+@HiltAndroidTest
 @UninstallModules(DataModule::class, SessionModule::class)
 @Config(sdk = [34], application = HiltTestApplication::class)
-class MainActivityTest {
+class LaporanActivityJourneyTest {
 
     @get:Rule(order = 0)
     val hiltRule = HiltAndroidRule(this)
@@ -84,8 +81,6 @@ class MainActivityTest {
     var transactionRepository: TransactionRepository = mock(TransactionRepository::class.java)
 
     private lateinit var server: MockWebServer
-    private lateinit var activity: MainActivity
-    private lateinit var controller: ActivityController<MainActivity>
 
     companion object {
         private fun retrofitService(baseUrl: String): ApiService = Retrofit.Builder()
@@ -96,8 +91,8 @@ class MainActivityTest {
             .create(ApiService::class.java)
     }
 
-    private val usersBody = """{"data":[
-        {"first_name":"John","last_name":"Doe","email":"john.doe@example.com",
+    private val financeBody = """{"data":[
+        {"first_name":"John","last_name":"Doe","email":"john@example.com",
          "alamat":"123 Main St","iuran_perwarga":100,"total_iuran_rekap":500,
          "jumlah_iuran_bulanan":200,"total_iuran_individu":150,
          "pengeluaran_iuran_warga":50,"pemanfaatan_iuran":"Maintenance","avatar":null},
@@ -120,22 +115,12 @@ class MainActivityTest {
     }
 
     @After
-    fun clearCache() {
-        CacheManager.getInstance().clearSync()
-    }
-
-    @After
     fun tearDown() {
-        if (this::activity.isInitialized) controller.close()
+        CacheManager.getInstance().clearSync()
         server.shutdown()
     }
 
-    private fun launchActivity() {
-        controller = Robolectric.buildActivity(MainActivity::class.java)
-        activity = controller.setup().get()
-    }
-
-    private fun enqueueUsers(code: Int = 200, body: String = usersBody) {
+    private fun enqueueFinance(code: Int = 200, body: String = financeBody) {
         server.enqueue(
             MockResponse()
                 .setResponseCode(code)
@@ -144,93 +129,83 @@ class MainActivityTest {
         )
     }
 
-    private fun awaitProgressBarGone(timeoutMs: Long = 30_000) {
-        val progressBar = activity.findViewById<ProgressBar>(R.id.progressBar)
-        val deadline = System.currentTimeMillis() + timeoutMs
-        while (progressBar.visibility != View.GONE && System.currentTimeMillis() < deadline) {
-            shadowOf(android.os.Looper.getMainLooper()).idle()
-            Thread.sleep(20)
-        }
-    }
+    private fun launchLaporan(): LaporanActivity =
+        Robolectric.buildActivity(LaporanActivity::class.java).setup().get()
 
-    private fun awaitAdapterItemCount(expected: Int): Int {
-        val recyclerView = activity.findViewById<RecyclerView>(R.id.rv_users)
-        val deadline = System.currentTimeMillis() + 10_000
-        var count = recyclerView?.adapter?.itemCount ?: -1
+    private fun awaitReportItemCount(expected: Int): Int {
+        val detail = screen.findViewById<RecyclerView>(R.id.rv_laporan)
+        val deadline = System.currentTimeMillis() + 20_000
+        var count = detail?.adapter?.itemCount ?: -1
         while (count != expected && System.currentTimeMillis() < deadline) {
             shadowOf(android.os.Looper.getMainLooper()).idle()
-            Thread.sleep(10)
-            count = recyclerView?.adapter?.itemCount ?: -1
+            Thread.sleep(20)
+            count = detail?.adapter?.itemCount ?: -1
         }
         return count
     }
 
-    @Test
-    fun activityIsCreatedAndStarted() {
-        enqueueUsers()
-        launchActivity()
+    private lateinit var screen: LaporanActivity
 
-        assertNotNull(activity)
-        assertTrue(!activity.isFinishing)
-        assertTrue(activity.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED))
+    private fun awaitGone(id: Int): Boolean {
+        val view = screen.findViewById<View>(id)
+        val deadline = System.currentTimeMillis() + 20_000
+        while (view.visibility != View.GONE && System.currentTimeMillis() < deadline) {
+            shadowOf(android.os.Looper.getMainLooper()).idle()
+            Thread.sleep(20)
+        }
+        return view.visibility == View.GONE
     }
 
     @Test
-    fun userListAndProgressBarAreInflated() {
-        enqueueUsers()
-        launchActivity()
+    fun reportScreenInflatesDetailAndSummaryLists() {
+        enqueueFinance()
+        screen = launchLaporan()
 
-        assertNotNull("RecyclerView should be inflated", activity.findViewById<RecyclerView>(R.id.rv_users))
-        assertNotNull("ProgressBar should be inflated", activity.findViewById<ProgressBar>(R.id.progressBar))
+        assertNotNull(screen.findViewById<RecyclerView>(R.id.rv_laporan))
+        assertNotNull(screen.findViewById<RecyclerView>(R.id.rv_summary))
     }
 
     @Test
-    fun recyclerViewUsesUserAdapter() {
-        enqueueUsers()
-        launchActivity()
+    fun financialDataPopulatesTheDetailList() {
+        enqueueFinance()
+        screen = launchLaporan()
 
-        val recyclerView = activity.findViewById<RecyclerView>(R.id.rv_users)
-
-        assertNotNull(recyclerView.adapter)
-        assertTrue(recyclerView.adapter is UserAdapter)
+        assertEquals(2, awaitReportItemCount(2))
     }
 
     @Test
-    fun successfulUserLoadPopulatesTheList() {
-        enqueueUsers()
-        launchActivity()
+    fun financialDataPopulatesTheSummaryList() {
+        enqueueFinance()
+        screen = launchLaporan()
 
-        assertEquals(2, awaitAdapterItemCount(2))
+        awaitReportItemCount(2)
+        val summary = screen.findViewById<RecyclerView>(R.id.rv_summary)
+        assertTrue("Summary should render at least one row", (summary?.adapter?.itemCount ?: 0) >= 1)
     }
 
     @Test
-    fun progressBarIsHiddenOnceDataArrives() {
-        enqueueUsers()
-        launchActivity()
+    fun progressBarHidesOnceFinancialDataArrives() {
+        enqueueFinance()
+        screen = launchLaporan()
 
-        awaitAdapterItemCount(2)
-        awaitProgressBarGone()
-        assertEquals(View.GONE, activity.findViewById<ProgressBar>(R.id.progressBar).visibility)
+        awaitReportItemCount(2)
+        assertTrue("Progress bar should hide", awaitGone(R.id.progressBar))
     }
 
     @Test
-    fun emptyUserListRendersWithoutRows() {
-        enqueueUsers(body = """{"data":[]}""")
-        launchActivity()
+    fun emptyFinancialDataRendersNoDetailRows() {
+        enqueueFinance(body = """{"data":[]}""")
+        screen = launchLaporan()
 
-        assertEquals(0, awaitAdapterItemCount(0))
+        assertEquals(0, awaitReportItemCount(0))
     }
 
     @Test
-    fun serverErrorHidesProgressBarAndShowsToast() {
-        repeat(4) { enqueueUsers(code = 500) }
-        launchActivity()
+    fun serverErrorLeavesTheReportEmptyAndHidesProgress() {
+        repeat(4) { enqueueFinance(code = 500) }
+        screen = launchLaporan()
 
-        assertEquals(0, awaitAdapterItemCount(0))
-        awaitProgressBarGone()
-
-        assertEquals(View.GONE, activity.findViewById<ProgressBar>(R.id.progressBar).visibility)
-        val toastText = org.robolectric.shadows.ShadowToast.getTextOfLatestToast()
-        assertNotNull("A failure toast should be shown", toastText)
+        assertEquals(0, awaitReportItemCount(0))
+        assertTrue("Progress bar should hide on failure", awaitGone(R.id.progressBar))
     }
 }

@@ -6,17 +6,30 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.model.Vendor
 import com.example.iurankomplek.presentation.adapter.VendorAdapter
 
-import android.content.Context
-import android.view.View
-import androidx.recyclerview.widget.RecyclerView
-import com.example.iurankomplek.model.Vendor
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.junit.Assert.*
+import org.junit.Rule
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34])
 class VendorAdapterTest {
+
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
+
+    private fun awaitItemCount(expected: Int) {
+        val deadline = System.currentTimeMillis() + 5_000
+        while (vendorAdapter.itemCount != expected && System.currentTimeMillis() < deadline) {
+            Thread.sleep(10)
+        }
+    }
     
     @Mock
     private lateinit var mockContext: Context
@@ -67,12 +80,20 @@ class VendorAdapterTest {
             )
         )
         
-        vendorAdapter = VendorAdapter { /* Handle vendor click */ }
+        vendorAdapter = VendorAdapter { }
+        vendorAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onChanged() = Unit
+            override fun onItemRangeChanged(positionStart: Int, itemCount: Int) = Unit
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) = Unit
+            override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) = Unit
+            override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) = Unit
+        })
         vendorAdapter.submitList(vendors)
     }
     
 @Test
     fun `adapter should have correct item count`() {
+        awaitItemCount(2)
         assertEquals(2, vendorAdapter.itemCount)
     }
     

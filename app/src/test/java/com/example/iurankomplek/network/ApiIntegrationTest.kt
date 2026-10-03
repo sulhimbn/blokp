@@ -1,31 +1,70 @@
 package com.example.iurankomplek.network
 
 import com.example.iurankomplek.model.DataItem
-import com.example.iurankomplek.model.PemanfaatanResponse
-import com.example.iurankomplek.model.UserResponse
-import com.google.gson.Gson
+import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
-@RunWith(RobolectricTestRunner::class)
 class ApiIntegrationTest {
 
     private lateinit var mockWebServer: MockWebServer
     private lateinit var apiService: ApiService
-    private val gson = Gson()
+
+    private fun json(code: Int, body: String) = MockResponse()
+        .setResponseCode(code)
+        .setHeader("Content-Type", "application/json")
+        .setBody(body)
+
+    private fun dataItem(
+        firstName: String = "John",
+        lastName: String = "Doe",
+        email: String = "john.doe@example.com",
+        pemanfaatan: String = "Maintenance"
+    ) = DataItem(
+        first_name = firstName,
+        last_name = lastName,
+        email = email,
+        alamat = "123 Main St",
+        iuran_perwarga = 100,
+        total_iuran_rekap = 500,
+        jumlah_iuran_bulanan = 200,
+        total_iuran_individu = 150,
+        pengeluaran_iuran_warga = 50,
+        pemanfaatan_iuran = pemanfaatan,
+        avatar = "https://example.com/avatar.jpg"
+    )
+
+    private fun usersBody(vararg items: DataItem): String {
+        val data = items.joinToString(",") {
+            """{"first_name":"${it.first_name}","last_name":"${it.last_name}",
+               "email":"${it.email}","alamat":"${it.alamat}",
+               "iuran_perwarga":${it.iuran_perwarga},"total_iuran_rekap":${it.total_iuran_rekap},
+               "jumlah_iuran_bulanan":${it.jumlah_iuran_bulanan},
+               "total_iuran_individu":${it.total_iuran_individu},
+               "pengeluaran_iuran_warga":${it.pengeluaran_iuran_warga},
+               "pemanfaatan_iuran":"${it.pemanfaatan_iuran}","avatar":"${it.avatar}"}"""
+        }
+        return """{"data":[$data]}"""
+    }
 
     @Before
     fun setup() {
         mockWebServer = MockWebServer()
-        mockWebServer.start(8080)
-        apiService = ApiConfig.getApiService()
+        mockWebServer.start()
+        apiService = Retrofit.Builder()
+            .baseUrl(mockWebServer.url("/"))
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
     }
 
     @After
@@ -34,165 +73,82 @@ class ApiIntegrationTest {
     }
 
     @Test
-    fun `getUsers should parse response correctly`() {
-        // Given
-        val mockUsers = listOf(
-            DataItem(
-                first_name = "John",
-                last_name = "Doe",
-                email = "john.doe@example.com",
-                alamat = "123 Main St",
-                iuran_perwarga = 100,
-                total_iuran_rekap = 500,
-                jumlah_iuran_bulanan = 200,
-                total_iuran_individu = 150,
-                pengeluaran_iuran_warga = 50,
-                pemanfaatan_iuran = "Maintenance",
-                avatar = "https://example.com/avatar.jpg"
-            )
-        )
-        val mockResponse = UserResponse(
-            success = true,
-            message = "Users fetched successfully",
-            data = mockUsers
-        )
-        
-        val responseBody = gson.toJson(mockResponse)
-        val response = MockResponse()
-            .setResponseCode(200)
-            .setHeader("Content-Type", "application/json")
-            .setBody(responseBody)
-        
-        mockWebServer.enqueue(response)
+    fun `getUsers parses the response and hits the users path`() = runTest {
+        mockWebServer.enqueue(json(200, usersBody(dataItem())))
 
-        // When
-        val call = apiService.getUsers()
-        val result = call.execute()
+        val result = apiService.getUsers()
 
-        // Then
         assertTrue(result.isSuccessful)
         assertNotNull(result.body())
-        assertEquals(true, result.body()?.success)
-        assertEquals("Users fetched successfully", result.body()?.message)
-        assertNotNull(result.body()?.data)
         assertEquals(1, result.body()?.data?.size)
         assertEquals("John", result.body()?.data?.get(0)?.first_name)
         assertEquals("Doe", result.body()?.data?.get(0)?.last_name)
         assertEquals("john.doe@example.com", result.body()?.data?.get(0)?.email)
+        assertEquals(100, result.body()?.data?.get(0)?.iuran_perwarga)
+
+        val request = mockWebServer.takeRequest()
+        assertEquals("GET", request.method)
+        assertEquals("/users", request.path)
     }
 
     @Test
-    fun `getUsers should handle server error response`() {
-        // Given
-        val response = MockResponse()
-            .setResponseCode(500)
-            .setHeader("Content-Type", "application/json")
-            .setBody("{\"error\": \"Internal server error\"}")
-        
-        mockWebServer.enqueue(response)
+    fun `getUsers surfaces a server error`() = runTest {
+        mockWebServer.enqueue(json(500, """{"error":"Internal server error"}"""))
 
-        // When
-        val call = apiService.getUsers()
-        val result = call.execute()
+        val result = apiService.getUsers()
 
-        // Then
         assertFalse(result.isSuccessful)
         assertEquals(500, result.code())
     }
 
     @Test
-    fun `getUsers should handle empty response`() {
-        // Given
-        val mockResponse = UserResponse(
-            success = true,
-            message = "No users found",
-            data = emptyList()
-        )
-        
-        val responseBody = gson.toJson(mockResponse)
-        val response = MockResponse()
-            .setResponseCode(200)
-            .setHeader("Content-Type", "application/json")
-            .setBody(responseBody)
-        
-        mockWebServer.enqueue(response)
+    fun `getUsers parses an empty list`() = runTest {
+        mockWebServer.enqueue(json(200, """{"data":[]}"""))
 
-        // When
-        val call = apiService.getUsers()
-        val result = call.execute()
+        val result = apiService.getUsers()
 
-        // Then
         assertTrue(result.isSuccessful)
         assertNotNull(result.body())
-        assertEquals(true, result.body()?.success)
-        assertEquals("No users found", result.body()?.message)
-        assertNotNull(result.body()?.data)
         assertTrue(result.body()?.data?.isEmpty() == true)
     }
 
     @Test
-    fun `getPemanfaatan should parse financial response correctly`() {
-        // Given
-        val mockFinancialData = listOf(
-            DataItem(
-                first_name = "Jane",
-                last_name = "Smith",
-                email = "jane.smith@example.com",
-                alamat = "456 Oak Ave",
-                iuran_perwarga = 200,
-                total_iuran_rekap = 600,
-                jumlah_iuran_bulanan = 300,
-                total_iuran_individu = 200,
-                pengeluaran_iuran_warga = 75,
-                pemanfaatan_iuran = "Repairs",
-                avatar = "https://example.com/avatar2.jpg"
-            )
+    fun `getPemanfaatan parses the financial response and hits the pemanfaatan path`() = runTest {
+        mockWebServer.enqueue(
+            json(200, usersBody(dataItem(firstName = "Jane", lastName = "Smith", email = "jane.smith@example.com", pemanfaatan = "Repairs")))
         )
-        val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
-            data = mockFinancialData
-        )
-        
-        val responseBody = gson.toJson(mockResponse)
-        val response = MockResponse()
-            .setResponseCode(200)
-            .setHeader("Content-Type", "application/json")
-            .setBody(responseBody)
-        
-        mockWebServer.enqueue(response)
 
-        // When
-        val call = apiService.getPemanfaatan()
-        val result = call.execute()
+        val result = apiService.getPemanfaatan()
 
-        // Then
         assertTrue(result.isSuccessful)
-        assertNotNull(result.body())
-        assertEquals(true, result.body()?.success)
-        assertEquals("Financial data fetched successfully", result.body()?.message)
-        assertNotNull(result.body()?.data)
         assertEquals(1, result.body()?.data?.size)
         assertEquals("Jane", result.body()?.data?.get(0)?.first_name)
         assertEquals("Repairs", result.body()?.data?.get(0)?.pemanfaatan_iuran)
+
+        val request = mockWebServer.takeRequest()
+        assertEquals("GET", request.method)
+        assertEquals("/pemanfaatan", request.path)
     }
 
     @Test
-    fun `getPemanfaatan should handle server error response`() {
-        // Given
-        val response = MockResponse()
-            .setResponseCode(404)
-            .setHeader("Content-Type", "application/json")
-            .setBody("{\"error\": \"Not found\"}")
-        
-        mockWebServer.enqueue(response)
+    fun `getPemanfaatan surfaces a not found error`() = runTest {
+        mockWebServer.enqueue(json(404, """{"error":"Not found"}"""))
 
-        // When
-        val call = apiService.getPemanfaatan()
-        val result = call.execute()
+        val result = apiService.getPemanfaatan()
 
-        // Then
         assertFalse(result.isSuccessful)
         assertEquals(404, result.code())
+    }
+
+    @Test
+    fun `users and pemanfaatan use distinct paths`() = runTest {
+        mockWebServer.enqueue(json(200, usersBody(dataItem())))
+        mockWebServer.enqueue(json(200, usersBody(dataItem())))
+
+        apiService.getUsers()
+        apiService.getPemanfaatan()
+
+        assertEquals("/users", mockWebServer.takeRequest().path)
+        assertEquals("/pemanfaatan", mockWebServer.takeRequest().path)
     }
 }

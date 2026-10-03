@@ -3,8 +3,16 @@ package com.example.iurankomplek.utils
 import java.net.URL
 
 object DataValidator {
+    private val HTML_TAG = Regex("<[^>]*>")
+    private val CONTROL_CHARS = Regex("[\\p{Cc}\\p{Cf}]")
+    private val CSV_FORMULA_PREFIX = Regex("^[=+\\-@\\t\\r]")
+
+    private fun stripMarkup(input: String): String =
+        CONTROL_CHARS.replace(HTML_TAG.replace(input, ""), "")
+
     fun sanitizeName(input: String?): String {
-        return input?.trim()?.takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_NAME_LENGTH }
+        return stripMarkup(input?.trim().orEmpty())
+            .takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_NAME_LENGTH }
             ?: "Unknown"
     }
     
@@ -16,13 +24,20 @@ object DataValidator {
     }
     
     fun sanitizeAddress(input: String?): String {
-        return input?.trim()?.takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_ADDRESS_LENGTH }
+        return stripMarkup(input?.trim().orEmpty())
+            .takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_ADDRESS_LENGTH }
             ?: "Address not available"
     }
     
     fun sanitizePemanfaatan(input: String?): String {
-        return input?.trim()?.takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_PEMANFAATAN_LENGTH }
+        return stripMarkup(input?.trim().orEmpty())
+            .takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_PEMANFAATAN_LENGTH }
             ?: "Unknown expense"
+    }
+
+    fun sanitizeForCsv(input: String?): String {
+        val value = stripMarkup(input?.trim().orEmpty()).replace("\"", "'")
+        return if (CSV_FORMULA_PREFIX.containsMatchIn(value)) "'$value" else value
     }
     
     fun formatCurrency(amount: Int?): String {

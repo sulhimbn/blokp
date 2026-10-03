@@ -13,7 +13,7 @@ import android.app.Application
 import org.junit.Assert.assertThrows
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [28])
+@Config(sdk = [34])
 class NetworkUtilsTest {
 
     @Test

@@ -14,6 +14,7 @@ import com.itextpdf.layout.element.Paragraph
 import com.itextpdf.layout.element.Table
 import com.itextpdf.layout.properties.TextAlignment
 import com.itextpdf.layout.properties.UnitValue
+import com.example.iurankomplek.utils.DataValidator
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
 import java.io.File
@@ -161,7 +162,7 @@ class ReportExporter(private val context: Context) {
             
             csvPrinter.printRecord("RINGKASAN")
             summaryItems.forEach { item ->
-                csvPrinter.printRecord(item.title, item.value)
+                csvPrinter.printRecord(DataValidator.sanitizeForCsv(item.title), DataValidator.sanitizeForCsv(item.value))
             }
             csvPrinter.println()
             
@@ -170,9 +171,9 @@ class ReportExporter(private val context: Context) {
             
             dataItems.forEach { item ->
                 csvPrinter.printRecord(
-                    "${item.first_name} ${item.last_name}",
-                    item.email,
-                    item.pemanfaatan_iuran,
+                    DataValidator.sanitizeForCsv("${item.first_name} ${item.last_name}"),
+                    DataValidator.sanitizeForCsv(item.email),
+                    DataValidator.sanitizeForCsv(item.pemanfaatan_iuran),
                     item.pengeluaran_iuran_warga
                 )
             }

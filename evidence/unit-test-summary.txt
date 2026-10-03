@@ -1,0 +1,37 @@
+SUITE | TESTS | FAILURES | TIME(s)
+----------------------------------------------------------------------
+DataValidatorTest | 45 | 0 | 0.01
+UserRepositoryImplTest | 25 | 0 | 47.37
+CacheManagerTest | 22 | 0 | 0.06
+PemanfaatanRepositoryImplTest | 19 | 0 | 45.71
+VendorRepositoryImplTest | 15 | 0 | 0.06
+WebhookSecurityUtilTest | 15 | 0 | 0.02
+UserAdapterTest | 14 | 0 | 0.52
+ErrorHandlerTest | 13 | 0 | 0.00
+FinancialCalculatorTest | 12 | 0 | 0.01
+EventBusTest | 12 | 0 | 0.06
+FoundationInfrastructureTest | 10 | 0 | 0.09
+UserSessionManagerTest | 10 | 0 | 0.59
+ConvertersTest | 10 | 0 | 0.01
+DataModelTest | 9 | 0 | 0.02
+VendorViewModelTest | 9 | 0 | 1.06
+ValidatedDataItemTest | 8 | 0 | 0.01
+NetworkIntegrationTest | 8 | 0 | 0.09
+LaporanActivityCalculationTest | 7 | 0 | 0.00
+MainActivityTest | 7 | 0 | 11.34
+PemanfaatanAdapterTest | 7 | 0 | 0.23
+LaporanActivityJourneyTest | 6 | 0 | 17.82
+ApiIntegrationTest | 6 | 0 | 0.24
+PaymentProcessingTest | 6 | 0 | 0.20
+FinancialViewModelTest | 6 | 0 | 0.20
+MenuActivityJourneyTest | 5 | 0 | 0.63
+SecurityManagerTest | 5 | 0 | 0.00
+UserViewModelTest | 5 | 0 | 0.10
+PaymentApiTest | 4 | 0 | 0.05
+ApiConfigTest | 3 | 0 | 0.69
+VendorAdapterTest | 3 | 0 | 2.75
+VendorModelTest | 2 | 0 | 0.02
+ExampleUnitTest | 1 | 0 | 0.00
+NetworkUtilsTest | 1 | 0 | 0.10
+----------------------------------------------------------------------
+TOTAL | 330 | 0 | 130.1

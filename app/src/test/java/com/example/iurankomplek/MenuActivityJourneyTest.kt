@@ -1,16 +1,9 @@
 package com.example.iurankomplek
 
+import android.content.Intent
 import androidx.recyclerview.widget.RecyclerView
-import androidx.test.core.app.ActivityScenario
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.swipeUp
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.contrib.RecyclerViewActions.scrollToPosition
-import androidx.test.espresso.matcher.ViewMatchers.hasChildCount
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.LargeTest
+import androidx.test.core.app.ApplicationProvider
+import org.robolectric.RobolectricTestRunner
 import com.example.iurankomplek.data.repository.PemanfaatanRepository
 import com.example.iurankomplek.data.repository.PemanfaatanRepositoryImpl
 import com.example.iurankomplek.data.repository.TransactionRepository
@@ -30,24 +23,31 @@ import com.example.iurankomplek.utils.CacheManager
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.HiltTestApplication
 import dagger.hilt.android.testing.UninstallModules
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
+import org.robolectric.Robolectric
+import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
+@RunWith(RobolectricTestRunner::class)
 @HiltAndroidTest
-@LargeTest
-@RunWith(AndroidJUnit4::class)
 @UninstallModules(DataModule::class, SessionModule::class)
-class MainActivityEspressoTest {
+@Config(sdk = [34], application = HiltTestApplication::class)
+class MenuActivityJourneyTest {
 
     @get:Rule(order = 0)
     val hiltRule = HiltAndroidRule(this)
@@ -91,20 +91,6 @@ class MainActivityEspressoTest {
             .create(ApiService::class.java)
     }
 
-    private val usersBody = """{"data":[
-        {"first_name":"John","last_name":"Doe","email":"john.doe@example.com",
-         "alamat":"123 Main St","iuran_perwarga":100,"total_iuran_rekap":500,
-         "jumlah_iuran_bulanan":200,"total_iuran_individu":150,
-         "pengeluaran_iuran_warga":50,"pemanfaatan_iuran":"Maintenance","avatar":null},
-        {"first_name":"Jane","last_name":"Smith","email":"jane@example.com",
-         "alamat":"456 Oak Ave","iuran_perwarga":200,"total_iuran_rekap":600,
-         "jumlah_iuran_bulanan":300,"total_iuran_individu":210,
-         "pengeluaran_iuran_warga":75,"pemanfaatan_iuran":"Repairs","avatar":null},
-        {"first_name":"Budi","last_name":"Santoso","email":"budi@example.com",
-         "alamat":"789 Pine Rd","iuran_perwarga":150,"total_iuran_rekap":450,
-         "jumlah_iuran_bulanan":250,"total_iuran_individu":180,
-         "pengeluaran_iuran_warga":40,"pemanfaatan_iuran":"Security","avatar":null}]}"""
-
     @Before
     fun setup() {
         server = MockWebServer()
@@ -116,12 +102,6 @@ class MainActivityEspressoTest {
         paymentGateway = RealPaymentGateway(apiService)
         CacheManager.getInstance().clearSync()
         hiltRule.inject()
-        server.enqueue(
-            MockResponse()
-                .setResponseCode(200)
-                .setHeader("Content-Type", "application/json")
-                .setBody(usersBody)
-        )
     }
 
     @After
@@ -130,48 +110,60 @@ class MainActivityEspressoTest {
         server.shutdown()
     }
 
+    private fun launchMenu(): MenuActivity =
+        Robolectric.buildActivity(MenuActivity::class.java).setup().get()
+
     @Test
-    fun userListIsRenderedWhenDataLoads() {
-        ActivityScenario.launch(MainActivity::class.java).use {
-            onView(withId(R.id.rv_users))
-                .check(matches(isDisplayed()))
-                .check(matches(hasChildCount(3)))
-        }
+    fun menuScreenRendersAllFourDestinationCards() {
+        val activity = launchMenu()
+
+        assertNotNull(activity.findViewById<android.view.View>(R.id.cdMenu1))
+        assertNotNull(activity.findViewById<android.view.View>(R.id.cdMenu2))
+        assertNotNull(activity.findViewById<android.view.View>(R.id.cdMenu3))
+        assertNotNull(activity.findViewById<android.view.View>(R.id.cdMenu4))
     }
 
     @Test
-    fun progressBarIsHiddenAfterDataArrives() {
-        ActivityScenario.launch(MainActivity::class.java).use {
-            onView(withId(R.id.progressBar)).check(matches(isDisplayed()))
-        }
+    fun firstMenuCardOpensTheResidentList() {
+        val activity = launchMenu()
+
+        activity.findViewById<android.view.View>(R.id.cdMenu1).performClick()
+
+        val started = shadowOf(activity).nextStartedActivity
+        assertNotNull("cdMenu1 should start an activity", started)
+        assertEquals(MainActivity::class.java.name, started.component?.className)
     }
 
     @Test
-    fun userListScrollsToTheLastResident() {
-        ActivityScenario.launch(MainActivity::class.java).use {
-            onView(withId(R.id.rv_users))
-                .perform(scrollToPosition<RecyclerView.ViewHolder>(2))
-        }
+    fun secondMenuCardOpensTheFinancialReport() {
+        val activity = launchMenu()
+
+        activity.findViewById<android.view.View>(R.id.cdMenu2).performClick()
+
+        val started = shadowOf(activity).nextStartedActivity
+        assertNotNull("cdMenu2 should start an activity", started)
+        assertEquals(LaporanActivity::class.java.name, started.component?.className)
     }
 
     @Test
-    fun userListAcceptsASwipeGesture() {
-        ActivityScenario.launch(MainActivity::class.java).use {
-            onView(withId(R.id.rv_users)).perform(swipeUp())
-        }
+    fun thirdMenuCardOpensCommunication() {
+        val activity = launchMenu()
+
+        activity.findViewById<android.view.View>(R.id.cdMenu3).performClick()
+
+        val started = shadowOf(activity).nextStartedActivity
+        assertNotNull("cdMenu3 should start an activity", started)
+        assertEquals(CommunicationActivity::class.java.name, started.component?.className)
     }
 
     @Test
-    fun emptyUserListRendersNoRows() {
-        server.enqueue(
-            MockResponse()
-                .setResponseCode(200)
-                .setHeader("Content-Type", "application/json")
-                .setBody("""{"data":[]}""")
-        )
+    fun fourthMenuCardOpensPayments() {
+        val activity = launchMenu()
 
-        ActivityScenario.launch(MainActivity::class.java).use {
-            onView(withId(R.id.rv_users)).check(matches(hasChildCount(0)))
-        }
+        activity.findViewById<android.view.View>(R.id.cdMenu4).performClick()
+
+        val started = shadowOf(activity).nextStartedActivity
+        assertNotNull("cdMenu4 should start an activity", started)
+        assertEquals(PaymentActivity::class.java.name, started.component?.className)
     }
 }

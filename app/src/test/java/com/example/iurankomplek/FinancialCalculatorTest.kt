@@ -363,34 +363,12 @@ class FinancialCalculatorTest {
     }
 
     @Test(expected = ArithmeticException::class)
-    fun testCalculateTotalIuranBulanan_throwsOnOverflow() {
+    fun testCalculateTotalIuranBulanan_throwsWhenSumOverflows() {
+        val large = Int.MAX_VALUE / 2
         val itemsWithLargeValues = listOf(
-            DataItem(
-                first_name = "John",
-                last_name = "Doe",
-                email = "john@example.com",
-                alamat = "Jl. Test 1",
-                iuran_perwarga = Int.MAX_VALUE - 1,  // Very large value that will cause overflow
-                total_iuran_rekap = 0,
-                jumlah_iuran_bulanan = 0,
-                total_iuran_individu = 50,
-                pengeluaran_iuran_warga = 25,
-                pemanfaatan_iuran = "Test",
-                avatar = ""
-            ),
-            DataItem(
-                first_name = "Jane",
-                last_name = "Doe",
-                email = "jane@example.com",
-                alamat = "Jl. Test 2",
-                iuran_perwarga = 100,
-                total_iuran_rekap = 0,
-                jumlah_iuran_bulanan = 0,
-                total_iuran_individu = 75,
-                pengeluaran_iuran_warga = 30,
-                pemanfaatan_iuran = "Test",
-                avatar = ""
-            )
+            dataItem(iuranPerwarga = large),
+            dataItem(iuranPerwarga = large),
+            dataItem(iuranPerwarga = large)
         )
 
         FinancialCalculator.calculateTotalIuranBulanan(itemsWithLargeValues)
@@ -447,6 +425,24 @@ class FinancialCalculatorTest {
 
         // If the bug existed (only last item used), result would be 30 * 3 = 90
         // But with proper accumulation: (10*3) + (20*3) + (30*3) = 30 + 60 + 90 = 180
-        assertEquals(180, totalIuranIndividu, "Bug fix verification: totalIuranIndividu should accumulate all items, not just take the last item value")
+        assertEquals(180, totalIuranIndividu)
     }
+
+    private fun dataItem(
+        iuranPerwarga: Int = 100,
+        totalIuranIndividu: Int = 50,
+        pengeluaran: Int = 25
+    ) = DataItem(
+        first_name = "John",
+        last_name = "Doe",
+        email = "john@example.com",
+        alamat = "Jl. Test 1",
+        iuran_perwarga = iuranPerwarga,
+        total_iuran_rekap = 0,
+        jumlah_iuran_bulanan = 0,
+        total_iuran_individu = totalIuranIndividu,
+        pengeluaran_iuran_warga = pengeluaran,
+        pemanfaatan_iuran = "Test",
+        avatar = ""
+    )
 }

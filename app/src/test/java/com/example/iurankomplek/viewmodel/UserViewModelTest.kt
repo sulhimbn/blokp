@@ -2,6 +2,7 @@ package com.example.iurankomplek.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.iurankomplek.data.repository.UserRepository
+import com.example.iurankomplek.event.EventBus
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.model.UserResponse
 import com.example.iurankomplek.utils.UiState
@@ -29,6 +30,8 @@ class UserViewModelTest {
     @Mock
     private lateinit var userRepository: UserRepository
 
+    private val eventBus = EventBus()
+
     private lateinit var viewModel: UserViewModel
 
     private val testDispatcher = StandardTestDispatcher()
@@ -36,7 +39,7 @@ class UserViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        viewModel = UserViewModel(userRepository)
+        viewModel = UserViewModel(userRepository, eventBus)
     }
 
     @After
@@ -45,7 +48,7 @@ class UserViewModelTest {
     }
 
     @Test
-    fun `loadUsers should emit Loading state initially`() = runTest {
+    fun `loadUsers should emit Loading state initially`() = runTest(testDispatcher) {
         // Given
         val mockUsers = listOf(
             DataItem(
@@ -62,10 +65,7 @@ class UserViewModelTest {
                 avatar = "https://example.com/avatar.jpg"
             )
         )
-        val mockResponse = UserResponse(
-            success = true,
-            message = "Users fetched successfully",
-            data = mockUsers
+        val mockResponse = UserResponse(data = mockUsers
         )
         Mockito.`when`(userRepository.getUsers()).thenReturn(Result.success(mockResponse))
 
@@ -78,7 +78,7 @@ class UserViewModelTest {
     }
 
     @Test
-    fun `loadUsers should emit Success state when repository returns data`() = runTest {
+    fun `loadUsers should emit Success state when repository returns data`() = runTest(testDispatcher) {
         // Given
         val mockUsers = listOf(
             DataItem(
@@ -95,10 +95,7 @@ class UserViewModelTest {
                 avatar = "https://example.com/avatar.jpg"
             )
         )
-        val mockResponse = UserResponse(
-            success = true,
-            message = "Users fetched successfully",
-            data = mockUsers
+        val mockResponse = UserResponse(data = mockUsers
         )
         Mockito.`when`(userRepository.getUsers()).thenReturn(Result.success(mockResponse))
 
@@ -113,7 +110,7 @@ class UserViewModelTest {
     }
 
     @Test
-    fun `loadUsers should emit Error state when repository returns error`() = runTest {
+    fun `loadUsers should emit Error state when repository returns error`() = runTest(testDispatcher) {
         // Given
         val errorMessage = "Network error occurred"
         Mockito.`when`(userRepository.getUsers()).thenReturn(Result.failure(IOException(errorMessage)))
@@ -125,11 +122,11 @@ class UserViewModelTest {
         advanceUntilIdle()
         val state = viewModel.usersState.value
         assertTrue(state is UiState.Error)
-        assertEquals(errorMessage, (state as UiState.Error).message)
+        assertEquals(errorMessage, (state as UiState.Error).error)
     }
 
     @Test
-    fun `loadUsers should not make duplicate calls when already loading`() = runTest {
+    fun `loadUsers should not make duplicate calls when already loading`() = runTest(testDispatcher) {
         // Given
         val mockUsers = listOf(
             DataItem(
@@ -146,10 +143,7 @@ class UserViewModelTest {
                 avatar = "https://example.com/avatar.jpg"
             )
         )
-        val mockResponse = UserResponse(
-            success = true,
-            message = "Users fetched successfully",
-            data = mockUsers
+        val mockResponse = UserResponse(data = mockUsers
         )
         Mockito.`when`(userRepository.getUsers()).thenReturn(Result.success(mockResponse))
 
@@ -157,6 +151,7 @@ class UserViewModelTest {
         viewModel.loadUsers()
         // Try to call loadUsers again while the first one is still in progress
         viewModel.loadUsers()
+        advanceUntilIdle()
 
         // Then
         // Verify that userRepository.getUsers() was only called once
@@ -164,12 +159,9 @@ class UserViewModelTest {
     }
 
     @Test
-    fun `loadUsers should update state correctly for empty data`() = runTest {
+    fun `loadUsers should update state correctly for empty data`() = runTest(testDispatcher) {
         // Given
-        val mockResponse = UserResponse(
-            success = true,
-            message = "No users found",
-            data = emptyList()
+        val mockResponse = UserResponse(data = emptyList()
         )
         Mockito.`when`(userRepository.getUsers()).thenReturn(Result.success(mockResponse))
 

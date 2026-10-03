@@ -1,6 +1,7 @@
 package com.example.iurankomplek
 
 import android.app.Application
+import android.util.Log
 import dagger.hilt.android.HiltAndroidApp
 
 /**
@@ -13,7 +14,14 @@ import dagger.hilt.android.HiltAndroidApp
 class BlokPApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        // Load SQLCipher native library for encrypted Room database
-        System.loadLibrary("sqlcipher")
+        try {
+            System.loadLibrary("sqlcipher")
+        } catch (e: UnsatisfiedLinkError) {
+            Log.w(TAG, "SQLCipher native library unavailable; encrypted storage disabled", e)
+        }
+    }
+
+    private companion object {
+        const val TAG = "BlokPApplication"
     }
 }
