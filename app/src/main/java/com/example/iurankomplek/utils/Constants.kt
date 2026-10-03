@@ -33,8 +33,10 @@ object Constants {
 
         // Webhook Security Constants
         // PRODUCTION: MUST set BuildConfig.WEBHOOK_SECRET via CI/CD secrets
-        // DEBUG: Falls back to this placeholder (should never be used in production)
-        const val WEBHOOK_SECRET_KEY = "whsec_placeholder_replace_in_production"
+        // There is deliberately no fallback secret: a value committed to the repo would be
+        // readable from any decompiled APK, which turns signature verification into a no-op.
+        // WebhookSecurityUtil fails closed when the secret is absent.
+        const val WEBHOOK_SECRET_KEY = ""
         const val WEBHOOK_SIGNATURE_HEADER = "X-Webhook-Signature"
         const val WEBHOOK_TIMESTAMP_HEADER = "X-Webhook-Timestamp"
         const val WEBHOOK_TIMESTAMP_TOLERANCE_MS = 5 * 60 * 1000L // 5 minutes

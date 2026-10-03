@@ -22,6 +22,12 @@ class UserViewModel @Inject constructor(
     private val _usersState = MutableStateFlow<UiState<UserResponse>>(UiState.Loading)
     val usersState: StateFlow<UiState<UserResponse>> = _usersState
 
+    /**
+     * Guards against overlapping requests. It cannot be derived from usersState, because the
+     * flow starts out as Loading and would then block the very first load.
+     */
+    private var loadInFlight = false
+
     init {
         observeEvents()
     }
@@ -39,7 +45,8 @@ class UserViewModel @Inject constructor(
     }
 
     fun loadUsers() {
-        if (_usersState.value is UiState.Loading) return
+        if (loadInFlight) return
+        loadInFlight = true
 
         viewModelScope.launch {
             _usersState.value = UiState.Loading
@@ -50,6 +57,7 @@ class UserViewModel @Inject constructor(
                 .onFailure { exception ->
                     _usersState.value = UiState.Error(exception.message ?: "Unknown error occurred")
                 }
+            loadInFlight = false
         }
     }
 }

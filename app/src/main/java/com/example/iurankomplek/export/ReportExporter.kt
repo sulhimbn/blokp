@@ -25,6 +25,26 @@ import java.util.Locale
 
 class ReportExporter(private val context: Context) {
 
+    companion object {
+        /**
+         * Spreadsheet apps treat a cell starting with = + - @ (or a leading control
+         * character) as a formula, so an attacker-controlled name or utilisation note would
+         * execute when the recipient opens the exported file. Prefixing with an apostrophe
+         * forces the cell to be read as text.
+         */
+        internal fun escapeCsvFormula(value: String?): String? {
+            if (value == null) return null
+            val firstMeaningful = value.firstOrNull { !it.isWhitespace() || it == '\t' || it == '\n' || it == '\r' }
+            val dangerous = firstMeaningful == '=' ||
+                firstMeaningful == '+' ||
+                firstMeaningful == '-' ||
+                firstMeaningful == '@' ||
+                firstMeaningful == '\t' ||
+                firstMeaningful == '\r'
+            return if (dangerous) "'$value" else value
+        }
+    }
+
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.getDefault())
     private val displayDateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
 
@@ -170,9 +190,9 @@ class ReportExporter(private val context: Context) {
             
             dataItems.forEach { item ->
                 csvPrinter.printRecord(
-                    "${item.first_name} ${item.last_name}",
-                    item.email,
-                    item.pemanfaatan_iuran,
+                    escapeCsvFormula("${item.first_name} ${item.last_name}"),
+                    escapeCsvFormula(item.email),
+                    escapeCsvFormula(item.pemanfaatan_iuran),
                     item.pengeluaran_iuran_warga
                 )
             }

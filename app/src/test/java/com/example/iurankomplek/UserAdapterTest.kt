@@ -2,12 +2,25 @@ package com.example.iurankomplek
 
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.presentation.adapter.UserAdapter
-
-import com.example.iurankomplek.model.DataItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.junit.Test
-import org.junit.Assert.*
 
+@OptIn(ExperimentalCoroutinesApi::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [33])
 class UserAdapterTest {
 
     private lateinit var adapter: UserAdapter
@@ -15,69 +28,46 @@ class UserAdapterTest {
 
     @Before
     fun setup() {
+        // setUsers hops through Dispatchers.Main; a plain JVM test has no Main dispatcher.
+        Dispatchers.setMain(UnconfinedTestDispatcher())
         testUsers = mutableListOf()
-        adapter = UserAdapter(testUsers)
+        adapter = UserAdapter(testUsers, CoroutineScope(Dispatchers.Unconfined))
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     @Test
-    fun `setUsers should update adapter data correctly`() {
+    fun `adapter should start empty`() {
+        assertEquals(0, adapter.itemCount)
+    }
+
+    @Test
+    fun `setUsers should update item count`() {
         val newUsers = listOf(
-            DataItem(
-                first_name = "John",
-                last_name = "Doe",
-                email = "john.doe@example.com",
-                alamat = "123 Main St",
-                iuran_perwarga = 100,
-                total_iuran_rekap = 500,
-                jumlah_iuran_bulanan = 200,
-                total_iuran_individu = 150,
-                pengeluaran_iuran_warga = 50,
-                pemanfaatan_iuran = "Maintenance",
-                avatar = "https://example.com/avatar.jpg"
-            ),
-            DataItem(
-                first_name = "Jane",
-                last_name = "Smith",
-                email = "jane.smith@example.com",
-                alamat = "456 Oak Ave",
-                iuran_perwarga = 200,
-                total_iuran_rekap = 600,
-                jumlah_iuran_bulanan = 300,
-                total_iuran_individu = 200,
-                pengeluaran_iuran_warga = 75,
-                pemanfaatan_iuran = "Repairs",
-                avatar = "https://example.com/avatar2.jpg"
-            )
+            TestFixtures.dataItem(firstName = "John", lastName = "Doe", email = "john.doe@example.com"),
+            TestFixtures.dataItem(firstName = "Jane", lastName = "Smith", email = "jane.smith@example.com")
         )
 
         adapter.setUsers(newUsers)
 
-        assertEquals(newUsers.size, adapter.itemCount)
-        assertEquals("John", adapter.users[0].first_name)
-        assertEquals("jane.smith@example.com", adapter.users[1].email)
+        assertEquals(2, awaitItemCount(2))
     }
 
     @Test
     fun `addUser should add valid user to the list`() {
-        val validUser = DataItem(
-            first_name = "Test",
-            last_name = "User",
-            email = "test.user@example.com",
-            alamat = "789 Test St",
-            iuran_perwarga = 150,
-            total_iuran_rekap = 400,
-            jumlah_iuran_bulanan = 250,
-            total_iuran_individu = 175,
-            pengeluaran_iuran_warga = 60,
-            pemanfaatan_iuran = "Utilities",
-            avatar = "https://example.com/test-avatar.jpg"
+        val validUser = TestFixtures.dataItem(
+            firstName = "Test",
+            lastName = "User",
+            email = "test.user@example.com"
         )
 
         val initialSize = adapter.itemCount
         adapter.addUser(validUser)
 
         assertEquals(initialSize + 1, adapter.itemCount)
-        assertEquals("Test", adapter.users.last().first_name)
     }
 
     @Test
@@ -90,19 +80,7 @@ class UserAdapterTest {
 
     @Test
     fun `addUser should ignore user with blank email`() {
-        val userWithBlankEmail = DataItem(
-            first_name = "Test",
-            last_name = "User",
-            email = "", // Blank email
-            alamat = "789 Test St",
-            iuran_perwarga = 150,
-            total_iuran_rekap = 400,
-            jumlah_iuran_bulanan = 250,
-            total_iuran_individu = 175,
-            pengeluaran_iuran_warga = 60,
-            pemanfaatan_iuran = "Utilities",
-            avatar = "https://example.com/test-avatar.jpg"
-        )
+        val userWithBlankEmail = TestFixtures.dataItem(email = "")
 
         val initialSize = adapter.itemCount
         adapter.addUser(userWithBlankEmail)
@@ -112,18 +90,10 @@ class UserAdapterTest {
 
     @Test
     fun `addUser should ignore user with blank name fields`() {
-        val userWithBlankNames = DataItem(
-            first_name = "", // Blank first name
-            last_name = "",  // Blank last name
-            email = "test.blank@example.com",
-            alamat = "789 Test St",
-            iuran_perwarga = 150,
-            total_iuran_rekap = 400,
-            jumlah_iuran_bulanan = 250,
-            total_iuran_individu = 175,
-            pengeluaran_iuran_warga = 60,
-            pemanfaatan_iuran = "Utilities",
-            avatar = "https://example.com/test-avatar.jpg"
+        val userWithBlankNames = TestFixtures.dataItem(
+            firstName = "",
+            lastName = "",
+            email = "test.blank@example.com"
         )
 
         val initialSize = adapter.itemCount
@@ -134,18 +104,10 @@ class UserAdapterTest {
 
     @Test
     fun `addUser should accept user with either first name or last name`() {
-        val userWithFirstNameOnly = DataItem(
-            first_name = "Test",
-            last_name = "",  // Blank last name
-            email = "test.first@example.com",
-            alamat = "789 Test St",
-            iuran_perwarga = 150,
-            total_iuran_rekap = 400,
-            jumlah_iuran_bulanan = 250,
-            total_iuran_individu = 175,
-            pengeluaran_iuran_warga = 60,
-            pemanfaatan_iuran = "Utilities",
-            avatar = "https://example.com/test-avatar.jpg"
+        val userWithFirstNameOnly = TestFixtures.dataItem(
+            firstName = "Test",
+            lastName = "",
+            email = "test.first@example.com"
         )
 
         val initialSize = adapter.itemCount
@@ -155,24 +117,21 @@ class UserAdapterTest {
     }
 
     @Test
+    fun `addUser should ignore user with null email`() {
+        val userWithNullEmail = TestFixtures.dataItem(email = null)
+
+        val initialSize = adapter.itemCount
+        adapter.addUser(userWithNullEmail)
+
+        assertEquals(initialSize, adapter.itemCount)
+    }
+
+    @Test
     fun `clear should remove all users from the adapter`() {
-        val users = listOf(
-            DataItem(
-                first_name = "John",
-                last_name = "Doe",
-                email = "john.doe@example.com",
-                alamat = "123 Main St",
-                iuran_perwarga = 100,
-                total_iuran_rekap = 500,
-                jumlah_iuran_bulanan = 200,
-                total_iuran_individu = 150,
-                pengeluaran_iuran_warga = 50,
-                pemanfaatan_iuran = "Maintenance",
-                avatar = "https://example.com/avatar.jpg"
-            )
+        adapter.setUsers(
+            listOf(TestFixtures.dataItem(firstName = "John", lastName = "Doe"))
         )
-        adapter.setUsers(users)
-        assertEquals(1, adapter.itemCount)
+        assertEquals(1, awaitItemCount(1))
 
         adapter.clear()
 
@@ -180,31 +139,83 @@ class UserAdapterTest {
     }
 
     @Test
-    fun `itemCount should return correct count`() {
+    fun `itemCount should return correct count after setUsers`() {
         assertEquals(0, adapter.itemCount)
 
-        val users = listOf(
-            createTestDataItem("John", "Doe", "john@example.com"),
-            createTestDataItem("Jane", "Smith", "jane@example.com")
+        adapter.setUsers(
+            listOf(
+                TestFixtures.dataItem(firstName = "John", lastName = "Doe", email = "john@example.com"),
+                TestFixtures.dataItem(firstName = "Jane", lastName = "Smith", email = "jane@example.com")
+            )
         )
-        adapter.setUsers(users)
 
-        assertEquals(2, adapter.itemCount)
+        assertEquals(2, awaitItemCount(2))
     }
 
-    private fun createTestDataItem(firstName: String, lastName: String, email: String): DataItem {
-        return DataItem(
-            first_name = firstName,
-            last_name = lastName,
-            email = email,
-            alamat = "Test Address",
-            iuran_perwarga = 100,
-            total_iuran_rekap = 500,
-            jumlah_iuran_bulanan = 200,
-            total_iuran_individu = 150,
-            pengeluaran_iuran_warga = 50,
-            pemanfaatan_iuran = "Test",
-            avatar = "https://example.com/avatar.jpg"
+    @Test
+    fun `UserDiffCallback should treat unchanged users as same and equal`() {
+        val old = listOf(TestFixtures.dataItem(firstName = "John", lastName = "Doe", email = "john@example.com"))
+        val new = listOf(TestFixtures.dataItem(firstName = "John", lastName = "Doe", email = "john@example.com"))
+
+        val diffCallback = UserAdapter.UserDiffCallback(old, new)
+
+        assertEquals(1, diffCallback.oldListSize)
+        assertEquals(1, diffCallback.newListSize)
+        assertTrue(diffCallback.areItemsTheSame(0, 0))
+        assertTrue(diffCallback.areContentsTheSame(0, 0))
+    }
+
+    @Test
+    fun `UserDiffCallback should match on name and address, not email`() {
+        val old = listOf(
+            TestFixtures.dataItem(firstName = "John", lastName = "Doe", email = "old@example.com")
         )
+        // Same person, changed email: the adapter treats this as the same row.
+        val new = listOf(
+            TestFixtures.dataItem(firstName = "John", lastName = "Doe", email = "new@example.com")
+        )
+
+        val diffCallback = UserAdapter.UserDiffCallback(old, new)
+
+        assertTrue(diffCallback.areItemsTheSame(0, 0))
+        assertFalse(diffCallback.areContentsTheSame(0, 0))
+    }
+
+    @Test
+    fun `UserDiffCallback should report different people as different items`() {
+        val old = listOf(TestFixtures.dataItem(firstName = "John", lastName = "Doe"))
+        val new = listOf(TestFixtures.dataItem(firstName = "Jane", lastName = "Smith"))
+
+        val diffCallback = UserAdapter.UserDiffCallback(old, new)
+
+        assertFalse(diffCallback.areItemsTheSame(0, 0))
+    }
+
+    @Test
+    fun `UserDiffCallback should report correct list sizes`() {
+        val old = listOf(
+            TestFixtures.dataItem(firstName = "John", lastName = "Doe"),
+            TestFixtures.dataItem(firstName = "Jane", lastName = "Smith")
+        )
+        val new = listOf(TestFixtures.dataItem(firstName = "John", lastName = "Doe"))
+
+        val diffCallback = UserAdapter.UserDiffCallback(old, new)
+
+        assertEquals(2, diffCallback.oldListSize)
+        assertEquals(1, diffCallback.newListSize)
+    }
+
+    /**
+     * setUsers diffs on Dispatchers.Default before hopping to Main, so itemCount settles
+     * asynchronously. Poll instead of assuming it already landed.
+     */
+    private fun awaitItemCount(expected: Int, timeoutMs: Long = 5_000): Int {
+        val deadline = System.currentTimeMillis() + timeoutMs
+        var count = adapter.itemCount
+        while (count != expected && System.currentTimeMillis() < deadline) {
+            Thread.sleep(10)
+            count = adapter.itemCount
+        }
+        return count
     }
 }

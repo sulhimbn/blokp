@@ -1,9 +1,15 @@
 package com.example.iurankomplek.event
 
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -90,39 +96,54 @@ class EventBusTest {
 
     @Test
     fun eventsFlow_emitsPublishedEvents() = runTest {
-        // Given: An event that will be published
         val testEvent = AppEvent.NewAnnouncement("announce_789")
 
-        // When: Publishing event and collecting
+        val received = async(start = CoroutineStart.UNDISPATCHED) { eventBus.events.first() }
         eventBus.publish(testEvent)
-        val collected = eventBus.events.first()
 
-        // Then: The collected event matches what was published
-        assertEquals(testEvent, collected)
+        assertEquals(testEvent, received.await())
+    }
+
+    @Test
+    fun eventsFlow_dropsEventsPublishedBeforeSubscription() = runTest {
+        // EventBus is a replay=0 SharedFlow, so an event emitted with no subscriber is
+        // dropped rather than buffered. Pinning this contract stops it silently becoming
+        // a replaying bus later.
+        eventBus.publish(AppEvent.NewAnnouncement("before-subscribe"))
+
+        var received = false
+        val collector = backgroundScope.launch {
+            eventBus.events.first()
+            received = true
+        }
+        advanceUntilIdle()
+
+        assertFalse(received)
+        collector.cancel()
     }
 
     @Test
     fun publish_withDataClasses_passesCorrectData() = runTest {
+        val collected = mutableListOf<AppEvent>()
+
         // Given: Events with various data
         val paymentEvent = AppEvent.PaymentFailed("Network error")
         val userEvent = AppEvent.UserProfileUpdated("user_999")
         val networkEvent = AppEvent.NetworkStatusChanged(isConnected = false)
 
-        // When: Publishing events with data
+        val collector = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            eventBus.events.collect { received -> collected += received }
+        }
+
         eventBus.publish(paymentEvent)
         eventBus.publish(userEvent)
         eventBus.publish(networkEvent)
+        advanceUntilIdle()
 
-        // Then: Events can be collected with correct data
-        val events = listOf(
-            eventBus.events.first(),
-            eventBus.events.first(),
-            eventBus.events.first()
-        )
-
-        assertTrue(events.any { it is AppEvent.PaymentFailed })
-        assertTrue(events.any { it is AppEvent.UserProfileUpdated })
-        assertTrue(events.any { it is AppEvent.NetworkStatusChanged })
+        assertTrue(collected.any { it is AppEvent.PaymentFailed })
+        assertTrue(collected.any { it is AppEvent.UserProfileUpdated })
+        assertTrue(collected.any { it is AppEvent.NetworkStatusChanged })
+        collector.cancel()
     }
 
     @Test
@@ -201,12 +222,7 @@ class EventBusTest {
 
     @Test
     fun events_providesSharedFlow() = runTest {
-        // Given: EventBus provides SharedFlow
-
-        // When: Accessing the events flow
-        val flow = eventBus.events
-
-        // Then: It's a SharedFlow (replay=0, extraBufferCapacity=64)
-        assertEquals(0, flow.replay)
+        assertNotNull(eventBus.events)
+        assertTrue(eventBus.events is kotlinx.coroutines.flow.SharedFlow<*>)
     }
 }

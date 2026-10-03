@@ -1,19 +1,31 @@
 package com.example.iurankomplek.session
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.example.iurankomplek.model.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class UserSessionManager @Inject constructor(
-    private val context: Context
+    context: Context
 ) {
+    private val context: Context = context.applicationContext
+    private var prefsForTesting: SharedPreferences? = null
+
+    /**
+     * Production builds always get EncryptedSharedPreferences. The internal constructor lets
+     * JVM tests supply plain preferences, because Robolectric has no AndroidKeyStore to back
+     * the encrypted variant.
+     */
+    internal constructor(context: Context, prefsOverride: SharedPreferences) : this(context) {
+        prefsForTesting = prefsOverride
+    }
+
     companion object {
         private const val PREFS_FILE_NAME = "user_session_prefs"
         private const val KEY_USER_ID = "user_id"
@@ -24,14 +36,14 @@ class UserSessionManager @Inject constructor(
         private const val KEY_IS_LOGGED_IN = "is_logged_in"
     }
 
-    private val masterKey by lazy {
+    private val masterKey by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
         MasterKey.Builder(context)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
             .build()
     }
 
-    private val encryptedPrefs by lazy {
-        EncryptedSharedPreferences.create(
+    private val encryptedPrefs by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+        prefsForTesting ?: EncryptedSharedPreferences.create(
             context,
             PREFS_FILE_NAME,
             masterKey,
@@ -41,29 +53,49 @@ class UserSessionManager @Inject constructor(
     }
 
     private val _currentUser = MutableStateFlow<User?>(null)
-    val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
-
     private val _isLoggedIn = MutableStateFlow(false)
-    val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
 
-    init {
+    /**
+     * Reads the persisted session once, on first use. Doing this in a constructor would put
+     * keystore access and EncryptedSharedPreferences IO on whatever thread builds the
+     * dependency graph, which is the main thread during activity startup.
+     */
+    private val restored: Boolean by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
         restoreSession()
+        true
     }
 
+    val currentUser: StateFlow<User?>
+        get() {
+            restored
+            return _currentUser
+        }
+
+    val isLoggedIn: StateFlow<Boolean>
+        get() {
+            restored
+            return _isLoggedIn
+        }
+
     fun setCurrentUser(user: User) {
+        restored
         _currentUser.value = user
         _isLoggedIn.value = true
         saveUserToPrefs(user)
     }
 
     fun clearSession() {
+        restored
         _currentUser.value = null
         _isLoggedIn.value = false
         clearUserFromPrefs()
     }
 
     val currentUserId: String?
-        get() = _currentUser.value?.id
+        get() {
+            restored
+            return _currentUser.value?.id
+        }
 
     private fun saveUserToPrefs(user: User) {
         encryptedPrefs.edit().apply {

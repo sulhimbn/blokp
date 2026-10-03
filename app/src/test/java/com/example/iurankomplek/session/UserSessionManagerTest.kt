@@ -1,6 +1,7 @@
 package com.example.iurankomplek.session
 
 import android.content.Context
+import androidx.test.core.app.ApplicationProvider
 import com.example.iurankomplek.model.User
 import org.junit.Assert.*
 import org.junit.Before
@@ -14,7 +15,10 @@ import org.robolectric.annotation.Config
  * Unit tests for UserSessionManager class.
  * Tests cover: setCurrentUser, clearSession, restoreSession, currentUserId, isLoggedIn state flow.
  *
- * Uses Robolectric for Android Context.
+ * Uses Robolectric for Android Context. Session persistence is driven through plain
+ * SharedPreferences because Robolectric provides no AndroidKeyStore, so the encrypted
+ * preference provider cannot be constructed here; the encrypted wiring itself is asserted
+ * by SessionStorageWiringTest.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
@@ -25,11 +29,17 @@ class UserSessionManagerTest {
 
     @Before
     fun setup() {
-        // Create Robolectric context
-        context = Robolectric.buildActivity(android.app.Activity::class.java).get()
-        
-        // Create fresh instance for each test
-        userSessionManager = UserSessionManager(context)
+        context = ApplicationProvider.getApplicationContext()
+
+        // Fresh in-memory preferences so no state leaks between tests.
+        userSessionManager = UserSessionManager(
+            context,
+            context.getSharedPreferences("test_session_${counter++}", Context.MODE_PRIVATE)
+        )
+    }
+
+    private companion object {
+        var counter = 0
     }
 
     @Test

@@ -2,15 +2,27 @@ package com.example.iurankomplek
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
+import com.example.iurankomplek.data.repository.PemanfaatanRepository
+import com.example.iurankomplek.data.repository.TransactionRepository
+import com.example.iurankomplek.event.EventBus
 import com.example.iurankomplek.model.DataItem
+import kotlinx.coroutines.flow.MutableSharedFlow
+import org.mockito.Mockito.`when`
 import com.example.iurankomplek.viewmodel.FinancialViewModel
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import org.junit.Before
 import org.junit.Rule
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.Mockito
 import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
@@ -18,8 +30,12 @@ import org.mockito.junit.MockitoJUnitRunner
 /**
  * Unit tests for FinancialViewModel
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(MockitoJUnitRunner::class)
 class FinancialViewModelTest {
+
+    private val testDispatcher = UnconfinedTestDispatcher()
+
 
     @get:Rule
     @Suppress("unused")
@@ -28,12 +44,32 @@ class FinancialViewModelTest {
     @Mock
     private lateinit var mockUserObserver: Observer<String>
 
+    @Mock
+    private lateinit var mockPemanfaatanRepository: PemanfaatanRepository
+
+    @Mock
+    private lateinit var mockEventBus: EventBus
+
+    @Mock
+    private lateinit var mockTransactionRepository: TransactionRepository
+
     private lateinit var viewModel: FinancialViewModel
 
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        viewModel = FinancialViewModel()
+        Dispatchers.setMain(testDispatcher)
+        Mockito.`when`(mockEventBus.events).thenReturn(MutableSharedFlow())
+        viewModel = FinancialViewModel(
+            mockPemanfaatanRepository,
+            mockEventBus,
+            mockTransactionRepository
+        )
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     @Test

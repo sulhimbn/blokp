@@ -1,12 +1,15 @@
 package com.example.iurankomplek.data.repository
 
+import com.example.iurankomplek.TestFixtures
 import com.example.iurankomplek.model.Vendor
+import com.example.iurankomplek.utils.CacheManager
 import com.example.iurankomplek.data.api.models.VendorResponse
 import com.example.iurankomplek.data.api.models.SingleVendorResponse
 import com.example.iurankomplek.data.api.models.WorkOrderResponse
 import com.example.iurankomplek.data.api.models.SingleWorkOrderResponse
 import com.example.iurankomplek.network.ApiService
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
 import org.junit.After
@@ -33,28 +36,22 @@ class VendorRepositoryImplTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
+        runBlocking { CacheManager.getInstance().clear() }
         repository = VendorRepositoryImpl(apiService)
     }
 
     @After
     fun tearDown() {
         Dispatchers.resetMain()
+        runBlocking { CacheManager.getInstance().clear() }
     }
 
     @Test
     fun `getVendors should return success when API returns valid response`() = runTest {
         val mockData = listOf(
-            Vendor(
-                id = 1,
-                name = "Vendor 1",
-                service = "Cleaning",
-                contact = "vendor1@example.com",
-                rating = 4.5
-            )
+            TestFixtures.vendor(id = "1", name = "Vendor 1", specialty = "Cleaning")
         )
         val mockResponse = VendorResponse(
-            success = true,
-            message = "Vendors fetched successfully",
             data = mockData
         )
 
@@ -85,7 +82,7 @@ class VendorRepositoryImplTest {
 
     @Test
     fun `getVendors should return failure on IOException`() = runTest {
-        `when`(apiService.getVendors()).thenThrow(IOException("Network error"))
+        `when`(apiService.getVendors()).thenAnswer { throw IOException("Network error") }
 
         val result = repository.getVendors()
 
@@ -95,7 +92,7 @@ class VendorRepositoryImplTest {
 
     @Test
     fun `getVendors should return empty list successfully`() = runTest {
-        val mockResponse = VendorResponse(success = true, message = "No vendors", data = emptyList())
+        val mockResponse = VendorResponse(data = emptyList())
 
         `when`(apiService.getVendors()).thenReturn(Response.success(mockResponse))
 
@@ -108,16 +105,8 @@ class VendorRepositoryImplTest {
 
     @Test
     fun `getVendor should return success when API returns valid response`() = runTest {
-        val mockVendor = Vendor(
-            id = 1,
-            name = "Vendor 1",
-            service = "Cleaning",
-            contact = "vendor1@example.com",
-            rating = 4.5
-        )
+        val mockVendor = TestFixtures.vendor(id = "1", name = "Vendor 1", specialty = "Cleaning")
         val mockResponse = SingleVendorResponse(
-            success = true,
-            message = "Vendor fetched successfully",
             data = mockVendor
         )
 
@@ -148,16 +137,8 @@ class VendorRepositoryImplTest {
 
     @Test
     fun `createVendor should return success on valid input`() = runTest {
-        val mockVendor = Vendor(
-            id = 1,
-            name = "Vendor 1",
-            service = "Cleaning",
-            contact = "vendor1@example.com",
-            rating = 4.5
-        )
+        val mockVendor = TestFixtures.vendor(id = "1", name = "Vendor 1", specialty = "Cleaning")
         val mockResponse = SingleVendorResponse(
-            success = true,
-            message = "Vendor created successfully",
             data = mockVendor
         )
 
@@ -232,16 +213,8 @@ class VendorRepositoryImplTest {
 
     @Test
     fun `updateVendor should return success on valid update`() = runTest {
-        val mockVendor = Vendor(
-            id = 1,
-            name = "Updated Vendor 1",
-            service = "Updated Cleaning",
-            contact = "updated@example.com",
-            rating = 5.0
-        )
+        val mockVendor = TestFixtures.vendor(id = "1", name = "Updated Vendor 1", specialty = "Updated Cleaning", rating = 5.0)
         val mockResponse = SingleVendorResponse(
-            success = true,
-            message = "Vendor updated successfully",
             data = mockVendor
         )
 
@@ -283,8 +256,6 @@ class VendorRepositoryImplTest {
     @Test
     fun `getWorkOrders should return success when API returns valid response`() = runTest {
         val mockResponse = WorkOrderResponse(
-            success = true,
-            message = "Work orders fetched successfully",
             data = emptyList()
         )
 
@@ -298,9 +269,7 @@ class VendorRepositoryImplTest {
     @Test
     fun `getWorkOrder should return success when API returns valid response`() = runTest {
         val mockResponse = SingleWorkOrderResponse(
-            success = true,
-            message = "Work order fetched successfully",
-            data = null
+            data = TestFixtures.workOrder()
         )
 
         `when`(apiService.getWorkOrder("1")).thenReturn(Response.success(mockResponse))
@@ -313,9 +282,7 @@ class VendorRepositoryImplTest {
     @Test
     fun `createWorkOrder should return success on valid input`() = runTest {
         val mockResponse = SingleWorkOrderResponse(
-            success = true,
-            message = "Work order created successfully",
-            data = null
+            data = TestFixtures.workOrder()
         )
 
         `when`(
@@ -346,14 +313,12 @@ class VendorRepositoryImplTest {
     @Test
     fun `assignVendorToWorkOrder should return success`() = runTest {
         val mockResponse = SingleWorkOrderResponse(
-            success = true,
-            message = "Vendor assigned successfully",
-            data = null
+            data = TestFixtures.workOrder()
         )
 
         `when`(
             apiService.assignVendorToWorkOrder(
-                workOrderId = "wo1",
+                id = "wo1",
                 vendorId = "vendor1",
                 scheduledDate = "2024-01-15"
             )
@@ -371,14 +336,12 @@ class VendorRepositoryImplTest {
     @Test
     fun `updateWorkOrderStatus should return success`() = runTest {
         val mockResponse = SingleWorkOrderResponse(
-            success = true,
-            message = "Status updated successfully",
-            data = null
+            data = TestFixtures.workOrder()
         )
 
         `when`(
             apiService.updateWorkOrderStatus(
-                workOrderId = "wo1",
+                id = "wo1",
                 status = "in_progress",
                 notes = "Work started"
             )

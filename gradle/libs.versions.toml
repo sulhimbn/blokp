@@ -12,6 +12,7 @@ arch-core = "2.2.0"
 kotlinx-coroutines-test = "1.7.3"
 robolectric = "4.10.3"
 androidx-test-ext-junit = "1.1.5"
+androidx-test-core = "1.5.0"
 espresso-core = "3.5.1"
 espresso-intents = "3.5.1"
 androidx-test-runner = "1.5.2"
@@ -47,6 +48,7 @@ arch-core-testing = { group = "androidx.arch.core", name = "core-testing", versi
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-test" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-ext-junit" }
+androidx-test-core = { group = "androidx.test", name = "core", version.ref = "androidx-test-core" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }
 espresso-contrib = { group = "androidx.test.espresso", name = "espresso-contrib", version.ref = "espresso-core" }
 espresso-intents = { group = "androidx.test.espresso", name = "espresso-intents", version.ref = "espresso-intents" }

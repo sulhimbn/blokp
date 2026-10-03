@@ -31,8 +31,16 @@ class VendorViewModel @Inject constructor(
     private val _workOrderDetailState = MutableStateFlow<UiState<SingleWorkOrderResponse>>(UiState.Loading)
     val workOrderDetailState: StateFlow<UiState<SingleWorkOrderResponse>> = _workOrderDetailState
     
+    /**
+     * Guards against overlapping requests. They cannot be derived from the state flows,
+     * because those start out as Loading and would then block the very first load.
+     */
+    private var vendorLoadInFlight = false
+    private var workOrderLoadInFlight = false
+
     fun loadVendors() {
-        if (_vendorState.value is UiState.Loading) return // Prevent duplicate calls
+        if (vendorLoadInFlight) return
+        vendorLoadInFlight = true
         
         viewModelScope.launch {
             _vendorState.value = UiState.Loading
@@ -43,11 +51,13 @@ class VendorViewModel @Inject constructor(
                 .onFailure { exception ->
                     _vendorState.value = UiState.Error(exception.message ?: "Unknown error occurred")
                 }
+            vendorLoadInFlight = false
         }
     }
     
     fun loadWorkOrders() {
-        if (_workOrderState.value is UiState.Loading) return // Prevent duplicate calls
+        if (workOrderLoadInFlight) return
+        workOrderLoadInFlight = true
         
         viewModelScope.launch {
             _workOrderState.value = UiState.Loading
@@ -58,6 +68,7 @@ class VendorViewModel @Inject constructor(
                 .onFailure { exception ->
                     _workOrderState.value = UiState.Error(exception.message ?: "Unknown error occurred")
                 }
+            workOrderLoadInFlight = false
         }
     }
     

@@ -21,9 +21,12 @@ android {
         // API Configuration - default spreadsheet ID
         buildConfigField "String", "API_SPREADSHEET_ID", "\"QjX6hB1ST2IDKaxB\""
         
-        // Webhook secret - MUST be set via CI/CD secrets for production
-        // In debug builds, uses placeholder value from Constants.kt if not configured
-        buildConfigField "String", "WEBHOOK_SECRET", "\"\""
+        // Webhook secret. Supply with -PwebhookSecret=... or WEBHOOK_SECRET in the
+        // environment; CI wires it from a repository secret. It stays empty when unset and
+        // WebhookSecurityUtil then rejects every request rather than falling back to a
+        // value that would be readable from any decompiled APK.
+        buildConfigField "String", "WEBHOOK_SECRET",
+                "\"${providers.gradleProperty("webhookSecret").orNull ?: System.getenv("WEBHOOK_SECRET") ?: ""}\""
     }
     buildTypes {
         debug {
@@ -42,6 +45,16 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+    testOptions {
+        unitTests {
+            // Robolectric needs the merged Android resource table to inflate layouts
+            // and to resolve R ids at runtime.
+            includeAndroidResources = true
+            // Framework calls that Robolectric does not shadow return defaults instead
+            // of throwing, which keeps plain JVM tests focused on our own logic.
+            returnDefaultValues = true
+        }
     }
     kotlinOptions {
         jvmTarget = '1.8'
@@ -68,13 +81,16 @@ dependencies {
      implementation libs.androidx.swiperefreshlayout
     
     // Testing dependencies
-    testImplementation libs.junit
-    testImplementation libs.mockito.core
-    testImplementation libs.mockito.kotlin
-    testImplementation libs.arch.core.testing
-    testImplementation libs.kotlinx.coroutines.test
-    testImplementation libs.robolectric
-    testImplementation libs.mockwebserver
+     testImplementation libs.junit
+     testImplementation libs.mockito.core
+     testImplementation libs.mockito.kotlin
+     testImplementation libs.arch.core.testing
+     testImplementation libs.kotlinx.coroutines.test
+     testImplementation libs.robolectric
+     testImplementation libs.mockwebserver
+     // ApplicationProvider for Robolectric tests
+     testImplementation libs.androidx.test.core
+
     
     androidTestImplementation libs.androidx.test.ext.junit
     androidTestImplementation libs.espresso.core

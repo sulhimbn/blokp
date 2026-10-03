@@ -47,6 +47,12 @@ class FinancialViewModel @Inject constructor(
     private val _financialState = MutableStateFlow<FinancialDataState>(FinancialDataState.Loading)
     val financialState: StateFlow<FinancialDataState> = _financialState
 
+    /**
+     * Guards against overlapping requests. It cannot be derived from financialState, because
+     * the flow starts out as Loading and would then block the very first load.
+     */
+    private var loadInFlight = false
+
     init {
         observeEvents()
     }
@@ -66,7 +72,8 @@ class FinancialViewModel @Inject constructor(
     }
 
     fun loadFinancialData() {
-        if (_financialState.value is FinancialDataState.Loading) return
+        if (loadInFlight) return
+        loadInFlight = true
 
         viewModelScope.launch {
             _financialState.value = FinancialDataState.Loading
@@ -81,6 +88,7 @@ class FinancialViewModel @Inject constructor(
                         exception.message ?: "Unknown error occurred"
                     )
                 }
+            loadInFlight = false
         }
     }
 

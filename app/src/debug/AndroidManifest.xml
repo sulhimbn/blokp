@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+      Chucker posts a "capture active" notification, which requires POST_NOTIFICATIONS on
+      API 33+. Declaring it only in the debug source set keeps release builds from asking for
+      a runtime permission that nothing in the shipped app needs.
+    -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+</manifest>

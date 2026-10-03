@@ -2,10 +2,12 @@ package com.example.iurankomplek
 
 import com.example.iurankomplek.data.repository.BaseRepository
 import com.example.iurankomplek.network.ApiConfig
+import com.example.iurankomplek.network.SecurityConfig
 import com.example.iurankomplek.utils.*
 import com.example.iurankomplek.viewmodel.BaseViewModel
 import org.junit.Test
 import org.junit.Assert.*
+import java.lang.reflect.Modifier
 import java.util.concurrent.TimeUnit
 
 /**
@@ -16,14 +18,20 @@ class FoundationInfrastructureTest {
 
     @Test
     fun `test security configuration is properly implemented`() {
-        // Verify certificate pinning is configured
         val apiService = ApiConfig.getApiService()
         assertNotNull("API service should be created with security configuration", apiService)
-        
-        // Verify timeouts are configured appropriately
-        val okHttpClient = ApiConfig::class.java.declaredMethods
-            .find { it.name == "getCertificatePinner" }
-        assertNotNull("Security configuration should be present", okHttpClient)
+
+        // Certificate pinning lives in SecurityConfig, not ApiConfig.
+        val secureClient = SecurityConfig.getSecureOkHttpClient()
+        assertNotNull("Secure OkHttp client should be constructible", secureClient)
+        assertNotNull(
+            "Secure client should carry a certificate pinner",
+            secureClient.certificatePinner
+        )
+        assertTrue(
+            "Pinner should cover the production API host",
+            secureClient.certificatePinner.findMatchingPins("api.apispreadsheets.com").isNotEmpty()
+        )
     }
 
     @Test
@@ -32,13 +40,22 @@ class FoundationInfrastructureTest {
         assertTrue("BaseRepository should extend interface", BaseRepository::class.java.isInterface)
         
         val methods = BaseRepository::class.java.declaredMethods
-        assertEquals("BaseRepository should have 5 required methods", 5, methods.size)
+        assertEquals("BaseRepository should have 6 required methods", 6, methods.size)
+        // suspend members get a mangled JVM suffix, so compare the stable prefix.
+        assertEquals(
+            "BaseRepository should expose getAll/getById/create/update/delete/observeAll",
+            setOf("getAll", "getById", "create", "update", "delete", "observeAll"),
+            methods.map { it.name.substringBefore('-') }.toSet()
+        )
     }
 
     @Test
     fun `test base viewmodel abstract class exists`() {
         // Verify BaseViewModel abstract class exists
-        assertTrue("BaseViewModel should be an abstract class", BaseViewModel::class.java.isAbstract)
+        assertTrue(
+            "BaseViewModel should be an abstract class",
+            Modifier.isAbstract(BaseViewModel::class.java.modifiers)
+        )
     }
 
     @Test
@@ -72,9 +89,18 @@ class FoundationInfrastructureTest {
     fun `test data validator sanitizes inputs properly`() {
         val validator = DataValidator
         
-        // Test name sanitization
-        val sanitized1 = validator.sanitizeName("<script>alert('XSS')</script>John")
-        assertNotEquals("Script should be sanitized", "<script>alert('XSS')</script>John", sanitized1)
+        // sanitizeName enforces the length cap and substitutes a placeholder for blank
+        // input. It is not an HTML escaper: values reach TextView.text, never a WebView,
+        // so markup renders literally rather than executing.
+        val overlong = "N".repeat(Constants.Validation.MAX_NAME_LENGTH + 1)
+        assertEquals("Unknown", validator.sanitizeName(overlong))
+        assertEquals("Unknown", validator.sanitizeName("   "))
+        assertEquals("Unknown", validator.sanitizeName(null))
+        assertEquals(
+            Constants.Validation.MAX_NAME_LENGTH,
+            validator.sanitizeName("N".repeat(Constants.Validation.MAX_NAME_LENGTH)).length
+        )
+        assertEquals("John Doe", validator.sanitizeName("  John Doe  "))
         
         // Test email sanitization
         val sanitized2 = validator.sanitizeEmail("test@;DROP TABLE users;")
@@ -104,10 +130,10 @@ class FoundationInfrastructureTest {
         val successState = UiState.success("test data")
         assertTrue("Success state should be created", successState is UiState.Success)
         
-        val errorState = UiState.error("test error")
+        val errorState = UiState.error<String>("test error")
         assertTrue("Error state should be created", errorState is UiState.Error)
-        
-        val loadingState = UiState.loading()
+
+        val loadingState = UiState.loading<String>()
         assertTrue("Loading state should be created", loadingState is UiState.Loading)
     }
 
