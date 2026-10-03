@@ -3,20 +3,39 @@ package com.example.iurankomplek
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.presentation.adapter.UserAdapter
 
-import com.example.iurankomplek.model.DataItem
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 import org.junit.Assert.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 
+
+@OptIn(ExperimentalCoroutinesApi::class)
+@RunWith(RobolectricTestRunner::class)
 class UserAdapterTest {
 
     private lateinit var adapter: UserAdapter
     private lateinit var testUsers: MutableList<DataItem>
 
+    private val testDispatcher = UnconfinedTestDispatcher()
+
     @Before
     fun setup() {
+        Dispatchers.setMain(testDispatcher)
         testUsers = mutableListOf()
-        adapter = UserAdapter(testUsers)
+        adapter = UserAdapter(testUsers, CoroutineScope(testDispatcher))
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     @Test
@@ -51,6 +70,7 @@ class UserAdapterTest {
         )
 
         adapter.setUsers(newUsers)
+        awaitItemCount(newUsers.size)
 
         assertEquals(newUsers.size, adapter.itemCount)
         assertEquals("John", adapter.users[0].first_name)
@@ -172,6 +192,7 @@ class UserAdapterTest {
             )
         )
         adapter.setUsers(users)
+        awaitItemCount(1)
         assertEquals(1, adapter.itemCount)
 
         adapter.clear()
@@ -188,6 +209,7 @@ class UserAdapterTest {
             createTestDataItem("Jane", "Smith", "jane@example.com")
         )
         adapter.setUsers(users)
+        awaitItemCount(2)
 
         assertEquals(2, adapter.itemCount)
     }
@@ -207,4 +229,12 @@ class UserAdapterTest {
             avatar = "https://example.com/avatar.jpg"
         )
     }
+
+    private fun awaitItemCount(expected: Int) {
+        val deadline = System.currentTimeMillis() + 5_000
+        while (adapter.itemCount != expected && System.currentTimeMillis() < deadline) {
+            Thread.sleep(10)
+        }
+    }
+
 }

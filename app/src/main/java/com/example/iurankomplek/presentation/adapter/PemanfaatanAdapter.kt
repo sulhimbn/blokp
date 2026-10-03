@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class PemanfaatanAdapter(
-    private var pemanfaatan: MutableList<DataItem>,
+    internal var pemanfaatan: MutableList<DataItem>,
     private val coroutineScope: CoroutineScope
 ) :
     RecyclerView.Adapter<PemanfaatanAdapter.ListViewHolder>() {

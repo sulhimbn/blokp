@@ -16,7 +16,16 @@ object ApiConfig {
     } else {
         "https://api.apispreadsheets.com/data/${BuildConfig.API_SPREADSHEET_ID}/"
     }
-    
+
+    @Volatile
+    private var baseUrlOverride: String? = null
+
+    /** Points the service at a test server; pass null to restore the configured URL. */
+    fun setBaseUrlForTesting(baseUrl: String?) {
+        baseUrlOverride = baseUrl
+        apiServiceInstance = null
+    }
+
     // Connection pool for efficient HTTP connection reuse
     private val connectionPool = ConnectionPool(
         5, // Max idle connections
@@ -61,7 +70,7 @@ object ApiConfig {
         }
         
         val retrofit = Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(baseUrlOverride ?: BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

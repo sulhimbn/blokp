@@ -29,11 +29,7 @@ class ErrorHandlerTest {
     @Test
     fun `handleError should return correct message for 401 HttpException`() {
         val errorResponse = ResponseBody.create(null, "Unauthorized")
-        val exception = HttpException(response = okhttp3.Response.Builder()
-            .code(401)
-            .request(okhttp3.Request.Builder().url("https://test.com").build())
-            .message("Unauthorized")
-            .build())
+        val exception = HttpException(retrofit2.Response.error<Any>(401, errorResponse))
         val result = errorHandler.handleError(exception)
         assertEquals("Unauthorized access", result)
     }
@@ -41,11 +37,7 @@ class ErrorHandlerTest {
     @Test
     fun `handleError should return correct message for 403 HttpException`() {
         val errorResponse = ResponseBody.create(null, "Forbidden")
-        val exception = HttpException(response = okhttp3.Response.Builder()
-            .code(403)
-            .request(okhttp3.Request.Builder().url("https://test.com").build())
-            .message("Forbidden")
-            .build())
+        val exception = HttpException(retrofit2.Response.error<Any>(403, errorResponse))
         val result = errorHandler.handleError(exception)
         assertEquals("Forbidden", result)
     }
@@ -53,11 +45,7 @@ class ErrorHandlerTest {
     @Test
     fun `handleError should return correct message for 404 HttpException`() {
         val errorResponse = ResponseBody.create(null, "Not Found")
-        val exception = HttpException(response = okhttp3.Response.Builder()
-            .code(404)
-            .request(okhttp3.Request.Builder().url("https://test.com").build())
-            .message("Not Found")
-            .build())
+        val exception = HttpException(retrofit2.Response.error<Any>(404, errorResponse))
         val result = errorHandler.handleError(exception)
         assertEquals("Resource not found", result)
     }
@@ -65,11 +53,7 @@ class ErrorHandlerTest {
     @Test
     fun `handleError should return correct message for 500 HttpException`() {
         val errorResponse = ResponseBody.create(null, "Internal Server Error")
-        val exception = HttpException(response = okhttp3.Response.Builder()
-            .code(500)
-            .request(okhttp3.Request.Builder().url("https://test.com").build())
-            .message("Internal Server Error")
-            .build())
+        val exception = HttpException(retrofit2.Response.error<Any>(500, errorResponse))
         val result = errorHandler.handleError(exception)
         assertEquals("Server error", result)
     }
@@ -77,11 +61,7 @@ class ErrorHandlerTest {
     @Test
     fun `handleError should return generic message for unknown HTTP error code`() {
         val errorResponse = ResponseBody.create(null, "I'm a teapot")
-        val exception = HttpException(response = okhttp3.Response.Builder()
-            .code(418)
-            .request(okhttp3.Request.Builder().url("https://test.com").build())
-            .message("I'm a teapot")
-            .build())
+        val exception = HttpException(retrofit2.Response.error<Any>(418, errorResponse))
         val result = errorHandler.handleError(exception)
         assertEquals("HTTP Error: 418", result)
     }

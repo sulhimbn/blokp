@@ -364,34 +364,23 @@ class FinancialCalculatorTest {
 
     @Test(expected = ArithmeticException::class)
     fun testCalculateTotalIuranBulanan_throwsOnOverflow() {
-        val itemsWithLargeValues = listOf(
-            DataItem(
-                first_name = "John",
-                last_name = "Doe",
-                email = "john@example.com",
-                alamat = "Jl. Test 1",
-                iuran_perwarga = Int.MAX_VALUE - 1,  // Very large value that will cause overflow
-                total_iuran_rekap = 0,
-                jumlah_iuran_bulanan = 0,
-                total_iuran_individu = 50,
-                pengeluaran_iuran_warga = 25,
-                pemanfaatan_iuran = "Test",
-                avatar = ""
-            ),
-            DataItem(
-                first_name = "Jane",
-                last_name = "Doe",
-                email = "jane@example.com",
-                alamat = "Jl. Test 2",
-                iuran_perwarga = 100,
-                total_iuran_rekap = 0,
-                jumlah_iuran_bulanan = 0,
-                total_iuran_individu = 75,
-                pengeluaran_iuran_warga = 30,
-                pemanfaatan_iuran = "Test",
-                avatar = ""
-            )
+        // Each value must pass validateDataItem (<= Int.MAX_VALUE / 2), so overflow
+        // the running total across several individually-valid rows instead.
+        fun largeRow(name: String) = DataItem(
+            first_name = name,
+            last_name = "Doe",
+            email = "$name@example.com",
+            alamat = "Jl. Test",
+            iuran_perwarga = Int.MAX_VALUE / 2,
+            total_iuran_rekap = 0,
+            jumlah_iuran_bulanan = 0,
+            total_iuran_individu = 50,
+            pengeluaran_iuran_warga = 25,
+            pemanfaatan_iuran = "Test",
+            avatar = ""
         )
+
+        val itemsWithLargeValues = listOf(largeRow("John"), largeRow("Jane"), largeRow("Ann"))
 
         FinancialCalculator.calculateTotalIuranBulanan(itemsWithLargeValues)
     }
@@ -447,6 +436,10 @@ class FinancialCalculatorTest {
 
         // If the bug existed (only last item used), result would be 30 * 3 = 90
         // But with proper accumulation: (10*3) + (20*3) + (30*3) = 30 + 60 + 90 = 180
-        assertEquals(180, totalIuranIndividu, "Bug fix verification: totalIuranIndividu should accumulate all items, not just take the last item value")
+        assertEquals(
+            "Bug fix verification: totalIuranIndividu should accumulate all items, not just take the last item value",
+            180L,
+            totalIuranIndividu.toLong()
+        )
     }
 }

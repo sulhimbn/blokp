@@ -46,6 +46,14 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    testOptions {
+        unitTests {
+            // Production code logs via android.util.Log; return defaults instead of
+            // throwing "not mocked" so JVM unit tests can exercise those paths.
+            returnDefaultValues = true
+            includeAndroidResources = true
+        }
+    }
     lint {
         abortOnError false
         checkReleaseBuilds true
@@ -71,9 +79,11 @@ dependencies {
     testImplementation libs.junit
     testImplementation libs.mockito.core
     testImplementation libs.mockito.kotlin
+    testImplementation libs.hilt.android.testing
     testImplementation libs.arch.core.testing
     testImplementation libs.kotlinx.coroutines.test
     testImplementation libs.robolectric
+    testImplementation libs.androidx.test.core
     testImplementation libs.mockwebserver
     
     androidTestImplementation libs.androidx.test.ext.junit
@@ -106,6 +116,7 @@ dependencies {
     // Hilt for dependency injection
     implementation libs.hilt.android
     ksp libs.hilt.android.compiler
+    kspTest libs.hilt.android.compiler
 
     // Encrypted SharedPreferences for secure session storage
     implementation libs.security.crypto

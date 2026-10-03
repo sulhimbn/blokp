@@ -27,9 +27,13 @@ class UserSessionManagerTest {
     fun setup() {
         // Create Robolectric context
         context = Robolectric.buildActivity(android.app.Activity::class.java).get()
-        
+
+        // AndroidKeyStore is unavailable on the JVM; production uses encrypted prefs.
+        val prefs = context.getSharedPreferences("user_session_prefs_test", Context.MODE_PRIVATE)
+        prefs.edit().clear().commit()
+
         // Create fresh instance for each test
-        userSessionManager = UserSessionManager(context)
+        userSessionManager = UserSessionManager(prefs)
     }
 
     @Test

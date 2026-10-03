@@ -2,6 +2,7 @@ package com.example.iurankomplek
 
 import com.example.iurankomplek.data.repository.BaseRepository
 import com.example.iurankomplek.network.ApiConfig
+import com.example.iurankomplek.network.SecurityConfig
 import com.example.iurankomplek.utils.*
 import com.example.iurankomplek.viewmodel.BaseViewModel
 import org.junit.Test
@@ -19,26 +20,36 @@ class FoundationInfrastructureTest {
         // Verify certificate pinning is configured
         val apiService = ApiConfig.getApiService()
         assertNotNull("API service should be created with security configuration", apiService)
-        
-        // Verify timeouts are configured appropriately
-        val okHttpClient = ApiConfig::class.java.declaredMethods
-            .find { it.name == "getCertificatePinner" }
-        assertNotNull("Security configuration should be present", okHttpClient)
+
+        // Certificate pinning lives in SecurityConfig, not ApiConfig.
+        val pinnerFactory = SecurityConfig::class.java.declaredMethods
+            .find { it.name == "getSecureOkHttpClient" }
+        assertNotNull("Security configuration should be present", pinnerFactory)
+
+        val pinner = Constants.Security.CERTIFICATE_PINNER
+        assertTrue("Certificate pin should be a sha256 pin", pinner.startsWith("sha256/"))
     }
 
     @Test
     fun `test base repository interface exists`() {
         // Verify BaseRepository interface exists and has required methods
         assertTrue("BaseRepository should extend interface", BaseRepository::class.java.isInterface)
-        
+
+        // Suspend methods are name-mangled in bytecode (getAll-IoAF18A); strip the suffix.
         val methods = BaseRepository::class.java.declaredMethods
-        assertEquals("BaseRepository should have 5 required methods", 5, methods.size)
+            .map { it.name.substringBefore('-') }
+            .toSet()
+        assertEquals(
+            "BaseRepository should expose the full CRUD + observe contract",
+            setOf("getAll", "getById", "create", "update", "delete", "observeAll"),
+            methods
+        )
     }
 
     @Test
     fun `test base viewmodel abstract class exists`() {
         // Verify BaseViewModel abstract class exists
-        assertTrue("BaseViewModel should be an abstract class", BaseViewModel::class.java.isAbstract)
+        assertTrue("BaseViewModel should be an abstract class", java.lang.reflect.Modifier.isAbstract(BaseViewModel::class.java.modifiers))
     }
 
     @Test
@@ -101,13 +112,13 @@ class FoundationInfrastructureTest {
     @Test
     fun `test UI state companion object functions`() {
         // Test that UiState companion object functions work correctly
-        val successState = UiState.success("test data")
+        val successState = UiState.success<String>("test data")
         assertTrue("Success state should be created", successState is UiState.Success)
         
-        val errorState = UiState.error("test error")
+        val errorState = UiState.error<String>("test error")
         assertTrue("Error state should be created", errorState is UiState.Error)
         
-        val loadingState = UiState.loading()
+        val loadingState = UiState.loading<String>()
         assertTrue("Loading state should be created", loadingState is UiState.Loading)
     }
 

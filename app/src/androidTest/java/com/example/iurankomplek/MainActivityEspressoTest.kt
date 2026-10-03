@@ -1,5 +1,7 @@
+package com.example.iurankomplek
+
 import androidx.test.core.app.ActivityScenario
-import androidx.test.core.app.ApplicationProvider
+import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
@@ -9,8 +11,6 @@ import androidx.test.filters.LargeTest
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.model.UserResponse
 import com.example.iurankomplek.network.ApiConfig
-import com.example.iurankomplek.network.ApiService
-import com.example.iurankomplek.utils.NetworkUtils
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -19,7 +19,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -34,7 +33,7 @@ class MainActivityEspressoTest {
         mockWebServer = MockWebServer()
         
         // Setup mock responses for API calls
-        mockWebServer.setDispatcher(object : Dispatcher() {
+        mockWebServer.dispatcher = object : Dispatcher() {
             override fun dispatch(request: RecordedRequest): MockResponse {
                 return when (request.path) {
                     "/users" -> {
@@ -66,11 +65,7 @@ class MainActivityEspressoTest {
                                 avatar = "https://example.com/avatar2.jpg"
                             )
                         )
-                        val mockResponse = UserResponse(
-                            success = true,
-                            message = "Users fetched successfully",
-                            data = mockUsers
-                        )
+                        val mockResponse = UserResponse(data = mockUsers)
                         
                         MockResponse()
                             .setResponseCode(200)
@@ -80,9 +75,12 @@ class MainActivityEspressoTest {
                     else -> MockResponse().setResponseCode(404)
                 }
             }
-        })
+        }
         
-        mockWebServer.start(8080)
+        mockWebServer.start()
+
+        // 10.0.2.2 is the host loopback as seen from the Android emulator.
+        ApiConfig.setBaseUrlForTesting(mockWebServer.url("/").toString())
         
         // Replace ApiConfig's base URL with mock server URL
         // Note: This is a workaround since ApiConfig is an object with a fixed URL
@@ -91,6 +89,7 @@ class MainActivityEspressoTest {
 
     @After
     fun tearDown() {
+        ApiConfig.setBaseUrlForTesting(null)
         mockWebServer.shutdown()
     }
 

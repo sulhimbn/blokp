@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class UserAdapter(
-    private var users: MutableList<DataItem>,
+    internal var users: MutableList<DataItem>,
     private val coroutineScope: CoroutineScope
 ):
     RecyclerView.Adapter<UserAdapter.ListViewHolder>(){

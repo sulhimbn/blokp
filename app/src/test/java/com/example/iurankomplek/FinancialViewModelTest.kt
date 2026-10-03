@@ -4,12 +4,21 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.viewmodel.FinancialViewModel
+import com.example.iurankomplek.data.repository.PemanfaatanRepository
+import com.example.iurankomplek.data.repository.TransactionRepository
+import com.example.iurankomplek.event.EventBus
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import org.junit.Before
 import org.junit.Rule
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.After
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
@@ -28,12 +37,35 @@ class FinancialViewModelTest {
     @Mock
     private lateinit var mockUserObserver: Observer<String>
 
+    @Mock
+    private lateinit var pemanfaatanRepository: PemanfaatanRepository
+
+    @Mock
+    private lateinit var eventBus: EventBus
+
+    @Mock
+    private lateinit var transactionRepository: TransactionRepository
+
     private lateinit var viewModel: FinancialViewModel
+
+    private val testDispatcher = StandardTestDispatcher()
 
     @Before
     fun setup() {
+        Dispatchers.setMain(testDispatcher)
+        lenient().`when`(eventBus.events)
+            .thenReturn(MutableSharedFlow())
         MockitoAnnotations.openMocks(this)
-        viewModel = FinancialViewModel()
+        viewModel = FinancialViewModel(
+            pemanfaatanRepository,
+            eventBus,
+            transactionRepository
+        )
+    }
+
+    @org.junit.After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     @Test

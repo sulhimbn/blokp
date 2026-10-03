@@ -2,9 +2,9 @@ package com.example.iurankomplek.receipt
 
 import com.example.iurankomplek.transaction.Transaction
 import java.math.BigDecimal
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 import java.security.SecureRandom
 import java.util.UUID
 import javax.inject.Inject
@@ -28,7 +28,8 @@ class ReceiptGenerator @Inject constructor() {
     }
     
     private fun generateReceiptNumber(): String {
-        val date = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)
+        // java.time requires API 26; minSdk is 24, so use SimpleDateFormat.
+        val date = SimpleDateFormat("yyyyMMdd", Locale.US).format(Date())
         val random = 1000 + SecureRandom().nextInt(9000)
         return "RCPT-$date-$random"
     }

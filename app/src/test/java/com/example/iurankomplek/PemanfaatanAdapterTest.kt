@@ -3,20 +3,39 @@ package com.example.iurankomplek
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.presentation.adapter.PemanfaatanAdapter
 
-import com.example.iurankomplek.model.DataItem
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 import org.junit.Assert.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 
+
+@OptIn(ExperimentalCoroutinesApi::class)
+@RunWith(RobolectricTestRunner::class)
 class PemanfaatanAdapterTest {
 
     private lateinit var adapter: PemanfaatanAdapter
     private lateinit var testData: MutableList<DataItem>
 
+    private val testDispatcher = UnconfinedTestDispatcher()
+
     @Before
     fun setup() {
+        Dispatchers.setMain(testDispatcher)
         testData = mutableListOf()
-        adapter = PemanfaatanAdapter(testData)
+        adapter = PemanfaatanAdapter(testData, CoroutineScope(testDispatcher))
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     @Test
@@ -27,6 +46,7 @@ class PemanfaatanAdapterTest {
         )
 
         adapter.setPemanfaatan(newData)
+        awaitItemCount(newData.size)
 
         assertEquals(newData.size, adapter.itemCount)
         assertEquals("Maintenance", adapter.pemanfaatan[0].pemanfaatan_iuran)
@@ -41,13 +61,14 @@ class PemanfaatanAdapterTest {
             createTestDataItem("Maintenance", "Repair work", 100, 50)
         )
         adapter.setPemanfaatan(newData)
+        awaitItemCount(newData.size)
 
         assertEquals(1, adapter.itemCount)
     }
 
     @Test
     fun `adapter should initialize with empty list using default constructor`() {
-        val emptyAdapter = PemanfaatanAdapter()
+        val emptyAdapter = PemanfaatanAdapter(CoroutineScope(testDispatcher))
         
         assertEquals(0, emptyAdapter.itemCount)
     }
@@ -83,17 +104,19 @@ class PemanfaatanAdapterTest {
 
     @Test
     fun `PemanfaatanDiffCallback should identify different contents correctly`() {
+        // Identity is email + name + pemanfaatan_iuran + pengeluaran_iuran_warga, so keep
+        // those equal and vary a non-identity field to exercise the content check.
         val oldList = listOf(
             createTestDataItem("Maintenance", "Repair work", 100, 50)
         )
         val newList = listOf(
-            createTestDataItem("Maintenance", "Repair work updated", 150, 60) // Same pemanfaatan_iuran but different other fields
+            createTestDataItem("Maintenance", "Repair work", 150, 50)
         )
 
         val diffCallback = PemanfaatanAdapter.PemanfaatanDiffCallback(oldList, newList)
 
-        assertTrue(diffCallback.areItemsTheSame(0, 0)) // Same pemanfaatan_iuran
-        assertFalse(diffCallback.areContentsTheSame(0, 0)) // Different overall content
+        assertTrue(diffCallback.areItemsTheSame(0, 0))
+        assertFalse(diffCallback.areContentsTheSame(0, 0))
     }
 
     @Test
@@ -132,4 +155,12 @@ class PemanfaatanAdapterTest {
             avatar = "https://example.com/avatar.jpg"
         )
     }
+
+    private fun awaitItemCount(expected: Int) {
+        val deadline = System.currentTimeMillis() + 5_000
+        while (adapter.itemCount != expected && System.currentTimeMillis() < deadline) {
+            Thread.sleep(10)
+        }
+    }
+
 }

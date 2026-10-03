@@ -12,7 +12,9 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import retrofit2.Response
+import kotlinx.coroutines.runBlocking
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 @RunWith(RobolectricTestRunner::class)
 class ApiIntegrationTest {
@@ -24,8 +26,12 @@ class ApiIntegrationTest {
     @Before
     fun setup() {
         mockWebServer = MockWebServer()
-        mockWebServer.start(8080)
-        apiService = ApiConfig.getApiService()
+        mockWebServer.start()
+        apiService = Retrofit.Builder()
+            .baseUrl(mockWebServer.url("/"))
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
     }
 
     @After
@@ -52,8 +58,6 @@ class ApiIntegrationTest {
             )
         )
         val mockResponse = UserResponse(
-            success = true,
-            message = "Users fetched successfully",
             data = mockUsers
         )
         
@@ -66,14 +70,11 @@ class ApiIntegrationTest {
         mockWebServer.enqueue(response)
 
         // When
-        val call = apiService.getUsers()
-        val result = call.execute()
+        val result = runBlocking { apiService.getUsers() }
 
         // Then
         assertTrue(result.isSuccessful)
         assertNotNull(result.body())
-        assertEquals(true, result.body()?.success)
-        assertEquals("Users fetched successfully", result.body()?.message)
         assertNotNull(result.body()?.data)
         assertEquals(1, result.body()?.data?.size)
         assertEquals("John", result.body()?.data?.get(0)?.first_name)
@@ -92,8 +93,7 @@ class ApiIntegrationTest {
         mockWebServer.enqueue(response)
 
         // When
-        val call = apiService.getUsers()
-        val result = call.execute()
+        val result = runBlocking { apiService.getUsers() }
 
         // Then
         assertFalse(result.isSuccessful)
@@ -104,8 +104,6 @@ class ApiIntegrationTest {
     fun `getUsers should handle empty response`() {
         // Given
         val mockResponse = UserResponse(
-            success = true,
-            message = "No users found",
             data = emptyList()
         )
         
@@ -118,14 +116,11 @@ class ApiIntegrationTest {
         mockWebServer.enqueue(response)
 
         // When
-        val call = apiService.getUsers()
-        val result = call.execute()
+        val result = runBlocking { apiService.getUsers() }
 
         // Then
         assertTrue(result.isSuccessful)
         assertNotNull(result.body())
-        assertEquals(true, result.body()?.success)
-        assertEquals("No users found", result.body()?.message)
         assertNotNull(result.body()?.data)
         assertTrue(result.body()?.data?.isEmpty() == true)
     }
@@ -149,8 +144,6 @@ class ApiIntegrationTest {
             )
         )
         val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
             data = mockFinancialData
         )
         
@@ -163,14 +156,11 @@ class ApiIntegrationTest {
         mockWebServer.enqueue(response)
 
         // When
-        val call = apiService.getPemanfaatan()
-        val result = call.execute()
+        val result = runBlocking { apiService.getPemanfaatan() }
 
         // Then
         assertTrue(result.isSuccessful)
         assertNotNull(result.body())
-        assertEquals(true, result.body()?.success)
-        assertEquals("Financial data fetched successfully", result.body()?.message)
         assertNotNull(result.body()?.data)
         assertEquals(1, result.body()?.data?.size)
         assertEquals("Jane", result.body()?.data?.get(0)?.first_name)
@@ -188,8 +178,7 @@ class ApiIntegrationTest {
         mockWebServer.enqueue(response)
 
         // When
-        val call = apiService.getPemanfaatan()
-        val result = call.execute()
+        val result = runBlocking { apiService.getPemanfaatan() }
 
         // Then
         assertFalse(result.isSuccessful)

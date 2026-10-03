@@ -35,15 +35,6 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideUserRepository(
-        apiService: ApiService,
-        sessionManager: UserSessionManager
-    ): UserRepository {
-        return UserRepositoryImpl(apiService, sessionManager)
-    }
-
-    @Provides
-    @Singleton
     fun providePemanfaatanRepository(apiService: ApiService): PemanfaatanRepository {
         return PemanfaatanRepositoryImpl(apiService)
     }
