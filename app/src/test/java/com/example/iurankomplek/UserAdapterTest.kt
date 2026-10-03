@@ -2,12 +2,19 @@ package com.example.iurankomplek
 
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.presentation.adapter.UserAdapter
-
-import com.example.iurankomplek.model.DataItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
 import org.junit.Before
+import android.os.Looper
 import org.junit.Test
 import org.junit.Assert.*
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [33])
 class UserAdapterTest {
 
     private lateinit var adapter: UserAdapter
@@ -16,7 +23,7 @@ class UserAdapterTest {
     @Before
     fun setup() {
         testUsers = mutableListOf()
-        adapter = UserAdapter(testUsers)
+        adapter = UserAdapter(testUsers, CoroutineScope(Dispatchers.Unconfined))
     }
 
     @Test
@@ -52,9 +59,9 @@ class UserAdapterTest {
 
         adapter.setUsers(newUsers)
 
-        assertEquals(newUsers.size, adapter.itemCount)
-        assertEquals("John", adapter.users[0].first_name)
-        assertEquals("jane.smith@example.com", adapter.users[1].email)
+        awaitItems(newUsers.size)
+        assertEquals("John", testUsers[0].first_name)
+        assertEquals("jane.smith@example.com", testUsers[1].email)
     }
 
     @Test
@@ -77,7 +84,7 @@ class UserAdapterTest {
         adapter.addUser(validUser)
 
         assertEquals(initialSize + 1, adapter.itemCount)
-        assertEquals("Test", adapter.users.last().first_name)
+        assertEquals("Test", testUsers.last().first_name)
     }
 
     @Test
@@ -172,7 +179,7 @@ class UserAdapterTest {
             )
         )
         adapter.setUsers(users)
-        assertEquals(1, adapter.itemCount)
+        awaitItems(1)
 
         adapter.clear()
 
@@ -189,7 +196,18 @@ class UserAdapterTest {
         )
         adapter.setUsers(users)
 
-        assertEquals(2, adapter.itemCount)
+        awaitItems(2)
+    }
+
+    /** Waits for the adapter's async DiffUtil update to land on the main thread. */
+    private fun awaitItems(expected: Int) {
+        val deadline = System.currentTimeMillis() + 5_000
+        while (adapter.itemCount != expected && System.currentTimeMillis() < deadline) {
+            shadowOf(Looper.getMainLooper()).idle()
+            Thread.sleep(10)
+        }
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals("adapter item count", expected, adapter.itemCount)
     }
 
     private fun createTestDataItem(firstName: String, lastName: String, email: String): DataItem {

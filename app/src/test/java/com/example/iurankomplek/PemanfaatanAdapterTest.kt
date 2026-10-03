@@ -2,12 +2,21 @@ package com.example.iurankomplek
 
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.presentation.adapter.PemanfaatanAdapter
-
-import com.example.iurankomplek.model.DataItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
+import android.os.Looper
 import org.junit.Test
-import org.junit.Assert.*
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [33])
 class PemanfaatanAdapterTest {
 
     private lateinit var adapter: PemanfaatanAdapter
@@ -16,7 +25,18 @@ class PemanfaatanAdapterTest {
     @Before
     fun setup() {
         testData = mutableListOf()
-        adapter = PemanfaatanAdapter(testData)
+        adapter = PemanfaatanAdapter(testData, CoroutineScope(Dispatchers.Unconfined))
+    }
+
+    /** Waits for the adapter's async DiffUtil update to land on the main thread. */
+    private fun awaitItems(expected: Int) {
+        val deadline = System.currentTimeMillis() + 5_000
+        while (adapter.itemCount != expected && System.currentTimeMillis() < deadline) {
+            shadowOf(Looper.getMainLooper()).idle()
+            Thread.sleep(10)
+        }
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals("adapter item count", expected, adapter.itemCount)
     }
 
     @Test
@@ -28,9 +48,9 @@ class PemanfaatanAdapterTest {
 
         adapter.setPemanfaatan(newData)
 
-        assertEquals(newData.size, adapter.itemCount)
-        assertEquals("Maintenance", adapter.pemanfaatan[0].pemanfaatan_iuran)
-        assertEquals("Utilities", adapter.pemanfaatan[1].pemanfaatan_iuran)
+        awaitItems(newData.size)
+        assertEquals("Maintenance", testData[0].pemanfaatan_iuran)
+        assertEquals("Utilities", testData[1].pemanfaatan_iuran)
     }
 
     @Test
@@ -42,13 +62,13 @@ class PemanfaatanAdapterTest {
         )
         adapter.setPemanfaatan(newData)
 
-        assertEquals(1, adapter.itemCount)
+        awaitItems(1)
     }
 
     @Test
-    fun `adapter should initialize with empty list using default constructor`() {
-        val emptyAdapter = PemanfaatanAdapter()
-        
+    fun `adapter should initialize with empty list using scope constructor`() {
+        val emptyAdapter = PemanfaatanAdapter(CoroutineScope(Dispatchers.Unconfined))
+
         assertEquals(0, emptyAdapter.itemCount)
     }
 
@@ -58,7 +78,7 @@ class PemanfaatanAdapterTest {
             createTestDataItem("Maintenance", "Repair work", 100, 50)
         )
         val newList = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50) // Same pemanfaatan_iuran
+            createTestDataItem("Maintenance", "Repair work", 100, 50)
         )
 
         val diffCallback = PemanfaatanAdapter.PemanfaatanDiffCallback(oldList, newList)
@@ -73,7 +93,7 @@ class PemanfaatanAdapterTest {
             createTestDataItem("Maintenance", "Repair work", 100, 50)
         )
         val newList = listOf(
-            createTestDataItem("Utilities", "Electricity bill", 200, 75) // Different pemanfaatan_iuran
+            createTestDataItem("Utilities", "Electricity bill", 200, 75)
         )
 
         val diffCallback = PemanfaatanAdapter.PemanfaatanDiffCallback(oldList, newList)
@@ -87,13 +107,13 @@ class PemanfaatanAdapterTest {
             createTestDataItem("Maintenance", "Repair work", 100, 50)
         )
         val newList = listOf(
-            createTestDataItem("Maintenance", "Repair work updated", 150, 60) // Same pemanfaatan_iuran but different other fields
+            createTestDataItem("Maintenance", "Repair work updated", 150, 60)
         )
 
         val diffCallback = PemanfaatanAdapter.PemanfaatanDiffCallback(oldList, newList)
 
-        assertTrue(diffCallback.areItemsTheSame(0, 0)) // Same pemanfaatan_iuran
-        assertFalse(diffCallback.areContentsTheSame(0, 0)) // Different overall content
+        assertTrue(diffCallback.areItemsTheSame(0, 0))
+        assertFalse(diffCallback.areContentsTheSame(0, 0))
     }
 
     @Test

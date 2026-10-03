@@ -4,13 +4,17 @@ import com.example.iurankomplek.receipt.ReceiptGenerator
 import com.example.iurankomplek.transaction.Transaction
 import com.example.iurankomplek.transaction.TransactionDao
 import com.example.iurankomplek.transaction.TransactionRepository
-import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertNotNull
-import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verifyBlocking
+import org.mockito.kotlin.wheneverBlocking
 import java.math.BigDecimal
 import java.util.Date
 
@@ -22,8 +26,8 @@ class PaymentProcessingTest {
 
     @Before
     fun setup() {
-        mockPaymentGateway = mock(PaymentGateway::class.java)
-        mockTransactionDao = mock(TransactionDao::class.java)
+        mockPaymentGateway = mock<PaymentGateway>()
+        mockTransactionDao = mock<TransactionDao>()
         transactionRepository = TransactionRepository(mockPaymentGateway, mockTransactionDao)
         receiptGenerator = ReceiptGenerator()
     }
@@ -48,15 +52,20 @@ class PaymentProcessingTest {
             referenceNumber = "ref123"
         )
         
-        `when`(mockPaymentGateway.processPayment(request)).thenReturn(Result.success(mockResponse))
+        val updatedTransactions = mutableListOf<Transaction>()
+        wheneverBlocking { mockTransactionDao.update(any()) }.thenAnswer { invocation ->
+            updatedTransactions += invocation.getArgument<Transaction>(0)
+            Unit
+        }
+        wheneverBlocking { mockPaymentGateway.processPayment(request) }.thenReturn(Result.success(mockResponse))
         
         // Act
         val result = transactionRepository.processPayment(request)
         
         // Assert
         assertTrue(result.isSuccess)
-        verify(mockTransactionDao, times(2)).insert(any(Transaction::class.java)) // Once for initial, once for update
-        verify(mockTransactionDao).update(any(Transaction::class.java))
+        verifyBlocking(mockTransactionDao) { insert(any()) }
+        assertEquals(PaymentStatus.COMPLETED, updatedTransactions.single().status)
     }
 
     @Test
@@ -70,15 +79,20 @@ class PaymentProcessingTest {
         )
         
         val exception = Exception("Payment gateway error")
-        `when`(mockPaymentGateway.processPayment(request)).thenReturn(Result.failure(exception))
+        val updatedTransactions = mutableListOf<Transaction>()
+        wheneverBlocking { mockTransactionDao.update(any()) }.thenAnswer { invocation ->
+            updatedTransactions += invocation.getArgument<Transaction>(0)
+            Unit
+        }
+        wheneverBlocking { mockPaymentGateway.processPayment(request) }.thenReturn(Result.failure(exception))
         
         // Act
         val result = transactionRepository.processPayment(request)
         
         // Assert
         assertTrue(result.isFailure)
-        verify(mockTransactionDao, times(1)).insert(any(Transaction::class.java)) // Initial insert
-        verify(mockTransactionDao).update(any(Transaction::class.java)) // Status update to FAILED
+        verifyBlocking(mockTransactionDao, times(1)) { insert(any()) }
+        assertEquals(PaymentStatus.FAILED, updatedTransactions.single().status)
     }
 
     @Test
@@ -139,14 +153,32 @@ class PaymentProcessingTest {
             reason = "Test refund"
         )
 
-        `when`(mockPaymentGateway.refundPayment(transactionId)).thenReturn(Result.success(mockResponse))
+        val storedTransaction = Transaction(
+            id = transactionId,
+            userId = "test_user",
+            amount = BigDecimal("100.00"),
+            currency = "IDR",
+            status = PaymentStatus.COMPLETED,
+            paymentMethod = PaymentMethod.BANK_TRANSFER,
+            description = "Test transaction",
+            createdAt = Date(),
+            updatedAt = Date()
+        )
+        val updatedTransactions = mutableListOf<Transaction>()
+        wheneverBlocking { mockTransactionDao.update(any()) }.thenAnswer { invocation ->
+            updatedTransactions += invocation.getArgument<Transaction>(0)
+            Unit
+        }
+        wheneverBlocking { mockPaymentGateway.refundPayment(transactionId) }.thenReturn(Result.success(mockResponse))
+        wheneverBlocking { mockTransactionDao.getTransactionById(transactionId) }.thenReturn(storedTransaction)
 
         // Act
         val result = transactionRepository.refundPayment(transactionId, "Test refund")
 
         // Assert
         assertTrue(result.isSuccess)
-        verify(mockTransactionDao).update(any(Transaction::class.java))
+        verifyBlocking(mockTransactionDao) { update(any()) }
+        assertEquals(PaymentStatus.REFUNDED, updatedTransactions.single().status)
     }
 
     @Test
@@ -154,7 +186,7 @@ class PaymentProcessingTest {
         // Arrange
         val transactionId = "test_transaction_id"
         val exception = Exception("Refund gateway error")
-        `when`(mockPaymentGateway.refundPayment(transactionId)).thenReturn(Result.failure(exception))
+        wheneverBlocking { mockPaymentGateway.refundPayment(transactionId) }.thenReturn(Result.failure(exception))
 
         // Act
         val result = transactionRepository.refundPayment(transactionId, "Test refund")

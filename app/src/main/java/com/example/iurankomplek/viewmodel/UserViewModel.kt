@@ -38,18 +38,25 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    fun loadUsers() {
-        if (_usersState.value is UiState.Loading) return
+    private var loadInFlight = false
 
+    fun loadUsers() {
+        if (loadInFlight) return // Prevent duplicate calls
+
+        loadInFlight = true
         viewModelScope.launch {
-            _usersState.value = UiState.Loading
-            userRepository.getUsers()
-                .onSuccess { response ->
-                    _usersState.value = UiState.Success(response)
-                }
-                .onFailure { exception ->
-                    _usersState.value = UiState.Error(exception.message ?: "Unknown error occurred")
-                }
+            try {
+                _usersState.value = UiState.Loading
+                userRepository.getUsers()
+                    .onSuccess { response ->
+                        _usersState.value = UiState.Success(response)
+                    }
+                    .onFailure { exception ->
+                        _usersState.value = UiState.Error(exception.message ?: "Unknown error occurred")
+                    }
+            } finally {
+                loadInFlight = false
+            }
         }
     }
 }

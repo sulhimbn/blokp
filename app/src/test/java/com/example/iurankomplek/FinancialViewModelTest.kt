@@ -3,6 +3,15 @@ package com.example.iurankomplek
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.data.repository.PemanfaatanRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
+import com.example.iurankomplek.data.repository.TransactionRepository
+import com.example.iurankomplek.event.EventBus
 import com.example.iurankomplek.viewmodel.FinancialViewModel
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
@@ -14,10 +23,12 @@ import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
+import kotlinx.coroutines.runBlocking
 
 /**
  * Unit tests for FinancialViewModel
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(MockitoJUnitRunner::class)
 class FinancialViewModelTest {
 
@@ -28,12 +39,32 @@ class FinancialViewModelTest {
     @Mock
     private lateinit var mockUserObserver: Observer<String>
 
+    @Mock
+    private lateinit var pemanfaatanRepository: PemanfaatanRepository
+
+    private val eventBus = EventBus()
+
+    @Mock
+    private lateinit var transactionRepository: TransactionRepository
+
     private lateinit var viewModel: FinancialViewModel
+
+    private val testDispatcher = UnconfinedTestDispatcher()
 
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        viewModel = FinancialViewModel()
+        Dispatchers.setMain(testDispatcher)
+        runBlocking {
+            org.mockito.Mockito.`when`(transactionRepository.getTransactionsByStatus(org.mockito.Mockito.any()))
+                .thenReturn(kotlinx.coroutines.flow.flowOf(emptyList()))
+        }
+        viewModel = FinancialViewModel(pemanfaatanRepository, eventBus, transactionRepository)
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     @Test

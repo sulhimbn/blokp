@@ -1,7 +1,12 @@
 package com.example.iurankomplek.event
 
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -92,13 +97,17 @@ class EventBusTest {
     fun eventsFlow_emitsPublishedEvents() = runTest {
         // Given: An event that will be published
         val testEvent = AppEvent.NewAnnouncement("announce_789")
+        val received = CompletableDeferred<AppEvent>()
 
-        // When: Publishing event and collecting
+        // When: Subscribing first, then publishing
+        val collector = launch(start = CoroutineStart.UNDISPATCHED) {
+            received.complete(eventBus.events.first())
+        }
         eventBus.publish(testEvent)
-        val collected = eventBus.events.first()
 
         // Then: The collected event matches what was published
-        assertEquals(testEvent, collected)
+        assertEquals(testEvent, received.await())
+        collector.cancel()
     }
 
     @Test
@@ -108,17 +117,19 @@ class EventBusTest {
         val userEvent = AppEvent.UserProfileUpdated("user_999")
         val networkEvent = AppEvent.NetworkStatusChanged(isConnected = false)
 
+        val received = CompletableDeferred<List<AppEvent>>()
+        val collector = launch(start = CoroutineStart.UNDISPATCHED) {
+            received.complete(eventBus.events.take(3).toList())
+        }
+
         // When: Publishing events with data
         eventBus.publish(paymentEvent)
         eventBus.publish(userEvent)
         eventBus.publish(networkEvent)
 
         // Then: Events can be collected with correct data
-        val events = listOf(
-            eventBus.events.first(),
-            eventBus.events.first(),
-            eventBus.events.first()
-        )
+        val events = received.await()
+        collector.cancel()
 
         assertTrue(events.any { it is AppEvent.PaymentFailed })
         assertTrue(events.any { it is AppEvent.UserProfileUpdated })
@@ -207,6 +218,6 @@ class EventBusTest {
         val flow = eventBus.events
 
         // Then: It's a SharedFlow (replay=0, extraBufferCapacity=64)
-        assertEquals(0, flow.replay)
+        assertEquals(0, flow.replayCache.size)
     }
 }

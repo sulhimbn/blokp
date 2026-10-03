@@ -12,6 +12,7 @@ import com.example.iurankomplek.model.UserResponse
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.UserViewModel
 import com.example.iurankomplek.data.repository.UserRepository
+import com.example.iurankomplek.presentation.adapter.UserAdapter
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -167,9 +168,9 @@ class MainActivityTest {
     }
 
     @Test
-    fun `MainActivity should handle null response data correctly`() {
-        // Test case where response.data is null
-        val testResponse = UserResponse(data = null)
+    fun `MainActivity should handle empty response data correctly`() {
+        // Test case where the API returns no rows
+        val testResponse = UserResponse(data = emptyList())
         val testStateFlow = MutableStateFlow<UiState<UserResponse>>(UiState.Success(testResponse))
         
         // Create activity

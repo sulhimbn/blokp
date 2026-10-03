@@ -40,11 +40,11 @@ android {
         buildConfig true
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
     }
     lint {
         abortOnError false
@@ -57,6 +57,29 @@ android {
         lintConfig file('src/main/res/xml/lint.xml')
     }
 
+    testOptions {
+        unitTests {
+            // Robolectric needs the merged manifest, resources and assets.
+            includeAndroidResources = true
+            // android.util.Log and friends are stubs in JVM unit tests.
+            returnDefaultValues = true
+        }
+    }
+
+}
+
+tasks.withType(Test).configureEach {
+    // Robolectric downloads its android-all jars at runtime. Allow pointing it at a
+    // mirror when Maven Central is unreachable (CI passes -ProbolectricRepoUrl=...).
+    if (project.hasProperty('robolectricRepoUrl')) {
+        systemProperty 'robolectric.dependency.repo.url', project.property('robolectricRepoUrl')
+        systemProperty 'robolectric.dependency.repo.id', 'robolectric-mirror'
+    }
+    testLogging {
+        events "failed"
+        exceptionFormat "full"
+        showStackTraces true
+    }
 }
 
 dependencies {
@@ -75,6 +98,7 @@ dependencies {
     testImplementation libs.kotlinx.coroutines.test
     testImplementation libs.robolectric
     testImplementation libs.mockwebserver
+    testImplementation libs.androidx.test.core
     
     androidTestImplementation libs.androidx.test.ext.junit
     androidTestImplementation libs.espresso.core
