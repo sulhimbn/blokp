@@ -1,11 +1,25 @@
 package com.example.iurankomplek
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import com.example.iurankomplek.utils.CacheManager
+
+import com.example.iurankomplek.TestFixtures
+
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.data.repository.PemanfaatanRepository
+import com.example.iurankomplek.data.repository.TransactionRepository
+import com.example.iurankomplek.event.EventBus
 import com.example.iurankomplek.viewmodel.FinancialViewModel
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -18,6 +32,7 @@ import org.mockito.junit.MockitoJUnitRunner
 /**
  * Unit tests for FinancialViewModel
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(MockitoJUnitRunner::class)
 class FinancialViewModelTest {
 
@@ -26,14 +41,25 @@ class FinancialViewModelTest {
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Mock
+    private lateinit var mockTransactionRepository: TransactionRepository
+
+    @Mock
+    private lateinit var mockEventBus: EventBus
+
+    @Mock
+    private lateinit var mockPemanfaatanRepository: PemanfaatanRepository
+
+    @Mock
     private lateinit var mockUserObserver: Observer<String>
 
     private lateinit var viewModel: FinancialViewModel
 
     @Before
     fun setup() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
         MockitoAnnotations.openMocks(this)
-        viewModel = FinancialViewModel()
+        `when`(mockEventBus.events).thenReturn(MutableSharedFlow())
+        viewModel = FinancialViewModel(mockPemanfaatanRepository, mockEventBus, mockTransactionRepository)
     }
 
     @Test
@@ -92,5 +118,10 @@ class FinancialViewModelTest {
         // Then: Should match the formula result
         assertEquals(450, calculatedRekap)
         assertEquals(dataItem.total_iuran_rekap, calculatedRekap)
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 }

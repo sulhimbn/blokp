@@ -32,7 +32,7 @@ class VendorViewModelTest {
 
     private lateinit var vendorViewModel: VendorViewModel
 
-    private val testDispatcher = StandardTestDispatcher()
+    private val testDispatcher = UnconfinedTestDispatcher()
 
     @Before
     fun setup() {
@@ -88,7 +88,7 @@ class VendorViewModelTest {
         advanceUntilIdle()
         val state = vendorViewModel.vendorState.value
         assertTrue(state is UiState.Error)
-        assertEquals(errorMessage, (state as UiState.Error).message)
+        assertEquals(errorMessage, (state as UiState.Error).error)
     }
 
     @Test
@@ -158,7 +158,7 @@ class VendorViewModelTest {
         advanceUntilIdle()
         val state = vendorViewModel.workOrderState.value
         assertTrue(state is UiState.Error)
-        assertEquals(errorMessage, (state as UiState.Error).message)
+        assertEquals(errorMessage, (state as UiState.Error).error)
     }
 
     @Test

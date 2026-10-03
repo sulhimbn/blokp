@@ -1,7 +1,11 @@
 package com.example.iurankomplek.event
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -90,39 +94,42 @@ class EventBusTest {
 
     @Test
     fun eventsFlow_emitsPublishedEvents() = runTest {
-        // Given: An event that will be published
+        // Given: A collector, because the flow has replay=0 so a later subscriber
+        // never sees events that were emitted before it attached.
         val testEvent = AppEvent.NewAnnouncement("announce_789")
+        val received = async { eventBus.events.first() }
+        runCurrent()
 
-        // When: Publishing event and collecting
+        // When: Publishing the event
         eventBus.publish(testEvent)
-        val collected = eventBus.events.first()
 
         // Then: The collected event matches what was published
-        assertEquals(testEvent, collected)
+        assertEquals(testEvent, received.await())
     }
 
     @Test
     fun publish_withDataClasses_passesCorrectData() = runTest {
-        // Given: Events with various data
+        // Given: Events with various data, collected one at a time because replay=0
         val paymentEvent = AppEvent.PaymentFailed("Network error")
         val userEvent = AppEvent.UserProfileUpdated("user_999")
         val networkEvent = AppEvent.NetworkStatusChanged(isConnected = false)
 
-        // When: Publishing events with data
-        eventBus.publish(paymentEvent)
-        eventBus.publish(userEvent)
-        eventBus.publish(networkEvent)
+        // When: Publishing and collecting each event in turn
+        suspend fun publishAndCollect(event: AppEvent): AppEvent {
+            val received = async { eventBus.events.first() }
+            runCurrent()
+            eventBus.publish(event)
+            return received.await()
+        }
 
-        // Then: Events can be collected with correct data
         val events = listOf(
-            eventBus.events.first(),
-            eventBus.events.first(),
-            eventBus.events.first()
+            publishAndCollect(paymentEvent),
+            publishAndCollect(userEvent),
+            publishAndCollect(networkEvent)
         )
 
-        assertTrue(events.any { it is AppEvent.PaymentFailed })
-        assertTrue(events.any { it is AppEvent.UserProfileUpdated })
-        assertTrue(events.any { it is AppEvent.NetworkStatusChanged })
+        // Then: Events can be collected with correct data
+        assertEquals(listOf(paymentEvent, userEvent, networkEvent), events)
     }
 
     @Test
@@ -201,12 +208,14 @@ class EventBusTest {
 
     @Test
     fun events_providesSharedFlow() = runTest {
-        // Given: EventBus provides SharedFlow
+        // Given: EventBus provides a public events flow
 
         // When: Accessing the events flow
         val flow = eventBus.events
 
-        // Then: It's a SharedFlow (replay=0, extraBufferCapacity=64)
-        assertEquals(0, flow.replay)
+        // Then: It is exposed as a read-only SharedFlow, so the MutableSharedFlow
+        // mutation API (emit/tryEmit/replay) is not reachable by consumers.
+        assertTrue(flow is SharedFlow<*>)
+        assertFalse(flow is MutableSharedFlow<*>)
     }
 }

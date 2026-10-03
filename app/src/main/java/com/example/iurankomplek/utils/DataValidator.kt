@@ -3,8 +3,22 @@ package com.example.iurankomplek.utils
 import java.net.URL
 
 object DataValidator {
+
+    private val MARKUP = Regex("<[^>]*>")
+
+    /**
+     * Display names come from a spreadsheet API, so they are attacker-influenced.
+     * Strip any markup and neutralise the remaining angle brackets before the value
+     * reaches a TextView or an export.
+     */
+    private fun stripMarkup(input: String): String =
+        input.replace(MARKUP, "")
+            .replace("<", "‹")
+            .replace(">", "›")
+
     fun sanitizeName(input: String?): String {
-        return input?.trim()?.takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_NAME_LENGTH }
+        return stripMarkup(input.orEmpty()).trim()
+            .takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_NAME_LENGTH }
             ?: "Unknown"
     }
     
@@ -21,7 +35,8 @@ object DataValidator {
     }
     
     fun sanitizePemanfaatan(input: String?): String {
-        return input?.trim()?.takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_PEMANFAATAN_LENGTH }
+        return stripMarkup(input.orEmpty()).trim()
+            .takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_PEMANFAATAN_LENGTH }
             ?: "Unknown expense"
     }
     

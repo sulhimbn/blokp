@@ -1,198 +1,114 @@
 package com.example.iurankomplek.network
 
-import com.example.iurankomplek.model.DataItem
-import com.example.iurankomplek.model.PemanfaatanResponse
+import com.example.iurankomplek.TestFixtures
 import com.example.iurankomplek.model.UserResponse
+import com.example.iurankomplek.utils.CacheManager
 import com.google.gson.Gson
+import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 @RunWith(RobolectricTestRunner::class)
 class ApiIntegrationTest {
 
     private lateinit var mockWebServer: MockWebServer
     private lateinit var apiService: ApiService
-    private val gson = Gson()
 
     @Before
     fun setup() {
         mockWebServer = MockWebServer()
-        mockWebServer.start(8080)
-        apiService = ApiConfig.getApiService()
+        mockWebServer.start()
+        apiService = Retrofit.Builder()
+            .baseUrl(mockWebServer.url("/"))
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
     }
 
     @After
     fun tearDown() {
+        CacheManager.getInstance().clearSync()
         mockWebServer.shutdown()
     }
 
     @Test
+    fun `ApiConfig should hand back a cached ApiService instance`() {
+        val first = ApiConfig.getApiService()
+        val second = ApiConfig.getApiService()
+
+        assertNotNull(first)
+        assertTrue(first === second)
+    }
+
+    @Test
     fun `getUsers should parse response correctly`() {
-        // Given
-        val mockUsers = listOf(
-            DataItem(
-                first_name = "John",
-                last_name = "Doe",
-                email = "john.doe@example.com",
-                alamat = "123 Main St",
-                iuran_perwarga = 100,
-                total_iuran_rekap = 500,
-                jumlah_iuran_bulanan = 200,
-                total_iuran_individu = 150,
-                pengeluaran_iuran_warga = 50,
-                pemanfaatan_iuran = "Maintenance",
-                avatar = "https://example.com/avatar.jpg"
-            )
-        )
-        val mockResponse = UserResponse(
-            success = true,
-            message = "Users fetched successfully",
-            data = mockUsers
-        )
-        
-        val responseBody = gson.toJson(mockResponse)
-        val response = MockResponse()
-            .setResponseCode(200)
-            .setHeader("Content-Type", "application/json")
-            .setBody(responseBody)
-        
-        mockWebServer.enqueue(response)
+        val mockUsers = listOf(TestFixtures.dataItem(first_name = "John", last_name = "Doe"))
+        mockWebServer.enqueue(jsonResponse(Gson().toJson(UserResponse(data = mockUsers))))
 
-        // When
-        val call = apiService.getUsers()
-        val result = call.execute()
+        val response = runBlocking { apiService.getUsers() }
 
-        // Then
-        assertTrue(result.isSuccessful)
-        assertNotNull(result.body())
-        assertEquals(true, result.body()?.success)
-        assertEquals("Users fetched successfully", result.body()?.message)
-        assertNotNull(result.body()?.data)
-        assertEquals(1, result.body()?.data?.size)
-        assertEquals("John", result.body()?.data?.get(0)?.first_name)
-        assertEquals("Doe", result.body()?.data?.get(0)?.last_name)
-        assertEquals("john.doe@example.com", result.body()?.data?.get(0)?.email)
+        assertTrue(response.isSuccessful)
+        assertEquals(1, response.body()?.data?.size)
+        assertEquals("John", response.body()?.data?.first()?.first_name)
     }
 
     @Test
-    fun `getUsers should handle server error response`() {
-        // Given
-        val response = MockResponse()
-            .setResponseCode(500)
-            .setHeader("Content-Type", "application/json")
-            .setBody("{\"error\": \"Internal server error\"}")
-        
-        mockWebServer.enqueue(response)
+    fun `getMessages should forward the userId query parameter`() {
+        val messages = listOf(
+            TestFixtures.message(id = "m1", senderId = "vendor1", receiverId = "user1")
+        )
+        mockWebServer.enqueue(jsonResponse(Gson().toJson(messages)))
 
-        // When
-        val call = apiService.getUsers()
-        val result = call.execute()
+        val response = runBlocking { apiService.getMessages("user1") }
 
-        // Then
-        assertFalse(result.isSuccessful)
-        assertEquals(500, result.code())
+        assertTrue(response.isSuccessful)
+        assertEquals("m1", response.body()?.single()?.id)
+        assertEquals("/messages?userId=user1", mockWebServer.takeRequest().path)
     }
 
     @Test
-    fun `getUsers should handle empty response`() {
-        // Given
-        val mockResponse = UserResponse(
-            success = true,
-            message = "No users found",
-            data = emptyList()
+    fun `getCommunityPosts should parse a bare list response`() {
+        val posts = listOf(
+            TestFixtures.communityPost(id = "p1", title = "Lost cat", likes = 3)
         )
-        
-        val responseBody = gson.toJson(mockResponse)
-        val response = MockResponse()
-            .setResponseCode(200)
-            .setHeader("Content-Type", "application/json")
-            .setBody(responseBody)
-        
-        mockWebServer.enqueue(response)
+        mockWebServer.enqueue(jsonResponse(Gson().toJson(posts)))
 
-        // When
-        val call = apiService.getUsers()
-        val result = call.execute()
+        val response = runBlocking { apiService.getCommunityPosts() }
 
-        // Then
-        assertTrue(result.isSuccessful)
-        assertNotNull(result.body())
-        assertEquals(true, result.body()?.success)
-        assertEquals("No users found", result.body()?.message)
-        assertNotNull(result.body()?.data)
-        assertTrue(result.body()?.data?.isEmpty() == true)
+        assertTrue(response.isSuccessful)
+        assertEquals("Lost cat", response.body()?.single()?.title)
+        assertEquals(3, response.body()?.single()?.likes)
+        assertEquals("/community-posts", mockWebServer.takeRequest().path)
     }
 
     @Test
-    fun `getPemanfaatan should parse financial response correctly`() {
-        // Given
-        val mockFinancialData = listOf(
-            DataItem(
-                first_name = "Jane",
-                last_name = "Smith",
-                email = "jane.smith@example.com",
-                alamat = "456 Oak Ave",
-                iuran_perwarga = 200,
-                total_iuran_rekap = 600,
-                jumlah_iuran_bulanan = 300,
-                total_iuran_individu = 200,
-                pengeluaran_iuran_warga = 75,
-                pemanfaatan_iuran = "Repairs",
-                avatar = "https://example.com/avatar2.jpg"
-            )
+    fun `malformed JSON should surface as a failure rather than a crash`() {
+        mockWebServer.enqueue(
+            MockResponse().apply {
+            setResponseCode(200)
+            setHeader("Content-Type", "application/json")
+            setBody("{not json")
+        }
         )
-        val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
-            data = mockFinancialData
-        )
-        
-        val responseBody = gson.toJson(mockResponse)
-        val response = MockResponse()
-            .setResponseCode(200)
-            .setHeader("Content-Type", "application/json")
-            .setBody(responseBody)
-        
-        mockWebServer.enqueue(response)
 
-        // When
-        val call = apiService.getPemanfaatan()
-        val result = call.execute()
+        val thrown = runCatching { runBlocking { apiService.getUsers() } }.exceptionOrNull()
 
-        // Then
-        assertTrue(result.isSuccessful)
-        assertNotNull(result.body())
-        assertEquals(true, result.body()?.success)
-        assertEquals("Financial data fetched successfully", result.body()?.message)
-        assertNotNull(result.body()?.data)
-        assertEquals(1, result.body()?.data?.size)
-        assertEquals("Jane", result.body()?.data?.get(0)?.first_name)
-        assertEquals("Repairs", result.body()?.data?.get(0)?.pemanfaatan_iuran)
+        assertNotNull(thrown)
     }
 
-    @Test
-    fun `getPemanfaatan should handle server error response`() {
-        // Given
-        val response = MockResponse()
-            .setResponseCode(404)
-            .setHeader("Content-Type", "application/json")
-            .setBody("{\"error\": \"Not found\"}")
-        
-        mockWebServer.enqueue(response)
-
-        // When
-        val call = apiService.getPemanfaatan()
-        val result = call.execute()
-
-        // Then
-        assertFalse(result.isSuccessful)
-        assertEquals(404, result.code())
-    }
+    private fun jsonResponse(body: String) = MockResponse().apply {
+            setResponseCode(200)
+            setHeader("Content-Type", "application/json")
+            setBody(body)
+        }
 }

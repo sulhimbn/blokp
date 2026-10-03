@@ -55,8 +55,8 @@ class PaymentProcessingTest {
         
         // Assert
         assertTrue(result.isSuccess)
-        verify(mockTransactionDao, times(2)).insert(any(Transaction::class.java)) // Once for initial, once for update
-        verify(mockTransactionDao).update(any(Transaction::class.java))
+        verify(mockTransactionDao, times(2)).insert(anyTransaction()) // Once for initial, once for update
+        verify(mockTransactionDao).update(anyTransaction())
     }
 
     @Test
@@ -77,8 +77,8 @@ class PaymentProcessingTest {
         
         // Assert
         assertTrue(result.isFailure)
-        verify(mockTransactionDao, times(1)).insert(any(Transaction::class.java)) // Initial insert
-        verify(mockTransactionDao).update(any(Transaction::class.java)) // Status update to FAILED
+        verify(mockTransactionDao, times(1)).insert(anyTransaction()) // Initial insert
+        verify(mockTransactionDao).update(anyTransaction()) // Status update to FAILED
     }
 
     @Test
@@ -146,7 +146,7 @@ class PaymentProcessingTest {
 
         // Assert
         assertTrue(result.isSuccess)
-        verify(mockTransactionDao).update(any(Transaction::class.java))
+        verify(mockTransactionDao).update(anyTransaction())
     }
 
     @Test
@@ -163,4 +163,16 @@ class PaymentProcessingTest {
         assertTrue(result.isFailure)
         assertEquals("Refund gateway error", result.exceptionOrNull()?.message)
     }
+
+    private fun anyTransaction(): Transaction = Transaction(
+        id = "verify-arg",
+        userId = "verify-user",
+        amount = BigDecimal.ZERO,
+        currency = "IDR",
+        status = PaymentStatus.PENDING,
+        paymentMethod = PaymentMethod.E_WALLET,
+        description = "verify argument",
+        createdAt = Date(0),
+        updatedAt = Date(0)
+    )
 }
