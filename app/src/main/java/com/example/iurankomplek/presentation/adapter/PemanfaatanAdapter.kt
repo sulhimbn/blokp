@@ -68,8 +68,7 @@ class PemanfaatanAdapter(
             return oldItem.email == newItem.email &&
                    oldItem.first_name == newItem.first_name &&
                    oldItem.last_name == newItem.last_name &&
-                   oldItem.pemanfaatan_iuran == newItem.pemanfaatan_iuran &&
-                   oldItem.pengeluaran_iuran_warga == newItem.pengeluaran_iuran_warga
+                   oldItem.pemanfaatan_iuran == newItem.pemanfaatan_iuran
         }
         
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {

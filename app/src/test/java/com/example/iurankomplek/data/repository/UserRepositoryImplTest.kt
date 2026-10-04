@@ -1,316 +1,209 @@
 package com.example.iurankomplek.data.repository
 
-import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.TestFixtures
+import com.example.iurankomplek.model.User
 import com.example.iurankomplek.model.UserResponse
 import com.example.iurankomplek.network.ApiService
+import com.example.iurankomplek.session.UserSessionManager
+import com.example.iurankomplek.utils.CacheManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.*
-import org.mockito.MockitoAnnotations
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 import retrofit2.Response
-import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
-import javax.net.ssl.SSLException
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class UserRepositoryImplTest {
 
-    @Mock
     private lateinit var apiService: ApiService
-
+    private lateinit var sessionManager: UserSessionManager
     private lateinit var repository: UserRepositoryImpl
     private val testDispatcher = StandardTestDispatcher()
 
     @Before
-    fun setup() {
-        MockitoAnnotations.openMocks(this)
+    fun setUp() {
         Dispatchers.setMain(testDispatcher)
-        repository = UserRepositoryImpl(apiService)
+        apiService = mock(ApiService::class.java)
+        sessionManager = mock(UserSessionManager::class.java)
+        CacheManager.getInstance().clearSync()
+        repository = UserRepositoryImpl(apiService, sessionManager)
     }
 
     @After
     fun tearDown() {
+        CacheManager.getInstance().clearSync()
         Dispatchers.resetMain()
     }
 
-    @Test
-    fun `getUsers should return success when API returns valid response`() = runTest {
-        val mockData = listOf(
-            DataItem(
-                first_name = "John",
-                last_name = "Doe",
-                email = "john.doe@example.com",
-                alamat = "123 Main St",
-                iuran_perwarga = 100,
-                total_iuran_rekap = 500,
-                jumlah_iuran_bulanan = 200,
-                total_iuran_individu = 150,
-                pengeluaran_iuran_warga = 50,
-                pemanfaatan_iuran = "Maintenance",
-                avatar = "https://example.com/avatar.jpg"
-            )
-        )
-        val mockResponse = UserResponse(
-            success = true,
-            message = "Users fetched successfully",
-            data = mockData
-        )
+    private fun errorResponse(code: Int): Response<UserResponse> =
+        Response.error(code, "{}".toResponseBody("application/json".toMediaType()))
 
-        `when`(apiService.getUsers()).thenReturn(Response.success(mockResponse))
+    @Test
+    fun `getUsers returns the payload the API returned`() = runTest(testDispatcher) {
+        val payload = UserResponse(listOf(TestFixtures.dataItem()))
+        `when`(apiService.getUsers()).thenReturn(Response.success(payload))
 
         val result = repository.getUsers()
 
         assertTrue(result.isSuccess)
-        val responseBody = result.getOrNull()
-        assertNotNull(responseBody)
-        assertEquals(mockResponse, responseBody)
+        assertEquals(payload, result.getOrNull())
+        assertEquals("John", result.getOrNull()?.data?.single()?.first_name)
     }
 
     @Test
-    fun `getUsers should return failure when response body is null`() = runTest {
-        `when`(apiService.getUsers()).thenReturn(Response.success(null))
+    fun `getUsers maps a 404 and does not retry it`() = runTest(testDispatcher) {
+        `when`(apiService.getUsers()).thenReturn(errorResponse(404))
 
         val result = repository.getUsers()
 
         assertTrue(result.isFailure)
-        assertTrue(result.exceptionOrNull()?.message?.contains("Response body is null") == true)
-    }
-
-    @Test
-    fun `getUsers should retry on SocketTimeoutException`() = runTest {
-        `when`(apiService.getUsers())
-            .thenThrow(SocketTimeoutException())
-            .thenThrow(SocketTimeoutException())
-            .thenReturn(Response.success(UserResponse(success = true, message = "Success", data = emptyList())))
-
-        val result = repository.getUsers()
-
-        assertTrue(result.isSuccess)
-        verify(apiService, times(3)).getUsers()
-    }
-
-    @Test
-    fun `getUsers should retry on UnknownHostException`() = runTest {
-        val mockData = listOf(DataItem(
-            first_name = "John",
-            last_name = "Doe",
-            email = "john.doe@example.com",
-            alamat = "123 Main St",
-            iuran_perwarga = 100,
-            total_iuran_rekap = 500,
-            jumlah_iuran_bulanan = 200,
-            total_iuran_individu = 150,
-            pengeluaran_iuran_warga = 50,
-            pemanfaatan_iuran = "Maintenance",
-            avatar = "https://example.com/avatar.jpg"
-        ))
-        val mockResponse = UserResponse(success = true, message = "Success", data = mockData)
-
-        `when`(apiService.getUsers())
-            .thenThrow(UnknownHostException())
-            .thenReturn(Response.success(mockResponse))
-
-        val result = repository.getUsers()
-
-        assertTrue(result.isSuccess)
-        verify(apiService, times(2)).getUsers()
-    }
-
-    @Test
-    fun `getUsers should retry on SSLException`() = runTest {
-        val mockResponse = UserResponse(success = true, message = "Success", data = emptyList())
-
-        `when`(apiService.getUsers())
-            .thenThrow(SSLException("SSL error"))
-            .thenReturn(Response.success(mockResponse))
-
-        val result = repository.getUsers()
-
-        assertTrue(result.isSuccess)
-        verify(apiService, times(2)).getUsers()
-    }
-
-    @Test
-    fun `getUsers should return failure after max retries on SocketTimeoutException`() = runTest {
-        `when`(apiService.getUsers())
-            .thenThrow(SocketTimeoutException())
-
-        val result = repository.getUsers()
-
-        assertTrue(result.isFailure)
-        verify(apiService, times(4)).getUsers()
-    }
-
-    @Test
-    fun `getUsers should not retry on non-retryable exception`() = runTest {
-        `when`(apiService.getUsers()).thenThrow(IOException("File not found"))
-
-        val result = repository.getUsers()
-
-        assertTrue(result.isFailure)
+        assertEquals("Resource not found", result.exceptionOrNull()?.message)
         verify(apiService, times(1)).getUsers()
     }
 
     @Test
-    fun `getUsers should retry on 500 error`() = runTest {
-        val mockResponse = UserResponse(success = true, message = "Success", data = emptyList())
-
-        `when`(apiService.getUsers())
-            .thenReturn(Response.error(500, okhttp3.ResponseBody.create(null, "Internal Server Error")))
-            .thenReturn(Response.success(mockResponse))
+    fun `getUsers maps a 401 to Unauthorized access`() = runTest(testDispatcher) {
+        `when`(apiService.getUsers()).thenReturn(errorResponse(401))
 
         val result = repository.getUsers()
 
-        assertTrue(result.isSuccess)
-        verify(apiService, times(2)).getUsers()
+        assertEquals("Unauthorized access", result.exceptionOrNull()?.message)
     }
 
     @Test
-    fun `getUsers should retry on 503 error`() = runTest {
-        val mockResponse = UserResponse(success = true, message = "Success", data = emptyList())
-
-        `when`(apiService.getUsers())
-            .thenReturn(Response.error(503, okhttp3.ResponseBody.create(null, "Service Unavailable")))
-            .thenReturn(Response.success(mockResponse))
-
-        val result = repository.getUsers()
-
-        assertTrue(result.isSuccess)
-        verify(apiService, times(2)).getUsers()
-    }
-
-    @Test
-    fun `getUsers should retry on 408 Request Timeout error`() = runTest {
-        val mockResponse = UserResponse(success = true, message = "Success", data = emptyList())
-
-        `when`(apiService.getUsers())
-            .thenReturn(Response.error(408, okhttp3.ResponseBody.create(null, "Request Timeout")))
-            .thenReturn(Response.success(mockResponse))
-
-        val result = repository.getUsers()
-
-        assertTrue(result.isSuccess)
-        verify(apiService, times(2)).getUsers()
-    }
-
-    @Test
-    fun `getUsers should retry on 429 Too Many Requests error`() = runTest {
-        val mockResponse = UserResponse(success = true, message = "Success", data = emptyList())
-
-        `when`(apiService.getUsers())
-            .thenReturn(Response.error(429, okhttp3.ResponseBody.create(null, "Too Many Requests")))
-            .thenReturn(Response.success(mockResponse))
-
-        val result = repository.getUsers()
-
-        assertTrue(result.isSuccess)
-        verify(apiService, times(2)).getUsers()
-    }
-
-    @Test
-    fun `getUsers should not retry on 400 Bad Request error`() = runTest {
-        `when`(apiService.getUsers())
-            .thenReturn(Response.error(400, okhttp3.ResponseBody.create(null, "Bad Request")))
+    fun `getUsers retries a 500 up to maxRetries then reports Server error`() = runTest(testDispatcher) {
+        `when`(apiService.getUsers()).thenReturn(errorResponse(500))
 
         val result = repository.getUsers()
 
         assertTrue(result.isFailure)
-        verify(apiService, times(1)).getUsers()
-    }
-
-    @Test
-    fun `getUsers should not retry on 404 Not Found error`() = runTest {
-        `when`(apiService.getUsers())
-            .thenReturn(Response.error(404, okhttp3.ResponseBody.create(null, "Not Found")))
-
-        val result = repository.getUsers()
-
-        assertTrue(result.isFailure)
-        verify(apiService, times(1)).getUsers()
-    }
-
-    @Test
-    fun `getUsers should return failure after max retries on server error`() = runTest {
-        `when`(apiService.getUsers())
-            .thenReturn(Response.error(500, okhttp3.ResponseBody.create(null, "Internal Server Error")))
-
-        val result = repository.getUsers()
-
-        assertTrue(result.isFailure)
+        assertEquals("Server error", result.exceptionOrNull()?.message)
         verify(apiService, times(4)).getUsers()
     }
 
     @Test
-    fun `getUsers should return failure after max retries on 503 error`() = runTest {
-        `when`(apiService.getUsers())
-            .thenReturn(Response.error(503, okhttp3.ResponseBody.create(null, "Service Unavailable")))
+    fun `getUsers retries UnknownHostException and maps it to No internet connection`() =
+        runTest(testDispatcher) {
+            `when`(apiService.getUsers()).thenAnswer { throw UnknownHostException("dns") }
 
-        val result = repository.getUsers()
+            val result = repository.getUsers()
 
-        assertTrue(result.isFailure)
-        verify(apiService, times(4)).getUsers()
-    }
-
-    @Test
-    fun `getUsers should handle mixed retry scenarios with eventual success`() = runTest {
-        val mockResponse = UserResponse(success = true, message = "Success", data = emptyList())
-
-        `when`(apiService.getUsers())
-            .thenThrow(SocketTimeoutException())
-            .thenReturn(Response.error(500, okhttp3.ResponseBody.create(null, "Internal Server Error")))
-            .thenReturn(Response.success(mockResponse))
-
-        val result = repository.getUsers()
-
-        assertTrue(result.isSuccess)
-        verify(apiService, times(3)).getUsers()
-    }
-
-    @Test
-    fun `getUsers should return empty list successfully`() = runTest {
-        val mockResponse = UserResponse(success = true, message = "No users", data = emptyList())
-
-        `when`(apiService.getUsers()).thenReturn(Response.success(mockResponse))
-
-        val result = repository.getUsers()
-
-        assertTrue(result.isSuccess)
-        val responseBody = result.getOrNull()
-        assertTrue(responseBody?.data?.isEmpty() == true)
-    }
-
-    @Test
-    fun `getUsers should return failure on IOException`() = runTest {
-        `when`(apiService.getUsers()).thenThrow(IOException("Network error"))
-
-        val result = repository.getUsers()
-
-        assertTrue(result.isFailure)
-    }
-
-    @Test
-    fun `getUsers exponential backoff with jitter works correctly`() = runTest {
-        val mockResponse = UserResponse(success = true, message = "Success", data = emptyList())
-        val callTimes = mutableListOf<Long>()
-
-        `when`(apiService.getUsers()).thenAnswer {
-            callTimes.add(System.currentTimeMillis())
-            if (callTimes.size < 3) {
-                throw SocketTimeoutException()
-            } else {
-                Response.success(mockResponse)
-            }
+            assertEquals("No internet connection", result.exceptionOrNull()?.message)
+            verify(apiService, times(4)).getUsers()
         }
 
+    @Test
+    fun `getUsers retries SocketTimeoutException and maps it to Connection timeout`() =
+        runTest(testDispatcher) {
+            `when`(apiService.getUsers()).thenAnswer { throw SocketTimeoutException("slow") }
+
+            val result = repository.getUsers()
+
+            assertEquals("Connection timeout", result.exceptionOrNull()?.message)
+        }
+
+    @Test
+    fun `getUsers does not retry a non-retryable exception`() = runTest(testDispatcher) {
+        `when`(apiService.getUsers()).thenAnswer { throw IllegalStateException("bug") }
+
+        val result = repository.getUsers()
+
+        assertTrue(result.isFailure)
+        assertEquals("An error occurred: bug", result.exceptionOrNull()?.message)
+        verify(apiService, times(1)).getUsers()
+    }
+
+    @Test
+    fun `second getUsers call is served from cache without hitting the API again`() =
+        runTest(testDispatcher) {
+            val payload = UserResponse(listOf(TestFixtures.dataItem()))
+            `when`(apiService.getUsers()).thenReturn(Response.success(payload))
+
+            val first = repository.getUsers()
+            val second = repository.getUsers()
+
+            assertEquals(payload, first.getOrNull())
+            assertEquals(payload, second.getOrNull())
+            verify(apiService, times(1)).getUsers()
+        }
+
+    @Test
+    fun `logout clears the session and drops the cached user list`() = runTest(testDispatcher) {
+        val payload = UserResponse(listOf(TestFixtures.dataItem()))
+        `when`(apiService.getUsers()).thenReturn(Response.success(payload))
         repository.getUsers()
 
-        assertEquals(3, callTimes.size)
+        val logout = repository.logout()
+
+        assertTrue(logout.isSuccess)
+        verify(sessionManager).clearSession()
+        assertTrue(!CacheManager.getInstance().contains("user_list"))
+
+        `when`(apiService.getUsers()).thenReturn(Response.success(payload))
+        repository.getUsers()
+        verify(apiService, times(2)).getUsers()
+    }
+
+    @Test
+    fun `login signs in a resident that exists in the API response`() = runTest(testDispatcher) {
+        val payload = UserResponse(listOf(TestFixtures.dataItem(email = "john@example.com")))
+        `when`(apiService.getUsers()).thenReturn(Response.success(payload))
+
+        val result = repository.login("john@example.com", "irrelevant")
+
+        assertTrue(result.isSuccess)
+        val user = result.getOrNull()
+        assertNotNull(user)
+        assertEquals("john@example.com", user!!.email)
+        assertEquals("John Doe", user.fullName)
+        verify(sessionManager).setCurrentUser(user)
+    }
+
+    @Test
+    fun `login fails for an email that is not in the resident list`() = runTest(testDispatcher) {
+        val payload = UserResponse(listOf(TestFixtures.dataItem(email = "john@example.com")))
+        `when`(apiService.getUsers()).thenReturn(Response.success(payload))
+
+        val result = repository.login("nobody@example.com", "irrelevant")
+
+        assertTrue(result.isFailure)
+        assertEquals("Invalid credentials", result.exceptionOrNull()?.message)
+    }
+
+    @Test
+    fun `login propagates a network failure instead of reporting bad credentials`() =
+        runTest(testDispatcher) {
+            `when`(apiService.getUsers()).thenAnswer { throw UnknownHostException("dns") }
+
+            val result = repository.login("john@example.com", "irrelevant")
+
+            assertTrue(result.isFailure)
+            assertEquals("No internet connection", result.exceptionOrNull()?.message)
+        }
+
+    @Test
+    fun `getCurrentUserFlow delegates to the session manager`() = runTest(testDispatcher) {
+        val user: User = TestFixtures.user()
+        `when`(sessionManager.currentUser).thenReturn(MutableStateFlow(user))
+
+        assertEquals(user, repository.getCurrentUserFlow().first())
     }
 }

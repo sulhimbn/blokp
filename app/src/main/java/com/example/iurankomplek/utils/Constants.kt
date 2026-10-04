@@ -32,9 +32,10 @@ object Constants {
         val ALL_CERTIFICATE_PINS = arrayOf(CERTIFICATE_PINNER)
 
         // Webhook Security Constants
-        // PRODUCTION: MUST set BuildConfig.WEBHOOK_SECRET via CI/CD secrets
-        // DEBUG: Falls back to this placeholder (should never be used in production)
-        const val WEBHOOK_SECRET_KEY = "whsec_placeholder_replace_in_production"
+        // The webhook secret is NOT defined here. It must be injected at build time
+        // via BuildConfig.WEBHOOK_SECRET (CI/CD secret). WebhookSecurityUtil fails
+        // closed when it is absent, so no publicly-known value can sign a webhook
+        // that the app accepts.
         const val WEBHOOK_SIGNATURE_HEADER = "X-Webhook-Signature"
         const val WEBHOOK_TIMESTAMP_HEADER = "X-Webhook-Timestamp"
         const val WEBHOOK_TIMESTAMP_TOLERANCE_MS = 5 * 60 * 1000L // 5 minutes

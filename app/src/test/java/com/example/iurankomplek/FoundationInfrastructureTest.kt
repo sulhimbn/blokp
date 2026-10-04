@@ -1,142 +1,204 @@
 package com.example.iurankomplek
 
-import com.example.iurankomplek.data.repository.BaseRepository
-import com.example.iurankomplek.network.ApiConfig
-import com.example.iurankomplek.utils.*
+import com.example.iurankomplek.data.repository.BaseNetworkRepository
+import com.example.iurankomplek.utils.Constants
+import com.example.iurankomplek.utils.ErrorHandler
+import com.example.iurankomplek.utils.Result
+import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.BaseViewModel
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.junit.Assert.*
-import java.util.concurrent.TimeUnit
+import java.lang.reflect.Modifier
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
+import javax.net.ssl.SSLException
+import retrofit2.HttpException
+import kotlin.math.min
 
-/**
- * Test suite to verify foundation infrastructure components are properly implemented
- * as required by issue #158: Foundation Infrastructure Setup for HOA Management
- */
 class FoundationInfrastructureTest {
 
-    @Test
-    fun `test security configuration is properly implemented`() {
-        // Verify certificate pinning is configured
-        val apiService = ApiConfig.getApiService()
-        assertNotNull("API service should be created with security configuration", apiService)
-        
-        // Verify timeouts are configured appropriately
-        val okHttpClient = ApiConfig::class.java.declaredMethods
-            .find { it.name == "getCertificatePinner" }
-        assertNotNull("Security configuration should be present", okHttpClient)
+    private class ProbeRepository : BaseNetworkRepository() {
+        override val errorHandler = ErrorHandler()
+        fun retryable(code: Int) = isRetryableError(code)
+        fun retryable(t: Throwable) = isRetryableException(t)
+        fun delayFor(retry: Int) =
+            calculateDelay(retry, Constants.Network.INITIAL_RETRY_DELAY_MS, Constants.Network.MAX_RETRY_DELAY_MS)
+    }
+
+    private class ProbeViewModel : BaseViewModel<String>() {
+        fun route(result: Result<String>, onSuccess: (String) -> Unit) =
+            handleResult(result, onSuccess = onSuccess)
+
+        fun succeed(data: String) = setSuccess(data)
+        fun fail(message: String) = setError(message)
+        fun beginLoading() = setLoading()
     }
 
     @Test
-    fun `test base repository interface exists`() {
-        // Verify BaseRepository interface exists and has required methods
-        assertTrue("BaseRepository should extend interface", BaseRepository::class.java.isInterface)
-        
-        val methods = BaseRepository::class.java.declaredMethods
-        assertEquals("BaseRepository should have 5 required methods", 5, methods.size)
+    fun `only 408 and 429 are retryable among 4xx responses`() {
+        val repo = ProbeRepository()
+
+        assertTrue(repo.retryable(408))
+        assertTrue(repo.retryable(429))
+        for (code in listOf(400, 401, 403, 404, 409, 410, 418, 422, 426, 428)) {
+            assertFalse("HTTP $code is permanent and must not be retried", repo.retryable(code))
+        }
     }
 
     @Test
-    fun `test base viewmodel abstract class exists`() {
-        // Verify BaseViewModel abstract class exists
-        assertTrue("BaseViewModel should be an abstract class", BaseViewModel::class.java.isAbstract)
+    fun `BaseViewModel is abstract`() {
+        assertTrue(
+            "BaseViewModel should be an abstract class",
+            Modifier.isAbstract(BaseViewModel::class.java.modifiers)
+        )
     }
 
     @Test
-    fun `test error handler is implemented`() {
-        val errorHandler = ErrorHandler()
-        val message = errorHandler.handleError(Exception("Test error"))
-        assertNotNull("Error handler should return error message", message)
-        assertTrue("Error message should not be empty", message.isNotEmpty())
+    fun `5xx responses are treated as retryable`() {
+        val repo = ProbeRepository()
+
+        assertTrue(repo.retryable(500))
+        assertTrue(repo.retryable(502))
+        assertTrue(repo.retryable(503))
     }
 
     @Test
-    fun `test custom Result class is properly defined`() {
-        // Test Success case
-        val successResult = Result.Success("test")
-        assertTrue("Success result should be instance of Result", successResult is Result.Success)
-        
-        // Test Error case
-        val errorResult = Result.Error(Exception("test"), "error message")
-        assertTrue("Error result should be instance of Result", errorResult is Result.Error)
-        
-        // Test Loading case
-        val loadingResult = Result.Loading
-        assertTrue("Loading result should be instance of Result", loadingResult is Result.Loading)
-        
-        // Test Empty case
-        val emptyResult = Result.Empty
-        assertTrue("Empty result should be instance of Result", emptyResult is Result.Empty)
+    fun `408 and 429 are treated as retryable`() {
+        val repo = ProbeRepository()
+
+        assertTrue(repo.retryable(408))
+        assertTrue(repo.retryable(429))
     }
 
     @Test
-    fun `test data validator sanitizes inputs properly`() {
-        val validator = DataValidator
-        
-        // Test name sanitization
-        val sanitized1 = validator.sanitizeName("<script>alert('XSS')</script>John")
-        assertNotEquals("Script should be sanitized", "<script>alert('XSS')</script>John", sanitized1)
-        
-        // Test email sanitization
-        val sanitized2 = validator.sanitizeEmail("test@;DROP TABLE users;")
-        assertEquals("Invalid email should be sanitized", "invalid@email.com", sanitized2)
-        
-        // Test URL validation
-        assertFalse("JavaScript URL should be rejected", validator.isValidUrl("javascript:alert('XSS')"))
-        assertTrue("HTTPS URL should be accepted", validator.isValidUrl("https://example.com"))
+    fun `4xx responses other than 408 and 429 are not retryable`() {
+        val repo = ProbeRepository()
+
+        assertFalse(repo.retryable(400))
+        assertFalse(repo.retryable(401))
+        assertFalse(repo.retryable(404))
+        assertFalse(repo.retryable(422))
     }
 
     @Test
-    fun `test logging utils are available`() {
-        // Test that logging utils can be called without exceptions
-        LoggingUtils.d("Test debug message", "FoundationTest")
-        LoggingUtils.i("Test info message", "FoundationTest")
-        LoggingUtils.w("Test warning message", "FoundationTest")
-        LoggingUtils.e("Test error message", null, "FoundationTest")
-        LoggingUtils.logNetworkSecurityWarning("Test security warning")
-        
-        // If we reach this point, logging worked without exceptions
-        assertTrue("Logging utilities should be accessible", true)
+    fun `transient IO and TLS failures are retryable but programming errors are not`() {
+        val repo = ProbeRepository()
+
+        assertTrue(repo.retryable(UnknownHostException("dns")))
+        assertTrue(repo.retryable(SocketTimeoutException("slow")))
+        assertTrue(repo.retryable(SSLException("handshake")))
+        assertFalse(repo.retryable(IllegalStateException("bug")))
     }
 
     @Test
-    fun `test UI state companion object functions`() {
-        // Test that UiState companion object functions work correctly
-        val successState = UiState.success("test data")
-        assertTrue("Success state should be created", successState is UiState.Success)
-        
-        val errorState = UiState.error("test error")
-        assertTrue("Error state should be created", errorState is UiState.Error)
-        
-        val loadingState = UiState.loading()
-        assertTrue("Loading state should be created", loadingState is UiState.Loading)
+    fun `backoff grows exponentially and is capped at the configured maximum`() {
+        val repo = ProbeRepository()
+        val initial = Constants.Network.INITIAL_RETRY_DELAY_MS
+        val max = Constants.Network.MAX_RETRY_DELAY_MS
+
+        val first = repo.delayFor(1)
+        val second = repo.delayFor(2)
+        val third = repo.delayFor(3)
+
+        assertTrue("first backoff should be around ${initial}ms but was ${first}ms", first in initial..(initial * 2))
+        assertTrue("backoff must grow: $second should exceed $first", second > first)
+        assertTrue("backoff must grow: $third should exceed $second", third > second)
+        assertTrue("backoff must never exceed ${max}ms but was ${third}ms", third <= max)
+        assertEquals(minOf(third, max), third)
     }
 
     @Test
-    fun `test security manager functionality`() {
-        val securityManager = SecurityManager
-        
-        // Test security environment check
-        val isSecure = securityManager.isSecureEnvironment()
-        assertTrue("Security manager should return boolean", isSecure is Boolean)
-        
-        // Test certificate monitoring
-        securityManager.monitorCertificateExpiration()
-        
-        // Test security configuration validation
-        val isValid = securityManager.validateSecurityConfiguration()
-        assertTrue("Security configuration should be valid", isValid)
-        
-        // Test security threat detection
-        val threats = securityManager.checkSecurityThreats()
-        assertTrue("Threats should be returned as a list", threats is List<*>)
+    fun `backoff for a very large retry number is still capped`() {
+        val repo = ProbeRepository()
+
+        assertTrue(
+            repo.delayFor(64) <= Constants.Network.MAX_RETRY_DELAY_MS
+        )
     }
 
     @Test
-    fun `test network security configuration expiration date`() {
-        // This test verifies that the network security config has been updated
-        // The actual verification would be done by checking the XML file content
-        // For now, we'll just ensure the ApiConfig still works properly
-        val apiService = ApiConfig.getApiService()
-        assertNotNull("API service should still work after security config updates", apiService)
+    fun `UiState companion helpers build the matching states`() {
+        val success: UiState<String> = UiState.success("payload")
+        val error: UiState<String> = UiState.error("boom")
+        val loading: UiState<String> = UiState.loading()
+
+        assertEquals(UiState.Success("payload"), success)
+        assertEquals(UiState.Error("boom"), error)
+        assertEquals(UiState.Loading, loading)
+    }
+
+    @Test
+    fun `handleResult forwards a success payload to the caller`() = runTest {
+        val vm = ProbeViewModel()
+        var captured: String? = null
+
+        vm.route(Result.Success("ok")) { captured = it }
+
+        assertEquals("ok", captured)
+    }
+
+    @Test
+    fun `handleResult writes Error state for a failure`() = runTest {
+        val vm = ProbeViewModel()
+
+        vm.route(Result.Error(RuntimeException("bad"), "bad")) { }
+
+        assertEquals(UiState.Error("bad"), vm.uiState.value)
+    }
+
+    @Test
+    fun `handleResult writes Loading state for the Loading variant`() = runTest {
+        val vm = ProbeViewModel()
+
+        vm.route(Result.Loading) { }
+
+        assertEquals(UiState.Loading, vm.uiState.value)
+    }
+
+    @Test
+    fun `handleResult reports Empty as no data available`() = runTest {
+        val vm = ProbeViewModel()
+
+        vm.route(Result.Empty) { }
+
+        assertEquals(UiState.Error("No data available"), vm.uiState.value)
+    }
+
+    @Test
+    fun `setSuccess setError and setLoading drive the exposed state`() = runTest {
+        val vm = ProbeViewModel()
+
+        vm.beginLoading()
+        assertEquals(UiState.Loading, vm.uiState.value)
+
+        vm.succeed("payload")
+        assertEquals(UiState.Success("payload"), vm.uiState.value)
+
+        vm.fail("nope")
+        assertEquals(UiState.Error("nope"), vm.uiState.value)
+    }
+
+    @Test
+    fun `ErrorHandler maps transport and HTTP failures to user facing text`() {
+        val handler = ErrorHandler()
+
+        assertEquals("No internet connection", handler.handleError(UnknownHostException("dns")))
+        assertEquals("Connection timeout", handler.handleError(SocketTimeoutException("slow")))
+        assertEquals(
+            "Resource not found",
+            handler.handleError(HttpException(retrofit2.Response.error<Any>(404, EMPTY_BODY)))
+        )
+        assertEquals(
+            "Server error",
+            handler.handleError(HttpException(retrofit2.Response.error<Any>(500, EMPTY_BODY)))
+        )
+        assertEquals("An error occurred: mystery", handler.handleError(RuntimeException("mystery")))
+    }
+
+    private companion object {
+        val EMPTY_BODY = okhttp3.ResponseBody.create(null, "")
     }
 }

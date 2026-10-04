@@ -7,6 +7,8 @@ import com.example.iurankomplek.utils.WebhookSecurityUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
+import org.json.JSONException
+import org.json.JSONObject
 
 /**
  * Webhook receiver for handling payment events.
@@ -86,8 +88,12 @@ class WebhookReceiver(
     private fun processWebhookEvent(payload: String) {
         scope.launch {
             try {
-                // Parse the webhook payload (simplified for this example)
                 val event = parseWebhookPayload(payload)
+
+                if (event.transactionId.isBlank()) {
+                    Log.w(TAG, "Webhook rejected: payload carries no transactionId")
+                    return@launch
+                }
 
                 when (event.eventType) {
                     "payment.success" -> {
@@ -128,30 +134,16 @@ class WebhookReceiver(
     }
 
     private fun parseWebhookPayload(payload: String): WebhookEvent {
-        // This is a simplified parser - in a real implementation, you'd use proper JSON parsing
-        // For this demo, we'll just create a basic event based on the payload
-        return WebhookEvent(
-            eventType = extractEventType(payload),
-            transactionId = extractTransactionId(payload)
-        )
-    }
-
-    private fun extractEventType(payload: String): String {
-        // Simplified extraction - in real implementation, parse JSON properly
-        return if (payload.contains("success")) {
-            "payment.success"
-        } else if (payload.contains("failed")) {
-            "payment.failed"
-        } else if (payload.contains("refunded")) {
-            "payment.refunded"
-        } else {
-            "unknown"
+        return try {
+            val json = JSONObject(payload)
+            WebhookEvent(
+                eventType = json.optString("event", "unknown"),
+                transactionId = json.optString("transactionId", "")
+            )
+        } catch (e: JSONException) {
+            Log.w(TAG, "Webhook payload is not valid JSON: ${e.message}")
+            WebhookEvent(eventType = "unknown", transactionId = "")
         }
-    }
-
-    private fun extractTransactionId(payload: String): String {
-        // Simplified extraction - in real implementation, parse JSON properly
-        return "transaction_id_from_payload" // This would be extracted from the actual payload
     }
 }
 

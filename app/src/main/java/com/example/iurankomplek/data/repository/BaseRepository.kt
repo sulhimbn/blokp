@@ -6,6 +6,7 @@ import com.example.iurankomplek.utils.Constants
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
+import retrofit2.HttpException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import javax.net.ssl.SSLException
@@ -71,7 +72,7 @@ abstract class BaseNetworkRepository {
                         currentRetry++
                         continue
                     } else {
-                        throw Exception("API request failed with code: ${response.code()}")
+                        throw HttpException(response)
                     }
                 }
             } catch (e: Exception) {
@@ -101,10 +102,11 @@ abstract class BaseNetworkRepository {
      * Determines if an HTTP error code is retryable
      */
     protected fun isRetryableError(httpCode: Int): Boolean {
-        // Retry on server errors (5xx) and some client errors (4xx)
-        // 408: Request Timeout
-        // 429: Too Many Requests
-        return httpCode in 408..429 || httpCode / 100 == 5
+        // Retry on server errors (5xx) and only the two transient client errors:
+        // 408 Request Timeout and 429 Too Many Requests. Other 4xx responses
+        // (409, 422, 428 ...) are permanent for the same request and retrying
+        // them only adds latency before the identical failure.
+        return httpCode == 408 || httpCode == 429 || httpCode / 100 == 5
     }
     
     /**

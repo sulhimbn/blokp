@@ -2,8 +2,7 @@ package com.example.iurankomplek.receipt
 
 import com.example.iurankomplek.transaction.Transaction
 import java.math.BigDecimal
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import java.util.Calendar
 import java.util.Date
 import java.security.SecureRandom
 import java.util.UUID
@@ -28,7 +27,12 @@ class ReceiptGenerator @Inject constructor() {
     }
     
     private fun generateReceiptNumber(): String {
-        val date = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)
+        val calendar = Calendar.getInstance()
+        val date = "%04d%02d%02d".format(
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH) + 1,
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
         val random = 1000 + SecureRandom().nextInt(9000)
         return "RCPT-$date-$random"
     }

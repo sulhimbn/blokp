@@ -1,42 +1,43 @@
 package com.example.iurankomplek.viewmodel
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.example.iurankomplek.TestFixtures
 import com.example.iurankomplek.data.repository.UserRepository
-import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.event.AppEvent
+import com.example.iurankomplek.event.EventBus
+import com.example.iurankomplek.model.User
 import com.example.iurankomplek.model.UserResponse
 import com.example.iurankomplek.utils.UiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.Mock
-import org.mockito.Mockito
-import org.mockito.junit.MockitoJUnitRunner
-import java.io.IOException
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@RunWith(MockitoJUnitRunner::class)
 class UserViewModelTest {
 
-    @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
-
-    @Mock
-    private lateinit var userRepository: UserRepository
-
+    private lateinit var repository: UserRepository
+    private lateinit var eventBus: EventBus
     private lateinit var viewModel: UserViewModel
-
     private val testDispatcher = StandardTestDispatcher()
 
     @Before
-    fun setup() {
+    fun setUp() {
         Dispatchers.setMain(testDispatcher)
-        viewModel = UserViewModel(userRepository)
+        repository = mock(UserRepository::class.java)
+        eventBus = EventBus()
+        viewModel = UserViewModel(repository, eventBus)
     }
 
     @After
@@ -45,142 +46,91 @@ class UserViewModelTest {
     }
 
     @Test
-    fun `loadUsers should emit Loading state initially`() = runTest {
-        // Given
-        val mockUsers = listOf(
-            DataItem(
-                first_name = "John",
-                last_name = "Doe",
-                email = "john.doe@example.com",
-                alamat = "123 Main St",
-                iuran_perwarga = 100,
-                total_iuran_rekap = 500,
-                jumlah_iuran_bulanan = 200,
-                total_iuran_individu = 150,
-                pengeluaran_iuran_warga = 50,
-                pemanfaatan_iuran = "Maintenance",
-                avatar = "https://example.com/avatar.jpg"
-            )
-        )
-        val mockResponse = UserResponse(
-            success = true,
-            message = "Users fetched successfully",
-            data = mockUsers
-        )
-        Mockito.`when`(userRepository.getUsers()).thenReturn(Result.success(mockResponse))
-
-        // When
-        viewModel.loadUsers()
-
-        // Then
-        val loadingState = viewModel.usersState.value
-        assertTrue(loadingState is UiState.Loading)
+    fun `starts in Loading before any load is requested`() = runTest(testDispatcher) {
+        assertTrue(viewModel.usersState.value is UiState.Loading)
     }
 
     @Test
-    fun `loadUsers should emit Success state when repository returns data`() = runTest {
-        // Given
-        val mockUsers = listOf(
-            DataItem(
-                first_name = "John",
-                last_name = "Doe",
-                email = "john.doe@example.com",
-                alamat = "123 Main St",
-                iuran_perwarga = 100,
-                total_iuran_rekap = 500,
-                jumlah_iuran_bulanan = 200,
-                total_iuran_individu = 150,
-                pengeluaran_iuran_warga = 50,
-                pemanfaatan_iuran = "Maintenance",
-                avatar = "https://example.com/avatar.jpg"
-            )
-        )
-        val mockResponse = UserResponse(
-            success = true,
-            message = "Users fetched successfully",
-            data = mockUsers
-        )
-        Mockito.`when`(userRepository.getUsers()).thenReturn(Result.success(mockResponse))
+    fun `the very first loadUsers call reaches the repository`() = runTest(testDispatcher) {
+        val payload = UserResponse(listOf(TestFixtures.dataItem()))
+        `when`(repository.getUsers()).thenReturn(Result.success(payload))
 
-        // When
         viewModel.loadUsers()
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        // Then
-        advanceUntilIdle()
-        val state = viewModel.usersState.value
-        assertTrue(state is UiState.Success)
-        assertEquals(mockResponse, (state as UiState.Success).data)
+        assertEquals(UiState.Success(payload), viewModel.usersState.value)
+        verify(repository, times(1)).getUsers()
     }
 
     @Test
-    fun `loadUsers should emit Error state when repository returns error`() = runTest {
-        // Given
-        val errorMessage = "Network error occurred"
-        Mockito.`when`(userRepository.getUsers()).thenReturn(Result.failure(IOException(errorMessage)))
+    fun `a second loadUsers call while the first is in flight does not duplicate the request`() =
+        runTest(testDispatcher) {
+            `when`(repository.getUsers()).thenReturn(Result.success(UserResponse(emptyList())))
 
-        // When
+            viewModel.loadUsers()
+            viewModel.loadUsers()
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            verify(repository, times(1)).getUsers()
+        }
+
+    @Test
+    fun `a load requested after the previous one settled runs again`() = runTest(testDispatcher) {
+        val payload = UserResponse(listOf(TestFixtures.dataItem()))
+        `when`(repository.getUsers()).thenReturn(Result.success(payload))
+
         viewModel.loadUsers()
+        testDispatcher.scheduler.advanceUntilIdle()
+        viewModel.loadUsers()
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        // Then
-        advanceUntilIdle()
+        verify(repository, times(2)).getUsers()
+    }
+
+    @Test
+    fun `surfaces the failure message from the repository`() = runTest(testDispatcher) {
+        `when`(repository.getUsers()).thenReturn(Result.failure(java.io.IOException("No internet connection")))
+
+        viewModel.loadUsers()
+        testDispatcher.scheduler.advanceUntilIdle()
+
         val state = viewModel.usersState.value
         assertTrue(state is UiState.Error)
-        assertEquals(errorMessage, (state as UiState.Error).message)
+        assertEquals("No internet connection", (state as UiState.Error).error)
     }
 
     @Test
-    fun `loadUsers should not make duplicate calls when already loading`() = runTest {
-        // Given
-        val mockUsers = listOf(
-            DataItem(
-                first_name = "John",
-                last_name = "Doe",
-                email = "john.doe@example.com",
-                alamat = "123 Main St",
-                iuran_perwarga = 100,
-                total_iuran_rekap = 500,
-                jumlah_iuran_bulanan = 200,
-                total_iuran_individu = 150,
-                pengeluaran_iuran_warga = 50,
-                pemanfaatan_iuran = "Maintenance",
-                avatar = "https://example.com/avatar.jpg"
-            )
-        )
-        val mockResponse = UserResponse(
-            success = true,
-            message = "Users fetched successfully",
-            data = mockUsers
-        )
-        Mockito.`when`(userRepository.getUsers()).thenReturn(Result.success(mockResponse))
+    fun `substitutes a fallback message when the failure carries none`() = runTest(testDispatcher) {
+        `when`(repository.getUsers()).thenReturn(Result.failure(java.io.IOException()))
 
-        // When
         viewModel.loadUsers()
-        // Try to call loadUsers again while the first one is still in progress
-        viewModel.loadUsers()
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        // Then
-        // Verify that userRepository.getUsers() was only called once
-        Mockito.verify(userRepository).getUsers()
+        assertEquals("Unknown error occurred", (viewModel.usersState.value as UiState.Error).error)
     }
 
     @Test
-    fun `loadUsers should update state correctly for empty data`() = runTest {
-        // Given
-        val mockResponse = UserResponse(
-            success = true,
-            message = "No users found",
-            data = emptyList()
-        )
-        Mockito.`when`(userRepository.getUsers()).thenReturn(Result.success(mockResponse))
-
-        // When
+    fun `a RefreshAllData event triggers a reload`() = runTest(testDispatcher) {
+        val payload = UserResponse(listOf(TestFixtures.dataItem()))
+        `when`(repository.getUsers()).thenReturn(Result.success(payload))
         viewModel.loadUsers()
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        // Then
-        advanceUntilIdle()
-        val state = viewModel.usersState.value
-        assertTrue(state is UiState.Success)
-        assertEquals(mockResponse, (state as UiState.Success).data)
-        assertTrue((state as UiState.Success).data.data?.isEmpty() == true)
+        eventBus.publishBlocking(AppEvent.RefreshAllData)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        verify(repository, times(2)).getUsers()
+    }
+
+    @Test
+    fun `an unrelated event does not trigger a reload`() = runTest(testDispatcher) {
+        `when`(repository.getUsers()).thenReturn(Result.success(UserResponse(emptyList())))
+        viewModel.loadUsers()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        eventBus.publishBlocking(AppEvent.PaymentCompleted("pay-1", java.math.BigDecimal.TEN))
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        verify(repository, times(1)).getUsers()
     }
 }

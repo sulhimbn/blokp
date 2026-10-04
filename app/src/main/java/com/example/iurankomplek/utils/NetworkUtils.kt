@@ -11,9 +11,20 @@ object NetworkUtils {
         val network = connectivityManager.activeNetwork ?: return false
         val networkCapabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
         
-        return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
-                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
-                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) ||
-                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)
+        return hasUsableTransport(networkCapabilities)
     }
+
+    fun hasUsableTransport(capabilities: NetworkCapabilities?): Boolean {
+        if (capabilities == null) return false
+        return SUPPORTED_TRANSPORTS.any { capabilities.hasTransport(it) }
+    }
+
+    fun isSupportedTransport(transport: Int): Boolean = transport in SUPPORTED_TRANSPORTS
+
+    val SUPPORTED_TRANSPORTS = listOf(
+        NetworkCapabilities.TRANSPORT_WIFI,
+        NetworkCapabilities.TRANSPORT_CELLULAR,
+        NetworkCapabilities.TRANSPORT_ETHERNET,
+        NetworkCapabilities.TRANSPORT_VPN
+    )
 }

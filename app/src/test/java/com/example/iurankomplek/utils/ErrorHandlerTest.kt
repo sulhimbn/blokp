@@ -1,130 +1,78 @@
 package com.example.iurankomplek.utils
 
-import org.junit.Assert.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.ResponseBody
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import retrofit2.HttpException
-import okhttp3.ResponseBody
-import java.net.UnknownHostException
-import java.net.SocketTimeoutException
 import java.io.IOException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
+import javax.net.ssl.SSLException
 
 class ErrorHandlerTest {
 
-    private val errorHandler = ErrorHandler()
+    private val handler = ErrorHandler()
+
+    private fun httpException(code: Int) =
+        HttpException(retrofit2.Response.error<Any>(code, ResponseBody.create(null, "")))
 
     @Test
-    fun `handleError should return correct message for UnknownHostException`() {
-        val exception = UnknownHostException()
-        val result = errorHandler.handleError(exception)
-        assertEquals("No internet connection", result)
+    fun `UnknownHostException becomes No internet connection`() {
+        assertEquals("No internet connection", handler.handleError(UnknownHostException("api.example")))
     }
 
     @Test
-    fun `handleError should return correct message for SocketTimeoutException`() {
-        val exception = SocketTimeoutException()
-        val result = errorHandler.handleError(exception)
-        assertEquals("Connection timeout", result)
+    fun `SocketTimeoutException becomes Connection timeout`() {
+        assertEquals("Connection timeout", handler.handleError(SocketTimeoutException("read timed out")))
     }
 
     @Test
-    fun `handleError should return correct message for 401 HttpException`() {
-        val errorResponse = ResponseBody.create(null, "Unauthorized")
-        val exception = HttpException(response = okhttp3.Response.Builder()
-            .code(401)
-            .request(okhttp3.Request.Builder().url("https://test.com").build())
-            .message("Unauthorized")
-            .build())
-        val result = errorHandler.handleError(exception)
-        assertEquals("Unauthorized access", result)
+    fun `other IOExceptions become Network error occurred`() {
+        assertEquals(
+            "Network error occurred",
+            handler.handleError(IOException("connection reset"))
+        )
     }
 
     @Test
-    fun `handleError should return correct message for 403 HttpException`() {
-        val errorResponse = ResponseBody.create(null, "Forbidden")
-        val exception = HttpException(response = okhttp3.Response.Builder()
-            .code(403)
-            .request(okhttp3.Request.Builder().url("https://test.com").build())
-            .message("Forbidden")
-            .build())
-        val result = errorHandler.handleError(exception)
-        assertEquals("Forbidden", result)
+    fun `401 becomes Unauthorized access`() {
+        assertEquals("Unauthorized access", handler.handleError(httpException(401)))
     }
 
     @Test
-    fun `handleError should return correct message for 404 HttpException`() {
-        val errorResponse = ResponseBody.create(null, "Not Found")
-        val exception = HttpException(response = okhttp3.Response.Builder()
-            .code(404)
-            .request(okhttp3.Request.Builder().url("https://test.com").build())
-            .message("Not Found")
-            .build())
-        val result = errorHandler.handleError(exception)
-        assertEquals("Resource not found", result)
+    fun `403 becomes Forbidden`() {
+        assertEquals("Forbidden", handler.handleError(httpException(403)))
     }
 
     @Test
-    fun `handleError should return correct message for 500 HttpException`() {
-        val errorResponse = ResponseBody.create(null, "Internal Server Error")
-        val exception = HttpException(response = okhttp3.Response.Builder()
-            .code(500)
-            .request(okhttp3.Request.Builder().url("https://test.com").build())
-            .message("Internal Server Error")
-            .build())
-        val result = errorHandler.handleError(exception)
-        assertEquals("Server error", result)
+    fun `404 becomes Resource not found`() {
+        assertEquals("Resource not found", handler.handleError(httpException(404)))
     }
 
     @Test
-    fun `handleError should return generic message for unknown HTTP error code`() {
-        val errorResponse = ResponseBody.create(null, "I'm a teapot")
-        val exception = HttpException(response = okhttp3.Response.Builder()
-            .code(418)
-            .request(okhttp3.Request.Builder().url("https://test.com").build())
-            .message("I'm a teapot")
-            .build())
-        val result = errorHandler.handleError(exception)
-        assertEquals("HTTP Error: 418", result)
+    fun `500 becomes Server error`() {
+        assertEquals("Server error", handler.handleError(httpException(500)))
     }
 
     @Test
-    fun `handleError should return correct message for generic IOException`() {
-        val exception = IOException("File not found")
-        val result = errorHandler.handleError(exception)
-        assertEquals("Network error occurred", result)
+    fun `any other HTTP status keeps the numeric code`() {
+        assertEquals("HTTP Error: 418", handler.handleError(httpException(418)))
+        assertEquals("HTTP Error: 503", handler.handleError(httpException(503)))
     }
 
     @Test
-    fun `handleError should return correct message for IOException without message`() {
-        val exception = IOException()
-        val result = errorHandler.handleError(exception)
-        assertEquals("Network error occurred", result)
+    fun `an SSL failure is reported as a network error`() {
+        assertEquals("Network error occurred", handler.handleError(SSLException("handshake failed")))
     }
 
     @Test
-    fun `handleError should return generic error message for unknown exception`() {
-        val exception = RuntimeException("Something went wrong")
-        val result = errorHandler.handleError(exception)
-        assertEquals("An error occurred: Something went wrong", result)
+    fun `an unknown throwable is reported with its message`() {
+        assertEquals("An error occurred: boom", handler.handleError(IllegalStateException("boom")))
     }
 
     @Test
-    fun `handleError should return generic error message for exception with null message`() {
-        val exception = NullPointerException()
-        val result = errorHandler.handleError(exception)
-        assertEquals("An error occurred: null", result)
-    }
-
-    @Test
-    fun `handleError should return generic error message for IllegalArgumentException`() {
-        val exception = IllegalArgumentException("Invalid argument")
-        val result = errorHandler.handleError(exception)
-        assertEquals("An error occurred: Invalid argument", result)
-    }
-
-    @Test
-    fun `handleError should return generic error message for IllegalStateException`() {
-        val exception = IllegalStateException("Invalid state")
-        val result = errorHandler.handleError(exception)
-        assertEquals("An error occurred: Invalid state", result)
+    fun `an unknown throwable with no message still produces a readable string`() {
+        assertEquals("An error occurred: null", handler.handleError(IllegalStateException()))
     }
 }
