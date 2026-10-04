@@ -11,6 +11,8 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
 import java.math.BigDecimal
 import java.util.Date
 
@@ -55,8 +57,8 @@ class PaymentProcessingTest {
         
         // Assert
         assertTrue(result.isSuccess)
-        verify(mockTransactionDao, times(2)).insert(any(Transaction::class.java)) // Once for initial, once for update
-        verify(mockTransactionDao).update(any(Transaction::class.java))
+        verify(mockTransactionDao, times(1)).insert(any<Transaction>())
+        verify(mockTransactionDao).update(any<Transaction>())
     }
 
     @Test
@@ -77,8 +79,8 @@ class PaymentProcessingTest {
         
         // Assert
         assertTrue(result.isFailure)
-        verify(mockTransactionDao, times(1)).insert(any(Transaction::class.java)) // Initial insert
-        verify(mockTransactionDao).update(any(Transaction::class.java)) // Status update to FAILED
+        verify(mockTransactionDao, times(1)).insert(any<Transaction>()) // Initial insert
+        verify(mockTransactionDao).update(any<Transaction>()) // Status update to FAILED
     }
 
     @Test
@@ -140,13 +142,23 @@ class PaymentProcessingTest {
         )
 
         `when`(mockPaymentGateway.refundPayment(transactionId)).thenReturn(Result.success(mockResponse))
+        `when`(mockTransactionDao.getTransactionById(transactionId)).thenReturn(
+            Transaction.create(
+                PaymentRequest(
+                    amount = BigDecimal("100.00"),
+                    description = "Test payment",
+                    customerId = "test_user",
+                    paymentMethod = PaymentMethod.CREDIT_CARD
+                )
+            )
+        )
 
         // Act
         val result = transactionRepository.refundPayment(transactionId, "Test refund")
 
         // Assert
         assertTrue(result.isSuccess)
-        verify(mockTransactionDao).update(any(Transaction::class.java))
+        verify(mockTransactionDao).update(any<Transaction>())
     }
 
     @Test

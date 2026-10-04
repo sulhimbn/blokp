@@ -1,10 +1,15 @@
 package com.example.iurankomplek.event
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -90,41 +95,31 @@ class EventBusTest {
 
     @Test
     fun eventsFlow_emitsPublishedEvents() = runTest {
-        // Given: An event that will be published
-        val testEvent = AppEvent.NewAnnouncement("announce_789")
+        val received = async(start = CoroutineStart.UNDISPATCHED) { eventBus.events.first() }
+        testScheduler.advanceUntilIdle()
 
-        // When: Publishing event and collecting
-        eventBus.publish(testEvent)
-        val collected = eventBus.events.first()
+        eventBus.publish(AppEvent.NewAnnouncement("announce_789"))
 
-        // Then: The collected event matches what was published
-        assertEquals(testEvent, collected)
+        assertEquals(AppEvent.NewAnnouncement("announce_789"), received.await())
     }
-
     @Test
     fun publish_withDataClasses_passesCorrectData() = runTest {
-        // Given: Events with various data
-        val paymentEvent = AppEvent.PaymentFailed("Network error")
-        val userEvent = AppEvent.UserProfileUpdated("user_999")
-        val networkEvent = AppEvent.NetworkStatusChanged(isConnected = false)
+        val received = mutableListOf<AppEvent>()
+        val collector = launch(start = CoroutineStart.UNDISPATCHED) {
+            eventBus.events.collect { received += it }
+        }
+        testScheduler.advanceUntilIdle()
 
-        // When: Publishing events with data
-        eventBus.publish(paymentEvent)
-        eventBus.publish(userEvent)
-        eventBus.publish(networkEvent)
+        eventBus.publish(AppEvent.PaymentFailed("Network error"))
+        eventBus.publish(AppEvent.UserProfileUpdated("user_999"))
+        eventBus.publish(AppEvent.NetworkStatusChanged(isConnected = false))
+        testScheduler.advanceUntilIdle()
+        collector.cancel()
 
-        // Then: Events can be collected with correct data
-        val events = listOf(
-            eventBus.events.first(),
-            eventBus.events.first(),
-            eventBus.events.first()
-        )
-
-        assertTrue(events.any { it is AppEvent.PaymentFailed })
-        assertTrue(events.any { it is AppEvent.UserProfileUpdated })
-        assertTrue(events.any { it is AppEvent.NetworkStatusChanged })
+        assertTrue(received.any { it is AppEvent.PaymentFailed })
+        assertTrue(received.any { it is AppEvent.UserProfileUpdated })
+        assertTrue(received.any { it is AppEvent.NetworkStatusChanged })
     }
-
     @Test
     fun publish_objectEvents_workCorrectly() = runTest {
         // Given: Object-level events (data object)
@@ -200,13 +195,11 @@ class EventBusTest {
     }
 
     @Test
-    fun events_providesSharedFlow() = runTest {
-        // Given: EventBus provides SharedFlow
+    fun events_doesNotReplayEventsPublishedBeforeSubscription() = runTest {
+        eventBus.publish(AppEvent.UserLoggedOut)
 
-        // When: Accessing the events flow
-        val flow = eventBus.events
+        val received = withTimeoutOrNull(200) { eventBus.events.first() }
 
-        // Then: It's a SharedFlow (replay=0, extraBufferCapacity=64)
-        assertEquals(0, flow.replay)
+        assertNull(received)
     }
 }

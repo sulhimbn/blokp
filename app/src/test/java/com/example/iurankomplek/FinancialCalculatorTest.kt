@@ -362,7 +362,7 @@ class FinancialCalculatorTest {
         FinancialCalculator.calculateTotalIuranBulanan(invalidItems)
     }
 
-    @Test(expected = ArithmeticException::class)
+    @Test(expected = IllegalArgumentException::class)
     fun testCalculateTotalIuranBulanan_throwsOnOverflow() {
         val itemsWithLargeValues = listOf(
             DataItem(
@@ -447,6 +447,6 @@ class FinancialCalculatorTest {
 
         // If the bug existed (only last item used), result would be 30 * 3 = 90
         // But with proper accumulation: (10*3) + (20*3) + (30*3) = 30 + 60 + 90 = 180
-        assertEquals(180, totalIuranIndividu, "Bug fix verification: totalIuranIndividu should accumulate all items, not just take the last item value")
+        assertEquals("Bug fix verification: totalIuranIndividu should accumulate all items, not just take the last item value", 180L, totalIuranIndividu.toLong())
     }
 }

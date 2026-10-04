@@ -3,25 +3,49 @@ package com.example.iurankomplek.utils
 import java.net.URL
 
 object DataValidator {
+
+    private val SCRIPT_OR_STYLE_BLOCK = Regex("(?is)<(script|style)[^>]*>.*?</\\1\\s*>")
+    private val HTML_TAG = Regex("(?s)<[^>]*>")
+    private val CONTROL_CHARS = Regex("[\\p{Cntrl}&&[^\\n\\t]]")
+
+    /**
+     * Strips markup from untrusted API text before it reaches any renderer.
+     *
+     * These values originate from a remote spreadsheet, so a hostile or
+     * compromised response can carry script/style payloads and stray angle
+     * brackets. Removing the whole element (including its body) matters because
+     * stripping only the tags would leave `alert('XSS')` as visible text.
+     */
+    private fun stripMarkup(input: String): String = input
+        .replace(SCRIPT_OR_STYLE_BLOCK, "")
+        .replace(HTML_TAG, "")
+        .replace(CONTROL_CHARS, "")
+        .replace("<", "")
+        .replace(">", "")
+        .trim()
+
     fun sanitizeName(input: String?): String {
-        return input?.trim()?.takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_NAME_LENGTH }
+        return stripMarkup(input.orEmpty())
+            .takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_NAME_LENGTH }
             ?: "Unknown"
     }
-    
+
     fun sanitizeEmail(input: String?): String {
         val emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
         return if (input != null && input.matches(emailPattern.toRegex()) && input.length <= Constants.Validation.MAX_EMAIL_LENGTH) {
             input
         } else "invalid@email.com"
     }
-    
+
     fun sanitizeAddress(input: String?): String {
-        return input?.trim()?.takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_ADDRESS_LENGTH }
+        return stripMarkup(input.orEmpty())
+            .takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_ADDRESS_LENGTH }
             ?: "Address not available"
     }
-    
+
     fun sanitizePemanfaatan(input: String?): String {
-        return input?.trim()?.takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_PEMANFAATAN_LENGTH }
+        return stripMarkup(input.orEmpty())
+            .takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_PEMANFAATAN_LENGTH }
             ?: "Unknown expense"
     }
     

@@ -5,17 +5,17 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.model.Vendor
 import com.example.iurankomplek.presentation.adapter.VendorAdapter
-
-import android.content.Context
-import android.view.View
-import androidx.recyclerview.widget.RecyclerView
-import com.example.iurankomplek.model.Vendor
 import org.junit.Before
+import org.robolectric.RobolectricTestRunner
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 import org.junit.Assert.*
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [28], application = android.app.Application::class)
 class VendorAdapterTest {
     
     @Mock

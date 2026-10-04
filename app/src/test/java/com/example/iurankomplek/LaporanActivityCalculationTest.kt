@@ -1,158 +1,109 @@
 package com.example.iurankomplek
 
 import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.utils.FinancialCalculator
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.junit.Assert.*
 
 /**
- * Unit tests for financial calculation logic in LaporanActivity
+ * Regression tests for the financial calculation logic behind LaporanActivity.
+ *
+ * LaporanActivity does not compute totals itself; it renders the FinancialSummary
+ * produced by FinancialCalculator. These tests therefore assert against
+ * FinancialCalculator so that they fail if the production arithmetic regresses
+ * (previously they re-implemented the same arithmetic inline and could not fail).
  */
 class LaporanActivityCalculationTest {
 
+    private fun item(
+        perwarga: Int,
+        individu: Int,
+        pengeluaran: Int,
+        rekap: Int = 0,
+        bulanan: Int = 0
+    ) = DataItem(
+        first_name = "Warga",
+        last_name = "Test",
+        email = "warga@example.com",
+        alamat = "Jl. Test 1",
+        iuran_perwarga = perwarga,
+        total_iuran_rekap = rekap,
+        jumlah_iuran_bulanan = bulanan,
+        total_iuran_individu = individu,
+        pengeluaran_iuran_warga = pengeluaran,
+        pemanfaatan_iuran = "Test",
+        avatar = ""
+    )
+
     @Test
-    fun testTotalIuranIndividuCalculation_accumulatesCorrectly() {
-        // Test data with multiple items to verify accumulation
-        val testItems = listOf(
-            DataItem(iuran_perwarga = 100, total_iuran_individu = 50, pengeluaran_iuran_warga = 25),
-            DataItem(iuran_perwarga = 200, total_iuran_individu = 75, pengeluaran_iuran_warga = 30),
-            DataItem(iuran_perwarga = 300, total_iuran_individu = 100, pengeluaran_iuran_warga = 45)
+    fun totals_accumulateAcrossAllItems() {
+        val items = listOf(
+            item(perwarga = 100, individu = 50, pengeluaran = 25),
+            item(perwarga = 200, individu = 75, pengeluaran = 30),
+            item(perwarga = 300, individu = 100, pengeluaran = 45)
         )
 
-        // Simulate the calculation logic from LaporanActivity
-        var totalIuranBulanan = 0
-        var totalPengeluaran = 0
-        var totalIuranIndividu = 0
-
-        for (dataItem in testItems) {
-            totalIuranBulanan += dataItem.iuran_perwarga
-            totalPengeluaran += dataItem.pengeluaran_iuran_warga
-            totalIuranIndividu += dataItem.total_iuran_individu * 3  // The multiplication by 3 logic
-        }
-
-        var rekapIuran = totalIuranIndividu - totalPengeluaran
-
-        // Verify calculations are correct
-        assertEquals(600, totalIuranBulanan)  // 100 + 200 + 300
-        assertEquals(100, totalPengeluaran)   // 25 + 30 + 45
-        assertEquals(675, totalIuranIndividu) // (50*3) + (75*3) + (100*3) = 150 + 225 + 300
-        assertEquals(575, rekapIuran)         // 675 - 100
+        assertEquals(600, FinancialCalculator.calculateTotalIuranBulanan(items))
+        assertEquals(100, FinancialCalculator.calculateTotalPengeluaran(items))
+        assertEquals(675, FinancialCalculator.calculateTotalIuranIndividu(items))
+        assertEquals(575, FinancialCalculator.calculateRekapIuran(items))
     }
 
     @Test
-    fun testTotalIuranIndividuCalculation_singleItem() {
-        // Test with single item to ensure it doesn't just take last item but properly accumulates
-        val testItems = listOf(
-            DataItem(iuran_perwarga = 100, total_iuran_individu = 50, pengeluaran_iuran_warga = 25)
-        )
+    fun totals_handleSingleItem() {
+        val items = listOf(item(perwarga = 100, individu = 50, pengeluaran = 25))
 
-        var totalIuranBulanan = 0
-        var totalPengeluaran = 0
-        var totalIuranIndividu = 0
-
-        for (dataItem in testItems) {
-            totalIuranBulanan += dataItem.iuran_perwarga
-            totalPengeluaran += dataItem.pengeluaran_iuran_warga
-            totalIuranIndividu += dataItem.total_iuran_individu * 3
-        }
-
-        assertEquals(100, totalIuranBulanan)
-        assertEquals(25, totalPengeluaran)
-        assertEquals(150, totalIuranIndividu)  // 50 * 3
+        assertEquals(100, FinancialCalculator.calculateTotalIuranBulanan(items))
+        assertEquals(25, FinancialCalculator.calculateTotalPengeluaran(items))
+        assertEquals(150, FinancialCalculator.calculateTotalIuranIndividu(items))
     }
 
     @Test
-    fun testTotalIuranIndividuCalculation_emptyList() {
-        // Test with empty list to ensure no errors
-        val testItems = emptyList<DataItem>()
+    fun totals_areZeroForEmptyList() {
+        val items = emptyList<DataItem>()
 
-        var totalIuranBulanan = 0
-        var totalPengeluaran = 0
-        var totalIuranIndividu = 0
-
-        for (dataItem in testItems) {
-            totalIuranBulanan += dataItem.iuran_perwarga
-            totalPengeluaran += dataItem.pengeluaran_iuran_warga
-            totalIuranIndividu += dataItem.total_iuran_individu * 3
-        }
-
-        assertEquals(0, totalIuranBulanan)
-        assertEquals(0, totalPengeluaran)
-        assertEquals(0, totalIuranIndividu)
+        assertEquals(0, FinancialCalculator.calculateTotalIuranBulanan(items))
+        assertEquals(0, FinancialCalculator.calculateTotalPengeluaran(items))
+        assertEquals(0, FinancialCalculator.calculateTotalIuranIndividu(items))
+        assertEquals(0, FinancialCalculator.calculateRekapIuran(items))
     }
 
     @Test
-    fun testTotalIuranIndividuCalculation_verificationOfAccumulationLogic() {
-        // Specific test to verify accumulation logic mentioned in issue #96
-        // This test verifies that each item's total_iuran_individu is multiplied by 3
-        // and then accumulated to the running total (not just assigned)
-        val testItems = listOf(
-            DataItem(iuran_perwarga = 100, total_iuran_individu = 10, pengeluaran_iuran_warga = 5),
-            DataItem(iuran_perwarga = 200, total_iuran_individu = 20, pengeluaran_iuran_warga = 10),
-            DataItem(iuran_perwarga = 300, total_iuran_individu = 30, pengeluaran_iuran_warga = 15)
+    fun totalIuranIndividu_multipliesEveryItemAndAccumulates() {
+        // Regression: an earlier bug assigned instead of accumulated, so only the
+        // last item's contribution survived (30*3 = 90 instead of 180).
+        val items = listOf(
+            item(perwarga = 100, individu = 10, pengeluaran = 5),
+            item(perwarga = 200, individu = 20, pengeluaran = 10),
+            item(perwarga = 300, individu = 30, pengeluaran = 15)
         )
 
-        var totalIuranBulanan = 0
-        var totalPengeluaran = 0
-        var totalIuranIndividu = 0
+        val total = FinancialCalculator.calculateTotalIuranIndividu(items)
 
-        // Process each item to verify accumulation logic
-        for (dataItem in testItems) {
-            totalIuranBulanan += dataItem.iuran_perwarga
-            totalPengeluaran += dataItem.pengeluaran_iuran_warga
-            // This is the key line: total_iuran_individu += dataItem.total_iuran_individu * 3
-            totalIuranIndividu += dataItem.total_iuran_individu * 3
-        }
-
-        // Verify that accumulation worked correctly:
-        // Item 1: 10 * 3 = 30, total = 0 + 30 = 30
-        // Item 2: 20 * 3 = 60, total = 30 + 60 = 90
-        // Item 3: 30 * 3 = 90, total = 90 + 90 = 180
-        assertEquals(180, totalIuranIndividu)  // (10*3) + (20*3) + (30*3) = 30 + 60 + 90 = 180
-        assertEquals(600, totalIuranBulanan)  // 100 + 200 + 300
-        assertEquals(30, totalPengeluaran)    // 5 + 10 + 15
+        assertEquals(180, total)
+        assertNotEquals(90, total)
+        assertEquals(600, FinancialCalculator.calculateTotalIuranBulanan(items))
+        assertEquals(30, FinancialCalculator.calculateTotalPengeluaran(items))
     }
 
     @Test
-    fun testPaymentIntegrationDoesNotAffectFinancialCalculations() {
-        // Test to verify the bug fix in payment integration where payments were incorrectly
-        // added to iuran totals, inflating the financial calculations
-        val testItems = listOf(
-            DataItem(iuran_perwarga = 100, total_iuran_individu = 10, pengeluaran_iuran_warga = 5),
-            DataItem(iuran_perwarga = 200, total_iuran_individu = 20, pengeluaran_iuran_warga = 10)
+    fun totals_ignorePaymentAmountsCarriedOnDataItems() {
+        // Regression: payment processing used to be folded into the iuran totals.
+        // Payment money arrives as its own field and must not change iuran totals.
+        val items = listOf(
+            item(perwarga = 150, individu = 10, pengeluaran = 5, rekap = 200_000),
+            item(perwarga = 200, individu = 20, pengeluaran = 10, bulanan = 150_000)
         )
 
-        // Calculate the base financial values without payment integration
-        var totalIuranBulanan = 0
-        var totalPengeluaran = 0
-        var totalIuranIndividu = 0
+        val totalIuranBulanan = FinancialCalculator.calculateTotalIuranBulanan(items)
+        val totalPengeluaran = FinancialCalculator.calculateTotalPengeluaran(items)
+        val rekapIuran = FinancialCalculator.calculateRekapIuran(items)
 
-        for (dataItem in testItems) {
-            totalIuranBulanan += dataItem.iuran_perwarga
-            totalPengeluaran += dataItem.pengeluaran_iuran_warga
-            totalIuranIndividu += dataItem.total_iuran_individu * 3
-        }
-
-        val expectedTotalIuranBulanan = totalIuranBulanan  // 300 (100 + 200)
-        val expectedTotalPengeluaran = totalPengeluaran    // 15 (5 + 10)
-        val expectedTotalIuranIndividu = totalIuranIndividu // 90 ((10*3) + (20*3))
-        val expectedRekapIuran = expectedTotalIuranIndividu - expectedTotalPengeluaran  // 75 (90 - 15)
-
-        // Simulate payment integration with total payment of 50
-        val paymentTotal = 50
-
-        // With the bug fix, payment totals should NOT affect the base financial calculations
-        // The original financial values should remain unchanged
-        assertEquals(300, expectedTotalIuranBulanan)
-        assertEquals(15, expectedTotalPengeluaran)
-        assertEquals(90, expectedTotalIuranIndividu)
-        assertEquals(75, expectedRekapIuran)
-
-        // Verify that adding paymentTotal to financial calculations (the old buggy behavior) 
-        // would incorrectly change values
-        val buggyTotalIuranBulanan = expectedTotalIuranBulanan + paymentTotal // 350 (WRONG!)
-        val buggyRekapIuran = buggyTotalIuranBulanan - expectedTotalPengeluaran // 335 (WRONG!)
-        
-        assertNotEquals(buggyTotalIuranBulanan, expectedTotalIuranBulanan) // Should NOT have payment added
-        assertNotEquals(buggyRekapIuran, expectedRekapIuran) // Should NOT have payment affecting rekap
+        assertEquals(350, totalIuranBulanan)
+        assertEquals(15, totalPengeluaran)
+        assertEquals(75, rekapIuran)
+        assertTrue(FinancialCalculator.validateFinancialCalculations(items))
     }
 }

@@ -50,7 +50,13 @@
 }
 
 # Keep data models
--keep class com.example.iurankomplek.data.model.** { *; }
+# These must match the real packages. They carry no @SerializedName annotations,
+# so Gson resolves JSON keys by reflecting on field names; if R8 renames either
+# the class or its fields, deserialization silently yields null/zero values in
+# release builds only. Verified by ReleaseObfuscationTest.
+-keep class com.example.iurankomplek.model.** { *; }
+-keep class com.example.iurankomplek.data.api.models.** { *; }
+-keep class com.example.iurankomplek.transaction.** { *; }
 -keep class com.example.iurankomplek.network.** { *; }
 
 # Glide
