@@ -3,6 +3,7 @@ package com.example.iurankomplek.data.repository
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.model.PemanfaatanResponse
 import com.example.iurankomplek.network.ApiService
+import com.example.iurankomplek.utils.CacheManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
@@ -32,11 +33,13 @@ class PemanfaatanRepositoryImplTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
+        CacheManager.getInstance().clearSync()
         repository = PemanfaatanRepositoryImpl(apiService)
     }
 
     @After
     fun tearDown() {
+        CacheManager.getInstance().clearSync()
         Dispatchers.resetMain()
     }
 
@@ -57,11 +60,7 @@ class PemanfaatanRepositoryImplTest {
                 avatar = "https://example.com/avatar.jpg"
             )
         )
-        val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
-            data = mockData
-        )
+        val mockResponse = PemanfaatanResponse(data = mockData)
 
         `when`(apiService.getPemanfaatan()).thenReturn(Response.success(mockResponse))
 
@@ -85,11 +84,11 @@ class PemanfaatanRepositoryImplTest {
 
     @Test
     fun `getPemanfaatan should retry on SocketTimeoutException`() = runTest {
-        val mockResponse = PemanfaatanResponse(success = true, message = "Success", data = emptyList())
+        val mockResponse = PemanfaatanResponse(data = emptyList())
 
         `when`(apiService.getPemanfaatan())
-            .thenThrow(SocketTimeoutException())
-            .thenThrow(SocketTimeoutException())
+            .thenAnswer { throw SocketTimeoutException() }
+            .thenAnswer { throw SocketTimeoutException() }
             .thenReturn(Response.success(mockResponse))
 
         val result = repository.getPemanfaatan()
@@ -113,10 +112,10 @@ class PemanfaatanRepositoryImplTest {
             pemanfaatan_iuran = "Maintenance",
             avatar = "https://example.com/avatar.jpg"
         ))
-        val mockResponse = PemanfaatanResponse(success = true, message = "Success", data = mockData)
+        val mockResponse = PemanfaatanResponse(data = mockData)
 
         `when`(apiService.getPemanfaatan())
-            .thenThrow(UnknownHostException())
+            .thenAnswer { throw UnknownHostException() }
             .thenReturn(Response.success(mockResponse))
 
         val result = repository.getPemanfaatan()
@@ -127,10 +126,10 @@ class PemanfaatanRepositoryImplTest {
 
     @Test
     fun `getPemanfaatan should retry on SSLException`() = runTest {
-        val mockResponse = PemanfaatanResponse(success = true, message = "Success", data = emptyList())
+        val mockResponse = PemanfaatanResponse(data = emptyList())
 
         `when`(apiService.getPemanfaatan())
-            .thenThrow(SSLException("SSL error"))
+            .thenAnswer { throw SSLException("SSL error") }
             .thenReturn(Response.success(mockResponse))
 
         val result = repository.getPemanfaatan()
@@ -142,7 +141,7 @@ class PemanfaatanRepositoryImplTest {
     @Test
     fun `getPemanfaatan should return failure after max retries on SocketTimeoutException`() = runTest {
         `when`(apiService.getPemanfaatan())
-            .thenThrow(SocketTimeoutException())
+            .thenAnswer { throw SocketTimeoutException() }
 
         val result = repository.getPemanfaatan()
 
@@ -152,7 +151,7 @@ class PemanfaatanRepositoryImplTest {
 
     @Test
     fun `getPemanfaatan should not retry on non-retryable exception`() = runTest {
-        `when`(apiService.getPemanfaatan()).thenThrow(IOException("File not found"))
+        `when`(apiService.getPemanfaatan()).thenAnswer { throw IOException("File not found") }
 
         val result = repository.getPemanfaatan()
 
@@ -162,7 +161,7 @@ class PemanfaatanRepositoryImplTest {
 
     @Test
     fun `getPemanfaatan should retry on 500 error`() = runTest {
-        val mockResponse = PemanfaatanResponse(success = true, message = "Success", data = emptyList())
+        val mockResponse = PemanfaatanResponse(data = emptyList())
 
         `when`(apiService.getPemanfaatan())
             .thenReturn(Response.error(500, okhttp3.ResponseBody.create(null, "Internal Server Error")))
@@ -176,7 +175,7 @@ class PemanfaatanRepositoryImplTest {
 
     @Test
     fun `getPemanfaatan should retry on 503 error`() = runTest {
-        val mockResponse = PemanfaatanResponse(success = true, message = "Success", data = emptyList())
+        val mockResponse = PemanfaatanResponse(data = emptyList())
 
         `when`(apiService.getPemanfaatan())
             .thenReturn(Response.error(503, okhttp3.ResponseBody.create(null, "Service Unavailable")))
@@ -190,7 +189,7 @@ class PemanfaatanRepositoryImplTest {
 
     @Test
     fun `getPemanfaatan should retry on 408 Request Timeout error`() = runTest {
-        val mockResponse = PemanfaatanResponse(success = true, message = "Success", data = emptyList())
+        val mockResponse = PemanfaatanResponse(data = emptyList())
 
         `when`(apiService.getPemanfaatan())
             .thenReturn(Response.error(408, okhttp3.ResponseBody.create(null, "Request Timeout")))
@@ -204,7 +203,7 @@ class PemanfaatanRepositoryImplTest {
 
     @Test
     fun `getPemanfaatan should retry on 429 Too Many Requests error`() = runTest {
-        val mockResponse = PemanfaatanResponse(success = true, message = "Success", data = emptyList())
+        val mockResponse = PemanfaatanResponse(data = emptyList())
 
         `when`(apiService.getPemanfaatan())
             .thenReturn(Response.error(429, okhttp3.ResponseBody.create(null, "Too Many Requests")))
@@ -262,10 +261,10 @@ class PemanfaatanRepositoryImplTest {
 
     @Test
     fun `getPemanfaatan should handle mixed retry scenarios with eventual success`() = runTest {
-        val mockResponse = PemanfaatanResponse(success = true, message = "Success", data = emptyList())
+        val mockResponse = PemanfaatanResponse(data = emptyList())
 
         `when`(apiService.getPemanfaatan())
-            .thenThrow(SocketTimeoutException())
+            .thenAnswer { throw SocketTimeoutException() }
             .thenReturn(Response.error(500, okhttp3.ResponseBody.create(null, "Internal Server Error")))
             .thenReturn(Response.success(mockResponse))
 
@@ -277,7 +276,7 @@ class PemanfaatanRepositoryImplTest {
 
     @Test
     fun `getPemanfaatan should return empty list successfully`() = runTest {
-        val mockResponse = PemanfaatanResponse(success = true, message = "No financial data", data = emptyList())
+        val mockResponse = PemanfaatanResponse(data = emptyList())
 
         `when`(apiService.getPemanfaatan()).thenReturn(Response.success(mockResponse))
 
@@ -290,7 +289,7 @@ class PemanfaatanRepositoryImplTest {
 
     @Test
     fun `getPemanfaatan should return failure on IOException`() = runTest {
-        `when`(apiService.getPemanfaatan()).thenThrow(IOException("Network error"))
+        `when`(apiService.getPemanfaatan()).thenAnswer { throw IOException("Network error") }
 
         val result = repository.getPemanfaatan()
 
@@ -299,7 +298,7 @@ class PemanfaatanRepositoryImplTest {
 
     @Test
     fun `getPemanfaatan exponential backoff with jitter works correctly`() = runTest {
-        val mockResponse = PemanfaatanResponse(success = true, message = "Success", data = emptyList())
+        val mockResponse = PemanfaatanResponse(data = emptyList())
         val callTimes = mutableListOf<Long>()
 
         `when`(apiService.getPemanfaatan()).thenAnswer {

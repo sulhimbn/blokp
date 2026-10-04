@@ -1,35 +1,42 @@
 package com.example.iurankomplek.session
 
-import android.content.Context
 import com.example.iurankomplek.model.User
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.Robolectric
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
 /**
- * Unit tests for UserSessionManager class.
- * Tests cover: setCurrentUser, clearSession, restoreSession, currentUserId, isLoggedIn state flow.
- *
- * Uses Robolectric for Android Context.
+ * Unit tests for UserSessionManager state logic.
+ * Persistence is supplied through [SessionStore] so the tests run on the JVM
+ * without AndroidKeyStore; the encrypted implementation is covered by
+ * EncryptedPrefsSessionStore's own instrumentation expectations.
  */
-@RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
 class UserSessionManagerTest {
 
-    private lateinit var context: Context
+    private class InMemorySessionStore : SessionStore {
+        var stored: User? = null
+        var saveCount = 0
+        var clearCount = 0
+
+        override fun loadUser(): User? = stored
+        override fun saveUser(user: User) {
+            stored = user
+            saveCount++
+        }
+
+        override fun clear() {
+            stored = null
+            clearCount++
+        }
+    }
+
+    private lateinit var store: InMemorySessionStore
     private lateinit var userSessionManager: UserSessionManager
 
     @Before
     fun setup() {
-        // Create Robolectric context
-        context = Robolectric.buildActivity(android.app.Activity::class.java).get()
-        
-        // Create fresh instance for each test
-        userSessionManager = UserSessionManager(context)
+        store = InMemorySessionStore()
+        userSessionManager = UserSessionManager(store)
     }
 
     @Test
@@ -138,6 +145,39 @@ class UserSessionManagerTest {
         userSessionManager.setCurrentUser(testUser)
         
         assertTrue(userSessionManager.isLoggedIn.value)
+    }
+
+    @Test
+    fun `setCurrentUser should persist the user through the session store`() {
+        val testUser = User("user123", "test@example.com", "John", "Doe")
+
+        userSessionManager.setCurrentUser(testUser)
+
+        assertEquals(testUser, store.stored)
+        assertEquals(1, store.saveCount)
+        assertEquals(0, store.clearCount)
+    }
+
+    @Test
+    fun `clearSession should wipe the persisted user`() {
+        userSessionManager.setCurrentUser(User("user123", "test@example.com", "John", "Doe"))
+
+        userSessionManager.clearSession()
+
+        assertNull(store.stored)
+        assertEquals(1, store.clearCount)
+    }
+
+    @Test
+    fun `an existing persisted session should be restored on construction`() {
+        val persisted = User("restored", "restored@example.com", "Grace", "Hopper")
+        store.stored = persisted
+
+        val restoredManager = UserSessionManager(store)
+
+        assertEquals(persisted, restoredManager.currentUser.value)
+        assertTrue(restoredManager.isLoggedIn.value)
+        assertEquals("restored", restoredManager.currentUserId)
     }
 
     @Test

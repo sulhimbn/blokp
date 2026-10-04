@@ -8,6 +8,7 @@ import com.example.iurankomplek.event.EventBus
 import com.example.iurankomplek.model.UserResponse
 import com.example.iurankomplek.utils.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -38,10 +39,12 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    fun loadUsers() {
-        if (_usersState.value is UiState.Loading) return
+    private var loadJob: Job? = null
 
-        viewModelScope.launch {
+    fun loadUsers() {
+        if (loadJob?.isActive == true) return
+
+        loadJob = viewModelScope.launch {
             _usersState.value = UiState.Loading
             userRepository.getUsers()
                 .onSuccess { response ->

@@ -60,16 +60,12 @@ class PemanfaatanAdapter(
         override fun getNewListSize(): Int = newList.size
         
         override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            // FIXED (Issue #266): Use combination of fields to determine uniqueness
-            // pemanfaatan_iuran alone is not unique - multiple users can have same expense description
-            // Using email + name + expense details ensures proper RecyclerView diff behavior
             val oldItem = oldList[oldItemPosition]
             val newItem = newList[newItemPosition]
             return oldItem.email == newItem.email &&
                    oldItem.first_name == newItem.first_name &&
                    oldItem.last_name == newItem.last_name &&
-                   oldItem.pemanfaatan_iuran == newItem.pemanfaatan_iuran &&
-                   oldItem.pengeluaran_iuran_warga == newItem.pengeluaran_iuran_warga
+                   oldItem.pemanfaatan_iuran == newItem.pemanfaatan_iuran
         }
         
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {

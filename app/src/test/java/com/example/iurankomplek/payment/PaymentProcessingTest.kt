@@ -10,7 +10,9 @@ import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito
 import org.mockito.Mockito.*
+import org.mockito.kotlin.any
 import java.math.BigDecimal
 import java.util.Date
 
@@ -55,8 +57,8 @@ class PaymentProcessingTest {
         
         // Assert
         assertTrue(result.isSuccess)
-        verify(mockTransactionDao, times(2)).insert(any(Transaction::class.java)) // Once for initial, once for update
-        verify(mockTransactionDao).update(any(Transaction::class.java))
+        verify(mockTransactionDao).insert(any<Transaction>()) // Initial PENDING record
+        verify(mockTransactionDao).update(any<Transaction>()) // Updated to COMPLETED
     }
 
     @Test
@@ -77,8 +79,8 @@ class PaymentProcessingTest {
         
         // Assert
         assertTrue(result.isFailure)
-        verify(mockTransactionDao, times(1)).insert(any(Transaction::class.java)) // Initial insert
-        verify(mockTransactionDao).update(any(Transaction::class.java)) // Status update to FAILED
+        verify(mockTransactionDao).insert(any<Transaction>()) // Initial insert
+        verify(mockTransactionDao).update(any<Transaction>()) // Status update to FAILED
     }
 
     @Test
@@ -140,14 +142,29 @@ class PaymentProcessingTest {
         )
 
         `when`(mockPaymentGateway.refundPayment(transactionId)).thenReturn(Result.success(mockResponse))
+        Mockito.`when`(mockTransactionDao.getTransactionById(transactionId))
+            .thenReturn(existingTransaction(transactionId))
 
         // Act
         val result = transactionRepository.refundPayment(transactionId, "Test refund")
 
         // Assert
         assertTrue(result.isSuccess)
-        verify(mockTransactionDao).update(any(Transaction::class.java))
+        verify(mockTransactionDao).update(any<Transaction>())
     }
+
+    private fun existingTransaction(id: String) = Transaction(
+        id = id,
+        userId = "test_user",
+        amount = BigDecimal("100.00"),
+        currency = "IDR",
+        status = PaymentStatus.COMPLETED,
+        paymentMethod = PaymentMethod.CREDIT_CARD,
+        description = "Test payment",
+        createdAt = Date(),
+        updatedAt = Date(),
+        metadata = emptyMap()
+    )
 
     @Test
     fun `refundPayment handles failure gracefully`() = runBlocking {

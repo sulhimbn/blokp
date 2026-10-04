@@ -370,7 +370,7 @@ class FinancialCalculatorTest {
                 last_name = "Doe",
                 email = "john@example.com",
                 alamat = "Jl. Test 1",
-                iuran_perwarga = Int.MAX_VALUE - 1,  // Very large value that will cause overflow
+                iuran_perwarga = Int.MAX_VALUE / 2,  // Individually valid, but the total overflows Int
                 total_iuran_rekap = 0,
                 jumlah_iuran_bulanan = 0,
                 total_iuran_individu = 50,
@@ -383,7 +383,20 @@ class FinancialCalculatorTest {
                 last_name = "Doe",
                 email = "jane@example.com",
                 alamat = "Jl. Test 2",
-                iuran_perwarga = 100,
+                iuran_perwarga = Int.MAX_VALUE / 2,
+                total_iuran_rekap = 0,
+                jumlah_iuran_bulanan = 0,
+                total_iuran_individu = 75,
+                pengeluaran_iuran_warga = 30,
+                pemanfaatan_iuran = "Test",
+                avatar = ""
+            ),
+            DataItem(
+                first_name = "Ada",
+                last_name = "Doe",
+                email = "ada@example.com",
+                alamat = "Jl. Test 3",
+                iuran_perwarga = 2,
                 total_iuran_rekap = 0,
                 jumlah_iuran_bulanan = 0,
                 total_iuran_individu = 75,
@@ -447,6 +460,6 @@ class FinancialCalculatorTest {
 
         // If the bug existed (only last item used), result would be 30 * 3 = 90
         // But with proper accumulation: (10*3) + (20*3) + (30*3) = 30 + 60 + 90 = 180
-        assertEquals(180, totalIuranIndividu, "Bug fix verification: totalIuranIndividu should accumulate all items, not just take the last item value")
+        assertEquals("Bug fix verification: totalIuranIndividu should accumulate all items, not just take the last item value", 180, totalIuranIndividu)
     }
 }

@@ -8,6 +8,8 @@ import com.example.iurankomplek.data.repository.UserRepositoryImpl
 import com.example.iurankomplek.data.repository.VendorRepository
 import com.example.iurankomplek.data.repository.VendorRepositoryImpl
 import com.example.iurankomplek.network.ApiConfig
+import com.example.iurankomplek.session.EncryptedPrefsSessionStore
+import com.example.iurankomplek.session.SessionStore
 import com.example.iurankomplek.session.UserSessionManager
 import com.example.iurankomplek.network.ApiService
 import com.example.iurankomplek.network.NetworkStatusListener
@@ -79,6 +81,12 @@ object AppModule {
         transactionDao: TransactionDao
     ): com.example.iurankomplek.data.repository.TransactionRepository {
         return com.example.iurankomplek.transaction.TransactionRepository(paymentGateway, transactionDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSessionStore(@ApplicationContext context: Context): SessionStore {
+        return EncryptedPrefsSessionStore(context)
     }
 
     @Provides
