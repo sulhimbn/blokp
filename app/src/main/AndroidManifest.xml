@@ -12,6 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BlokP"
         android:usesCleartextTraffic="false"
+        tools:ignore="NotificationPermission"
         tools:targetApi="31">
 
         <activity

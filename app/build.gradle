@@ -40,20 +40,32 @@ android {
         buildConfig true
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
+    }
+    testOptions {
+        unitTests {
+            // Robolectric needs the merged resources/manifest, otherwise any test that
+            // touches a layout, string or AndroidManifest entry fails to bootstrap.
+            includeAndroidResources = true
+            returnDefaultValues = true
+        }
     }
     lint {
-        abortOnError false
+        // Fail the build on lint errors so a regression cannot ship silently.
+        abortOnError true
         checkReleaseBuilds true
         htmlReport true
         xmlReport true
         warningsAsErrors false
         enable 'StopShip'
-        disable 'InvalidPackage', 'PrivateResource', 'GradleOverrides'
+        // Chucker is a debugImplementation dependency; its optional HTTP-inspector
+        // notification is a developer convenience and never ships in a release APK,
+        // so POST_NOTIFICATIONS is not requested.
+        disable 'InvalidPackage', 'PrivateResource', 'GradleOverrides', 'NotificationPermission'
         lintConfig file('src/main/res/xml/lint.xml')
     }
 
@@ -75,6 +87,7 @@ dependencies {
     testImplementation libs.kotlinx.coroutines.test
     testImplementation libs.robolectric
     testImplementation libs.mockwebserver
+    testImplementation libs.androidx.test.core
     
     androidTestImplementation libs.androidx.test.ext.junit
     androidTestImplementation libs.espresso.core

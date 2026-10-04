@@ -28,6 +28,11 @@ object WebhookSecurityUtil {
             Log.w(TAG, "WARNING: Using placeholder webhook secret - MUST configure BuildConfig.WEBHOOK_SECRET in production")
             Constants.Security.WEBHOOK_SECRET_KEY
         }
+
+    fun isSecretUsable(secret: String, isDebugBuild: Boolean): Boolean {
+        val isPlaceholder = secret.isBlank() || secret == Constants.Security.WEBHOOK_SECRET_KEY
+        return isDebugBuild || !isPlaceholder
+    }
     
     /**
      * Result of webhook verification
@@ -50,8 +55,16 @@ object WebhookSecurityUtil {
     fun verifyWebhook(
         payload: String,
         signature: String?,
-        timestamp: String?
+        timestamp: String?,
+        secret: String = webhookSecret
     ): VerificationResult {
+        // Fail closed: with the placeholder secret every attacker can compute a valid
+        // signature, so a release build must reject rather than authenticate.
+        if (!isSecretUsable(secret, BuildConfig.DEBUG)) {
+            Log.e(TAG, "Webhook verification aborted: no production secret configured")
+            return VerificationResult.Error("Webhook secret is not configured")
+        }
+
         // Step 1: Validate signature presence
         if (signature.isNullOrBlank()) {
             Log.w(TAG, "Webhook verification failed: Missing signature header")
@@ -72,7 +85,7 @@ object WebhookSecurityUtil {
         }
 
         // Step 4: Verify HMAC signature
-        val signatureResult = verifySignature(payload, timestamp, signature)
+        val signatureResult = verifySignature(payload, timestamp, signature, secret)
         if (signatureResult is VerificationResult.Error) {
             Log.w(TAG, "Webhook verification failed: ${signatureResult.reason}")
             return signatureResult
@@ -116,7 +129,8 @@ object WebhookSecurityUtil {
     private fun verifySignature(
         payload: String,
         timestamp: String,
-        providedSignature: String
+        providedSignature: String,
+        secret: String
     ): VerificationResult {
         return try {
             // Expected signature format: sha256=<signature>
@@ -131,7 +145,7 @@ object WebhookSecurityUtil {
 
             // Compute expected signature: HMAC-SHA256(timestamp.payload, secret)
             val signedContent = "$timestamp.$payload"
-            val computedHash = computeHmacSha256(signedContent, webhookSecret)
+            val computedHash = computeHmacSha256(signedContent, secret)
 
             // Constant-time comparison to prevent timing attacks
             if (constantTimeEquals(providedHash, computedHash)) {
@@ -190,9 +204,9 @@ object WebhookSecurityUtil {
      * @param timestamp The timestamp to use
      * @return The generated signature
      */
-    fun generateTestSignature(payload: String, timestamp: String): String {
+    fun generateTestSignature(payload: String, timestamp: String, secret: String = webhookSecret): String {
         val signedContent = "$timestamp.$payload"
-        val hash = computeHmacSha256(signedContent, webhookSecret)
+        val hash = computeHmacSha256(signedContent, secret)
         return "sha256=$hash"
     }
 }

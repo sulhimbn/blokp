@@ -1,22 +1,27 @@
 package com.example.iurankomplek.utils
 
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class WebhookSecurityUtilTest {
 
+    private fun nowSeconds() = System.currentTimeMillis() / 1000
+
     @Test
     fun verifyWebhook_withValidSignature_returnsSuccess() {
         val payload = "{\"event\":\"payment.success\",\"transactionId\":\"txn_123\"}"
-        val currentTimestamp = System.currentTimeMillis() / 1000
-        val signature = WebhookSecurityUtil.generateTestSignature(payload, currentTimestamp.toString())
-        
+        val timestamp = nowSeconds().toString()
+        val signature = WebhookSecurityUtil.generateTestSignature(payload, timestamp, TRUSTED_SECRET)
+
         val result = WebhookSecurityUtil.verifyWebhook(
             payload = payload,
             signature = signature,
-            timestamp = currentTimestamp.toString()
+            timestamp = timestamp,
+            secret = TRUSTED_SECRET
         )
-        
+
         assertTrue(result is WebhookSecurityUtil.VerificationResult.Success)
     }
 
@@ -25,11 +30,14 @@ class WebhookSecurityUtilTest {
         val result = WebhookSecurityUtil.verifyWebhook(
             payload = "{\"event\":\"payment.success\"}",
             signature = null,
-            timestamp = "1234567890"
+            timestamp = "1234567890",
+            secret = TRUSTED_SECRET
         )
-        
-        assertTrue(result is WebhookSecurityUtil.VerificationResult.Error)
-        assertEquals("Missing signature", (result as WebhookSecurityUtil.VerificationResult.Error).reason)
+
+        assertEquals(
+            "Missing signature",
+            (result as WebhookSecurityUtil.VerificationResult.Error).reason
+        )
     }
 
     @Test
@@ -37,11 +45,14 @@ class WebhookSecurityUtilTest {
         val result = WebhookSecurityUtil.verifyWebhook(
             payload = "{\"event\":\"payment.success\"}",
             signature = "   ",
-            timestamp = "1234567890"
+            timestamp = "1234567890",
+            secret = TRUSTED_SECRET
         )
-        
-        assertTrue(result is WebhookSecurityUtil.VerificationResult.Error)
-        assertEquals("Missing signature", (result as WebhookSecurityUtil.VerificationResult.Error).reason)
+
+        assertEquals(
+            "Missing signature",
+            (result as WebhookSecurityUtil.VerificationResult.Error).reason
+        )
     }
 
     @Test
@@ -49,11 +60,14 @@ class WebhookSecurityUtilTest {
         val result = WebhookSecurityUtil.verifyWebhook(
             payload = "{\"event\":\"payment.success\"}",
             signature = "sha256=abc123",
-            timestamp = null
+            timestamp = null,
+            secret = TRUSTED_SECRET
         )
-        
-        assertTrue(result is WebhookSecurityUtil.VerificationResult.Error)
-        assertEquals("Missing timestamp", (result as WebhookSecurityUtil.VerificationResult.Error).reason)
+
+        assertEquals(
+            "Missing timestamp",
+            (result as WebhookSecurityUtil.VerificationResult.Error).reason
+        )
     }
 
     @Test
@@ -61,11 +75,14 @@ class WebhookSecurityUtilTest {
         val result = WebhookSecurityUtil.verifyWebhook(
             payload = "{\"event\":\"payment.success\"}",
             signature = "sha256=abc123",
-            timestamp = ""
+            timestamp = "",
+            secret = TRUSTED_SECRET
         )
-        
-        assertTrue(result is WebhookSecurityUtil.VerificationResult.Error)
-        assertEquals("Missing timestamp", (result as WebhookSecurityUtil.VerificationResult.Error).reason)
+
+        assertEquals(
+            "Missing timestamp",
+            (result as WebhookSecurityUtil.VerificationResult.Error).reason
+        )
     }
 
     @Test
@@ -73,109 +90,139 @@ class WebhookSecurityUtilTest {
         val result = WebhookSecurityUtil.verifyWebhook(
             payload = "{\"event\":\"payment.success\"}",
             signature = "sha256=abc123",
-            timestamp = "not_a_number"
+            timestamp = "not_a_number",
+            secret = TRUSTED_SECRET
         )
-        
-        assertTrue(result is WebhookSecurityUtil.VerificationResult.Error)
-        assertEquals("Invalid timestamp format", (result as WebhookSecurityUtil.VerificationResult.Error).reason)
+
+        assertEquals(
+            "Invalid timestamp format",
+            (result as WebhookSecurityUtil.VerificationResult.Error).reason
+        )
     }
 
     @Test
     fun verifyWebhook_withExpiredTimestamp_returnsError() {
-        val expiredTimestamp = (System.currentTimeMillis() / 1000) - 600 // 10 minutes ago
-        
+        val expiredTimestamp = (nowSeconds() - 600).toString()
+
         val result = WebhookSecurityUtil.verifyWebhook(
             payload = "{\"event\":\"payment.success\"}",
             signature = "sha256=abc123",
-            timestamp = expiredTimestamp.toString()
+            timestamp = expiredTimestamp,
+            secret = TRUSTED_SECRET
         )
-        
-        assertTrue(result is WebhookSecurityUtil.VerificationResult.Error)
-        assertEquals("Timestamp outside allowed window (replay attack suspected)", 
-            (result as WebhookSecurityUtil.VerificationResult.Error).reason)
+
+        assertEquals(
+            "Timestamp outside allowed window (replay attack suspected)",
+            (result as WebhookSecurityUtil.VerificationResult.Error).reason
+        )
     }
 
     @Test
     fun verifyWebhook_withInvalidSignature_returnsError() {
-        val currentTimestamp = System.currentTimeMillis() / 1000
-        
         val result = WebhookSecurityUtil.verifyWebhook(
             payload = "{\"event\":\"payment.success\"}",
-            signature = "sha256=invalid_signature_12345",
-            timestamp = currentTimestamp.toString()
+            signature = "sha256=invalid_signature",
+            timestamp = nowSeconds().toString(),
+            secret = TRUSTED_SECRET
         )
-        
-        assertTrue(result is WebhookSecurityUtil.VerificationResult.Error)
-        assertEquals("Invalid signature", (result as WebhookSecurityUtil.VerificationResult.Error).reason)
+
+        assertEquals(
+            "Invalid signature",
+            (result as WebhookSecurityUtil.VerificationResult.Error).reason
+        )
     }
 
     @Test
     fun verifyWebhook_withTamperedPayload_returnsError() {
-        val currentTimestamp = System.currentTimeMillis() / 1000
-        val originalPayload = "{\"event\":\"payment.success\"}"
-        val signature = WebhookSecurityUtil.generateTestSignature(originalPayload, currentTimestamp.toString())
-        
-        val tamperedPayload = "{\"event\":\"payment.success\",\"amount\":999999}"
-        
+        val original = "{\"event\":\"payment.success\",\"amount\":100}"
+        val timestamp = nowSeconds().toString()
+        val signature =
+            WebhookSecurityUtil.generateTestSignature(original, timestamp, TRUSTED_SECRET)
+
         val result = WebhookSecurityUtil.verifyWebhook(
-            payload = tamperedPayload,
+            payload = "{\"event\":\"payment.success\",\"amount\":999999}",
             signature = signature,
-            timestamp = currentTimestamp.toString()
+            timestamp = timestamp,
+            secret = TRUSTED_SECRET
         )
-        
-        assertTrue(result is WebhookSecurityUtil.VerificationResult.Error)
+
+        assertEquals(
+            "Invalid signature",
+            (result as WebhookSecurityUtil.VerificationResult.Error).reason
+        )
     }
 
     @Test
     fun verifyWebhook_withoutSha256Prefix_stillWorks() {
         val payload = "{\"event\":\"payment.success\"}"
-        val currentTimestamp = System.currentTimeMillis() / 1000
-        val hash = WebhookSecurityUtil.generateTestSignature(payload, currentTimestamp.toString())
+        val timestamp = nowSeconds().toString()
+        val signature = WebhookSecurityUtil
+            .generateTestSignature(payload, timestamp, TRUSTED_SECRET)
             .removePrefix("sha256=")
-        
+
         val result = WebhookSecurityUtil.verifyWebhook(
             payload = payload,
-            signature = hash,
-            timestamp = currentTimestamp.toString()
+            signature = signature,
+            timestamp = timestamp,
+            secret = TRUSTED_SECRET
         )
-        
-        assertTrue(result is WebhookSecurityUtil.VerificationResult.Success)
+
+        assertTrue(
+            "a bare hex digest must still verify",
+            result is WebhookSecurityUtil.VerificationResult.Success
+        )
     }
 
     @Test
-    fun generateTestSignature_producesConsistentOutput() {
-        val payload = "test_payload"
-        val timestamp = "1234567890"
-        
-        val signature1 = WebhookSecurityUtil.generateTestSignature(payload, timestamp)
-        val signature2 = WebhookSecurityUtil.generateTestSignature(payload, timestamp)
-        
-        assertEquals(signature1, signature2)
-    }
+    fun verifyWebhook_withDifferentSecret_returnsError() {
+        val payload = "{\"event\":\"payment.success\"}"
+        val timestamp = nowSeconds().toString()
+        val signature =
+            WebhookSecurityUtil.generateTestSignature(payload, timestamp, "another_secret")
 
-    @Test
-    fun generateTestSignature_differentTimestamp_differentOutput() {
-        val payload = "test_payload"
-        
-        val signature1 = WebhookSecurityUtil.generateTestSignature(payload, "1234567890")
-        val signature2 = WebhookSecurityUtil.generateTestSignature(payload, "1234567891")
-        
-        assertNotEquals(signature1, signature2)
+        val result = WebhookSecurityUtil.verifyWebhook(
+            payload = payload,
+            signature = signature,
+            timestamp = timestamp,
+            secret = TRUSTED_SECRET
+        )
+
+        assertEquals(
+            "Invalid signature",
+            (result as WebhookSecurityUtil.VerificationResult.Error).reason
+        )
     }
 
     @Test
     fun verifyWebhook_withFutureTimestamp_withinTolerance_passes() {
-        val nearFutureTimestamp = (System.currentTimeMillis() / 1000) + 60 // 1 minute in future
-        
+        val nearFutureTimestamp = (nowSeconds() + 60).toString()
         val payload = "{\"event\":\"payment.success\"}"
-        val signature = WebhookSecurityUtil.generateTestSignature(payload, nearFutureTimestamp.toString())
-        
+        val signature = WebhookSecurityUtil
+            .generateTestSignature(payload, nearFutureTimestamp, TRUSTED_SECRET)
+
         val result = WebhookSecurityUtil.verifyWebhook(
             payload = payload,
             signature = signature,
-            timestamp = nearFutureTimestamp.toString()
+            timestamp = nearFutureTimestamp,
+            secret = TRUSTED_SECRET
         )
-        
+
         assertTrue(result is WebhookSecurityUtil.VerificationResult.Success)
+    }
+
+    @Test
+    fun generateTestSignature_changesWithTimestamp() {
+        val payload = "{\"event\":\"payment.success\"}"
+
+        val signature1 =
+            WebhookSecurityUtil.generateTestSignature(payload, "1234567890", TRUSTED_SECRET)
+        val signature2 =
+            WebhookSecurityUtil.generateTestSignature(payload, "1234567891", TRUSTED_SECRET)
+
+        assertNotEquals(signature1, signature2)
+    }
+
+    private companion object {
+        const val TRUSTED_SECRET = "whsec_unit_test_secret"
     }
 }

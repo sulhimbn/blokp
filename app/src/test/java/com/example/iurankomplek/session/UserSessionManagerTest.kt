@@ -1,6 +1,7 @@
 package com.example.iurankomplek.session
 
 import android.content.Context
+import android.content.SharedPreferences
 import com.example.iurankomplek.model.User
 import org.junit.Assert.*
 import org.junit.Before
@@ -17,19 +18,22 @@ import org.robolectric.annotation.Config
  * Uses Robolectric for Android Context.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
+@Config(application = android.app.Application::class)
 class UserSessionManagerTest {
 
     private lateinit var context: Context
+    private lateinit var prefs: SharedPreferences
     private lateinit var userSessionManager: UserSessionManager
 
     @Before
     fun setup() {
-        // Create Robolectric context
         context = Robolectric.buildActivity(android.app.Activity::class.java).get()
-        
-        // Create fresh instance for each test
-        userSessionManager = UserSessionManager(context)
+        // AndroidKeyStore is not available off-device, so the session manager is driven
+        // through the plain SharedPreferences constructor; encryption itself is the
+        // androidx.security concern and not what this test exercises.
+        prefs = context.getSharedPreferences("test_user_session_prefs", Context.MODE_PRIVATE)
+        prefs.edit().clear().commit()
+        userSessionManager = UserSessionManager(prefs)
     }
 
     @Test

@@ -23,7 +23,20 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+private val CSV_FORMULA_TRIGGERS = charArrayOf('=', '+', '-', '@', '\t', '\r')
+
+/**
+ * Neutralises spreadsheet formula injection (CWE-1236): a cell starting with
+ * =, +, -, @, tab or CR is executed by Excel/LibreOffice when the manager opens the
+ * export. Prefixing with a single quote keeps the text and drops the formula.
+ */
+internal fun escapeCsvCell(value: String?): String {
+    val raw = value ?: return ""
+    return if (raw.isNotEmpty() && raw.first() in CSV_FORMULA_TRIGGERS) "'$raw" else raw
+}
+
 class ReportExporter(private val context: Context) {
+
 
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.getDefault())
     private val displayDateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
@@ -170,10 +183,10 @@ class ReportExporter(private val context: Context) {
             
             dataItems.forEach { item ->
                 csvPrinter.printRecord(
-                    "${item.first_name} ${item.last_name}",
-                    item.email,
-                    item.pemanfaatan_iuran,
-                    item.pengeluaran_iuran_warga
+                    escapeCsvCell("${item.first_name} ${item.last_name}"),
+                    escapeCsvCell(item.email),
+                    escapeCsvCell(item.pemanfaatan_iuran),
+                    escapeCsvCell(item.pengeluaran_iuran_warga?.toString())
                 )
             }
             
@@ -182,6 +195,7 @@ class ReportExporter(private val context: Context) {
         
         return file
     }
+
 
     fun createShareIntent(uri: Uri, format: ExportFormat): android.content.Intent {
         return android.content.Intent().apply {

@@ -30,6 +30,7 @@ class VendorViewModelTest {
     @Mock
     private lateinit var mockRepository: VendorRepository
 
+
     private lateinit var vendorViewModel: VendorViewModel
 
     private val testDispatcher = StandardTestDispatcher()
@@ -88,7 +89,7 @@ class VendorViewModelTest {
         advanceUntilIdle()
         val state = vendorViewModel.vendorState.value
         assertTrue(state is UiState.Error)
-        assertEquals(errorMessage, (state as UiState.Error).message)
+        assertEquals(errorMessage, (state as UiState.Error).error)
     }
 
     @Test
@@ -158,7 +159,7 @@ class VendorViewModelTest {
         advanceUntilIdle()
         val state = vendorViewModel.workOrderState.value
         assertTrue(state is UiState.Error)
-        assertEquals(errorMessage, (state as UiState.Error).message)
+        assertEquals(errorMessage, (state as UiState.Error).error)
     }
 
     @Test
@@ -171,7 +172,7 @@ class VendorViewModelTest {
 
     @Test
     fun `loadWorkOrders should handle empty work order list`() = runTest {
-        val mockResponse = WorkOrderResponse(emptyList())
+        val mockResponse = WorkOrderResponse(data = emptyList())
         `when`(mockRepository.getWorkOrders()).thenReturn(Result.success(mockResponse))
 
         vendorViewModel.loadWorkOrders()

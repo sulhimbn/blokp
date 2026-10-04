@@ -9,8 +9,9 @@ import com.example.iurankomplek.utils.Constants
 import java.util.concurrent.TimeUnit
 
 object ApiConfig {
-    // Use mock API in debug mode or when running in Docker
-    private val USE_MOCK_API = BuildConfig.DEBUG || System.getenv("DOCKER_ENV") != null
+    // Only debug builds may talk to the cleartext local mock; an env var must never
+    // be able to downgrade a release build to http://.
+    private val USE_MOCK_API = BuildConfig.DEBUG && System.getenv("DOCKER_ENV") != null
     private val BASE_URL = if (USE_MOCK_API) {
         "http://api-mock:5000/data/${BuildConfig.API_SPREADSHEET_ID}/"
     } else {

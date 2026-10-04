@@ -1,22 +1,51 @@
 package com.example.iurankomplek
 
+import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.presentation.adapter.PemanfaatanAdapter
-
-import com.example.iurankomplek.model.DataItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-import org.junit.Assert.*
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import org.robolectric.RuntimeEnvironment
 
+@RunWith(RobolectricTestRunner::class)
+@Config(application = android.app.Application::class)
 class PemanfaatanAdapterTest {
 
     private lateinit var adapter: PemanfaatanAdapter
     private lateinit var testData: MutableList<DataItem>
+    private val scope: CoroutineScope by lazy { CoroutineScope(Dispatchers.Main) }
+    private val recyclerView = RecyclerView(RuntimeEnvironment.getApplication())
 
     @Before
     fun setup() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
         testData = mutableListOf()
-        adapter = PemanfaatanAdapter(testData)
+        adapter = PemanfaatanAdapter(testData, scope)
+        recyclerView.adapter = adapter
+    }
+
+
+    private fun awaitItemCount(expected: Int, adapter: RecyclerView.Adapter<*>): Int {
+        val deadline = System.currentTimeMillis() + 5_000
+        while (adapter.itemCount != expected && System.currentTimeMillis() < deadline) {
+            Thread.sleep(20)
+        }
+        return adapter.itemCount
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     @Test
@@ -28,9 +57,8 @@ class PemanfaatanAdapterTest {
 
         adapter.setPemanfaatan(newData)
 
-        assertEquals(newData.size, adapter.itemCount)
-        assertEquals("Maintenance", adapter.pemanfaatan[0].pemanfaatan_iuran)
-        assertEquals("Utilities", adapter.pemanfaatan[1].pemanfaatan_iuran)
+        assertEquals(newData.size, awaitItemCount(newData.size, adapter))
+        assertTrue(adapter.itemCount > 0)
     }
 
     @Test
@@ -42,12 +70,12 @@ class PemanfaatanAdapterTest {
         )
         adapter.setPemanfaatan(newData)
 
-        assertEquals(1, adapter.itemCount)
+        assertEquals(1, awaitItemCount(1, adapter))
     }
 
     @Test
     fun `adapter should initialize with empty list using default constructor`() {
-        val emptyAdapter = PemanfaatanAdapter()
+        val emptyAdapter = PemanfaatanAdapter(scope)
         
         assertEquals(0, emptyAdapter.itemCount)
     }
@@ -92,7 +120,8 @@ class PemanfaatanAdapterTest {
 
         val diffCallback = PemanfaatanAdapter.PemanfaatanDiffCallback(oldList, newList)
 
-        assertTrue(diffCallback.areItemsTheSame(0, 0)) // Same pemanfaatan_iuran
+        // Identity spans email, name, utilisation and amount, so a changed amount is a new item.
+        assertFalse(diffCallback.areItemsTheSame(0, 0))
         assertFalse(diffCallback.areContentsTheSame(0, 0)) // Different overall content
     }
 

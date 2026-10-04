@@ -1,34 +1,31 @@
 package com.example.iurankomplek
 
-import android.content.Context
-import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.model.Vendor
 import com.example.iurankomplek.presentation.adapter.VendorAdapter
-
-import android.content.Context
-import android.view.View
-import androidx.recyclerview.widget.RecyclerView
-import com.example.iurankomplek.model.Vendor
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import org.junit.After
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-import org.junit.Assert.*
-import org.mockito.Mock
+import org.junit.runner.RunWith
 import org.mockito.MockitoAnnotations
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(application = android.app.Application::class)
 class VendorAdapterTest {
-    
-    @Mock
-    private lateinit var mockContext: Context
-    
-    @Mock
-    private lateinit var mockView: View
-    
+
+    private val recyclerView = RecyclerView(org.robolectric.RuntimeEnvironment.getApplication())
     private lateinit var vendorAdapter: VendorAdapter
-    
+
     @Before
     fun setup() {
-        MockitoAnnotations.openMocks(this)
+        Dispatchers.setMain(UnconfinedTestDispatcher())
         
         val vendors = listOf(
             Vendor(
@@ -68,7 +65,13 @@ class VendorAdapterTest {
         )
         
         vendorAdapter = VendorAdapter { /* Handle vendor click */ }
+        recyclerView.adapter = vendorAdapter
         vendorAdapter.submitList(vendors)
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
     
 @Test

@@ -1,6 +1,7 @@
 package com.example.iurankomplek.session
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.example.iurankomplek.model.User
@@ -11,9 +12,23 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class UserSessionManager @Inject constructor(
-    private val context: Context
+class UserSessionManager internal constructor(
+    private val encryptedPrefs: SharedPreferences
 ) {
+
+    @Inject
+    constructor(context: Context) : this(
+        EncryptedSharedPreferences.create(
+            context,
+            PREFS_FILE_NAME,
+            MasterKey.Builder(context)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build(),
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    )
+
     companion object {
         private const val PREFS_FILE_NAME = "user_session_prefs"
         private const val KEY_USER_ID = "user_id"
@@ -22,22 +37,6 @@ class UserSessionManager @Inject constructor(
         private const val KEY_USER_LAST_NAME = "user_last_name"
         private const val KEY_USER_AVATAR = "user_avatar"
         private const val KEY_IS_LOGGED_IN = "is_logged_in"
-    }
-
-    private val masterKey by lazy {
-        MasterKey.Builder(context)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .build()
-    }
-
-    private val encryptedPrefs by lazy {
-        EncryptedSharedPreferences.create(
-            context,
-            PREFS_FILE_NAME,
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
     }
 
     private val _currentUser = MutableStateFlow<User?>(null)
