@@ -8,12 +8,11 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
-import androidx.test.core.app.ApplicationProvider
 import android.app.Application
 import org.junit.Assert.assertThrows
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [28])
+@Config(sdk = [28], application = android.app.Application::class)
 class NetworkUtilsTest {
 
     @Test

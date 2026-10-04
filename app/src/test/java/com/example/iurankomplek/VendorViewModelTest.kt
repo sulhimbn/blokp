@@ -74,7 +74,7 @@ class VendorViewModelTest {
 
         advanceUntilIdle()
         val state = vendorViewModel.vendorState.value
-        assertTrue(state is UiState.Success)
+        assertTrue(state is UiState.Success<*>)
         assertEquals(mockVendors, (state as UiState.Success).data.data)
     }
 
@@ -88,7 +88,7 @@ class VendorViewModelTest {
         advanceUntilIdle()
         val state = vendorViewModel.vendorState.value
         assertTrue(state is UiState.Error)
-        assertEquals(errorMessage, (state as UiState.Error).message)
+        assertEquals(errorMessage, (state as UiState.Error).error)
     }
 
     @Test
@@ -108,7 +108,7 @@ class VendorViewModelTest {
 
         advanceUntilIdle()
         val state = vendorViewModel.vendorState.value
-        assertTrue(state is UiState.Success)
+        assertTrue(state is UiState.Success<*>)
         assertTrue((state as UiState.Success).data.data?.isEmpty() == true)
     }
 
@@ -144,7 +144,7 @@ class VendorViewModelTest {
 
         advanceUntilIdle()
         val state = vendorViewModel.workOrderState.value
-        assertTrue(state is UiState.Success)
+        assertTrue(state is UiState.Success<*>)
         assertEquals(mockWorkOrders, (state as UiState.Success).data.data)
     }
 
@@ -158,7 +158,7 @@ class VendorViewModelTest {
         advanceUntilIdle()
         val state = vendorViewModel.workOrderState.value
         assertTrue(state is UiState.Error)
-        assertEquals(errorMessage, (state as UiState.Error).message)
+        assertEquals(errorMessage, (state as UiState.Error).error)
     }
 
     @Test
@@ -178,7 +178,7 @@ class VendorViewModelTest {
 
         advanceUntilIdle()
         val state = vendorViewModel.workOrderState.value
-        assertTrue(state is UiState.Success)
+        assertTrue(state is UiState.Success<*>)
         assertTrue((state as UiState.Success).data.data?.isEmpty() == true)
     }
 
@@ -227,7 +227,7 @@ class VendorViewModelTest {
 
         advanceUntilIdle()
         val state = vendorViewModel.vendorState.value
-        assertTrue(state is UiState.Success)
+        assertTrue(state is UiState.Success<*>)
         assertEquals(2, (state as UiState.Success).data.data?.size)
     }
 }

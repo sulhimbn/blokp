@@ -96,14 +96,7 @@ object FinancialCalculator {
     fun calculateRekapIuran(items: List<DataItem>): Int {
         val totalIuranIndividu = calculateTotalIuranIndividu(items)
         val totalPengeluaran = calculateTotalPengeluaran(items)
-        
-        if (totalIuranIndividu < totalPengeluaran) {
-            // Check for potential underflow
-            if (totalPengeluaran > Int.MAX_VALUE - (totalIuranIndividu.inv() + 1)) {
-                throw ArithmeticException("Rekap iuran calculation would cause underflow")
-            }
-        }
-        
+
         val result = totalIuranIndividu - totalPengeluaran
         return max(0, result) // Ensure non-negative result
     }

@@ -5,19 +5,17 @@ import com.example.iurankomplek.model.User
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.runner.RunWith
-import org.robolectric.Robolectric
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
 /**
  * Unit tests for UserSessionManager class.
  * Tests cover: setCurrentUser, clearSession, restoreSession, currentUserId, isLoggedIn state flow.
  *
- * Uses Robolectric for Android Context.
+ * Requires a real AndroidKeyStore, so it runs as an instrumented test on device.
  */
-@RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
+@RunWith(AndroidJUnit4::class)
 class UserSessionManagerTest {
 
     private lateinit var context: Context
@@ -25,15 +23,21 @@ class UserSessionManagerTest {
 
     @Before
     fun setup() {
-        // Create Robolectric context
-        context = Robolectric.buildActivity(android.app.Activity::class.java).get()
-        
-        // Create fresh instance for each test
+        context = InstrumentationRegistry.getInstrumentation().targetContext
+        // Restores persisted state on construction; the AndroidX crypto keyset files
+        // must go too, otherwise the session leaks between test methods.
+        listOf(
+            "user_session_prefs",
+            "__androidx_security_crypto_encrypted_prefs_key_keyset__",
+            "__androidx_security_crypto_encrypted_prefs_value_keyset__"
+        ).forEach { context.deleteSharedPreferences(it) }
+
         userSessionManager = UserSessionManager(context)
+        userSessionManager.clearSession()
     }
 
     @Test
-    fun `verify UserSessionManager initial state`() {
+    fun verifyUserSessionManagerInitialState() {
         // Verify initial state - should be logged out
         assertFalse(userSessionManager.isLoggedIn.value)
         assertNull(userSessionManager.currentUser.value)
@@ -41,7 +45,7 @@ class UserSessionManagerTest {
     }
 
     @Test
-    fun `setCurrentUser should update currentUser StateFlow`() {
+    fun setCurrentUserShouldUpdateCurrentUserStateFlow() {
         val testUser = User(
             id = "user123",
             email = "test@example.com",
@@ -59,7 +63,7 @@ class UserSessionManagerTest {
     }
 
     @Test
-    fun `clearSession should reset currentUser StateFlow`() {
+    fun clearSessionShouldResetCurrentUserStateFlow() {
         // First set a user
         val testUser = User(
             id = "user123",
@@ -84,7 +88,7 @@ class UserSessionManagerTest {
     }
 
     @Test
-    fun `setCurrentUser with null avatar should work correctly`() {
+    fun setCurrentUserWithNullAvatarShouldWorkCorrectly() {
         val testUser = User(
             id = "user456",
             email = "noavatar@example.com",
@@ -102,12 +106,12 @@ class UserSessionManagerTest {
     }
 
     @Test
-    fun `currentUserId returns null when no user is logged in`() {
+    fun currentUserIdReturnsNullWhenNoUserIsLoggedIn() {
         assertNull(userSessionManager.currentUserId)
     }
 
     @Test
-    fun `currentUserId returns correct ID after setting user`() {
+    fun currentUserIdReturnsCorrectIDAfterSettingUser() {
         val testUser = User(
             id = "specificUserId",
             email = "test@example.com",
@@ -121,12 +125,12 @@ class UserSessionManagerTest {
     }
 
     @Test
-    fun `isLoggedIn initial state is false`() {
+    fun isLoggedInInitialStateIsFalse() {
         assertFalse(userSessionManager.isLoggedIn.value)
     }
 
     @Test
-    fun `isLoggedIn becomes true after setting user`() {
+    fun isLoggedInBecomesTrueAfterSettingUser() {
         assertFalse(userSessionManager.isLoggedIn.value)
         
         val testUser = User(
@@ -141,7 +145,7 @@ class UserSessionManagerTest {
     }
 
     @Test
-    fun `clearSession after setting multiple users should work correctly`() {
+    fun clearSessionAfterSettingMultipleUsersShouldWorkCorrectly() {
         // Set first user
         val user1 = User(
             id = "user1",

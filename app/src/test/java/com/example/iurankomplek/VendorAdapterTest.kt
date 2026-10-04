@@ -1,35 +1,26 @@
 package com.example.iurankomplek
 
-import android.content.Context
-import android.view.View
-import androidx.recyclerview.widget.RecyclerView
+import android.app.Application
+
 import com.example.iurankomplek.model.Vendor
 import com.example.iurankomplek.presentation.adapter.VendorAdapter
-
-import android.content.Context
-import android.view.View
-import androidx.recyclerview.widget.RecyclerView
-import com.example.iurankomplek.model.Vendor
 import org.junit.Before
 import org.junit.Test
-import org.junit.Assert.*
-import org.mockito.Mock
-import org.mockito.MockitoAnnotations
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [28], application = android.app.Application::class)
 class VendorAdapterTest {
-    
-    @Mock
-    private lateinit var mockContext: Context
-    
-    @Mock
-    private lateinit var mockView: View
     
     private lateinit var vendorAdapter: VendorAdapter
     
     @Before
     fun setup() {
-        MockitoAnnotations.openMocks(this)
-        
         val vendors = listOf(
             Vendor(
                 id = "1",

@@ -3,25 +3,31 @@ package com.example.iurankomplek.utils
 import java.net.URL
 
 object DataValidator {
+    private val MARKUP_PATTERN = Regex("<[^>]*>")
+    private val CONTROL_CHARS_PATTERN = Regex("[\\p{Cntrl}&&[^\\t\\n]]")
+
+    private fun scrub(input: String?): String =
+        input?.let { CONTROL_CHARS_PATTERN.replace(MARKUP_PATTERN.replace(it, " "), "") }?.trim() ?: ""
+
     fun sanitizeName(input: String?): String {
-        return input?.trim()?.takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_NAME_LENGTH }
+        return scrub(input).takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_NAME_LENGTH }
             ?: "Unknown"
     }
-    
+
     fun sanitizeEmail(input: String?): String {
         val emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
         return if (input != null && input.matches(emailPattern.toRegex()) && input.length <= Constants.Validation.MAX_EMAIL_LENGTH) {
             input
         } else "invalid@email.com"
     }
-    
+
     fun sanitizeAddress(input: String?): String {
-        return input?.trim()?.takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_ADDRESS_LENGTH }
+        return scrub(input).takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_ADDRESS_LENGTH }
             ?: "Address not available"
     }
-    
+
     fun sanitizePemanfaatan(input: String?): String {
-        return input?.trim()?.takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_PEMANFAATAN_LENGTH }
+        return scrub(input).takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_PEMANFAATAN_LENGTH }
             ?: "Unknown expense"
     }
     
