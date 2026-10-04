@@ -2,21 +2,54 @@ package com.example.iurankomplek
 
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.presentation.adapter.UserAdapter
-
-import com.example.iurankomplek.model.DataItem
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.junit.Assert.*
 
+// RecyclerView.Adapter.notifyItem* needs a real Observable implementation, which the
+// stubbed android.jar on the JVM classpath cannot provide.
+@OptIn(ExperimentalCoroutinesApi::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [33], application = android.app.Application::class)
 class UserAdapterTest {
 
     private lateinit var adapter: UserAdapter
-    private lateinit var testUsers: MutableList<DataItem>
+    private lateinit var backingList: MutableList<DataItem>
 
     @Before
     fun setup() {
-        testUsers = mutableListOf()
-        adapter = UserAdapter(testUsers)
+        // setUsers() applies the diff on Dispatchers.Main after computing it on
+        // Dispatchers.Default, so Main has to run eagerly and the diff has to be
+        // awaited on a real background thread.
+        Dispatchers.setMain(Dispatchers.Unconfined)
+        backingList = mutableListOf()
+        adapter = UserAdapter(backingList, CoroutineScope(Dispatchers.Default))
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
+    private fun awaitItemCount(expected: Int) = runBlocking {
+        withTimeout(10_000) {
+            while (adapter.itemCount != expected) {
+                delay(5)
+            }
+        }
     }
 
     @Test
@@ -51,10 +84,10 @@ class UserAdapterTest {
         )
 
         adapter.setUsers(newUsers)
-
+        awaitItemCount(2)
         assertEquals(newUsers.size, adapter.itemCount)
-        assertEquals("John", adapter.users[0].first_name)
-        assertEquals("jane.smith@example.com", adapter.users[1].email)
+        assertEquals("John", backingList[0].first_name)
+        assertEquals("jane.smith@example.com", backingList[1].email)
     }
 
     @Test
@@ -77,7 +110,7 @@ class UserAdapterTest {
         adapter.addUser(validUser)
 
         assertEquals(initialSize + 1, adapter.itemCount)
-        assertEquals("Test", adapter.users.last().first_name)
+        assertEquals("Test", backingList.last().first_name)
     }
 
     @Test
@@ -172,6 +205,7 @@ class UserAdapterTest {
             )
         )
         adapter.setUsers(users)
+        awaitItemCount(1)
         assertEquals(1, adapter.itemCount)
 
         adapter.clear()
@@ -188,7 +222,7 @@ class UserAdapterTest {
             createTestDataItem("Jane", "Smith", "jane@example.com")
         )
         adapter.setUsers(users)
-
+        awaitItemCount(2)
         assertEquals(2, adapter.itemCount)
     }
 

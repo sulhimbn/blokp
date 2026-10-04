@@ -1,6 +1,7 @@
 package com.example.iurankomplek.utils
 
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import com.example.iurankomplek.BuildConfig
 import java.nio.charset.StandardCharsets
 import javax.crypto.Mac
@@ -20,14 +21,11 @@ import kotlin.math.abs
 object WebhookSecurityUtil {
     private val TAG = Constants.Tags.WEBHOOK_RECEIVER
     
-    // Get webhook secret: prefer BuildConfig (CI/CD set) over Constants (placeholder)
-    private val webhookSecret: String
-        get() = if (BuildConfig.WEBHOOK_SECRET.isNotBlank()) {
-            BuildConfig.WEBHOOK_SECRET
-        } else {
-            Log.w(TAG, "WARNING: Using placeholder webhook secret - MUST configure BuildConfig.WEBHOOK_SECRET in production")
-            Constants.Security.WEBHOOK_SECRET_KEY
-        }
+    // The secret comes from BuildConfig, which CI/CD injects. There is deliberately no
+    // fallback: the placeholder in Constants is compiled into every APK, so falling back
+    // to it would let anyone who decompiles the app forge signed payment webhooks.
+    private val configuredSecret: String?
+        get() = BuildConfig.WEBHOOK_SECRET.takeIf { it.isNotBlank() }
     
     /**
      * Result of webhook verification
@@ -50,8 +48,15 @@ object WebhookSecurityUtil {
     fun verifyWebhook(
         payload: String,
         signature: String?,
-        timestamp: String?
+        timestamp: String?,
+        secret: String? = configuredSecret
     ): VerificationResult {
+        // Step 0: Refuse to verify anything without a real secret
+        if (secret.isNullOrBlank()) {
+            Log.e(TAG, "Webhook verification failed: no webhook secret is configured")
+            return VerificationResult.Error("Webhook verification is not configured")
+        }
+
         // Step 1: Validate signature presence
         if (signature.isNullOrBlank()) {
             Log.w(TAG, "Webhook verification failed: Missing signature header")
@@ -72,7 +77,7 @@ object WebhookSecurityUtil {
         }
 
         // Step 4: Verify HMAC signature
-        val signatureResult = verifySignature(payload, timestamp, signature)
+        val signatureResult = verifySignature(payload, timestamp, signature, secret)
         if (signatureResult is VerificationResult.Error) {
             Log.w(TAG, "Webhook verification failed: ${signatureResult.reason}")
             return signatureResult
@@ -116,7 +121,8 @@ object WebhookSecurityUtil {
     private fun verifySignature(
         payload: String,
         timestamp: String,
-        providedSignature: String
+        providedSignature: String,
+        secret: String
     ): VerificationResult {
         return try {
             // Expected signature format: sha256=<signature>
@@ -131,7 +137,7 @@ object WebhookSecurityUtil {
 
             // Compute expected signature: HMAC-SHA256(timestamp.payload, secret)
             val signedContent = "$timestamp.$payload"
-            val computedHash = computeHmacSha256(signedContent, webhookSecret)
+            val computedHash = computeHmacSha256(signedContent, secret)
 
             // Constant-time comparison to prevent timing attacks
             if (constantTimeEquals(providedHash, computedHash)) {
@@ -190,9 +196,9 @@ object WebhookSecurityUtil {
      * @param timestamp The timestamp to use
      * @return The generated signature
      */
-    fun generateTestSignature(payload: String, timestamp: String): String {
+    @VisibleForTesting
+    fun generateTestSignature(payload: String, timestamp: String, secret: String): String {
         val signedContent = "$timestamp.$payload"
-        val hash = computeHmacSha256(signedContent, webhookSecret)
-        return "sha256=$hash"
+        return "sha256=" + computeHmacSha256(signedContent, secret)
     }
 }

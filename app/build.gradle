@@ -40,11 +40,13 @@ android {
         buildConfig true
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        // JVM 11 is required by the inline matchers in mockito-kotlin, which is on
+        // the unit test classpath; targeting 1.8 makes them fail to compile.
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
     }
     lint {
         abortOnError false
@@ -55,6 +57,23 @@ android {
         enable 'StopShip'
         disable 'InvalidPackage', 'PrivateResource', 'GradleOverrides'
         lintConfig file('src/main/res/xml/lint.xml')
+    }
+    testOptions {
+        unitTests {
+            // CacheManager, SecurityManager and WebhookSecurityUtil log through
+            // android.util.Log, which is a stubbed-out jar method on the unit test
+            // classpath and throws unless defaults are returned.
+            returnDefaultValues = true
+            includeAndroidResources = true
+            all {
+                // The JaCoCo agent and Robolectric both instrument classes; together they
+                // raise IllegalClassFormatException and leak exceptions across test classes.
+                jacoco.enabled = false
+                // Each class gets its own JVM so a coroutine left pending by one class
+                // cannot surface as an uncaught exception in the next.
+                forkEvery = 1
+            }
+        }
     }
 
 }
@@ -106,6 +125,8 @@ dependencies {
     // Hilt for dependency injection
     implementation libs.hilt.android
     ksp libs.hilt.android.compiler
+    testImplementation libs.hilt.android.testing
+    kspTest libs.hilt.android.compiler
 
     // Encrypted SharedPreferences for secure session storage
     implementation libs.security.crypto

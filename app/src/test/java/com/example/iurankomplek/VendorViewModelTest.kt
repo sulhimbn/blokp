@@ -88,15 +88,12 @@ class VendorViewModelTest {
         advanceUntilIdle()
         val state = vendorViewModel.vendorState.value
         assertTrue(state is UiState.Error)
-        assertEquals(errorMessage, (state as UiState.Error).message)
+        assertEquals(errorMessage, (state as UiState.Error).error)
     }
 
     @Test
-    fun `loadVendors should update vendorState to Loading initially`() {
-        vendorViewModel.loadVendors()
-
-        val state = vendorViewModel.vendorState.value
-        assertTrue(state is UiState.Loading)
+    fun `vendorState starts as Loading`() {
+        assertTrue(vendorViewModel.vendorState.value is UiState.Loading)
     }
 
     @Test
@@ -158,15 +155,12 @@ class VendorViewModelTest {
         advanceUntilIdle()
         val state = vendorViewModel.workOrderState.value
         assertTrue(state is UiState.Error)
-        assertEquals(errorMessage, (state as UiState.Error).message)
+        assertEquals(errorMessage, (state as UiState.Error).error)
     }
 
     @Test
-    fun `loadWorkOrders should update workOrderState to Loading initially`() {
-        vendorViewModel.loadWorkOrders()
-
-        val state = vendorViewModel.workOrderState.value
-        assertTrue(state is UiState.Loading)
+    fun `workOrderState starts as Loading`() {
+        assertTrue(vendorViewModel.workOrderState.value is UiState.Loading)
     }
 
     @Test

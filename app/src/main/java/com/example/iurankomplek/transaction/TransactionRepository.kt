@@ -61,21 +61,25 @@ class TransactionRepository @Inject constructor(
             transactionDao.insert(transaction)
 
             val paymentResult = paymentGateway.processPayment(request)
-            paymentResult.onSuccess { response ->
-                val updatedTransaction = transaction.copy(
-                    status = PaymentStatus.COMPLETED,
-                    updatedAt = Calendar.getInstance().time
-                )
-                transactionDao.update(updatedTransaction)
-            }.onFailure { error ->
-                val failedTransaction = transaction.copy(
-                    status = PaymentStatus.FAILED,
-                    updatedAt = Calendar.getInstance().time
-                )
-                transactionDao.update(failedTransaction)
-            }
+            // Persist the final state and hand the caller that same transaction:
+            // returning the pre-payment copy would report PENDING for a payment that
+            // already succeeded or failed.
+            val persistedTransaction = paymentResult.fold(
+                onSuccess = {
+                    transaction.copy(
+                        status = PaymentStatus.COMPLETED,
+                        updatedAt = Calendar.getInstance().time
+                    ).also { transactionDao.update(it) }
+                },
+                onFailure = {
+                    transaction.copy(
+                        status = PaymentStatus.FAILED,
+                        updatedAt = Calendar.getInstance().time
+                    ).also { transactionDao.update(it) }
+                }
+            )
 
-            paymentResult.map { transaction }
+            paymentResult.map { persistedTransaction }
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -109,6 +113,11 @@ class TransactionRepository @Inject constructor(
                         updatedAt = Calendar.getInstance().time
                     )
                     transactionDao.update(refundedTransaction)
+                } else {
+                    // The gateway refunded the payment but there is no local record to
+                    // reconcile. Reporting success here would leave the app showing the
+                    // original amount as still collected.
+                    throw IllegalStateException("No local transaction found for refund: $transactionId")
                 }
             }
             

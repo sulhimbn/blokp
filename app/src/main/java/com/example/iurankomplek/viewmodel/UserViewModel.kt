@@ -22,6 +22,8 @@ class UserViewModel @Inject constructor(
     private val _usersState = MutableStateFlow<UiState<UserResponse>>(UiState.Loading)
     val usersState: StateFlow<UiState<UserResponse>> = _usersState
 
+    private var loadInFlight = false
+
     init {
         observeEvents()
     }
@@ -39,17 +41,24 @@ class UserViewModel @Inject constructor(
     }
 
     fun loadUsers() {
-        if (_usersState.value is UiState.Loading) return
+        // The initial state is Loading, so guarding on the state value would suppress
+        // the very first load. Track in-flight work explicitly instead.
+        if (loadInFlight) return
 
+        loadInFlight = true
         viewModelScope.launch {
-            _usersState.value = UiState.Loading
-            userRepository.getUsers()
-                .onSuccess { response ->
-                    _usersState.value = UiState.Success(response)
-                }
-                .onFailure { exception ->
-                    _usersState.value = UiState.Error(exception.message ?: "Unknown error occurred")
-                }
+            try {
+                _usersState.value = UiState.Loading
+                userRepository.getUsers()
+                    .onSuccess { response ->
+                        _usersState.value = UiState.Success(response)
+                    }
+                    .onFailure { exception ->
+                        _usersState.value = UiState.Error(exception.message ?: "Unknown error occurred")
+                    }
+            } finally {
+                loadInFlight = false
+            }
         }
     }
 }

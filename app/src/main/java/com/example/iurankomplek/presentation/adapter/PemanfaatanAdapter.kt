@@ -11,6 +11,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 class PemanfaatanAdapter(
     private var pemanfaatan: MutableList<DataItem>,
@@ -19,6 +21,8 @@ class PemanfaatanAdapter(
     RecyclerView.Adapter<PemanfaatanAdapter.ListViewHolder>() {
     
     constructor(coroutineScope: CoroutineScope) : this(mutableListOf(), coroutineScope)
+
+    private val updateMutex = Mutex()
     
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
         val binding = ItemPemanfaatanBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -26,13 +30,17 @@ class PemanfaatanAdapter(
     }
     
     fun setPemanfaatan(dataItems: List<DataItem>) {
-        coroutineScope.launch(Dispatchers.Default) {
-            val diffCallback = PemanfaatanDiffCallback(this@PemanfaatanAdapter.pemanfaatan, dataItems)
-            val diffResult = DiffUtil.calculateDiff(diffCallback)
-            
-            withContext(Dispatchers.Main) {
-                this@PemanfaatanAdapter.pemanfaatan.clear()
-                this@PemanfaatanAdapter.pemanfaatan.addAll(dataItems)
+        // Snapshot, diff and notify must be one indivisible step: two overlapping calls
+        // used to leave `pemanfaatan` and itemCount permanently out of sync, rendering an
+        // empty list even though data had arrived.
+        coroutineScope.launch(Dispatchers.Main) {
+            updateMutex.withLock {
+                val oldList = pemanfaatan.toList()
+                val diffResult = withContext(Dispatchers.Default) {
+                    DiffUtil.calculateDiff(PemanfaatanDiffCallback(oldList, dataItems))
+                }
+                pemanfaatan.clear()
+                pemanfaatan.addAll(dataItems)
                 diffResult.dispatchUpdatesTo(this@PemanfaatanAdapter)
             }
         }

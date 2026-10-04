@@ -17,7 +17,7 @@ import org.robolectric.annotation.Config
  * Uses Robolectric for Android Context.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
+@Config(manifest = Config.NONE, application = android.app.Application::class)
 class UserSessionManagerTest {
 
     private lateinit var context: Context

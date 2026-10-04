@@ -1,9 +1,11 @@
 package com.example.iurankomplek.session
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.example.iurankomplek.model.User
+import com.example.iurankomplek.utils.LoggingUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,6 +42,18 @@ class UserSessionManager @Inject constructor(
         )
     }
 
+    // The AndroidKeyStore can be unavailable (locked device, restored prefs, some OEM
+    // builds). Throwing from a lazy would crash the caller mid-session, so fall back to
+    // plain preferences for this process and keep the session usable.
+    private val prefs: SharedPreferences by lazy {
+        try {
+            encryptedPrefs
+        } catch (e: Exception) {
+            LoggingUtils.w("Encrypted session storage unavailable, falling back to plain preferences: ${e.message}")
+            context.getSharedPreferences(PREFS_FILE_NAME, Context.MODE_PRIVATE)
+        }
+    }
+
     private val _currentUser = MutableStateFlow<User?>(null)
     val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
 
@@ -66,7 +80,7 @@ class UserSessionManager @Inject constructor(
         get() = _currentUser.value?.id
 
     private fun saveUserToPrefs(user: User) {
-        encryptedPrefs.edit().apply {
+        prefs.edit().apply {
             putString(KEY_USER_ID, user.id)
             putString(KEY_USER_EMAIL, user.email)
             putString(KEY_USER_FIRST_NAME, user.firstName)
@@ -78,17 +92,17 @@ class UserSessionManager @Inject constructor(
     }
 
     private fun clearUserFromPrefs() {
-        encryptedPrefs.edit().clear().apply()
+        prefs.edit().clear().apply()
     }
 
     private fun restoreSession() {
-        val isLoggedIn = encryptedPrefs.getBoolean(KEY_IS_LOGGED_IN, false)
+        val isLoggedIn = prefs.getBoolean(KEY_IS_LOGGED_IN, false)
         if (isLoggedIn) {
-            val userId = encryptedPrefs.getString(KEY_USER_ID, null)
-            val email = encryptedPrefs.getString(KEY_USER_EMAIL, null)
-            val firstName = encryptedPrefs.getString(KEY_USER_FIRST_NAME, null)
-            val lastName = encryptedPrefs.getString(KEY_USER_LAST_NAME, null)
-            val avatar = encryptedPrefs.getString(KEY_USER_AVATAR, null)
+            val userId = prefs.getString(KEY_USER_ID, null)
+            val email = prefs.getString(KEY_USER_EMAIL, null)
+            val firstName = prefs.getString(KEY_USER_FIRST_NAME, null)
+            val lastName = prefs.getString(KEY_USER_LAST_NAME, null)
+            val avatar = prefs.getString(KEY_USER_AVATAR, null)
 
             if (userId != null && email != null && firstName != null && lastName != null) {
                 _currentUser.value = User(

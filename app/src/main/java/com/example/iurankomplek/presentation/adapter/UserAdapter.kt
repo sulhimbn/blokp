@@ -14,6 +14,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 class UserAdapter(
     private var users: MutableList<DataItem>,
@@ -21,19 +23,25 @@ class UserAdapter(
 ):
     RecyclerView.Adapter<UserAdapter.ListViewHolder>(){
     
+    private val updateMutex = Mutex()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
         val binding = ItemListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ListViewHolder(binding)
     }
     
     fun setUsers(newUsers: List<DataItem>) {
-        coroutineScope.launch(Dispatchers.Default) {
-            val diffCallback = UserDiffCallback(this@UserAdapter.users, newUsers)
-            val diffResult = DiffUtil.calculateDiff(diffCallback)
-            
-            withContext(Dispatchers.Main) {
-                this@UserAdapter.users.clear()
-                this@UserAdapter.users.addAll(newUsers)
+        // Snapshot, diff and notify must be one indivisible step: two overlapping calls
+        // used to leave `users` and itemCount permanently out of sync, rendering an empty
+        // list even though data had arrived.
+        coroutineScope.launch(Dispatchers.Main) {
+            updateMutex.withLock {
+                val oldList = users.toList()
+                val diffResult = withContext(Dispatchers.Default) {
+                    DiffUtil.calculateDiff(UserDiffCallback(oldList, newUsers))
+                }
+                users.clear()
+                users.addAll(newUsers)
                 diffResult.dispatchUpdatesTo(this@UserAdapter)
             }
         }
