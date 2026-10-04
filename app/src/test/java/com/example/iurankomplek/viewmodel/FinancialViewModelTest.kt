@@ -5,6 +5,7 @@ import com.example.iurankomplek.data.repository.PemanfaatanRepository
 import com.example.iurankomplek.event.EventBus
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.model.PemanfaatanResponse
+import com.example.iurankomplek.transaction.TransactionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
@@ -29,8 +30,10 @@ class FinancialViewModelTest {
     @Mock
     private lateinit var pemanfaatanRepository: PemanfaatanRepository
 
-    @Mock
     private lateinit var eventBus: EventBus
+
+    @Mock
+    private lateinit var transactionRepository: TransactionRepository
 
     private lateinit var viewModel: FinancialViewModel
 
@@ -39,7 +42,8 @@ class FinancialViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        viewModel = FinancialViewModel(pemanfaatanRepository, eventBus)
+        eventBus = EventBus()
+        viewModel = FinancialViewModel(pemanfaatanRepository, eventBus, transactionRepository)
     }
 
     @After
@@ -48,7 +52,7 @@ class FinancialViewModelTest {
     }
 
     @Test
-    fun `loadFinancialData should emit Loading state initially`() = runTest {
+    fun `loadFinancialData should emit Loading state initially`() = runTest(testDispatcher) {
         val mockData = listOf(
             DataItem(
                 first_name = "John",
@@ -65,8 +69,6 @@ class FinancialViewModelTest {
             )
         )
         val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
             data = mockData
         )
         Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))
@@ -78,7 +80,7 @@ class FinancialViewModelTest {
     }
 
     @Test
-    fun `loadFinancialData should emit Success state with calculated summary when repository returns data`() = runTest {
+    fun `loadFinancialData should emit Success state with calculated summary when repository returns data`() = runTest(testDispatcher) {
         val mockData = listOf(
             DataItem(
                 first_name = "John",
@@ -95,8 +97,6 @@ class FinancialViewModelTest {
             )
         )
         val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
             data = mockData
         )
         Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))
@@ -117,7 +117,7 @@ class FinancialViewModelTest {
     }
 
     @Test
-    fun `loadFinancialData should emit Error state when repository returns error`() = runTest {
+    fun `loadFinancialData should emit Error state when repository returns error`() = runTest(testDispatcher) {
         val errorMessage = "Network error occurred"
         Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.failure(IOException(errorMessage)))
 
@@ -130,7 +130,7 @@ class FinancialViewModelTest {
     }
 
     @Test
-    fun `loadFinancialData should not make duplicate calls when already loading`() = runTest {
+    fun `loadFinancialData should not make duplicate calls when already loading`() = runTest(testDispatcher) {
         val mockData = listOf(
             DataItem(
                 first_name = "John",
@@ -147,23 +147,20 @@ class FinancialViewModelTest {
             )
         )
         val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
             data = mockData
         )
         Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))
 
         viewModel.loadFinancialData()
         viewModel.loadFinancialData()
+        advanceUntilIdle()
 
-        Mockito.verify(pemanfaatanRepository).getPemanfaatan()
+        Mockito.verify(pemanfaatanRepository, Mockito.times(1)).getPemanfaatan()
     }
 
     @Test
-    fun `loadFinancialData should handle empty data correctly`() = runTest {
+    fun `loadFinancialData should handle empty data correctly`() = runTest(testDispatcher) {
         val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "No financial data found",
             data = emptyList()
         )
         Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))
@@ -183,7 +180,7 @@ class FinancialViewModelTest {
     }
 
     @Test
-    fun `loadFinancialData should handle invalid data gracefully`() = runTest {
+    fun `loadFinancialData should handle invalid data gracefully`() = runTest(testDispatcher) {
         val invalidData = listOf(
             DataItem(
                 first_name = "John",
@@ -200,8 +197,6 @@ class FinancialViewModelTest {
             )
         )
         val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
             data = invalidData
         )
         Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))

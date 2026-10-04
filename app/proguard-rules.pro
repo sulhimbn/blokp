@@ -49,8 +49,12 @@
   @com.google.gson.annotations.SerializedName <fields>;
 }
 
-# Keep data models
--keep class com.example.iurankomplek.data.model.** { *; }
+# Keep data models.
+# These packages must match where the Kotlin data classes actually live. They carry no
+# @SerializedName annotations, so R8 renaming their fields silently breaks Gson
+# deserialization in minified release builds.
+-keep class com.example.iurankomplek.model.** { *; }
+-keep class com.example.iurankomplek.data.api.models.** { *; }
 -keep class com.example.iurankomplek.network.** { *; }
 
 # Glide

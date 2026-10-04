@@ -4,8 +4,17 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.viewmodel.FinancialViewModel
+import com.example.iurankomplek.data.repository.PemanfaatanRepository
+import com.example.iurankomplek.event.EventBus
+import com.example.iurankomplek.transaction.TransactionRepository
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -18,8 +27,12 @@ import org.mockito.junit.MockitoJUnitRunner
 /**
  * Unit tests for FinancialViewModel
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(MockitoJUnitRunner::class)
 class FinancialViewModelTest {
+
+    private val testDispatcher = StandardTestDispatcher()
+
 
     @get:Rule
     @Suppress("unused")
@@ -28,12 +41,27 @@ class FinancialViewModelTest {
     @Mock
     private lateinit var mockUserObserver: Observer<String>
 
+    @Mock
+    private lateinit var pemanfaatanRepository: PemanfaatanRepository
+
+    @Mock
+    private lateinit var eventBus: EventBus
+
+    @Mock
+    private lateinit var transactionRepository: TransactionRepository
+
     private lateinit var viewModel: FinancialViewModel
 
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        viewModel = FinancialViewModel()
+        Dispatchers.setMain(testDispatcher)
+        viewModel = FinancialViewModel(pemanfaatanRepository, eventBus, transactionRepository)
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     @Test

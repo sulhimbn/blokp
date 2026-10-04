@@ -1,3 +1,6 @@
+package com.example.iurankomplek
+
+import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -19,7 +22,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -34,7 +36,7 @@ class MainActivityEspressoTest {
         mockWebServer = MockWebServer()
         
         // Setup mock responses for API calls
-        mockWebServer.setDispatcher(object : Dispatcher() {
+        mockWebServer.dispatcher = object : Dispatcher() {
             override fun dispatch(request: RecordedRequest): MockResponse {
                 return when (request.path) {
                     "/users" -> {
@@ -67,8 +69,6 @@ class MainActivityEspressoTest {
                             )
                         )
                         val mockResponse = UserResponse(
-                            success = true,
-                            message = "Users fetched successfully",
                             data = mockUsers
                         )
                         
@@ -80,7 +80,7 @@ class MainActivityEspressoTest {
                     else -> MockResponse().setResponseCode(404)
                 }
             }
-        })
+        }
         
         mockWebServer.start(8080)
         

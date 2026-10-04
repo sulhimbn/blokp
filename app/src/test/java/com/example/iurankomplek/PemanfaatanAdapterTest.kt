@@ -2,134 +2,108 @@ package com.example.iurankomplek
 
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.presentation.adapter.PemanfaatanAdapter
-
-import com.example.iurankomplek.model.DataItem
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestScope
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.junit.Assert.*
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class PemanfaatanAdapterTest {
 
     private lateinit var adapter: PemanfaatanAdapter
-    private lateinit var testData: MutableList<DataItem>
+    private lateinit var backingList: MutableList<DataItem>
 
     @Before
     fun setup() {
-        testData = mutableListOf()
-        adapter = PemanfaatanAdapter(testData)
+        backingList = mutableListOf()
+        adapter = PemanfaatanAdapter(backingList, TestScope())
     }
 
+    private fun item(
+        email: String = "test@example.com",
+        firstName: String = "Test",
+        lastName: String = "User",
+        pemanfaatan: String = "Maintenance",
+        totalIuranRekap: Int = 100,
+        pengeluaran: Int = 50
+    ) = DataItem(
+        first_name = firstName,
+        last_name = lastName,
+        email = email,
+        alamat = "Test Address",
+        iuran_perwarga = 100,
+        total_iuran_rekap = totalIuranRekap,
+        jumlah_iuran_bulanan = 200,
+        total_iuran_individu = 150,
+        pengeluaran_iuran_warga = pengeluaran,
+        pemanfaatan_iuran = pemanfaatan,
+        avatar = "https://example.com/avatar.jpg"
+    )
+
+    private fun callback(old: List<DataItem>, new: List<DataItem>) =
+        PemanfaatanAdapter.PemanfaatanDiffCallback(old, new)
+
     @Test
-    fun `setPemanfaatan should update adapter data correctly`() {
-        val newData = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50),
-            createTestDataItem("Utilities", "Electricity bill", 200, 75)
-        )
-
-        adapter.setPemanfaatan(newData)
-
-        assertEquals(newData.size, adapter.itemCount)
-        assertEquals("Maintenance", adapter.pemanfaatan[0].pemanfaatan_iuran)
-        assertEquals("Utilities", adapter.pemanfaatan[1].pemanfaatan_iuran)
-    }
-
-    @Test
-    fun `itemCount should return correct count`() {
+    fun `adapter starts empty`() {
         assertEquals(0, adapter.itemCount)
-
-        val newData = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50)
-        )
-        adapter.setPemanfaatan(newData)
-
-        assertEquals(1, adapter.itemCount)
     }
 
     @Test
-    fun `adapter should initialize with empty list using default constructor`() {
-        val emptyAdapter = PemanfaatanAdapter()
-        
-        assertEquals(0, emptyAdapter.itemCount)
+    fun `itemCount reflects the backing list`() {
+        backingList.add(item())
+        backingList.add(item(email = "other@example.com"))
+
+        assertEquals(2, adapter.itemCount)
     }
 
     @Test
     fun `PemanfaatanDiffCallback should identify same items correctly`() {
-        val oldList = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50)
-        )
-        val newList = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50) // Same pemanfaatan_iuran
-        )
+        val diff = callback(listOf(item()), listOf(item()))
 
-        val diffCallback = PemanfaatanAdapter.PemanfaatanDiffCallback(oldList, newList)
-
-        assertTrue(diffCallback.areItemsTheSame(0, 0))
-        assertTrue(diffCallback.areContentsTheSame(0, 0))
+        assertTrue(diff.areItemsTheSame(0, 0))
+        assertTrue(diff.areContentsTheSame(0, 0))
     }
 
     @Test
     fun `PemanfaatanDiffCallback should identify different items correctly`() {
-        val oldList = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50)
-        )
-        val newList = listOf(
-            createTestDataItem("Utilities", "Electricity bill", 200, 75) // Different pemanfaatan_iuran
-        )
+        val diff = callback(listOf(item(pemanfaatan = "Maintenance")), listOf(item(pemanfaatan = "Utilities")))
 
-        val diffCallback = PemanfaatanAdapter.PemanfaatanDiffCallback(oldList, newList)
-
-        assertFalse(diffCallback.areItemsTheSame(0, 0))
+        assertFalse(diff.areItemsTheSame(0, 0))
     }
 
     @Test
     fun `PemanfaatanDiffCallback should identify different contents correctly`() {
-        val oldList = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50)
-        )
-        val newList = listOf(
-            createTestDataItem("Maintenance", "Repair work updated", 150, 60) // Same pemanfaatan_iuran but different other fields
-        )
+        val diff = callback(listOf(item()), listOf(item(totalIuranRekap = 150)))
 
-        val diffCallback = PemanfaatanAdapter.PemanfaatanDiffCallback(oldList, newList)
+        assertTrue(diff.areItemsTheSame(0, 0))
+        assertFalse(diff.areContentsTheSame(0, 0))
+    }
 
-        assertTrue(diffCallback.areItemsTheSame(0, 0)) // Same pemanfaatan_iuran
-        assertFalse(diffCallback.areContentsTheSame(0, 0)) // Different overall content
+    @Test
+    fun `PemanfaatanDiffCallback should treat changed expenditure as a different item`() {
+        val diff = callback(listOf(item(pengeluaran = 50)), listOf(item(pengeluaran = 60)))
+
+        assertFalse(diff.areItemsTheSame(0, 0))
     }
 
     @Test
     fun `PemanfaatanDiffCallback should return correct list sizes`() {
-        val oldList = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50),
-            createTestDataItem("Utilities", "Electricity bill", 200, 75)
-        )
-        val newList = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50)
-        )
+        val diff = callback(listOf(item(), item(email = "second@example.com")), listOf(item()))
 
-        val diffCallback = PemanfaatanAdapter.PemanfaatanDiffCallback(oldList, newList)
-
-        assertEquals(2, diffCallback.getOldListSize())
-        assertEquals(1, diffCallback.getNewListSize())
+        assertEquals(2, diff.oldListSize)
+        assertEquals(1, diff.newListSize)
     }
 
-    private fun createTestDataItem(
-        pemanfaatan: String,
-        description: String,
-        totalIuranRekap: Int,
-        pengeluaran: Int
-    ): DataItem {
-        return DataItem(
-            first_name = "Test",
-            last_name = "User",
-            email = "test@example.com",
-            alamat = "Test Address",
-            iuran_perwarga = 100,
-            total_iuran_rekap = totalIuranRekap,
-            jumlah_iuran_bulanan = 200,
-            total_iuran_individu = 150,
-            pengeluaran_iuran_warga = pengeluaran,
-            pemanfaatan_iuran = pemanfaatan,
-            avatar = "https://example.com/avatar.jpg"
+    @Test
+    fun `PemanfaatanDiffCallback should separate entries sharing only a description`() {
+        val diff = callback(
+            listOf(item(email = "a@example.com", pemanfaatan = "Maintenance")),
+            listOf(item(email = "b@example.com", pemanfaatan = "Maintenance"))
         )
+
+        assertFalse(diff.areItemsTheSame(0, 0))
     }
 }
