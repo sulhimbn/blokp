@@ -24,6 +24,10 @@ android {
         // Webhook secret - MUST be set via CI/CD secrets for production
         // In debug builds, uses placeholder value from Constants.kt if not configured
         buildConfigField "String", "WEBHOOK_SECRET", "\"\""
+
+        // Debug builds talk to the local mock API over an adb reverse tunnel:
+        // adb reverse tcp:5000 tcp:5000
+        buildConfigField "String", "MOCK_API_URL", "\"http://127.0.0.1:5000/data/QjX6hB1ST2IDKaxB/\""
     }
     buildTypes {
         debug {
@@ -39,12 +43,24 @@ android {
         viewBinding true
         buildConfig true
     }
+    testOptions {
+        unitTests {
+            // Production code calls android.util.Log from plain JVM unit tests
+            // (CacheManager, repositories), which throws "not mocked" without this.
+            returnDefaultValues = true
+            // Robolectric needs merged resources to inflate layouts.
+            includeAndroidResources = true
+        }
+    }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+        // ReceiptGenerator uses java.time, which needs API 26; desugaring keeps
+        // minSdk 24 working.
+        coreLibraryDesugaringEnabled true
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
     }
     lint {
         abortOnError false
@@ -60,6 +76,8 @@ android {
 }
 
 dependencies {
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+
 
      implementation libs.androidx.core.ktx
      implementation libs.androidx.appcompat

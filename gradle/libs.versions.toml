@@ -17,6 +17,7 @@ espresso-intents = "3.5.1"
 androidx-test-runner = "1.5.2"
 androidx-test-rules = "1.5.0"
 mockwebserver = "4.12.0"
+desugar-jdk-libs = "2.0.4"
 recyclerview = "1.3.2"
 glide = "4.16.0"
 gson = "2.10.1"
@@ -53,6 +54,7 @@ espresso-intents = { group = "androidx.test.espresso", name = "espresso-intents"
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidx-test-runner" }
 androidx-test-rules = { group = "androidx.test", name = "rules", version.ref = "androidx-test-rules" }
 mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "mockwebserver" }
+desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugar-jdk-libs" }
 androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }

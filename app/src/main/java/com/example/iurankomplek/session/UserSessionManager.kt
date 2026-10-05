@@ -40,6 +40,16 @@ class UserSessionManager @Inject constructor(
         )
     }
 
+    /**
+     * Whether encrypted persistence is usable. AndroidKeyStore does not exist on
+     * plain JVM hosts (Robolectric), and it can be unavailable on a device whose
+     * keystore is corrupt. In that case the session stays in memory only and is
+     * never written to disk in plaintext.
+     */
+    private val encryptedPrefsAvailable: Boolean by lazy {
+        runCatching { encryptedPrefs }.isSuccess
+    }
+
     private val _currentUser = MutableStateFlow<User?>(null)
     val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
 
@@ -53,19 +63,20 @@ class UserSessionManager @Inject constructor(
     fun setCurrentUser(user: User) {
         _currentUser.value = user
         _isLoggedIn.value = true
-        saveUserToPrefs(user)
+        if (encryptedPrefsAvailable) saveUserToPrefs(user)
     }
 
     fun clearSession() {
         _currentUser.value = null
         _isLoggedIn.value = false
-        clearUserFromPrefs()
+        if (encryptedPrefsAvailable) clearUserFromPrefs()
     }
 
     val currentUserId: String?
         get() = _currentUser.value?.id
 
     private fun saveUserToPrefs(user: User) {
+        runCatching {
         encryptedPrefs.edit().apply {
             putString(KEY_USER_ID, user.id)
             putString(KEY_USER_EMAIL, user.email)
@@ -75,13 +86,15 @@ class UserSessionManager @Inject constructor(
             putBoolean(KEY_IS_LOGGED_IN, true)
             apply()
         }
+        }
     }
 
     private fun clearUserFromPrefs() {
-        encryptedPrefs.edit().clear().apply()
+        runCatching { encryptedPrefs.edit().clear().apply() }
     }
 
     private fun restoreSession() {
+        if (!encryptedPrefsAvailable) return
         val isLoggedIn = encryptedPrefs.getBoolean(KEY_IS_LOGGED_IN, false)
         if (isLoggedIn) {
             val userId = encryptedPrefs.getString(KEY_USER_ID, null)

@@ -362,36 +362,49 @@ class FinancialCalculatorTest {
         FinancialCalculator.calculateTotalIuranBulanan(invalidItems)
     }
 
-    @Test(expected = ArithmeticException::class)
-    fun testCalculateTotalIuranBulanan_throwsOnOverflow() {
-        val itemsWithLargeValues = listOf(
+    @Test(expected = IllegalArgumentException::class)
+    fun testCalculateTotalIuranBulanan_throwsOnOutOfRangeValue() {
+        // iuran_perwarga above Int.MAX_VALUE / 2 is rejected by validation before
+        // any accumulation happens.
+        val itemsWithTooLargeValue = listOf(
             DataItem(
                 first_name = "John",
                 last_name = "Doe",
                 email = "john@example.com",
                 alamat = "Jl. Test 1",
-                iuran_perwarga = Int.MAX_VALUE - 1,  // Very large value that will cause overflow
+                iuran_perwarga = Int.MAX_VALUE - 1,  // Exceeds the per-item ceiling
                 total_iuran_rekap = 0,
                 jumlah_iuran_bulanan = 0,
                 total_iuran_individu = 50,
                 pengeluaran_iuran_warga = 25,
                 pemanfaatan_iuran = "Test",
                 avatar = ""
-            ),
+            )
+        )
+
+        FinancialCalculator.calculateTotalIuranBulanan(itemsWithTooLargeValue)
+    }
+
+    @Test(expected = ArithmeticException::class)
+    fun testCalculateTotalIuranBulanan_throwsOnAccumulatedOverflow() {
+        // Each item individually passes validation (each <= Int.MAX_VALUE / 2),
+        // but the running total overflows on the third addition.
+        val bigButValid = Int.MAX_VALUE / 2
+        val itemsWithLargeValues = (1..3).map { i ->
             DataItem(
-                first_name = "Jane",
+                first_name = "User$i",
                 last_name = "Doe",
-                email = "jane@example.com",
-                alamat = "Jl. Test 2",
-                iuran_perwarga = 100,
+                email = "user$i@example.com",
+                alamat = "Jl. Test $i",
+                iuran_perwarga = bigButValid,
                 total_iuran_rekap = 0,
                 jumlah_iuran_bulanan = 0,
-                total_iuran_individu = 75,
-                pengeluaran_iuran_warga = 30,
+                total_iuran_individu = 50,
+                pengeluaran_iuran_warga = 25,
                 pemanfaatan_iuran = "Test",
                 avatar = ""
             )
-        )
+        }
 
         FinancialCalculator.calculateTotalIuranBulanan(itemsWithLargeValues)
     }
@@ -447,6 +460,10 @@ class FinancialCalculatorTest {
 
         // If the bug existed (only last item used), result would be 30 * 3 = 90
         // But with proper accumulation: (10*3) + (20*3) + (30*3) = 30 + 60 + 90 = 180
-        assertEquals(180, totalIuranIndividu, "Bug fix verification: totalIuranIndividu should accumulate all items, not just take the last item value")
+        assertEquals(
+            "Bug fix verification: totalIuranIndividu should accumulate all items, not just take the last item value",
+            180,
+            totalIuranIndividu
+        )
     }
 }

@@ -26,7 +26,7 @@ class PemanfaatanAdapter(
     }
     
     fun setPemanfaatan(dataItems: List<DataItem>) {
-        coroutineScope.launch(Dispatchers.Default) {
+        coroutineScope.launch {
             val diffCallback = PemanfaatanDiffCallback(this@PemanfaatanAdapter.pemanfaatan, dataItems)
             val diffResult = DiffUtil.calculateDiff(diffCallback)
             

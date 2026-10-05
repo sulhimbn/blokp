@@ -27,10 +27,10 @@ class UserAdapter(
     }
     
     fun setUsers(newUsers: List<DataItem>) {
-        coroutineScope.launch(Dispatchers.Default) {
+        coroutineScope.launch {
             val diffCallback = UserDiffCallback(this@UserAdapter.users, newUsers)
             val diffResult = DiffUtil.calculateDiff(diffCallback)
-            
+
             withContext(Dispatchers.Main) {
                 this@UserAdapter.users.clear()
                 this@UserAdapter.users.addAll(newUsers)

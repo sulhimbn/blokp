@@ -66,16 +66,12 @@ class WebhookReceiver(
 
     /**
      * Handle webhook event without security verification.
-     * WARNING: This method is insecure and should only be used for testing.
-     * Use handleWebhookEventWithHeaders for production.
-     * 
-     * @deprecated Use handleWebhookEventWithHeaders for production
+     *
+     * Internal-only: this skips HMAC and timestamp validation, so it must never be
+     * reachable from outside this class. Production callers go through
+     * handleWebhookEventWithHeaders.
      */
-    @Deprecated(
-        message = "Insecure method - use handleWebhookEventWithHeaders for production",
-        ReplaceWith("handleWebhookEventWithHeaders(payload, signature, timestamp)")
-    )
-    fun handleWebhookEvent(payload: String) {
+    internal fun handleWebhookEvent(payload: String) {
         Log.w(TAG, "Using insecure handleWebhookEvent - consider migrating to handleWebhookEventWithHeaders")
         processWebhookEvent(payload)
     }

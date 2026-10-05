@@ -13,7 +13,9 @@ import dagger.hilt.android.HiltAndroidApp
 class BlokPApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        // Load SQLCipher native library for encrypted Room database
-        System.loadLibrary("sqlcipher")
+        // Load SQLCipher native library for encrypted Room database. It only
+        // exists in instrumented/device runs, so a failure here must not abort
+        // startup (JVM unit tests and Robolectric load this class too).
+        runCatching { System.loadLibrary("sqlcipher") }
     }
 }

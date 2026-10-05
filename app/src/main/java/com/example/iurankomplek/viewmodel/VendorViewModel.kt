@@ -22,8 +22,12 @@ class VendorViewModel @Inject constructor(
     private val _vendorState = MutableStateFlow<UiState<VendorResponse>>(UiState.Loading)
     val vendorState: StateFlow<UiState<VendorResponse>> = _vendorState
     
+    private var isVendorLoadInFlight = false
+    
     private val _workOrderState = MutableStateFlow<UiState<WorkOrderResponse>>(UiState.Loading)
     val workOrderState: StateFlow<UiState<WorkOrderResponse>> = _workOrderState
+    
+    private var isWorkOrderLoadInFlight = false
     
     private val _vendorDetailState = MutableStateFlow<UiState<SingleVendorResponse>>(UiState.Loading)
     val vendorDetailState: StateFlow<UiState<SingleVendorResponse>> = _vendorDetailState
@@ -32,32 +36,42 @@ class VendorViewModel @Inject constructor(
     val workOrderDetailState: StateFlow<UiState<SingleWorkOrderResponse>> = _workOrderDetailState
     
     fun loadVendors() {
-        if (_vendorState.value is UiState.Loading) return // Prevent duplicate calls
+        if (isVendorLoadInFlight) return
         
+        isVendorLoadInFlight = true
         viewModelScope.launch {
-            _vendorState.value = UiState.Loading
-            vendorRepository.getVendors()
-                .onSuccess { response ->
-                    _vendorState.value = UiState.Success(response)
-                }
-                .onFailure { exception ->
-                    _vendorState.value = UiState.Error(exception.message ?: "Unknown error occurred")
-                }
+            try {
+                _vendorState.value = UiState.Loading
+                vendorRepository.getVendors()
+                    .onSuccess { response ->
+                        _vendorState.value = UiState.Success(response)
+                    }
+                    .onFailure { exception ->
+                        _vendorState.value = UiState.Error(exception.message ?: "Unknown error occurred")
+                    }
+            } finally {
+                isVendorLoadInFlight = false
+            }
         }
     }
     
     fun loadWorkOrders() {
-        if (_workOrderState.value is UiState.Loading) return // Prevent duplicate calls
+        if (isWorkOrderLoadInFlight) return
         
+        isWorkOrderLoadInFlight = true
         viewModelScope.launch {
-            _workOrderState.value = UiState.Loading
-            vendorRepository.getWorkOrders()
-                .onSuccess { response ->
-                    _workOrderState.value = UiState.Success(response)
-                }
-                .onFailure { exception ->
-                    _workOrderState.value = UiState.Error(exception.message ?: "Unknown error occurred")
-                }
+            try {
+                _workOrderState.value = UiState.Loading
+                vendorRepository.getWorkOrders()
+                    .onSuccess { response ->
+                        _workOrderState.value = UiState.Success(response)
+                    }
+                    .onFailure { exception ->
+                        _workOrderState.value = UiState.Error(exception.message ?: "Unknown error occurred")
+                    }
+            } finally {
+                isWorkOrderLoadInFlight = false
+            }
         }
     }
     

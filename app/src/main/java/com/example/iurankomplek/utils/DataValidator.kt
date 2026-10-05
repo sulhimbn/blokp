@@ -3,8 +3,19 @@ package com.example.iurankomplek.utils
 import java.net.URL
 
 object DataValidator {
+    private val HTML_TAG = "<[^>]*>".toRegex()
+
+    /**
+     * These values come from a remote spreadsheet and are rendered into rows,
+     * PDF exports and CSV reports. Strip any markup and control characters so a
+     * hostile cell cannot inject tags or script payloads downstream.
+     */
+    private fun stripMarkup(input: String?): String =
+        input?.replace(HTML_TAG, "")?.replace(Regex("[\\p{Cntrl}&&[^\\n\\t]]"), "")?.trim().orEmpty()
+
     fun sanitizeName(input: String?): String {
-        return input?.trim()?.takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_NAME_LENGTH }
+        return stripMarkup(input)
+            .takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_NAME_LENGTH }
             ?: "Unknown"
     }
     
@@ -16,12 +27,14 @@ object DataValidator {
     }
     
     fun sanitizeAddress(input: String?): String {
-        return input?.trim()?.takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_ADDRESS_LENGTH }
+        return stripMarkup(input)
+            .takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_ADDRESS_LENGTH }
             ?: "Address not available"
     }
     
     fun sanitizePemanfaatan(input: String?): String {
-        return input?.trim()?.takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_PEMANFAATAN_LENGTH }
+        return stripMarkup(input)
+            .takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_PEMANFAATAN_LENGTH }
             ?: "Unknown expense"
     }
     

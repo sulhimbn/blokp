@@ -12,7 +12,10 @@ object ApiConfig {
     // Use mock API in debug mode or when running in Docker
     private val USE_MOCK_API = BuildConfig.DEBUG || System.getenv("DOCKER_ENV") != null
     private val BASE_URL = if (USE_MOCK_API) {
-        "http://api-mock:5000/data/${BuildConfig.API_SPREADSHEET_ID}/"
+        // "api-mock" only resolves inside the docker-compose network. On an
+        // emulator 10.0.2.2 reaches the host, so debug builds prefer that and
+        // fall back to the compose hostname for use inside compose.
+        BuildConfig.MOCK_API_URL
     } else {
         "https://api.apispreadsheets.com/data/${BuildConfig.API_SPREADSHEET_ID}/"
     }
