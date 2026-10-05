@@ -145,6 +145,7 @@ class ReportExporter(private val context: Context) {
             .setPadding(5f)
     }
 
+
     private fun generateCsvReport(
         dataItems: List<DataItem>,
         summaryItems: List<LaporanSummaryItem>,
@@ -161,7 +162,7 @@ class ReportExporter(private val context: Context) {
             
             csvPrinter.printRecord("RINGKASAN")
             summaryItems.forEach { item ->
-                csvPrinter.printRecord(item.title, item.value)
+                csvPrinter.printRecord(csvCell(item.title), csvCell(item.value))
             }
             csvPrinter.println()
             
@@ -170,10 +171,10 @@ class ReportExporter(private val context: Context) {
             
             dataItems.forEach { item ->
                 csvPrinter.printRecord(
-                    "${item.first_name} ${item.last_name}",
-                    item.email,
-                    item.pemanfaatan_iuran,
-                    item.pengeluaran_iuran_warga
+                    csvCell("${item.first_name} ${item.last_name}"),
+                    csvCell(item.email),
+                    csvCell(item.pemanfaatan_iuran),
+                    csvCell(item.pengeluaran_iuran_warga)
                 )
             }
             
@@ -201,4 +202,15 @@ class ReportExporter(private val context: Context) {
         val uri: Uri,
         val format: ExportFormat
     )
+}
+
+fun csvCell(value: Any?): String {
+    val raw = when (value) {
+        null -> ""
+        is String -> value
+        else -> value.toString()
+    }
+    if (raw.isEmpty()) return raw
+    val dangerous = raw.first() in setOf('=', '+', '-', '@', '\t', '\r')
+    return if (dangerous) "'$raw" else raw
 }

@@ -2,10 +2,13 @@ package com.example.iurankomplek.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.iurankomplek.data.repository.PemanfaatanRepository
+import com.example.iurankomplek.data.repository.TransactionRepository
+import com.example.iurankomplek.event.AppEvent
 import com.example.iurankomplek.event.EventBus
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.model.PemanfaatanResponse
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
 import org.junit.After
@@ -32,6 +35,9 @@ class FinancialViewModelTest {
     @Mock
     private lateinit var eventBus: EventBus
 
+    @Mock
+    private lateinit var transactionRepository: TransactionRepository
+
     private lateinit var viewModel: FinancialViewModel
 
     private val testDispatcher = StandardTestDispatcher()
@@ -39,7 +45,8 @@ class FinancialViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        viewModel = FinancialViewModel(pemanfaatanRepository, eventBus)
+        Mockito.doReturn(MutableSharedFlow<AppEvent>()).`when`(eventBus).events
+        viewModel = FinancialViewModel(pemanfaatanRepository, eventBus, transactionRepository)
     }
 
     @After
@@ -64,11 +71,7 @@ class FinancialViewModelTest {
                 avatar = "https://example.com/avatar.jpg"
             )
         )
-        val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
-            data = mockData
-        )
+        val mockResponse = PemanfaatanResponse(data = mockData)
         Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))
 
         viewModel.loadFinancialData()
@@ -94,11 +97,7 @@ class FinancialViewModelTest {
                 avatar = "https://example.com/avatar.jpg"
             )
         )
-        val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
-            data = mockData
-        )
+        val mockResponse = PemanfaatanResponse(data = mockData)
         Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))
 
         viewModel.loadFinancialData()
@@ -146,26 +145,19 @@ class FinancialViewModelTest {
                 avatar = "https://example.com/avatar.jpg"
             )
         )
-        val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
-            data = mockData
-        )
+        val mockResponse = PemanfaatanResponse(data = mockData)
         Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))
 
         viewModel.loadFinancialData()
         viewModel.loadFinancialData()
+        advanceUntilIdle()
 
         Mockito.verify(pemanfaatanRepository).getPemanfaatan()
     }
 
     @Test
     fun `loadFinancialData should handle empty data correctly`() = runTest {
-        val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "No financial data found",
-            data = emptyList()
-        )
+        val mockResponse = PemanfaatanResponse(data = emptyList())
         Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))
 
         viewModel.loadFinancialData()
@@ -199,11 +191,7 @@ class FinancialViewModelTest {
                 avatar = "https://example.com/avatar.jpg"
             )
         )
-        val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
-            data = invalidData
-        )
+        val mockResponse = PemanfaatanResponse(data = invalidData)
         Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))
 
         viewModel.loadFinancialData()

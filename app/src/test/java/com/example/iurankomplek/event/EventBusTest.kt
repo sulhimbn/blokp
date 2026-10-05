@@ -1,7 +1,14 @@
 package com.example.iurankomplek.event
 
+import com.example.iurankomplek.event.AppEvent
+
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -93,9 +100,11 @@ class EventBusTest {
         // Given: An event that will be published
         val testEvent = AppEvent.NewAnnouncement("announce_789")
 
-        // When: Publishing event and collecting
+        // When: Publishing event while a subscriber is attached
+        val pending = async { eventBus.events.first() }
+        runCurrent()
         eventBus.publish(testEvent)
-        val collected = eventBus.events.first()
+        val collected = pending.await()
 
         // Then: The collected event matches what was published
         assertEquals(testEvent, collected)
@@ -108,17 +117,15 @@ class EventBusTest {
         val userEvent = AppEvent.UserProfileUpdated("user_999")
         val networkEvent = AppEvent.NetworkStatusChanged(isConnected = false)
 
-        // When: Publishing events with data
+        // When: Publishing events with data while a subscriber is attached
+        val pending = async { eventBus.events.take(3).toList() }
+        runCurrent()
         eventBus.publish(paymentEvent)
         eventBus.publish(userEvent)
         eventBus.publish(networkEvent)
 
         // Then: Events can be collected with correct data
-        val events = listOf(
-            eventBus.events.first(),
-            eventBus.events.first(),
-            eventBus.events.first()
-        )
+        val events = pending.await()
 
         assertTrue(events.any { it is AppEvent.PaymentFailed })
         assertTrue(events.any { it is AppEvent.UserProfileUpdated })
@@ -206,7 +213,8 @@ class EventBusTest {
         // When: Accessing the events flow
         val flow = eventBus.events
 
-        // Then: It's a SharedFlow (replay=0, extraBufferCapacity=64)
-        assertEquals(0, flow.replay)
+        // Then: It's a SharedFlow backed by a MutableSharedFlow (replay=0)
+        assertTrue(flow is SharedFlow<*>)
+        assertTrue(flow.replayCache.isEmpty())
     }
 }

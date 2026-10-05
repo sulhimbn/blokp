@@ -3,8 +3,15 @@ package com.example.iurankomplek.utils
 import java.net.URL
 
 object DataValidator {
+    private val HTML_TAG = Regex("<[^>]*>")
+    private val MARKUP_CHARS = Regex("[<>\"'`]")
+
+    private fun stripMarkup(input: String): String =
+        input.replace(HTML_TAG, "").replace(MARKUP_CHARS, "").trim()
+
     fun sanitizeName(input: String?): String {
-        return input?.trim()?.takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_NAME_LENGTH }
+        return input?.let(::stripMarkup)
+            ?.takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_NAME_LENGTH }
             ?: "Unknown"
     }
     
@@ -16,12 +23,14 @@ object DataValidator {
     }
     
     fun sanitizeAddress(input: String?): String {
-        return input?.trim()?.takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_ADDRESS_LENGTH }
+        return input?.let(::stripMarkup)
+            ?.takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_ADDRESS_LENGTH }
             ?: "Address not available"
     }
     
     fun sanitizePemanfaatan(input: String?): String {
-        return input?.trim()?.takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_PEMANFAATAN_LENGTH }
+        return input?.let(::stripMarkup)
+            ?.takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_PEMANFAATAN_LENGTH }
             ?: "Unknown expense"
     }
     

@@ -2,12 +2,21 @@ package com.example.iurankomplek
 
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.presentation.adapter.UserAdapter
-
-import com.example.iurankomplek.model.DataItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.junit.Assert.*
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
+@RunWith(RobolectricTestRunner::class)
 class UserAdapterTest {
 
     private lateinit var adapter: UserAdapter
@@ -15,8 +24,22 @@ class UserAdapterTest {
 
     @Before
     fun setup() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
         testUsers = mutableListOf()
-        adapter = UserAdapter(testUsers)
+        adapter = UserAdapter(testUsers, CoroutineScope(Dispatchers.Unconfined))
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
+    private fun awaitItemCount(expected: Int) {
+        val deadline = System.currentTimeMillis() + 5_000L
+        while (adapter.itemCount != expected && System.currentTimeMillis() < deadline) {
+            Thread.sleep(5)
+        }
+        assertEquals(expected, adapter.itemCount)
     }
 
     @Test
@@ -51,10 +74,10 @@ class UserAdapterTest {
         )
 
         adapter.setUsers(newUsers)
+        awaitItemCount(newUsers.size)
 
-        assertEquals(newUsers.size, adapter.itemCount)
-        assertEquals("John", adapter.users[0].first_name)
-        assertEquals("jane.smith@example.com", adapter.users[1].email)
+        assertEquals("John", testUsers[0].first_name)
+        assertEquals("jane.smith@example.com", testUsers[1].email)
     }
 
     @Test
@@ -77,7 +100,7 @@ class UserAdapterTest {
         adapter.addUser(validUser)
 
         assertEquals(initialSize + 1, adapter.itemCount)
-        assertEquals("Test", adapter.users.last().first_name)
+        assertEquals("Test", testUsers.last().first_name)
     }
 
     @Test
@@ -93,7 +116,7 @@ class UserAdapterTest {
         val userWithBlankEmail = DataItem(
             first_name = "Test",
             last_name = "User",
-            email = "", // Blank email
+            email = "",
             alamat = "789 Test St",
             iuran_perwarga = 150,
             total_iuran_rekap = 400,
@@ -113,8 +136,8 @@ class UserAdapterTest {
     @Test
     fun `addUser should ignore user with blank name fields`() {
         val userWithBlankNames = DataItem(
-            first_name = "", // Blank first name
-            last_name = "",  // Blank last name
+            first_name = "",
+            last_name = "",
             email = "test.blank@example.com",
             alamat = "789 Test St",
             iuran_perwarga = 150,
@@ -136,7 +159,7 @@ class UserAdapterTest {
     fun `addUser should accept user with either first name or last name`() {
         val userWithFirstNameOnly = DataItem(
             first_name = "Test",
-            last_name = "",  // Blank last name
+            last_name = "",
             email = "test.first@example.com",
             alamat = "789 Test St",
             iuran_perwarga = 150,
@@ -172,7 +195,7 @@ class UserAdapterTest {
             )
         )
         adapter.setUsers(users)
-        assertEquals(1, adapter.itemCount)
+        awaitItemCount(1)
 
         adapter.clear()
 
@@ -188,6 +211,7 @@ class UserAdapterTest {
             createTestDataItem("Jane", "Smith", "jane@example.com")
         )
         adapter.setUsers(users)
+        awaitItemCount(2)
 
         assertEquals(2, adapter.itemCount)
     }

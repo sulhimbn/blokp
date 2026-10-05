@@ -362,15 +362,15 @@ class FinancialCalculatorTest {
         FinancialCalculator.calculateTotalIuranBulanan(invalidItems)
     }
 
-    @Test(expected = ArithmeticException::class)
-    fun testCalculateTotalIuranBulanan_throwsOnOverflow() {
+    @Test(expected = IllegalArgumentException::class)
+    fun testCalculateTotalIuranBulanan_rejectsValuesThatWouldOverflow() {
         val itemsWithLargeValues = listOf(
             DataItem(
                 first_name = "John",
                 last_name = "Doe",
                 email = "john@example.com",
                 alamat = "Jl. Test 1",
-                iuran_perwarga = Int.MAX_VALUE - 1,  // Very large value that will cause overflow
+                iuran_perwarga = Int.MAX_VALUE - 1,
                 total_iuran_rekap = 0,
                 jumlah_iuran_bulanan = 0,
                 total_iuran_individu = 50,
@@ -447,6 +447,6 @@ class FinancialCalculatorTest {
 
         // If the bug existed (only last item used), result would be 30 * 3 = 90
         // But with proper accumulation: (10*3) + (20*3) + (30*3) = 30 + 60 + 90 = 180
-        assertEquals(180, totalIuranIndividu, "Bug fix verification: totalIuranIndividu should accumulate all items, not just take the last item value")
+        assertEquals("Bug fix verification: totalIuranIndividu should accumulate all items, not just take the last item value", 180, totalIuranIndividu)
     }
 }

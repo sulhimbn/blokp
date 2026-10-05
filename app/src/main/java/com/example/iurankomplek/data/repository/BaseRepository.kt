@@ -101,10 +101,11 @@ abstract class BaseNetworkRepository {
      * Determines if an HTTP error code is retryable
      */
     protected fun isRetryableError(httpCode: Int): Boolean {
-        // Retry on server errors (5xx) and some client errors (4xx)
+        // Retry on server errors (5xx) and the two client errors that are worth retrying.
         // 408: Request Timeout
         // 429: Too Many Requests
-        return httpCode in 408..429 || httpCode / 100 == 5
+        // Every other 4xx is a client error that will not change on a retry.
+        return httpCode == 408 || httpCode == 429 || httpCode / 100 == 5
     }
     
     /**

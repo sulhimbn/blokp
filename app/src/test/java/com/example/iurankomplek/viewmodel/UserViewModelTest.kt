@@ -2,10 +2,13 @@ package com.example.iurankomplek.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.iurankomplek.data.repository.UserRepository
+import com.example.iurankomplek.event.AppEvent
+import com.example.iurankomplek.event.EventBus
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.model.UserResponse
 import com.example.iurankomplek.utils.UiState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
 import org.junit.After
@@ -29,6 +32,9 @@ class UserViewModelTest {
     @Mock
     private lateinit var userRepository: UserRepository
 
+    @Mock
+    private lateinit var eventBus: EventBus
+
     private lateinit var viewModel: UserViewModel
 
     private val testDispatcher = StandardTestDispatcher()
@@ -36,7 +42,8 @@ class UserViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        viewModel = UserViewModel(userRepository)
+        Mockito.doReturn(MutableSharedFlow<AppEvent>()).`when`(eventBus).events
+        viewModel = UserViewModel(userRepository, eventBus)
     }
 
     @After
@@ -62,11 +69,7 @@ class UserViewModelTest {
                 avatar = "https://example.com/avatar.jpg"
             )
         )
-        val mockResponse = UserResponse(
-            success = true,
-            message = "Users fetched successfully",
-            data = mockUsers
-        )
+        val mockResponse = UserResponse(data = mockUsers)
         Mockito.`when`(userRepository.getUsers()).thenReturn(Result.success(mockResponse))
 
         // When
@@ -95,11 +98,7 @@ class UserViewModelTest {
                 avatar = "https://example.com/avatar.jpg"
             )
         )
-        val mockResponse = UserResponse(
-            success = true,
-            message = "Users fetched successfully",
-            data = mockUsers
-        )
+        val mockResponse = UserResponse(data = mockUsers)
         Mockito.`when`(userRepository.getUsers()).thenReturn(Result.success(mockResponse))
 
         // When
@@ -125,7 +124,7 @@ class UserViewModelTest {
         advanceUntilIdle()
         val state = viewModel.usersState.value
         assertTrue(state is UiState.Error)
-        assertEquals(errorMessage, (state as UiState.Error).message)
+        assertEquals(errorMessage, (state as UiState.Error).error)
     }
 
     @Test
@@ -146,17 +145,14 @@ class UserViewModelTest {
                 avatar = "https://example.com/avatar.jpg"
             )
         )
-        val mockResponse = UserResponse(
-            success = true,
-            message = "Users fetched successfully",
-            data = mockUsers
-        )
+        val mockResponse = UserResponse(data = mockUsers)
         Mockito.`when`(userRepository.getUsers()).thenReturn(Result.success(mockResponse))
 
         // When
         viewModel.loadUsers()
         // Try to call loadUsers again while the first one is still in progress
         viewModel.loadUsers()
+        advanceUntilIdle()
 
         // Then
         // Verify that userRepository.getUsers() was only called once
@@ -166,11 +162,7 @@ class UserViewModelTest {
     @Test
     fun `loadUsers should update state correctly for empty data`() = runTest {
         // Given
-        val mockResponse = UserResponse(
-            success = true,
-            message = "No users found",
-            data = emptyList()
-        )
+        val mockResponse = UserResponse(data = emptyList())
         Mockito.`when`(userRepository.getUsers()).thenReturn(Result.success(mockResponse))
 
         // When

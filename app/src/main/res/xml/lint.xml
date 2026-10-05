@@ -95,6 +95,7 @@
     <issue id="MultipleUsesOf" severity="warning" />
     <issue id="Namespace" severity="warning" />
     <issue id="NestedScrolling" severity="warning" />
+    <issue id="NotificationPermission" severity="warning" />
     <issue id="NestedWeights" severity="warning" />
     <issue id="NetworkSecurityConfig" severity="warning" />
     <issue id="NfcTechFilter" severity="warning" />

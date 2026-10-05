@@ -2,12 +2,23 @@ package com.example.iurankomplek
 
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.presentation.adapter.PemanfaatanAdapter
-
-import com.example.iurankomplek.model.DataItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.junit.Assert.*
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
+@RunWith(RobolectricTestRunner::class)
 class PemanfaatanAdapterTest {
 
     private lateinit var adapter: PemanfaatanAdapter
@@ -15,22 +26,36 @@ class PemanfaatanAdapterTest {
 
     @Before
     fun setup() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
         testData = mutableListOf()
-        adapter = PemanfaatanAdapter(testData)
+        adapter = PemanfaatanAdapter(testData, CoroutineScope(Dispatchers.Unconfined))
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
+    private fun awaitItemCount(expected: Int) {
+        val deadline = System.currentTimeMillis() + 5_000L
+        while (adapter.itemCount != expected && System.currentTimeMillis() < deadline) {
+            Thread.sleep(5)
+        }
+        assertEquals(expected, adapter.itemCount)
     }
 
     @Test
     fun `setPemanfaatan should update adapter data correctly`() {
         val newData = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50),
-            createTestDataItem("Utilities", "Electricity bill", 200, 75)
+            createTestDataItem("Maintenance", 100, 50),
+            createTestDataItem("Utilities", 200, 75)
         )
 
         adapter.setPemanfaatan(newData)
+        awaitItemCount(newData.size)
 
-        assertEquals(newData.size, adapter.itemCount)
-        assertEquals("Maintenance", adapter.pemanfaatan[0].pemanfaatan_iuran)
-        assertEquals("Utilities", adapter.pemanfaatan[1].pemanfaatan_iuran)
+        assertEquals("Maintenance", testData[0].pemanfaatan_iuran)
+        assertEquals("Utilities", testData[1].pemanfaatan_iuran)
     }
 
     @Test
@@ -38,27 +63,28 @@ class PemanfaatanAdapterTest {
         assertEquals(0, adapter.itemCount)
 
         val newData = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50)
+            createTestDataItem("Maintenance", 100, 50)
         )
         adapter.setPemanfaatan(newData)
+        awaitItemCount(1)
 
         assertEquals(1, adapter.itemCount)
     }
 
     @Test
     fun `adapter should initialize with empty list using default constructor`() {
-        val emptyAdapter = PemanfaatanAdapter()
-        
+        val emptyAdapter = PemanfaatanAdapter(CoroutineScope(Dispatchers.Unconfined))
+
         assertEquals(0, emptyAdapter.itemCount)
     }
 
     @Test
     fun `PemanfaatanDiffCallback should identify same items correctly`() {
         val oldList = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50)
+            createTestDataItem("Maintenance", 100, 50)
         )
         val newList = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50) // Same pemanfaatan_iuran
+            createTestDataItem("Maintenance", 100, 50)
         )
 
         val diffCallback = PemanfaatanAdapter.PemanfaatanDiffCallback(oldList, newList)
@@ -70,10 +96,10 @@ class PemanfaatanAdapterTest {
     @Test
     fun `PemanfaatanDiffCallback should identify different items correctly`() {
         val oldList = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50)
+            createTestDataItem("Maintenance", 100, 50)
         )
         val newList = listOf(
-            createTestDataItem("Utilities", "Electricity bill", 200, 75) // Different pemanfaatan_iuran
+            createTestDataItem("Utilities", 200, 75)
         )
 
         val diffCallback = PemanfaatanAdapter.PemanfaatanDiffCallback(oldList, newList)
@@ -84,26 +110,26 @@ class PemanfaatanAdapterTest {
     @Test
     fun `PemanfaatanDiffCallback should identify different contents correctly`() {
         val oldList = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50)
+            createTestDataItem("Maintenance", 100, 50)
         )
-        val newList = listOf(
-            createTestDataItem("Maintenance", "Repair work updated", 150, 60) // Same pemanfaatan_iuran but different other fields
+val newList = listOf(
+            createTestDataItem("Maintenance", 150, 50)
         )
 
         val diffCallback = PemanfaatanAdapter.PemanfaatanDiffCallback(oldList, newList)
 
-        assertTrue(diffCallback.areItemsTheSame(0, 0)) // Same pemanfaatan_iuran
-        assertFalse(diffCallback.areContentsTheSame(0, 0)) // Different overall content
+        assertTrue(diffCallback.areItemsTheSame(0, 0))
+        assertFalse(diffCallback.areContentsTheSame(0, 0))
     }
 
     @Test
     fun `PemanfaatanDiffCallback should return correct list sizes`() {
         val oldList = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50),
-            createTestDataItem("Utilities", "Electricity bill", 200, 75)
+            createTestDataItem("Maintenance", 100, 50),
+            createTestDataItem("Utilities", 200, 75)
         )
         val newList = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50)
+            createTestDataItem("Maintenance", 100, 50)
         )
 
         val diffCallback = PemanfaatanAdapter.PemanfaatanDiffCallback(oldList, newList)
@@ -114,7 +140,6 @@ class PemanfaatanAdapterTest {
 
     private fun createTestDataItem(
         pemanfaatan: String,
-        description: String,
         totalIuranRekap: Int,
         pengeluaran: Int
     ): DataItem {
