@@ -4,6 +4,8 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.iurankomplek.data.repository.VendorRepository
 import com.example.iurankomplek.model.Vendor
 import com.example.iurankomplek.data.api.models.VendorResponse
+import com.example.iurankomplek.data.api.models.SingleVendorResponse
+import com.example.iurankomplek.data.api.models.SingleWorkOrderResponse
 import com.example.iurankomplek.model.WorkOrder
 import com.example.iurankomplek.data.api.models.WorkOrderResponse
 import com.example.iurankomplek.utils.UiState
@@ -11,12 +13,12 @@ import com.example.iurankomplek.viewmodel.VendorViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
 import java.io.IOException
@@ -27,12 +29,11 @@ class VendorViewModelTest {
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    @Mock
-    private lateinit var mockRepository: VendorRepository
+    private val mockRepository = FakeVendorRepository()
 
     private lateinit var vendorViewModel: VendorViewModel
 
-    private val testDispatcher = StandardTestDispatcher()
+    private val testDispatcher = UnconfinedTestDispatcher()
 
     @Before
     fun setup() {
@@ -68,7 +69,7 @@ class VendorViewModelTest {
             )
         )
         val mockResponse = VendorResponse(mockVendors)
-        `when`(mockRepository.getVendors()).thenReturn(Result.success(mockResponse))
+        mockRepository.vendorsResult = (Result.success(mockResponse))
 
         vendorViewModel.loadVendors()
 
@@ -81,28 +82,25 @@ class VendorViewModelTest {
     @Test
     fun `loadVendors should update vendorState to Error when repository call fails`() = runTest {
         val errorMessage = "Network error"
-        `when`(mockRepository.getVendors()).thenReturn(Result.failure(IOException(errorMessage)))
+        mockRepository.vendorsResult = (Result.failure(IOException(errorMessage)))
 
         vendorViewModel.loadVendors()
 
         advanceUntilIdle()
         val state = vendorViewModel.vendorState.value
         assertTrue(state is UiState.Error)
-        assertEquals(errorMessage, (state as UiState.Error).message)
+        assertEquals(errorMessage, (state as UiState.Error).error)
     }
 
     @Test
-    fun `loadVendors should update vendorState to Loading initially`() {
-        vendorViewModel.loadVendors()
-
-        val state = vendorViewModel.vendorState.value
-        assertTrue(state is UiState.Loading)
+    fun `vendorState starts as Loading before any load is triggered`() {
+        assertTrue(vendorViewModel.vendorState.value is UiState.Loading)
     }
 
     @Test
     fun `loadVendors should handle empty vendor list`() = runTest {
         val mockResponse = VendorResponse(emptyList())
-        `when`(mockRepository.getVendors()).thenReturn(Result.success(mockResponse))
+        mockRepository.vendorsResult = (Result.success(mockResponse))
 
         vendorViewModel.loadVendors()
 
@@ -138,7 +136,7 @@ class VendorViewModelTest {
             )
         )
         val mockResponse = WorkOrderResponse(mockWorkOrders)
-        `when`(mockRepository.getWorkOrders()).thenReturn(Result.success(mockResponse))
+        mockRepository.workOrdersResult = (Result.success(mockResponse))
 
         vendorViewModel.loadWorkOrders()
 
@@ -151,28 +149,25 @@ class VendorViewModelTest {
     @Test
     fun `loadWorkOrders should update workOrderState to Error when repository call fails`() = runTest {
         val errorMessage = "Server error"
-        `when`(mockRepository.getWorkOrders()).thenReturn(Result.failure(IOException(errorMessage)))
+        mockRepository.workOrdersResult = (Result.failure(IOException(errorMessage)))
 
         vendorViewModel.loadWorkOrders()
 
         advanceUntilIdle()
         val state = vendorViewModel.workOrderState.value
         assertTrue(state is UiState.Error)
-        assertEquals(errorMessage, (state as UiState.Error).message)
+        assertEquals(errorMessage, (state as UiState.Error).error)
     }
 
     @Test
-    fun `loadWorkOrders should update workOrderState to Loading initially`() {
-        vendorViewModel.loadWorkOrders()
-
-        val state = vendorViewModel.workOrderState.value
-        assertTrue(state is UiState.Loading)
+    fun `workOrderState starts as Loading before any load is triggered`() {
+        assertTrue(vendorViewModel.workOrderState.value is UiState.Loading)
     }
 
     @Test
     fun `loadWorkOrders should handle empty work order list`() = runTest {
         val mockResponse = WorkOrderResponse(emptyList())
-        `when`(mockRepository.getWorkOrders()).thenReturn(Result.success(mockResponse))
+        mockRepository.workOrdersResult = (Result.success(mockResponse))
 
         vendorViewModel.loadWorkOrders()
 
@@ -221,7 +216,7 @@ class VendorViewModelTest {
             )
         )
         val mockResponse = VendorResponse(mockVendors)
-        `when`(mockRepository.getVendors()).thenReturn(Result.success(mockResponse))
+        mockRepository.vendorsResult = (Result.success(mockResponse))
 
         vendorViewModel.loadVendors()
 
@@ -232,3 +227,30 @@ class VendorViewModelTest {
     }
 }
 
+/**
+ * Mockito cannot stub suspend functions, so the repository is faked by hand.
+ */
+private class FakeVendorRepository : VendorRepository {
+    var vendorsResult: Result<VendorResponse> = Result.failure(UnsupportedOperationException())
+    var workOrdersResult: Result<WorkOrderResponse> = Result.failure(UnsupportedOperationException())
+    var vendorCalls = 0
+    var workOrderCalls = 0
+
+    override suspend fun getVendors(): Result<VendorResponse> {
+        vendorCalls++
+        return vendorsResult
+    }
+    override suspend fun getVendor(id: String): Result<SingleVendorResponse> = unsupported()
+    override suspend fun createVendor(name: String, contactPerson: String, phoneNumber: String, email: String, specialty: String, address: String, licenseNumber: String, insuranceInfo: String, contractStart: String, contractEnd: String): Result<SingleVendorResponse> = unsupported()
+    override suspend fun updateVendor(id: String, name: String, contactPerson: String, phoneNumber: String, email: String, specialty: String, address: String, licenseNumber: String, insuranceInfo: String, contractStart: String, contractEnd: String, isActive: Boolean): Result<SingleVendorResponse> = unsupported()
+    override suspend fun getWorkOrders(): Result<WorkOrderResponse> {
+        workOrderCalls++
+        return workOrdersResult
+    }
+    override suspend fun getWorkOrder(id: String): Result<SingleWorkOrderResponse> = unsupported()
+    override suspend fun createWorkOrder(title: String, description: String, category: String, priority: String, propertyId: String, reporterId: String, estimatedCost: Double): Result<SingleWorkOrderResponse> = unsupported()
+    override suspend fun assignVendorToWorkOrder(workOrderId: String, vendorId: String, scheduledDate: String?): Result<SingleWorkOrderResponse> = unsupported()
+    override suspend fun updateWorkOrderStatus(workOrderId: String, status: String, notes: String?): Result<SingleWorkOrderResponse> = unsupported()
+
+    private fun <T> unsupported(): Result<T> = Result.failure(UnsupportedOperationException())
+}

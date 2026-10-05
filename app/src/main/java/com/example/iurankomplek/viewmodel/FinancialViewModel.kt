@@ -47,6 +47,10 @@ class FinancialViewModel @Inject constructor(
     private val _financialState = MutableStateFlow<FinancialDataState>(FinancialDataState.Loading)
     val financialState: StateFlow<FinancialDataState> = _financialState
 
+    // Separate from the state, which starts as Loading and would otherwise make the
+    // first load a no-op.
+    private var isLoading = false
+
     init {
         observeEvents()
     }
@@ -66,8 +70,9 @@ class FinancialViewModel @Inject constructor(
     }
 
     fun loadFinancialData() {
-        if (_financialState.value is FinancialDataState.Loading) return
+        if (isLoading) return
 
+        isLoading = true
         viewModelScope.launch {
             _financialState.value = FinancialDataState.Loading
             pemanfaatanRepository.getPemanfaatan()
@@ -81,6 +86,7 @@ class FinancialViewModel @Inject constructor(
                         exception.message ?: "Unknown error occurred"
                     )
                 }
+            isLoading = false
         }
     }
 

@@ -362,39 +362,31 @@ class FinancialCalculatorTest {
         FinancialCalculator.calculateTotalIuranBulanan(invalidItems)
     }
 
-    @Test(expected = ArithmeticException::class)
+    @Test
     fun testCalculateTotalIuranBulanan_throwsOnOverflow() {
-        val itemsWithLargeValues = listOf(
-            DataItem(
-                first_name = "John",
-                last_name = "Doe",
-                email = "john@example.com",
-                alamat = "Jl. Test 1",
-                iuran_perwarga = Int.MAX_VALUE - 1,  // Very large value that will cause overflow
-                total_iuran_rekap = 0,
-                jumlah_iuran_bulanan = 0,
-                total_iuran_individu = 50,
-                pengeluaran_iuran_warga = 25,
-                pemanfaatan_iuran = "Test",
-                avatar = ""
-            ),
-            DataItem(
-                first_name = "Jane",
-                last_name = "Doe",
-                email = "jane@example.com",
-                alamat = "Jl. Test 2",
-                iuran_perwarga = 100,
-                total_iuran_rekap = 0,
-                jumlah_iuran_bulanan = 0,
-                total_iuran_individu = 75,
-                pengeluaran_iuran_warga = 30,
-                pemanfaatan_iuran = "Test",
-                avatar = ""
-            )
-        )
-
-        FinancialCalculator.calculateTotalIuranBulanan(itemsWithLargeValues)
+        // Individually valid values whose sum exceeds Int.MAX_VALUE must trip the guard.
+        val overflowing = listOf(largeItem(1_000_000_000), largeItem(1_000_000_000), largeItem(1_000_000_000))
+        try {
+            FinancialCalculator.calculateTotalIuranBulanan(overflowing)
+            fail("Expected ArithmeticException on overflow")
+        } catch (e: ArithmeticException) {
+            assertTrue(e.message!!.contains("overflow"))
+        }
     }
+
+    private fun largeItem(value: Int) = DataItem(
+        first_name = "Test",
+        last_name = "User",
+        email = "user@example.com",
+        alamat = "Jl. Test",
+        iuran_perwarga = value,
+        total_iuran_rekap = 0,
+        jumlah_iuran_bulanan = 0,
+        total_iuran_individu = 0,
+        pengeluaran_iuran_warga = 0,
+        pemanfaatan_iuran = "Test",
+        avatar = ""
+    )
     
     @Test
     fun testCalculateTotalIuranIndividu_preventsBugWhereOnlyLastItemIsUsed() {
@@ -447,6 +439,6 @@ class FinancialCalculatorTest {
 
         // If the bug existed (only last item used), result would be 30 * 3 = 90
         // But with proper accumulation: (10*3) + (20*3) + (30*3) = 30 + 60 + 90 = 180
-        assertEquals(180, totalIuranIndividu, "Bug fix verification: totalIuranIndividu should accumulate all items, not just take the last item value")
+        assertEquals("Bug fix verification: totalIuranIndividu should accumulate all items, not just take the last item value", 180, totalIuranIndividu)
     }
 }

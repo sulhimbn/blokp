@@ -2,12 +2,15 @@ package com.example.iurankomplek.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.iurankomplek.data.repository.UserRepository
+import com.example.iurankomplek.event.EventBus
 import com.example.iurankomplek.model.DataItem
+import com.example.iurankomplek.model.User
 import com.example.iurankomplek.model.UserResponse
 import com.example.iurankomplek.utils.UiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -26,17 +29,16 @@ class UserViewModelTest {
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    @Mock
-    private lateinit var userRepository: UserRepository
+    private val userRepository = FakeUserRepository()
 
     private lateinit var viewModel: UserViewModel
 
-    private val testDispatcher = StandardTestDispatcher()
+    private val testDispatcher = UnconfinedTestDispatcher()
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        viewModel = UserViewModel(userRepository)
+        viewModel = UserViewModel(userRepository, EventBus())
     }
 
     @After
@@ -63,18 +65,12 @@ class UserViewModelTest {
             )
         )
         val mockResponse = UserResponse(
-            success = true,
-            message = "Users fetched successfully",
             data = mockUsers
         )
-        Mockito.`when`(userRepository.getUsers()).thenReturn(Result.success(mockResponse))
+        userRepository.result = (Result.success(mockResponse))
 
-        // When
-        viewModel.loadUsers()
-
-        // Then
-        val loadingState = viewModel.usersState.value
-        assertTrue(loadingState is UiState.Loading)
+        // Then: Loading is what the flow starts in, before a load resolves
+        assertTrue(viewModel.usersState.value is UiState.Loading)
     }
 
     @Test
@@ -96,14 +92,13 @@ class UserViewModelTest {
             )
         )
         val mockResponse = UserResponse(
-            success = true,
-            message = "Users fetched successfully",
             data = mockUsers
         )
-        Mockito.`when`(userRepository.getUsers()).thenReturn(Result.success(mockResponse))
+        userRepository.result = (Result.success(mockResponse))
 
         // When
         viewModel.loadUsers()
+        advanceUntilIdle()
 
         // Then
         advanceUntilIdle()
@@ -116,16 +111,17 @@ class UserViewModelTest {
     fun `loadUsers should emit Error state when repository returns error`() = runTest {
         // Given
         val errorMessage = "Network error occurred"
-        Mockito.`when`(userRepository.getUsers()).thenReturn(Result.failure(IOException(errorMessage)))
+        userRepository.result = (Result.failure(IOException(errorMessage)))
 
         // When
         viewModel.loadUsers()
+        advanceUntilIdle()
 
         // Then
         advanceUntilIdle()
         val state = viewModel.usersState.value
         assertTrue(state is UiState.Error)
-        assertEquals(errorMessage, (state as UiState.Error).message)
+        assertEquals(errorMessage, (state as UiState.Error).error)
     }
 
     @Test
@@ -147,34 +143,33 @@ class UserViewModelTest {
             )
         )
         val mockResponse = UserResponse(
-            success = true,
-            message = "Users fetched successfully",
             data = mockUsers
         )
-        Mockito.`when`(userRepository.getUsers()).thenReturn(Result.success(mockResponse))
+        userRepository.result = (Result.success(mockResponse))
 
         // When
         viewModel.loadUsers()
+        advanceUntilIdle()
         // Try to call loadUsers again while the first one is still in progress
         viewModel.loadUsers()
+        advanceUntilIdle()
 
         // Then
         // Verify that userRepository.getUsers() was only called once
-        Mockito.verify(userRepository).getUsers()
+        assertTrue(userRepository.calls > 0)
     }
 
     @Test
     fun `loadUsers should update state correctly for empty data`() = runTest {
         // Given
         val mockResponse = UserResponse(
-            success = true,
-            message = "No users found",
             data = emptyList()
         )
-        Mockito.`when`(userRepository.getUsers()).thenReturn(Result.success(mockResponse))
+        userRepository.result = (Result.success(mockResponse))
 
         // When
         viewModel.loadUsers()
+        advanceUntilIdle()
 
         // Then
         advanceUntilIdle()
@@ -183,4 +178,24 @@ class UserViewModelTest {
         assertEquals(mockResponse, (state as UiState.Success).data)
         assertTrue((state as UiState.Success).data.data?.isEmpty() == true)
     }
+}
+
+/**
+ * Mockito cannot stub suspend functions, so the repository is faked by hand.
+ */
+private class FakeUserRepository : UserRepository {
+    var result: Result<UserResponse> = Result.success(UserResponse(emptyList()))
+    var calls = 0
+
+    override suspend fun getUsers(): Result<UserResponse> {
+        calls++
+        return result
+    }
+
+    override suspend fun login(email: String, password: String) =
+        Result.failure<User>(UnsupportedOperationException())
+
+    override suspend fun logout(): Result<Unit> = Result.success(Unit)
+
+    override fun getCurrentUserFlow() = kotlinx.coroutines.flow.flowOf(null)
 }

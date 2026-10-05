@@ -1,6 +1,7 @@
 package com.example.iurankomplek.session
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.example.iurankomplek.model.User
@@ -11,10 +12,20 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class UserSessionManager @Inject constructor(
-    private val context: Context
+class UserSessionManager private constructor(
+    private val context: Context,
+    private val injectedPrefs: SharedPreferences?
 ) {
+    @Inject
+    constructor(context: Context) : this(context, null)
+
     companion object {
+        // Robolectric has no AndroidKeyStore, so tests inject plain preferences.
+        internal fun forTesting(
+            context: Context,
+            prefs: SharedPreferences
+        ): UserSessionManager = UserSessionManager(context, prefs)
+
         private const val PREFS_FILE_NAME = "user_session_prefs"
         private const val KEY_USER_ID = "user_id"
         private const val KEY_USER_EMAIL = "user_email"
@@ -31,7 +42,7 @@ class UserSessionManager @Inject constructor(
     }
 
     private val encryptedPrefs by lazy {
-        EncryptedSharedPreferences.create(
+        injectedPrefs ?: EncryptedSharedPreferences.create(
             context,
             PREFS_FILE_NAME,
             masterKey,

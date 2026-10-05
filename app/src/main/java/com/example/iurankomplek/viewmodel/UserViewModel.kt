@@ -22,6 +22,10 @@ class UserViewModel @Inject constructor(
     private val _usersState = MutableStateFlow<UiState<UserResponse>>(UiState.Loading)
     val usersState: StateFlow<UiState<UserResponse>> = _usersState
 
+    // Tracked separately: the state starts as Loading, so guarding on it would
+    // make the very first load a no-op.
+    private var isLoading = false
+
     init {
         observeEvents()
     }
@@ -39,8 +43,9 @@ class UserViewModel @Inject constructor(
     }
 
     fun loadUsers() {
-        if (_usersState.value is UiState.Loading) return
+        if (isLoading) return
 
+        isLoading = true
         viewModelScope.launch {
             _usersState.value = UiState.Loading
             userRepository.getUsers()
@@ -50,6 +55,7 @@ class UserViewModel @Inject constructor(
                 .onFailure { exception ->
                     _usersState.value = UiState.Error(exception.message ?: "Unknown error occurred")
                 }
+            isLoading = false
         }
     }
 }

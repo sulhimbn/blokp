@@ -6,17 +6,25 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.model.Vendor
 import com.example.iurankomplek.presentation.adapter.VendorAdapter
 
-import android.content.Context
-import android.view.View
-import androidx.recyclerview.widget.RecyclerView
-import com.example.iurankomplek.model.Vendor
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.LooperMode
 import org.junit.Before
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import org.junit.Rule
 import org.junit.Test
 import org.junit.Assert.*
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [28], manifest = Config.NONE)
+@LooperMode(LooperMode.Mode.LEGACY)
 class VendorAdapterTest {
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
+
     
     @Mock
     private lateinit var mockContext: Context

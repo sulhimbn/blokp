@@ -6,7 +6,7 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.Robolectric
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -17,7 +17,7 @@ import org.robolectric.annotation.Config
  * Uses Robolectric for Android Context.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
+@Config(sdk = [33])
 class UserSessionManagerTest {
 
     private lateinit var context: Context
@@ -26,10 +26,11 @@ class UserSessionManagerTest {
     @Before
     fun setup() {
         // Create Robolectric context
-        context = Robolectric.buildActivity(android.app.Activity::class.java).get()
+        context = RuntimeEnvironment.getApplication()
         
-        // Create fresh instance for each test
-        userSessionManager = UserSessionManager(context)
+        val prefs = context.getSharedPreferences("test_user_session", Context.MODE_PRIVATE)
+        prefs.edit().clear().commit()
+        userSessionManager = UserSessionManager.forTesting(context, prefs)
     }
 
     @Test

@@ -1,48 +1,63 @@
 package com.example.iurankomplek
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.Observer
+import com.example.iurankomplek.data.repository.PemanfaatanRepository
+import com.example.iurankomplek.data.repository.TransactionRepository
+import com.example.iurankomplek.event.EventBus
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.viewmodel.FinancialViewModel
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
+import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.*
-import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 
 /**
  * Unit tests for FinancialViewModel
+ *
+ * The ViewModel collects from EventBus in its init block, so a real EventBus is used
+ * instead of a mock: a mock returns null for `events`, which would blow up the
+ * collecting coroutine before any assertion could run.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(MockitoJUnitRunner::class)
 class FinancialViewModelTest {
 
-    @get:Rule
-    @Suppress("unused")
-    var instantTaskExecutorRule = InstantTaskExecutorRule()
+    @Mock
+    private lateinit var pemanfaatanRepository: PemanfaatanRepository
 
     @Mock
-    private lateinit var mockUserObserver: Observer<String>
+    private lateinit var transactionRepository: TransactionRepository
 
+    private val eventBus = EventBus()
     private lateinit var viewModel: FinancialViewModel
 
     @Before
     fun setup() {
-        MockitoAnnotations.openMocks(this)
-        viewModel = FinancialViewModel()
+        Dispatchers.setMain(StandardTestDispatcher())
+        viewModel = FinancialViewModel(pemanfaatanRepository, eventBus, transactionRepository)
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     @Test
     fun `viewModel should initialize with default values`() {
-        // Given: ViewModel is initialized
-        // When: Checking initial state
-        // Then: Should have expected default values
         assertNotNull(viewModel)
-        // Note: Actual initialization depends on the real ViewModel implementation
+        assertTrue(
+            "state should start in Loading before any load is triggered",
+            viewModel.financialState.value is com.example.iurankomplek.viewmodel.FinancialDataState.Loading
+        )
     }
 
     @Test
