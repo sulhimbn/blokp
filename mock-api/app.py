@@ -1,10 +1,18 @@
 from flask import Flask, jsonify, request
+from werkzeug.exceptions import HTTPException
 from flask_cors import CORS
 import json
 import os
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": os.environ.get('MOCK_API_CORS_ORIGINS', '*')}})
+
+@app.errorhandler(Exception)
+def handle_unexpected_error(error):
+    if isinstance(error, HTTPException):
+        return error
+    app.logger.exception("unhandled error while serving a request")
+    return jsonify({"error": "internal server error"}), 500
 
 # Load mock data
 def load_mock_data(filename):
@@ -37,4 +45,7 @@ def get_pemanfaatan():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    debug_enabled = os.environ.get('MOCK_API_DEBUG', '0') == '1'
+    host = os.environ.get('MOCK_API_HOST', '127.0.0.1')
+    port = int(os.environ.get('MOCK_API_PORT', '5000'))
+    app.run(host=host, port=port, debug=debug_enabled, use_reloader=False)

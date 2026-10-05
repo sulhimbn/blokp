@@ -1,178 +1,151 @@
 package com.example.iurankomplek
 
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.presentation.adapter.UserAdapter
-
-import com.example.iurankomplek.model.DataItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.junit.Assert.*
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLooper
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [33])
 class UserAdapterTest {
 
     private lateinit var adapter: UserAdapter
-    private lateinit var testUsers: MutableList<DataItem>
+    private lateinit var scope: CoroutineScope
 
     @Before
     fun setup() {
-        testUsers = mutableListOf()
-        adapter = UserAdapter(testUsers)
+        scope = CoroutineScope(Dispatchers.Main.immediate)
+        adapter = UserAdapter(mutableListOf(), scope)
+    }
+
+    @After
+    fun tearDown() {
+        scope.cancel()
+    }
+
+    private fun item(
+        firstName: String? = "John",
+        lastName: String? = "Doe",
+        email: String? = "john@example.com"
+    ) = DataItem(
+        first_name = firstName,
+        last_name = lastName,
+        email = email,
+        alamat = "123 Main St",
+        iuran_perwarga = 100_000,
+        total_iuran_individu = 150_000,
+        avatar = "https://example.com/avatar.jpg"
+    )
+
+    private fun parent(): ViewGroup = FrameLayout(RuntimeEnvironment.getApplication()).apply {
+        layoutParams = RecyclerView.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+    }
+
+    private fun textOf(holder: RecyclerView.ViewHolder, viewId: Int): String =
+        holder.itemView.findViewById<TextView>(viewId).text.toString()
+
+
+    private fun awaitItems(adapter: RecyclerView.Adapter<*>, expected: Int, timeoutMs: Long = 10_000) {
+        val deadline = System.currentTimeMillis() + timeoutMs
+        while (adapter.itemCount != expected && System.currentTimeMillis() < deadline) {
+            ShadowLooper.idleMainLooper()
+            Thread.sleep(10)
+        }
     }
 
     @Test
-    fun `setUsers should update adapter data correctly`() {
-        val newUsers = listOf(
-            DataItem(
-                first_name = "John",
-                last_name = "Doe",
-                email = "john.doe@example.com",
-                alamat = "123 Main St",
-                iuran_perwarga = 100,
-                total_iuran_rekap = 500,
-                jumlah_iuran_bulanan = 200,
-                total_iuran_individu = 150,
-                pengeluaran_iuran_warga = 50,
-                pemanfaatan_iuran = "Maintenance",
-                avatar = "https://example.com/avatar.jpg"
-            ),
-            DataItem(
-                first_name = "Jane",
-                last_name = "Smith",
-                email = "jane.smith@example.com",
-                alamat = "456 Oak Ave",
-                iuran_perwarga = 200,
-                total_iuran_rekap = 600,
-                jumlah_iuran_bulanan = 300,
-                total_iuran_individu = 200,
-                pengeluaran_iuran_warga = 75,
-                pemanfaatan_iuran = "Repairs",
-                avatar = "https://example.com/avatar2.jpg"
-            )
+    fun `empty adapter reports zero items`() {
+        assertEquals(0, adapter.itemCount)
+    }
+
+    @Test
+    fun `bind renders name email address and dues into the item views`() {
+        adapter = UserAdapter(mutableListOf(item()), scope)
+
+        val holder = adapter.onCreateViewHolder(parent(), 0)
+        adapter.onBindViewHolder(holder as UserAdapter.ListViewHolder, 0)
+
+        assertNotNull(holder.itemView.findViewById<TextView>(R.id.itemAvatar))
+        assertEquals("John Doe", textOf(holder, R.id.itemName))
+        assertEquals("john@example.com", textOf(holder, R.id.itemEmail))
+        assertEquals("123 Main St", textOf(holder, R.id.itemAddress))
+        assertEquals("Iuran Perwarga Rp.100,000", textOf(holder, R.id.itemIuranPerwarga))
+        assertEquals("Total Iuran Individu Rp.150,000", textOf(holder, R.id.itemIuranIndividu))
+    }
+
+    @Test
+    fun `bind falls back to placeholders when the payload has no text fields`() {
+        adapter = UserAdapter(
+            mutableListOf(item(firstName = null, lastName = null, email = null)),
+            scope
         )
 
-        adapter.setUsers(newUsers)
+        val holder = adapter.onCreateViewHolder(parent(), 0)
+        adapter.onBindViewHolder(holder as UserAdapter.ListViewHolder, 0)
 
-        assertEquals(newUsers.size, adapter.itemCount)
-        assertEquals("John", adapter.users[0].first_name)
-        assertEquals("jane.smith@example.com", adapter.users[1].email)
+        assertEquals("Unknown User", textOf(holder, R.id.itemName))
+        assertEquals("No email", textOf(holder, R.id.itemEmail))
     }
 
     @Test
-    fun `addUser should add valid user to the list`() {
-        val validUser = DataItem(
-            first_name = "Test",
-            last_name = "User",
-            email = "test.user@example.com",
-            alamat = "789 Test St",
-            iuran_perwarga = 150,
-            total_iuran_rekap = 400,
-            jumlah_iuran_bulanan = 250,
-            total_iuran_individu = 175,
-            pengeluaran_iuran_warga = 60,
-            pemanfaatan_iuran = "Utilities",
-            avatar = "https://example.com/test-avatar.jpg"
-        )
+    fun `addUser accepts a resident with an email and a name`() {
+        adapter.addUser(item(firstName = "Test", lastName = "User"))
 
-        val initialSize = adapter.itemCount
-        adapter.addUser(validUser)
-
-        assertEquals(initialSize + 1, adapter.itemCount)
-        assertEquals("Test", adapter.users.last().first_name)
+        assertEquals(1, adapter.itemCount)
+        assertEquals("Test", adapter.currentUsers.last().first_name)
     }
 
     @Test
-    fun `addUser should ignore null input`() {
-        val initialSize = adapter.itemCount
+    fun `addUser ignores a null argument`() {
         adapter.addUser(null)
 
-        assertEquals(initialSize, adapter.itemCount)
+        assertEquals(0, adapter.itemCount)
     }
 
     @Test
-    fun `addUser should ignore user with blank email`() {
-        val userWithBlankEmail = DataItem(
-            first_name = "Test",
-            last_name = "User",
-            email = "", // Blank email
-            alamat = "789 Test St",
-            iuran_perwarga = 150,
-            total_iuran_rekap = 400,
-            jumlah_iuran_bulanan = 250,
-            total_iuran_individu = 175,
-            pengeluaran_iuran_warga = 60,
-            pemanfaatan_iuran = "Utilities",
-            avatar = "https://example.com/test-avatar.jpg"
-        )
+    fun `addUser ignores a resident without an email`() {
+        adapter.addUser(item(firstName = "Test", email = ""))
 
-        val initialSize = adapter.itemCount
-        adapter.addUser(userWithBlankEmail)
-
-        assertEquals(initialSize, adapter.itemCount)
+        assertEquals(0, adapter.itemCount)
     }
 
     @Test
-    fun `addUser should ignore user with blank name fields`() {
-        val userWithBlankNames = DataItem(
-            first_name = "", // Blank first name
-            last_name = "",  // Blank last name
-            email = "test.blank@example.com",
-            alamat = "789 Test St",
-            iuran_perwarga = 150,
-            total_iuran_rekap = 400,
-            jumlah_iuran_bulanan = 250,
-            total_iuran_individu = 175,
-            pengeluaran_iuran_warga = 60,
-            pemanfaatan_iuran = "Utilities",
-            avatar = "https://example.com/test-avatar.jpg"
-        )
+    fun `addUser ignores a resident without any name`() {
+        adapter.addUser(item(firstName = "", lastName = "", email = "blank@example.com"))
 
-        val initialSize = adapter.itemCount
-        adapter.addUser(userWithBlankNames)
-
-        assertEquals(initialSize, adapter.itemCount)
+        assertEquals(0, adapter.itemCount)
     }
 
     @Test
-    fun `addUser should accept user with either first name or last name`() {
-        val userWithFirstNameOnly = DataItem(
-            first_name = "Test",
-            last_name = "",  // Blank last name
-            email = "test.first@example.com",
-            alamat = "789 Test St",
-            iuran_perwarga = 150,
-            total_iuran_rekap = 400,
-            jumlah_iuran_bulanan = 250,
-            total_iuran_individu = 175,
-            pengeluaran_iuran_warga = 60,
-            pemanfaatan_iuran = "Utilities",
-            avatar = "https://example.com/test-avatar.jpg"
-        )
+    fun `addUser accepts a resident with only a last name`() {
+        adapter.addUser(item(firstName = "", lastName = "Smith", email = "smith@example.com"))
 
-        val initialSize = adapter.itemCount
-        adapter.addUser(userWithFirstNameOnly)
-
-        assertEquals(initialSize + 1, adapter.itemCount)
-    }
-
-    @Test
-    fun `clear should remove all users from the adapter`() {
-        val users = listOf(
-            DataItem(
-                first_name = "John",
-                last_name = "Doe",
-                email = "john.doe@example.com",
-                alamat = "123 Main St",
-                iuran_perwarga = 100,
-                total_iuran_rekap = 500,
-                jumlah_iuran_bulanan = 200,
-                total_iuran_individu = 150,
-                pengeluaran_iuran_warga = 50,
-                pemanfaatan_iuran = "Maintenance",
-                avatar = "https://example.com/avatar.jpg"
-            )
-        )
-        adapter.setUsers(users)
         assertEquals(1, adapter.itemCount)
+    }
+
+    @Test
+    fun `clear removes every resident`() {
+        adapter = UserAdapter(mutableListOf(item(), item(email = "jane@example.com")), scope)
+        assertEquals(2, adapter.itemCount)
 
         adapter.clear()
 
@@ -180,31 +153,30 @@ class UserAdapterTest {
     }
 
     @Test
-    fun `itemCount should return correct count`() {
-        assertEquals(0, adapter.itemCount)
+    fun `setUsers replaces the backing list with the new residents`() {
+        val replacement = listOf(item(email = "a@example.com"), item(email = "b@example.com"))
 
-        val users = listOf(
-            createTestDataItem("John", "Doe", "john@example.com"),
-            createTestDataItem("Jane", "Smith", "jane@example.com")
-        )
-        adapter.setUsers(users)
+        adapter.setUsers(replacement)
+        awaitItems(adapter, replacement.size)
 
         assertEquals(2, adapter.itemCount)
+        assertEquals("a@example.com", adapter.currentUsers.first().email)
     }
 
-    private fun createTestDataItem(firstName: String, lastName: String, email: String): DataItem {
-        return DataItem(
-            first_name = firstName,
-            last_name = lastName,
-            email = email,
-            alamat = "Test Address",
-            iuran_perwarga = 100,
-            total_iuran_rekap = 500,
-            jumlah_iuran_bulanan = 200,
-            total_iuran_individu = 150,
-            pengeluaran_iuran_warga = 50,
-            pemanfaatan_iuran = "Test",
-            avatar = "https://example.com/avatar.jpg"
-        )
+    @Test
+    fun `UserDiffCallback treats a resident with the same name and address as unchanged`() {
+        val callback = UserAdapter.UserDiffCallback(listOf(item()), listOf(item(email = "other@example.com")))
+
+        assertEquals(1, callback.oldListSize)
+        assertEquals(1, callback.newListSize)
+        assertTrue(callback.areItemsTheSame(0, 0))
+    }
+
+    @Test
+    fun `UserDiffCallback reports a changed address as a different row`() {
+        val moved = item().copy(alamat = "456 Oak Ave")
+        val callback = UserAdapter.UserDiffCallback(listOf(item()), listOf(moved))
+
+        assertTrue(!callback.areItemsTheSame(0, 0))
     }
 }

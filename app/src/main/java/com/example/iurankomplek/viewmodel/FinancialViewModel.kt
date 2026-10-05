@@ -12,6 +12,7 @@ import com.example.iurankomplek.payment.PaymentStatus
 import com.example.iurankomplek.data.repository.TransactionRepository
 import com.example.iurankomplek.utils.FinancialCalculator
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -47,6 +48,8 @@ class FinancialViewModel @Inject constructor(
     private val _financialState = MutableStateFlow<FinancialDataState>(FinancialDataState.Loading)
     val financialState: StateFlow<FinancialDataState> = _financialState
 
+    private var financialLoadJob: Job? = null
+
     init {
         observeEvents()
     }
@@ -66,9 +69,9 @@ class FinancialViewModel @Inject constructor(
     }
 
     fun loadFinancialData() {
-        if (_financialState.value is FinancialDataState.Loading) return
+        if (financialLoadJob?.isActive == true) return
 
-        viewModelScope.launch {
+        financialLoadJob = viewModelScope.launch {
             _financialState.value = FinancialDataState.Loading
             pemanfaatanRepository.getPemanfaatan()
                 .onSuccess { response ->
@@ -128,7 +131,7 @@ class FinancialViewModelFactory(
     private val transactionRepository: TransactionRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(FinancialViewModel::class.java)) {
+        if (FinancialViewModel::class.java.isAssignableFrom(modelClass)) {
             // NOTE: UNCHECKED_CAST is required for ViewModelProvider.Factory.
             // The create() method returns T but we must cast from concrete ViewModel.
             // This is the standard Android pattern for ViewModel factories.

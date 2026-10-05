@@ -59,6 +59,9 @@ class UserAdapter(
     }
     
     override fun getItemCount(): Int = users.size
+
+    val currentUsers: List<DataItem>
+        get() = users
     
      override fun onBindViewHolder(holder: ListViewHolder, position: Int){
           val user = users[position]

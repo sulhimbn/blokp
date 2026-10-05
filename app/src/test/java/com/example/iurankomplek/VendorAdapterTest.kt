@@ -1,167 +1,113 @@
 package com.example.iurankomplek
 
-import android.content.Context
-import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.model.Vendor
 import com.example.iurankomplek.presentation.adapter.VendorAdapter
-
-import android.content.Context
-import android.view.View
-import androidx.recyclerview.widget.RecyclerView
-import com.example.iurankomplek.model.Vendor
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.junit.Assert.*
-import org.mockito.Mock
-import org.mockito.MockitoAnnotations
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [33])
 class VendorAdapterTest {
-    
-    @Mock
-    private lateinit var mockContext: Context
-    
-    @Mock
-    private lateinit var mockView: View
-    
-    private lateinit var vendorAdapter: VendorAdapter
-    
+
+    private lateinit var adapter: VendorAdapter
+    private var clicked: Vendor? = null
+
     @Before
     fun setup() {
-        MockitoAnnotations.openMocks(this)
-        
-        val vendors = listOf(
-            Vendor(
-                id = "1",
-                name = "Plumbing Services Inc",
-                contactPerson = "John Smith",
-                phoneNumber = "123-456-7890",
-                email = "contact@plumbing.com",
-                specialty = "plumbing",
-                address = "123 Main St",
-                licenseNumber = "PL-12345",
-                insuranceInfo = "General liability coverage",
-                certifications = listOf("Licensed", "Bonded"),
-                rating = 4.5,
-                totalReviews = 25,
-                contractStart = "2023-01-01",
-                contractEnd = "2024-12-31",
-                isActive = true
-            ),
-            Vendor(
-                id = "2",
-                name = "Electrical Services Co",
-                contactPerson = "Jane Doe",
-                phoneNumber = "098-765-4321",
-                email = "info@electrical.com",
-                specialty = "electrical",
-                address = "456 Oak Ave",
-                licenseNumber = "EL-67890",
-                insuranceInfo = "Professional liability",
-                certifications = listOf("Certified Electrician"),
-                rating = 4.2,
-                totalReviews = 18,
-                contractStart = "2023-02-01",
-                contractEnd = "2025-01-31",
-                isActive = true
-            )
-        )
-        
-        vendorAdapter = VendorAdapter { /* Handle vendor click */ }
-        vendorAdapter.submitList(vendors)
+        clicked = null
+        adapter = VendorAdapter { clicked = it }
     }
-    
-@Test
-    fun `adapter should have correct item count`() {
-        assertEquals(2, vendorAdapter.itemCount)
-    }
-    
-    
-    
+
+    private fun vendor(
+        id: String,
+        name: String,
+        specialty: String,
+        phone: String,
+        rating: Double
+    ) = Vendor(
+        id = id,
+        name = name,
+        contactPerson = "John Smith",
+        phoneNumber = phone,
+        email = "contact@example.com",
+        specialty = specialty,
+        address = "123 Main St",
+        licenseNumber = "PL-12345",
+        insuranceInfo = "General liability coverage",
+        certifications = listOf("Licensed", "Bonded"),
+        rating = rating,
+        totalReviews = 25,
+        contractStart = "2023-01-01",
+        contractEnd = "2024-12-31",
+        isActive = true
+    )
+
+    private fun plumbing() =
+        vendor("1", "Plumbing Services Inc", "plumbing", "123-456-7890", 4.5)
+
+    private fun electrical() =
+        vendor("2", "Electrical Services Co", "electrical", "098-765-4321", 4.2)
+
+    private fun parent(): ViewGroup = FrameLayout(RuntimeEnvironment.getApplication())
+
+    private fun textOf(holder: RecyclerView.ViewHolder, viewId: Int): String =
+        holder.itemView.findViewById<TextView>(viewId).text.toString()
+
     @Test
-    fun `diff callback should identify same items correctly`() {
-        val vendor1 = Vendor(
-            id = "1",
-            name = "Plumbing Services Inc",
-            contactPerson = "John Smith",
-            phoneNumber = "123-456-7890",
-            email = "contact@plumbing.com",
-            specialty = "plumbing",
-            address = "123 Main St",
-            licenseNumber = "PL-12345",
-            insuranceInfo = "General liability coverage",
-            certifications = listOf("Licensed", "Bonded"),
-            rating = 4.5,
-            totalReviews = 25,
-            contractStart = "2023-01-01",
-            contractEnd = "2024-12-31",
-            isActive = true
-        )
-        
-        val vendor2 = Vendor(
-            id = "1",  // Same ID
-            name = "Plumbing Services Updated",  // Different name
-            contactPerson = "John Smith",
-            phoneNumber = "123-456-7890",
-            email = "contact@plumbing.com",
-            specialty = "plumbing",
-            address = "123 Main St",
-            licenseNumber = "PL-12345",
-            insuranceInfo = "General liability coverage",
-            certifications = listOf("Licensed", "Bonded"),
-            rating = 4.5,
-            totalReviews = 25,
-            contractStart = "2023-01-01",
-            contractEnd = "2024-12-31",
-            isActive = true
-        )
-        
+    fun `diff callback matches rows by vendor id`() {
         val diffCallback = VendorAdapter.VendorDiffCallback()
-        
-        assertTrue(diffCallback.areItemsTheSame(vendor1, vendor2))  // Same ID
-        assertFalse(diffCallback.areContentsTheSame(vendor1, vendor2))  // Different content
+
+        assertTrue(diffCallback.areItemsTheSame(plumbing(), plumbing().copy(name = "Renamed")))
+        assertFalse(diffCallback.areItemsTheSame(plumbing(), electrical()))
     }
-    
+
     @Test
-    fun `diff callback should identify different items correctly`() {
-        val vendor1 = Vendor(
-            id = "1",
-            name = "Plumbing Services Inc",
-            contactPerson = "John Smith",
-            phoneNumber = "123-456-7890",
-            email = "contact@plumbing.com",
-            specialty = "plumbing",
-            address = "123 Main St",
-            licenseNumber = "PL-12345",
-            insuranceInfo = "General liability coverage",
-            certifications = listOf("Licensed", "Bonded"),
-            rating = 4.5,
-            totalReviews = 25,
-            contractStart = "2023-01-01",
-            contractEnd = "2024-12-31",
-            isActive = true
-        )
-        
-        val vendor2 = Vendor(
-            id = "2",  // Different ID
-            name = "Electrical Services Co",
-            contactPerson = "Jane Doe",
-            phoneNumber = "098-765-4321",
-            email = "info@electrical.com",
-            specialty = "electrical",
-            address = "456 Oak Ave",
-            licenseNumber = "EL-67890",
-            insuranceInfo = "Professional liability",
-            certifications = listOf("Certified Electrician"),
-            rating = 4.2,
-            totalReviews = 18,
-            contractStart = "2023-02-01",
-            contractEnd = "2025-01-31",
-            isActive = true
-        )
-        
+    fun `diff callback reports a renamed vendor as changed content`() {
         val diffCallback = VendorAdapter.VendorDiffCallback()
-        
-        assertFalse(diffCallback.areItemsTheSame(vendor1, vendor2))  // Different IDs
+
+        assertFalse(diffCallback.areContentsTheSame(plumbing(), plumbing().copy(name = "Renamed")))
+        assertTrue(diffCallback.areContentsTheSame(plumbing(), plumbing()))
     }
+
+    @Test
+    fun `bind renders the vendor name specialty phone and rating`() {
+        adapter.submitList(listOf(plumbing()))
+        shadowOfMainLooper()
+
+        assertEquals(1, adapter.itemCount)
+
+        val holder = adapter.onCreateViewHolder(parent(), 0)
+        adapter.onBindViewHolder(holder, 0)
+
+        assertEquals("Plumbing Services Inc", textOf(holder, R.id.vendorName))
+        assertEquals("plumbing", textOf(holder, R.id.vendorSpecialty))
+        assertEquals("123-456-7890", textOf(holder, R.id.vendorContact))
+        assertEquals("Rating: 4.5/5.0", textOf(holder, R.id.vendorRating))
+    }
+
+    @Test
+    fun `tapping a row reports the vendor behind that row`() {
+        adapter.submitList(listOf(plumbing(), electrical()))
+        shadowOfMainLooper()
+
+        val holder = adapter.onCreateViewHolder(parent(), 0)
+        adapter.onBindViewHolder(holder, 1)
+        holder.itemView.performClick()
+
+        assertEquals("2", clicked?.id)
+    }
+
+    private fun shadowOfMainLooper() =
+        org.robolectric.shadows.ShadowLooper.idleMainLooper()
 }

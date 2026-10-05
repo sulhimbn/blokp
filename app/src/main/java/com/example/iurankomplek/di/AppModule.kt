@@ -7,7 +7,6 @@ import com.example.iurankomplek.data.repository.UserRepository
 import com.example.iurankomplek.data.repository.UserRepositoryImpl
 import com.example.iurankomplek.data.repository.VendorRepository
 import com.example.iurankomplek.data.repository.VendorRepositoryImpl
-import com.example.iurankomplek.network.ApiConfig
 import com.example.iurankomplek.session.UserSessionManager
 import com.example.iurankomplek.network.ApiService
 import com.example.iurankomplek.network.NetworkStatusListener
@@ -26,12 +25,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-
-    @Provides
-    @Singleton
-    fun provideApiService(): ApiService {
-        return ApiConfig.getApiService()
-    }
 
     @Provides
     @Singleton

@@ -39,6 +39,9 @@ class PemanfaatanAdapter(
     }
     
     override fun getItemCount(): Int = pemanfaatan.size
+
+    val currentPemanfaatan: List<DataItem>
+        get() = pemanfaatan
     
     override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
         val item = pemanfaatan[position]

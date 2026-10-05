@@ -10,8 +10,17 @@ RUN pip install flask flask-cors
 COPY app.py .
 COPY mock-data/ ./mock-data/
 
+# Run as an unprivileged user
+RUN useradd --create-home --uid 10001 mockapi
+USER mockapi
+
 # Expose port
 EXPOSE 5000
 
-# Start the mock server
+# Start the mock server. MOCK_API_DEBUG stays off: the Flask/Werkzeug debugger
+# mounts an interactive console that yields remote code execution.
+ENV MOCK_API_HOST=0.0.0.0 \
+    MOCK_API_PORT=5000 \
+    MOCK_API_DEBUG=0
+
 CMD ["python", "app.py"]

@@ -3,25 +3,40 @@ package com.example.iurankomplek.utils
 import java.net.URL
 
 object DataValidator {
+    private val SCRIPT_BLOCK = Regex("(?is)<(script|style)[^>]*>.*?</\\1>")
+    private val HTML_TAG = Regex("<[^>]*>")
+    private val ANGLE_BRACKETS = Regex("[<>]")
+    private val CONTROL_CHARS = Regex("[\\p{Cntrl}]")
+
+    fun stripMarkup(input: String): String = input
+        .replace(SCRIPT_BLOCK, "")
+        .replace(HTML_TAG, "")
+        .replace(ANGLE_BRACKETS, "")
+        .replace(CONTROL_CHARS, "")
+        .trim()
+
     fun sanitizeName(input: String?): String {
-        return input?.trim()?.takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_NAME_LENGTH }
+        return stripMarkup(input.orEmpty())
+            .takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_NAME_LENGTH }
             ?: "Unknown"
     }
-    
+
     fun sanitizeEmail(input: String?): String {
         val emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
         return if (input != null && input.matches(emailPattern.toRegex()) && input.length <= Constants.Validation.MAX_EMAIL_LENGTH) {
             input
         } else "invalid@email.com"
     }
-    
+
     fun sanitizeAddress(input: String?): String {
-        return input?.trim()?.takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_ADDRESS_LENGTH }
+        return stripMarkup(input.orEmpty())
+            .takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_ADDRESS_LENGTH }
             ?: "Address not available"
     }
-    
+
     fun sanitizePemanfaatan(input: String?): String {
-        return input?.trim()?.takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_PEMANFAATAN_LENGTH }
+        return stripMarkup(input.orEmpty())
+            .takeIf { it.isNotBlank() && it.length <= Constants.Validation.MAX_PEMANFAATAN_LENGTH }
             ?: "Unknown expense"
     }
     

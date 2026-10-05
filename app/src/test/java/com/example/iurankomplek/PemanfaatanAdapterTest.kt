@@ -1,135 +1,165 @@
 package com.example.iurankomplek
 
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.presentation.adapter.PemanfaatanAdapter
-
-import com.example.iurankomplek.model.DataItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.junit.Assert.*
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLooper
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [33])
 class PemanfaatanAdapterTest {
 
-    private lateinit var adapter: PemanfaatanAdapter
-    private lateinit var testData: MutableList<DataItem>
+    private lateinit var scope: CoroutineScope
 
     @Before
     fun setup() {
-        testData = mutableListOf()
-        adapter = PemanfaatanAdapter(testData)
+        scope = CoroutineScope(Dispatchers.Main.immediate)
+    }
+
+    @After
+    fun tearDown() {
+        scope.cancel()
+    }
+
+    private fun adapterWith(items: MutableList<DataItem> = mutableListOf()) =
+        PemanfaatanAdapter(items, scope)
+
+    private fun parent(): ViewGroup = FrameLayout(RuntimeEnvironment.getApplication())
+
+    private fun textOf(holder: RecyclerView.ViewHolder, viewId: Int): String =
+        holder.itemView.findViewById<TextView>(viewId).text.toString()
+
+    private fun entry(description: String?, spent: Int) = DataItem(
+        first_name = "John",
+        last_name = "Doe",
+        email = "john@example.com",
+        alamat = "123 Main St",
+        iuran_perwarga = 100,
+        total_iuran_rekap = 500,
+        jumlah_iuran_bulanan = 200,
+        total_iuran_individu = 150,
+        pengeluaran_iuran_warga = spent,
+        pemanfaatan_iuran = description,
+        avatar = "https://example.com/avatar.jpg"
+    )
+
+
+    private fun awaitItems(adapter: RecyclerView.Adapter<*>, expected: Int, timeoutMs: Long = 10_000) {
+        val deadline = System.currentTimeMillis() + timeoutMs
+        while (adapter.itemCount != expected && System.currentTimeMillis() < deadline) {
+            ShadowLooper.idleMainLooper()
+            Thread.sleep(10)
+        }
     }
 
     @Test
-    fun `setPemanfaatan should update adapter data correctly`() {
-        val newData = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50),
-            createTestDataItem("Utilities", "Electricity bill", 200, 75)
-        )
-
-        adapter.setPemanfaatan(newData)
-
-        assertEquals(newData.size, adapter.itemCount)
-        assertEquals("Maintenance", adapter.pemanfaatan[0].pemanfaatan_iuran)
-        assertEquals("Utilities", adapter.pemanfaatan[1].pemanfaatan_iuran)
+    fun `empty adapter reports zero items`() {
+        assertEquals(0, adapterWith().itemCount)
     }
 
     @Test
-    fun `itemCount should return correct count`() {
-        assertEquals(0, adapter.itemCount)
+    fun `bind renders the utilisation label and the spent amount`() {
+        val adapter = adapterWith(mutableListOf(entry("Perbaikan jalan", 50_000)))
 
-        val newData = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50)
-        )
-        adapter.setPemanfaatan(newData)
+        val holder = adapter.onCreateViewHolder(parent(), 0)
+        adapter.onBindViewHolder(holder as PemanfaatanAdapter.ListViewHolder, 0)
 
-        assertEquals(1, adapter.itemCount)
+        assertEquals("-Perbaikan jalan:", textOf(holder, R.id.itemPemanfaatan))
+        assertEquals("Rp.50,000", textOf(holder, R.id.itemDanaPemanfaatan))
     }
 
     @Test
-    fun `adapter should initialize with empty list using default constructor`() {
-        val emptyAdapter = PemanfaatanAdapter()
-        
-        assertEquals(0, emptyAdapter.itemCount)
+    fun `bind clamps a negative amount to zero instead of showing a negative currency`() {
+        val adapter = adapterWith(mutableListOf(entry("Refund", -25_000)))
+
+        val holder = adapter.onCreateViewHolder(parent(), 0)
+        adapter.onBindViewHolder(holder as PemanfaatanAdapter.ListViewHolder, 0)
+
+        assertEquals("Rp.0", textOf(holder, R.id.itemDanaPemanfaatan))
     }
 
     @Test
-    fun `PemanfaatanDiffCallback should identify same items correctly`() {
-        val oldList = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50)
-        )
-        val newList = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50) // Same pemanfaatan_iuran
-        )
+    fun `bind replaces a missing description with a placeholder`() {
+        val adapter = adapterWith(mutableListOf(entry(null, 10_000)))
 
-        val diffCallback = PemanfaatanAdapter.PemanfaatanDiffCallback(oldList, newList)
+        val holder = adapter.onCreateViewHolder(parent(), 0)
+        adapter.onBindViewHolder(holder as PemanfaatanAdapter.ListViewHolder, 0)
 
-        assertTrue(diffCallback.areItemsTheSame(0, 0))
-        assertTrue(diffCallback.areContentsTheSame(0, 0))
+        assertEquals("-Unknown expense:", textOf(holder, R.id.itemPemanfaatan))
     }
 
     @Test
-    fun `PemanfaatanDiffCallback should identify different items correctly`() {
-        val oldList = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50)
-        )
-        val newList = listOf(
-            createTestDataItem("Utilities", "Electricity bill", 200, 75) // Different pemanfaatan_iuran
+    fun `setPemanfaatan replaces the backing list with the new entries`() {
+        val adapter = adapterWith()
+        val replacement = listOf(
+            entry("Perbaikan jalan", 50_000),
+            entry("Pembangunan taman", 75_000)
         )
 
-        val diffCallback = PemanfaatanAdapter.PemanfaatanDiffCallback(oldList, newList)
+        adapter.setPemanfaatan(replacement)
+        awaitItems(adapter, replacement.size)
 
-        assertFalse(diffCallback.areItemsTheSame(0, 0))
+        assertEquals(2, adapter.itemCount)
+        assertEquals("Perbaikan jalan", adapter.currentPemanfaatan.first().pemanfaatan_iuran)
     }
 
     @Test
-    fun `PemanfaatanDiffCallback should identify different contents correctly`() {
-        val oldList = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50)
-        )
-        val newList = listOf(
-            createTestDataItem("Maintenance", "Repair work updated", 150, 60) // Same pemanfaatan_iuran but different other fields
+    fun `PemanfaatanDiffCallback treats identical entries as unchanged`() {
+        val callback = PemanfaatanAdapter.PemanfaatanDiffCallback(
+            listOf(entry("Perbaikan jalan", 50_000)),
+            listOf(entry("Perbaikan jalan", 50_000))
         )
 
-        val diffCallback = PemanfaatanAdapter.PemanfaatanDiffCallback(oldList, newList)
-
-        assertTrue(diffCallback.areItemsTheSame(0, 0)) // Same pemanfaatan_iuran
-        assertFalse(diffCallback.areContentsTheSame(0, 0)) // Different overall content
+        assertEquals(1, callback.oldListSize)
+        assertEquals(1, callback.newListSize)
+        assertTrue(callback.areItemsTheSame(0, 0))
+        assertTrue(callback.areContentsTheSame(0, 0))
     }
 
     @Test
-    fun `PemanfaatanDiffCallback should return correct list sizes`() {
-        val oldList = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50),
-            createTestDataItem("Utilities", "Electricity bill", 200, 75)
-        )
-        val newList = listOf(
-            createTestDataItem("Maintenance", "Repair work", 100, 50)
+    fun `PemanfaatanDiffCallback separates entries that share a description but differ in cost`() {
+        val callback = PemanafploanEntries(
+            old = entry("Perbaikan jalan", 50_000),
+            new = entry("Perbaikan jalan", 99_000)
         )
 
-        val diffCallback = PemanfaatanAdapter.PemanfaatanDiffCallback(oldList, newList)
-
-        assertEquals(2, diffCallback.getOldListSize())
-        assertEquals(1, diffCallback.getNewListSize())
+        assertFalse(callback.areItemsTheSame(0, 0))
     }
 
-    private fun createTestDataItem(
-        pemanfaatan: String,
-        description: String,
-        totalIuranRekap: Int,
-        pengeluaran: Int
-    ): DataItem {
-        return DataItem(
-            first_name = "Test",
-            last_name = "User",
-            email = "test@example.com",
-            alamat = "Test Address",
-            iuran_perwarga = 100,
-            total_iuran_rekap = totalIuranRekap,
-            jumlah_iuran_bulanan = 200,
-            total_iuran_individu = 150,
-            pengeluaran_iuran_warga = pengeluaran,
-            pemanfaatan_iuran = pemanfaatan,
-            avatar = "https://example.com/avatar.jpg"
+    @Test
+    fun `PemanfaatanDiffCallback reports the old and new list sizes`() {
+        val callback = PemanafploanEntries(
+            old = entry("a", 1),
+            new = entry("a", 1),
+            extraOld = entry("b", 2)
         )
+
+        assertEquals(2, callback.oldListSize)
+        assertEquals(1, callback.newListSize)
     }
+
+    private fun PemanafploanEntries(
+        old: DataItem,
+        new: DataItem,
+        extraOld: DataItem? = null
+    ) = PemanfaatanAdapter.PemanfaatanDiffCallback(
+        listOfNotNull(old, extraOld),
+        listOf(new)
+    )
 }

@@ -1,12 +1,14 @@
 package com.example.iurankomplek.session
 
 import android.content.Context
+import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.example.iurankomplek.model.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -14,16 +16,6 @@ import javax.inject.Singleton
 class UserSessionManager @Inject constructor(
     private val context: Context
 ) {
-    companion object {
-        private const val PREFS_FILE_NAME = "user_session_prefs"
-        private const val KEY_USER_ID = "user_id"
-        private const val KEY_USER_EMAIL = "user_email"
-        private const val KEY_USER_FIRST_NAME = "user_first_name"
-        private const val KEY_USER_LAST_NAME = "user_last_name"
-        private const val KEY_USER_AVATAR = "user_avatar"
-        private const val KEY_IS_LOGGED_IN = "is_logged_in"
-    }
-
     private val masterKey by lazy {
         MasterKey.Builder(context)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
@@ -46,19 +38,23 @@ class UserSessionManager @Inject constructor(
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
 
+    private val sessionRestored = AtomicBoolean(false)
+
     init {
-        restoreSession()
+        restoreSessionIfNeeded()
     }
 
     fun setCurrentUser(user: User) {
         _currentUser.value = user
         _isLoggedIn.value = true
+        sessionRestored.set(true)
         saveUserToPrefs(user)
     }
 
     fun clearSession() {
         _currentUser.value = null
         _isLoggedIn.value = false
+        sessionRestored.set(true)
         clearUserFromPrefs()
     }
 
@@ -66,24 +62,31 @@ class UserSessionManager @Inject constructor(
         get() = _currentUser.value?.id
 
     private fun saveUserToPrefs(user: User) {
-        encryptedPrefs.edit().apply {
-            putString(KEY_USER_ID, user.id)
-            putString(KEY_USER_EMAIL, user.email)
-            putString(KEY_USER_FIRST_NAME, user.firstName)
-            putString(KEY_USER_LAST_NAME, user.lastName)
-            putString(KEY_USER_AVATAR, user.avatar)
-            putBoolean(KEY_IS_LOGGED_IN, true)
-            apply()
-        }
+        runCatching {
+            encryptedPrefs.edit().apply {
+                putString(KEY_USER_ID, user.id)
+                putString(KEY_USER_EMAIL, user.email)
+                putString(KEY_USER_FIRST_NAME, user.firstName)
+                putString(KEY_USER_LAST_NAME, user.lastName)
+                putString(KEY_USER_AVATAR, user.avatar)
+                putBoolean(KEY_IS_LOGGED_IN, true)
+                apply()
+            }
+        }.onFailure { Log.e(TAG, "Unable to persist session", it) }
     }
 
     private fun clearUserFromPrefs() {
-        encryptedPrefs.edit().clear().apply()
+        runCatching { encryptedPrefs.edit().clear().apply() }
+            .onFailure { Log.e(TAG, "Unable to clear persisted session", it) }
     }
 
-    private fun restoreSession() {
-        val isLoggedIn = encryptedPrefs.getBoolean(KEY_IS_LOGGED_IN, false)
-        if (isLoggedIn) {
+    private fun restoreSessionIfNeeded() {
+        if (!sessionRestored.compareAndSet(false, true)) return
+
+        runCatching {
+            val isLoggedIn = encryptedPrefs.getBoolean(KEY_IS_LOGGED_IN, false)
+            if (!isLoggedIn) return@runCatching
+
             val userId = encryptedPrefs.getString(KEY_USER_ID, null)
             val email = encryptedPrefs.getString(KEY_USER_EMAIL, null)
             val firstName = encryptedPrefs.getString(KEY_USER_FIRST_NAME, null)
@@ -100,6 +103,17 @@ class UserSessionManager @Inject constructor(
                 )
                 _isLoggedIn.value = true
             }
-        }
+        }.onFailure { Log.e(TAG, "Unable to restore session; starting signed out", it) }
+    }
+
+    companion object {
+        private const val TAG = "UserSessionManager"
+        private const val PREFS_FILE_NAME = "user_session_prefs"
+        private const val KEY_USER_ID = "user_id"
+        private const val KEY_USER_EMAIL = "user_email"
+        private const val KEY_USER_FIRST_NAME = "user_first_name"
+        private const val KEY_USER_LAST_NAME = "user_last_name"
+        private const val KEY_USER_AVATAR = "user_avatar"
+        private const val KEY_IS_LOGGED_IN = "is_logged_in"
     }
 }
