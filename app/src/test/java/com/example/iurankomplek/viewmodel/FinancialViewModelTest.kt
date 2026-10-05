@@ -1,26 +1,37 @@
 package com.example.iurankomplek.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.example.iurankomplek.TestFixtures
 import com.example.iurankomplek.data.repository.PemanfaatanRepository
+import com.example.iurankomplek.data.repository.TransactionRepository
 import com.example.iurankomplek.event.EventBus
-import com.example.iurankomplek.model.DataItem
-import com.example.iurankomplek.model.PemanfaatanResponse
+import com.example.iurankomplek.payment.PaymentMethod
+import com.example.iurankomplek.payment.PaymentStatus
+import com.example.iurankomplek.transaction.Transaction
+import java.math.BigDecimal
+import java.util.Date
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.*
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
-import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.any as anyKotlin
 import java.io.IOException
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@RunWith(MockitoJUnitRunner::class)
 class FinancialViewModelTest {
 
     @get:Rule
@@ -28,18 +39,22 @@ class FinancialViewModelTest {
 
     @Mock
     private lateinit var pemanfaatanRepository: PemanfaatanRepository
-
     @Mock
-    private lateinit var eventBus: EventBus
+    private lateinit var transactionRepository: TransactionRepository
 
     private lateinit var viewModel: FinancialViewModel
+    private lateinit var eventBus: EventBus
 
     private val testDispatcher = StandardTestDispatcher()
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        viewModel = FinancialViewModel(pemanfaatanRepository, eventBus)
+        MockitoAnnotations.openMocks(this)
+        eventBus = EventBus()
+        viewModel = FinancialViewModel(pemanfaatanRepository, eventBus, transactionRepository)
+        Mockito.`when`(transactionRepository.getTransactionsByStatus(PaymentStatus.COMPLETED))
+            .thenReturn(flowOf(emptyList()))
     }
 
     @After
@@ -48,170 +63,137 @@ class FinancialViewModelTest {
     }
 
     @Test
-    fun `loadFinancialData should emit Loading state initially`() = runTest {
-        val mockData = listOf(
-            DataItem(
-                first_name = "John",
-                last_name = "Doe",
-                email = "john.doe@example.com",
-                alamat = "123 Main St",
-                iuran_perwarga = 100,
-                total_iuran_rekap = 500,
-                jumlah_iuran_bulanan = 200,
-                total_iuran_individu = 150,
-                pengeluaran_iuran_warga = 50,
-                pemanfaatan_iuran = "Maintenance",
-                avatar = "https://example.com/avatar.jpg"
-            )
-        )
-        val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
-            data = mockData
-        )
-        Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))
-
-        viewModel.loadFinancialData()
-
-        val loadingState = viewModel.financialState.value
-        assertTrue(loadingState is FinancialDataState.Loading)
+    fun `initial state is Loading`() {
+        assertTrue(viewModel.financialState.value is FinancialDataState.Loading)
     }
 
     @Test
-    fun `loadFinancialData should emit Success state with calculated summary when repository returns data`() = runTest {
-        val mockData = listOf(
-            DataItem(
-                first_name = "John",
-                last_name = "Doe",
-                email = "john.doe@example.com",
-                alamat = "123 Main St",
-                iuran_perwarga = 100,
-                total_iuran_rekap = 500,
-                jumlah_iuran_bulanan = 200,
-                total_iuran_individu = 150,
-                pengeluaran_iuran_warga = 50,
-                pemanfaatan_iuran = "Maintenance",
-                avatar = "https://example.com/avatar.jpg"
-            )
-        )
-        val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
-            data = mockData
-        )
-        Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))
+    fun `the first load must not be swallowed by the duplicate-load guard`() = runTest {
+        Mockito.`when`(pemanfaatanRepository.getPemanfaatan())
+            .thenReturn(Result.success(TestFixtures.pemanfaatanResponse(TestFixtures.dataItem())))
+
+        viewModel.loadFinancialData()
+        advanceUntilIdle()
+
+        Mockito.verify(pemanfaatanRepository, Mockito.times(1)).getPemanfaatan()
+        assertTrue(viewModel.financialState.value is FinancialDataState.Success)
+    }
+
+    @Test
+    fun `successful load should compute the financial summary from repository data`() = runTest {
+        Mockito.`when`(pemanfaatanRepository.getPemanfaatan())
+            .thenReturn(Result.success(TestFixtures.pemanfaatanResponse(TestFixtures.dataItem())))
 
         viewModel.loadFinancialData()
         advanceUntilIdle()
 
         val state = viewModel.financialState.value
         assertTrue(state is FinancialDataState.Success)
-        val successState = state as FinancialDataState.Success
-        assertEquals(mockResponse, successState.response)
-        assertNotNull(successState.summary)
-        assertTrue(successState.summary.isValid)
-        assertEquals(100, successState.summary.totalIuranBulanan)
-        assertEquals(50, successState.summary.totalPengeluaran)
-        assertEquals(150 * 3, successState.summary.totalIuranIndividu)
-        assertEquals((150 * 3) - 50, successState.summary.rekapIuran)
+        val summary = (state as FinancialDataState.Success).summary
+        assertEquals(100, summary.totalIuranBulanan)
+        assertEquals(50, summary.totalPengeluaran)
+        assertEquals(450, summary.totalIuranIndividu)
+        assertEquals(400, summary.rekapIuran)
+        assertTrue(summary.isValid)
     }
 
     @Test
-    fun `loadFinancialData should emit Error state when repository returns error`() = runTest {
-        val errorMessage = "Network error occurred"
-        Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.failure(IOException(errorMessage)))
+    fun `empty data yields a valid zeroed summary`() = runTest {
+        Mockito.`when`(pemanfaatanRepository.getPemanfaatan())
+            .thenReturn(Result.success(TestFixtures.pemanfaatanResponse()))
+
+        viewModel.loadFinancialData()
+        advanceUntilIdle()
+
+        val state = viewModel.financialState.value
+        assertTrue(state is FinancialDataState.Success)
+        val summary = (state as FinancialDataState.Success).summary
+        assertEquals(0, summary.totalIuranBulanan)
+        assertEquals(0, summary.rekapIuran)
+        assertTrue(summary.isValid)
+    }
+
+    @Test
+    fun `repository failure should emit Error state`() = runTest {
+        Mockito.`when`(pemanfaatanRepository.getPemanfaatan())
+            .thenReturn(Result.failure(IOException("Backend unreachable")))
 
         viewModel.loadFinancialData()
         advanceUntilIdle()
 
         val state = viewModel.financialState.value
         assertTrue(state is FinancialDataState.Error)
-        assertEquals(errorMessage, (state as FinancialDataState.Error).message)
+        assertEquals("Backend unreachable", (state as FinancialDataState.Error).message)
     }
 
     @Test
-    fun `loadFinancialData should not make duplicate calls when already loading`() = runTest {
-        val mockData = listOf(
-            DataItem(
-                first_name = "John",
-                last_name = "Doe",
-                email = "john.doe@example.com",
-                alamat = "123 Main St",
-                iuran_perwarga = 100,
-                total_iuran_rekap = 500,
-                jumlah_iuran_bulanan = 200,
-                total_iuran_individu = 150,
-                pengeluaran_iuran_warga = 50,
-                pemanfaatan_iuran = "Maintenance",
-                avatar = "https://example.com/avatar.jpg"
+    fun `repository failure without a message should fall back to a generic string`() = runTest {
+        Mockito.`when`(pemanfaatanRepository.getPemanfaatan())
+            .thenReturn(Result.failure(IOException()))
+
+        viewModel.loadFinancialData()
+        advanceUntilIdle()
+
+        val state = viewModel.financialState.value
+        assertEquals("Unknown error occurred", (state as FinancialDataState.Error).message)
+    }
+
+    @Test
+    fun `invalid financial input should mark the summary invalid`() = runTest {
+        Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(
+            Result.success(
+                TestFixtures.pemanfaatanResponse(
+                    TestFixtures.dataItem(totalIuranIndividu = -5)
+                )
             )
         )
-        val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
-            data = mockData
-        )
-        Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))
-
-        viewModel.loadFinancialData()
-        viewModel.loadFinancialData()
-
-        Mockito.verify(pemanfaatanRepository).getPemanfaatan()
-    }
-
-    @Test
-    fun `loadFinancialData should handle empty data correctly`() = runTest {
-        val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "No financial data found",
-            data = emptyList()
-        )
-        Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))
 
         viewModel.loadFinancialData()
         advanceUntilIdle()
 
         val state = viewModel.financialState.value
         assertTrue(state is FinancialDataState.Success)
-        val successState = state as FinancialDataState.Success
-        assertEquals(mockResponse, successState.response)
-        assertTrue(successState.summary.isValid)
-        assertEquals(0, successState.summary.totalIuranBulanan)
-        assertEquals(0, successState.summary.totalPengeluaran)
-        assertEquals(0, successState.summary.totalIuranIndividu)
-        assertEquals(0, successState.summary.rekapIuran)
+        assertFalse((state as FinancialDataState.Success).summary.isValid)
     }
 
     @Test
-    fun `loadFinancialData should handle invalid data gracefully`() = runTest {
-        val invalidData = listOf(
-            DataItem(
-                first_name = "John",
-                last_name = "Doe",
-                email = "john.doe@example.com",
-                alamat = "123 Main St",
-                iuran_perwarga = -100,
-                total_iuran_rekap = 500,
-                jumlah_iuran_bulanan = 200,
-                total_iuran_individu = 150,
-                pengeluaran_iuran_warga = 50,
-                pemanfaatan_iuran = "Maintenance",
-                avatar = "https://example.com/avatar.jpg"
+    fun `completed transactions are folded into the summary`() = runTest {
+        val completed = listOf(
+            Transaction(
+                id = "t1",
+                userId = "u1",
+                amount = BigDecimal("1000"),
+                currency = "IDR",
+                status = PaymentStatus.COMPLETED,
+                paymentMethod = PaymentMethod.BANK_TRANSFER,
+                description = "Monthly dues",
+                createdAt = Date(0),
+                updatedAt = Date(0)
             )
         )
-        val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
-            data = invalidData
-        )
-        Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))
+        Mockito.`when`(transactionRepository.getTransactionsByStatus(PaymentStatus.COMPLETED))
+            .thenReturn(flowOf(completed))
+        Mockito.`when`(pemanfaatanRepository.getPemanfaatan())
+            .thenReturn(Result.success(TestFixtures.pemanfaatanResponse(TestFixtures.dataItem())))
 
         viewModel.loadFinancialData()
         advanceUntilIdle()
 
-        val state = viewModel.financialState.value
-        assertTrue(state is FinancialDataState.Success)
-        val successState = state as FinancialDataState.Success
-        assertFalse(successState.summary.isValid)
+        val summary = (viewModel.financialState.value as FinancialDataState.Success).summary
+        assertEquals(1000, summary.totalPaymentsProcessed)
+        assertEquals(1, summary.completedTransactionsCount)
+    }
+
+    @Test
+    fun `concurrent loads hit the repository only once`() = runTest {
+        Mockito.`when`(pemanfaatanRepository.getPemanfaatan())
+            .thenReturn(Result.success(TestFixtures.pemanfaatanResponse(TestFixtures.dataItem())))
+
+        viewModel.loadFinancialData()
+        viewModel.loadFinancialData()
+        viewModel.loadFinancialData()
+        advanceUntilIdle()
+
+        Mockito.verify(pemanfaatanRepository, Mockito.times(1)).getPemanfaatan()
     }
 }

@@ -1,24 +1,21 @@
 package com.example.iurankomplek.event
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.math.BigDecimal
 
 /**
- * Unit tests for EventBus - cross-ViewModel communication using SharedFlow.
- * 
- * Tests cover:
- * - Basic publish/subscribe functionality
- * - Event delivery to multiple subscribers
- * - Blocking vs non-blocking publish
- * - Buffer capacity handling
- * - Event type diversity
+ * EventBus uses a SharedFlow with replay=0, so a subscriber only sees events published
+ * after it started collecting. Every delivery test therefore registers a collector first
+ * and asserts on what it received.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class EventBusTest {
@@ -30,183 +27,142 @@ class EventBusTest {
         eventBus = EventBus()
     }
 
-    @Test
-    fun publish_sendsEventToSubscribers() = runTest {
-        // Given: A test event
-        val event = AppEvent.PaymentCompleted(
-            paymentId = "pay_123",
-            amount = BigDecimal("100000")
-        )
-
-        // When: Publishing the event
-        val result = eventBus.publish(event)
-
-        // Then: Event is successfully emitted
-        assertTrue(result)
-    }
-
-    @Test
-    fun publish_multipleEvents_allDelivered() = runTest {
-        // Given: Multiple different events
-        val event1 = AppEvent.PaymentCompleted("pay_1", BigDecimal("1000"))
-        val event2 = AppEvent.UserLoggedIn("user_123")
-        val event3 = AppEvent.FinancialDataUpdated
-
-        // When: Publishing all events
-        val result1 = eventBus.publish(event1)
-        val result2 = eventBus.publish(event2)
-        val result3 = eventBus.publish(event3)
-
-        // Then: All events are successfully emitted
-        assertTrue(result1)
-        assertTrue(result2)
-        assertTrue(result3)
-    }
-
-    @Test
-    fun publish_returnsTrueWhenSuccessful() = runTest {
-        // Given: A simple event
-        val event = AppEvent.UserLoggedOut
-
-        // When: Publishing the event
-        val result = eventBus.publish(event)
-
-        // Then: Returns true for successful emit
-        assertTrue(result)
-    }
-
-    @Test
-    fun publishBlocking_deliversEvent() = runTest {
-        // Given: A test event
-        val event = AppEvent.TransactionCreated("txn_456")
-
-        // When: Publishing with blocking call
-        eventBus.publishBlocking(event)
-
-        // Then: No exception is thrown and event is delivered
-        // (If this test reaches here, it means the event was delivered)
-        assertTrue(true)
-    }
-
-    @Test
-    fun eventsFlow_emitsPublishedEvents() = runTest {
-        // Given: An event that will be published
-        val testEvent = AppEvent.NewAnnouncement("announce_789")
-
-        // When: Publishing event and collecting
-        eventBus.publish(testEvent)
-        val collected = eventBus.events.first()
-
-        // Then: The collected event matches what was published
-        assertEquals(testEvent, collected)
-    }
-
-    @Test
-    fun publish_withDataClasses_passesCorrectData() = runTest {
-        // Given: Events with various data
-        val paymentEvent = AppEvent.PaymentFailed("Network error")
-        val userEvent = AppEvent.UserProfileUpdated("user_999")
-        val networkEvent = AppEvent.NetworkStatusChanged(isConnected = false)
-
-        // When: Publishing events with data
-        eventBus.publish(paymentEvent)
-        eventBus.publish(userEvent)
-        eventBus.publish(networkEvent)
-
-        // Then: Events can be collected with correct data
-        val events = listOf(
-            eventBus.events.first(),
-            eventBus.events.first(),
-            eventBus.events.first()
-        )
-
-        assertTrue(events.any { it is AppEvent.PaymentFailed })
-        assertTrue(events.any { it is AppEvent.UserProfileUpdated })
-        assertTrue(events.any { it is AppEvent.NetworkStatusChanged })
-    }
-
-    @Test
-    fun publish_objectEvents_workCorrectly() = runTest {
-        // Given: Object-level events (data object)
-        val events = listOf(
-            AppEvent.UserLoggedOut,
-            AppEvent.FinancialDataUpdated,
-            AppEvent.RefreshAllData,
-            AppEvent.VendorDataUpdated
-        )
-
-        // When: Publishing object events
-        events.forEach { event ->
-            val result = eventBus.publish(event)
-            assertTrue(result)
+    private fun collectInto(scope: TestScope, sink: MutableList<AppEvent>) {
+        scope.backgroundScope.launch(UnconfinedTestDispatcher(scope.testScheduler)) {
+            eventBus.events.collect { sink.add(it) }
         }
+        scope.runCurrent()
     }
 
     @Test
-    fun publish_workOrderEvents_workCorrectly() = runTest {
-        // Given: Work order events
-        val createdEvent = AppEvent.WorkOrderCreated("wo_001")
-        val updatedEvent = AppEvent.WorkOrderUpdated("wo_002", "IN_PROGRESS")
-
-        // When: Publishing work order events
-        val result1 = eventBus.publish(createdEvent)
-        val result2 = eventBus.publish(updatedEvent)
-
-        // Then: Both events published successfully
-        assertTrue(result1)
-        assertTrue(result2)
+    fun `publish reports success`() = runTest {
+        assertTrue(eventBus.publish(AppEvent.UserLoggedOut))
     }
 
     @Test
-    fun publish_messageEvents_workCorrectly() = runTest {
-        // Given: Message events
-        val newMessage = AppEvent.NewMessage("msg_123", "sender_456")
-        val messageRead = AppEvent.MessageRead("msg_789")
+    fun `publishBlocking emits to an active subscriber`() = runTest {
+        val received = mutableListOf<AppEvent>()
+        collectInto(this, received)
 
-        // When: Publishing message events
-        val result1 = eventBus.publish(newMessage)
-        val result2 = eventBus.publish(messageRead)
+        eventBus.publishBlocking(AppEvent.UserLoggedIn("user_123"))
+        runCurrent()
 
-        // Then: Both events published successfully
-        assertTrue(result1)
-        assertTrue(result2)
+        assertEquals(listOf(AppEvent.UserLoggedIn("user_123")), received)
     }
 
     @Test
-    fun publish_announcementEvents_workCorrectly() = runTest {
-        // Given: Announcement events
-        val newAnnouncement = AppEvent.NewAnnouncement("ann_001")
-        val announcementRead = AppEvent.AnnouncementRead("ann_002")
+    fun `publish delivers the event to an active subscriber`() = runTest {
+        val received = mutableListOf<AppEvent>()
+        collectInto(this, received)
 
-        // When: Publishing announcement events
-        val result1 = eventBus.publish(newAnnouncement)
-        val result2 = eventBus.publish(announcementRead)
+        eventBus.publish(AppEvent.PaymentCompleted("pay_123", BigDecimal("100000")))
+        runCurrent()
 
-        // Then: Both events published successfully
-        assertTrue(result1)
-        assertTrue(result2)
+        assertEquals(listOf(AppEvent.PaymentCompleted("pay_123", BigDecimal("100000"))), received)
     }
 
     @Test
-    fun publish_cacheEvents_workCorrectly() = runTest {
-        // Given: Cache cleared event
-        val cacheEvent = AppEvent.CacheCleared
+    fun `a subscriber receives every published event in order`() = runTest {
+        val received = mutableListOf<AppEvent>()
+        collectInto(this, received)
 
-        // When: Publishing cache event
-        val result = eventBus.publish(cacheEvent)
+        eventBus.publish(AppEvent.UserLoggedIn("user_1"))
+        eventBus.publish(AppEvent.FinancialDataUpdated)
+        eventBus.publish(AppEvent.NewAnnouncement("ann_1"))
+        runCurrent()
 
-        // Then: Event published successfully
-        assertTrue(result)
+        assertEquals(
+            listOf(
+                AppEvent.UserLoggedIn("user_1"),
+                AppEvent.FinancialDataUpdated,
+                AppEvent.NewAnnouncement("ann_1")
+            ),
+            received
+        )
     }
 
     @Test
-    fun events_providesSharedFlow() = runTest {
-        // Given: EventBus provides SharedFlow
+    fun `multiple subscribers each receive the same event`() = runTest {
+        val first = mutableListOf<AppEvent>()
+        val second = mutableListOf<AppEvent>()
+        collectInto(this, first)
+        collectInto(this, second)
 
-        // When: Accessing the events flow
-        val flow = eventBus.events
+        eventBus.publish(AppEvent.CacheCleared)
+        runCurrent()
 
-        // Then: It's a SharedFlow (replay=0, extraBufferCapacity=64)
-        assertEquals(0, flow.replay)
+        assertEquals(listOf(AppEvent.CacheCleared), first)
+        assertEquals(listOf(AppEvent.CacheCleared), second)
+    }
+
+    @Test
+    fun `the replay cache stays empty so late subscribers miss earlier publishes`() = runTest {
+        eventBus.publish(AppEvent.CacheCleared)
+
+        assertTrue(eventBus.events.replayCache.isEmpty())
+    }
+
+    @Test
+    fun `every AppEvent variant can be published`() = runTest {
+        val events = listOf(
+            AppEvent.PaymentCompleted("pay_1", BigDecimal("1000")),
+            AppEvent.PaymentFailed("Network error"),
+            AppEvent.TransactionCreated("txn_1"),
+            AppEvent.TransactionUpdated("txn_1"),
+            AppEvent.UserLoggedIn("user_1"),
+            AppEvent.UserLoggedOut,
+            AppEvent.UserProfileUpdated("user_1"),
+            AppEvent.FinancialDataUpdated,
+            AppEvent.NetworkStatusChanged(isConnected = false),
+            AppEvent.NewAnnouncement("ann_1"),
+            AppEvent.AnnouncementRead("ann_1"),
+            AppEvent.NewMessage("msg_1", "sender_1"),
+            AppEvent.MessageRead("msg_1"),
+            AppEvent.WorkOrderCreated("wo_1"),
+            AppEvent.WorkOrderUpdated("wo_1", "IN_PROGRESS"),
+            AppEvent.VendorDataUpdated,
+            AppEvent.CacheCleared
+        )
+
+        val received = mutableListOf<AppEvent>()
+        collectInto(this, received)
+        events.forEach { eventBus.publish(it) }
+        runCurrent()
+
+        assertEquals(events, received)
+    }
+
+    @Test
+    fun `bursts larger than one are all buffered`() = runTest {
+        val burst = (1..64).map { AppEvent.NewMessage("msg_$it", "sender") }
+        val received = mutableListOf<AppEvent>()
+        collectInto(this, received)
+
+        burst.forEach { eventBus.publish(it) }
+        runCurrent()
+
+        assertEquals(burst, received)
+    }
+
+    @Test
+    fun `a subscriber that cancels stops receiving`() = runTest {
+        val collected = mutableListOf<AppEvent>()
+        collectInto(this, collected)
+
+        eventBus.publish(AppEvent.NewMessage("msg_1", "sender_1"))
+        runCurrent()
+        backgroundScope.coroutineContext[kotlinx.coroutines.Job]!!.children.first().cancel()
+        runCurrent()
+        eventBus.publish(AppEvent.NewMessage("msg_2", "sender_1"))
+        runCurrent()
+
+        assertEquals(1, collected.size)
+        assertEquals(AppEvent.NewMessage("msg_1", "sender_1"), collected[0])
+    }
+
+    @Test
+    fun `publish does not throw when there are no subscribers`() = runTest {
+        assertTrue(eventBus.publish(AppEvent.VendorDataUpdated))
+        assertTrue(eventBus.events.replayCache.isEmpty())
     }
 }

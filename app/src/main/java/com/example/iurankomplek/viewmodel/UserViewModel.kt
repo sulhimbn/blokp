@@ -8,6 +8,7 @@ import com.example.iurankomplek.event.EventBus
 import com.example.iurankomplek.model.UserResponse
 import com.example.iurankomplek.utils.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -21,6 +22,8 @@ class UserViewModel @Inject constructor(
 
     private val _usersState = MutableStateFlow<UiState<UserResponse>>(UiState.Loading)
     val usersState: StateFlow<UiState<UserResponse>> = _usersState
+
+    private var loadJob: Job? = null
 
     init {
         observeEvents()
@@ -39,9 +42,11 @@ class UserViewModel @Inject constructor(
     }
 
     fun loadUsers() {
-        if (_usersState.value is UiState.Loading) return
+        // Guard on the in-flight job, not on the current state: the state starts as
+        // Loading, so a state-based guard would swallow the very first load.
+        if (loadJob?.isActive == true) return
 
-        viewModelScope.launch {
+        loadJob = viewModelScope.launch {
             _usersState.value = UiState.Loading
             userRepository.getUsers()
                 .onSuccess { response ->

@@ -61,21 +61,26 @@ class TransactionRepository @Inject constructor(
             transactionDao.insert(transaction)
 
             val paymentResult = paymentGateway.processPayment(request)
-            paymentResult.onSuccess { response ->
-                val updatedTransaction = transaction.copy(
-                    status = PaymentStatus.COMPLETED,
-                    updatedAt = Calendar.getInstance().time
-                )
-                transactionDao.update(updatedTransaction)
-            }.onFailure { error ->
-                val failedTransaction = transaction.copy(
-                    status = PaymentStatus.FAILED,
-                    updatedAt = Calendar.getInstance().time
-                )
-                transactionDao.update(failedTransaction)
-            }
 
-            paymentResult.map { transaction }
+            // Settle once and persist the settled row, so the returned transaction carries
+            // the same status that was stored.
+            val settled = paymentResult.fold(
+                onSuccess = {
+                    transaction.copy(
+                        status = PaymentStatus.COMPLETED,
+                        updatedAt = Calendar.getInstance().time
+                    )
+                },
+                onFailure = {
+                    transaction.copy(
+                        status = PaymentStatus.FAILED,
+                        updatedAt = Calendar.getInstance().time
+                    )
+                }
+            )
+            transactionDao.update(settled)
+
+            paymentResult.map { settled }
         } catch (e: Exception) {
             Result.failure(e)
         }

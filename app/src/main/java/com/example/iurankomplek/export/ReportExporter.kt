@@ -25,6 +25,24 @@ import java.util.Locale
 
 class ReportExporter(private val context: Context) {
 
+    companion object {
+        /**
+         * Spreadsheet applications execute cells that begin with a formula character, so an
+         * API-supplied name or note can run code when the exported report is opened. Prefixing
+         * a single quote forces those cells to be read as text.
+         */
+        private const val CSV_FORMULA_TRIGGERS = "=+-@\t\r"
+
+        fun sanitizeCsvCell(value: Any?): String {
+            val text = value?.toString() ?: ""
+            return if (text.isNotEmpty() && CSV_FORMULA_TRIGGERS.contains(text[0])) {
+                "'$text"
+            } else {
+                text
+            }
+        }
+    }
+
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.getDefault())
     private val displayDateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
 
@@ -161,7 +179,7 @@ class ReportExporter(private val context: Context) {
             
             csvPrinter.printRecord("RINGKASAN")
             summaryItems.forEach { item ->
-                csvPrinter.printRecord(item.title, item.value)
+                csvPrinter.printRecord(sanitizeCsvCell(item.title), sanitizeCsvCell(item.value))
             }
             csvPrinter.println()
             
@@ -170,10 +188,10 @@ class ReportExporter(private val context: Context) {
             
             dataItems.forEach { item ->
                 csvPrinter.printRecord(
-                    "${item.first_name} ${item.last_name}",
-                    item.email,
-                    item.pemanfaatan_iuran,
-                    item.pengeluaran_iuran_warga
+                    sanitizeCsvCell("${item.first_name} ${item.last_name}"),
+                    sanitizeCsvCell(item.email),
+                    sanitizeCsvCell(item.pemanfaatan_iuran),
+                    sanitizeCsvCell(item.pengeluaran_iuran_warga)
                 )
             }
             

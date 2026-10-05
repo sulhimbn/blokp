@@ -10,6 +10,27 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
+class InMemorySessionStore : SessionStore {
+    private val values = mutableMapOf<String, Any?>()
+
+    override fun getString(key: String): String? = values[key] as? String
+
+    override fun putString(key: String, value: String?) {
+        values[key] = value
+    }
+
+    override fun getBoolean(key: String, defaultValue: Boolean): Boolean =
+        values[key] as? Boolean ?: defaultValue
+
+    override fun putBoolean(key: String, value: Boolean) {
+        values[key] = value
+    }
+
+    override fun clear() {
+        values.clear()
+    }
+}
+
 /**
  * Unit tests for UserSessionManager class.
  * Tests cover: setCurrentUser, clearSession, restoreSession, currentUserId, isLoggedIn state flow.
@@ -21,15 +42,14 @@ import org.robolectric.annotation.Config
 class UserSessionManagerTest {
 
     private lateinit var context: Context
+    private lateinit var store: InMemorySessionStore
     private lateinit var userSessionManager: UserSessionManager
 
     @Before
     fun setup() {
-        // Create Robolectric context
         context = Robolectric.buildActivity(android.app.Activity::class.java).get()
-        
-        // Create fresh instance for each test
-        userSessionManager = UserSessionManager(context)
+        store = InMemorySessionStore()
+        userSessionManager = UserSessionManager(store)
     }
 
     @Test

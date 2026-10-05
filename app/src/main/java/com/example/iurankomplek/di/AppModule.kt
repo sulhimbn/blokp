@@ -3,13 +3,13 @@ package com.example.iurankomplek.di
 import android.content.Context
 import com.example.iurankomplek.data.repository.PemanfaatanRepository
 import com.example.iurankomplek.data.repository.PemanfaatanRepositoryImpl
-import com.example.iurankomplek.data.repository.UserRepository
-import com.example.iurankomplek.data.repository.UserRepositoryImpl
 import com.example.iurankomplek.data.repository.VendorRepository
 import com.example.iurankomplek.data.repository.VendorRepositoryImpl
 import com.example.iurankomplek.network.ApiConfig
-import com.example.iurankomplek.session.UserSessionManager
 import com.example.iurankomplek.network.ApiService
+import com.example.iurankomplek.session.EncryptedSessionStore
+import com.example.iurankomplek.session.SessionStore
+import com.example.iurankomplek.session.UserSessionManager
 import com.example.iurankomplek.network.NetworkStatusListener
 import com.example.iurankomplek.payment.PaymentGateway
 import com.example.iurankomplek.payment.RealPaymentGateway
@@ -31,15 +31,6 @@ object AppModule {
     @Singleton
     fun provideApiService(): ApiService {
         return ApiConfig.getApiService()
-    }
-
-    @Provides
-    @Singleton
-    fun provideUserRepository(
-        apiService: ApiService,
-        sessionManager: UserSessionManager
-    ): UserRepository {
-        return UserRepositoryImpl(apiService, sessionManager)
     }
 
     @Provides
@@ -86,4 +77,14 @@ object AppModule {
     fun provideContext(@ApplicationContext context: Context): Context {
         return context
     }
+
+    @Provides
+    @Singleton
+    fun provideSessionStore(@ApplicationContext context: Context): SessionStore =
+        EncryptedSessionStore(context)
+
+    @Provides
+    @Singleton
+    fun provideUserSessionManager(store: SessionStore): UserSessionManager =
+        UserSessionManager(store)
 }

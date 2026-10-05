@@ -14,16 +14,57 @@ import org.mockito.Mockito.*
 import java.math.BigDecimal
 import java.util.Date
 
+/**
+ * In-memory TransactionDao. Mockito's Java matchers return null, which trips Kotlin's
+ * non-null parameter checks, so the DAO is faked instead of mocked.
+ */
+class RecordingTransactionDao : TransactionDao {
+    val inserted = mutableListOf<Transaction>()
+    val updated = mutableListOf<Transaction>()
+    val deleted = mutableListOf<Transaction>()
+
+    override fun getAllTransactions() = kotlinx.coroutines.flow.flowOf(inserted.toList())
+
+    override suspend fun getTransactionById(id: String): Transaction? =
+        (inserted + updated).lastOrNull { it.id == id }
+
+    override fun getTransactionsByUserId(userId: String) =
+        kotlinx.coroutines.flow.flowOf(inserted.filter { it.userId == userId })
+
+    override suspend fun insert(transaction: Transaction) {
+        inserted += transaction
+    }
+
+    override suspend fun insertAll(transactions: List<Transaction>) {
+        inserted += transactions
+    }
+
+    override suspend fun update(transaction: Transaction) {
+        updated += transaction
+    }
+
+    override suspend fun delete(transaction: Transaction) {
+        deleted += transaction
+    }
+
+    override suspend fun deleteById(id: String) {
+        inserted.removeAll { it.id == id }
+    }
+
+    override fun getTransactionsByStatus(status: PaymentStatus) =
+        kotlinx.coroutines.flow.flowOf((inserted + updated).filter { it.status == status })
+}
+
 class PaymentProcessingTest {
     private lateinit var mockPaymentGateway: PaymentGateway
-    private lateinit var mockTransactionDao: TransactionDao
+    private lateinit var mockTransactionDao: RecordingTransactionDao
     private lateinit var transactionRepository: TransactionRepository
     private lateinit var receiptGenerator: ReceiptGenerator
 
     @Before
     fun setup() {
         mockPaymentGateway = mock(PaymentGateway::class.java)
-        mockTransactionDao = mock(TransactionDao::class.java)
+        mockTransactionDao = RecordingTransactionDao()
         transactionRepository = TransactionRepository(mockPaymentGateway, mockTransactionDao)
         receiptGenerator = ReceiptGenerator()
     }
@@ -55,8 +96,10 @@ class PaymentProcessingTest {
         
         // Assert
         assertTrue(result.isSuccess)
-        verify(mockTransactionDao, times(2)).insert(any(Transaction::class.java)) // Once for initial, once for update
-        verify(mockTransactionDao).update(any(Transaction::class.java))
+        assertEquals(PaymentStatus.PENDING, mockTransactionDao.inserted[0].status)
+        assertEquals(1, mockTransactionDao.updated.size)
+        assertEquals(PaymentStatus.COMPLETED, mockTransactionDao.updated[0].status)
+        assertEquals(PaymentStatus.COMPLETED, result.getOrNull()!!.status)
     }
 
     @Test
@@ -77,8 +120,8 @@ class PaymentProcessingTest {
         
         // Assert
         assertTrue(result.isFailure)
-        verify(mockTransactionDao, times(1)).insert(any(Transaction::class.java)) // Initial insert
-        verify(mockTransactionDao).update(any(Transaction::class.java)) // Status update to FAILED
+        assertEquals(1, mockTransactionDao.inserted.size)
+        assertEquals(1, mockTransactionDao.updated.size) // Status update to FAILED
     }
 
     @Test
@@ -140,13 +183,24 @@ class PaymentProcessingTest {
         )
 
         `when`(mockPaymentGateway.refundPayment(transactionId)).thenReturn(Result.success(mockResponse))
+        mockTransactionDao.inserted += Transaction(
+            id = transactionId,
+            userId = "test_user",
+            amount = BigDecimal("100.00"),
+            currency = "IDR",
+            status = PaymentStatus.COMPLETED,
+            paymentMethod = PaymentMethod.CREDIT_CARD,
+            description = "Test transaction",
+            createdAt = Date(),
+            updatedAt = Date()
+        )
 
         // Act
         val result = transactionRepository.refundPayment(transactionId, "Test refund")
 
         // Assert
         assertTrue(result.isSuccess)
-        verify(mockTransactionDao).update(any(Transaction::class.java))
+        assertEquals(PaymentStatus.REFUNDED, mockTransactionDao.updated.single().status)
     }
 
     @Test

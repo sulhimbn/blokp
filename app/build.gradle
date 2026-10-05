@@ -57,6 +57,20 @@ android {
         lintConfig file('src/main/res/xml/lint.xml')
     }
 
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+            returnDefaultValues = true
+        }
+    }
+
+}
+
+// Robolectric-based @HiltAndroidTest needs the app's Hilt classes transformed for
+// local unit tests, otherwise the generated test component cannot see the
+// @HiltViewModel map and hiltJavaCompileDebugUnitTest fails.
+hilt {
+    enableTransformForLocalTests = true
 }
 
 dependencies {
@@ -75,6 +89,9 @@ dependencies {
     testImplementation libs.kotlinx.coroutines.test
     testImplementation libs.robolectric
     testImplementation libs.mockwebserver
+    testImplementation libs.androidx.test.core
+    testImplementation libs.hilt.android.testing
+    kspTest libs.hilt.android.compiler
     
     androidTestImplementation libs.androidx.test.ext.junit
     androidTestImplementation libs.espresso.core
