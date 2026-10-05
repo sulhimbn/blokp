@@ -1,12 +1,17 @@
 package com.example.iurankomplek.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.example.iurankomplek.MainDispatcherRule
 import com.example.iurankomplek.data.repository.PemanfaatanRepository
+import com.example.iurankomplek.data.repository.TransactionRepository
 import com.example.iurankomplek.event.EventBus
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.model.PemanfaatanResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.*
 import org.junit.After
 import org.junit.Assert.*
@@ -24,27 +29,29 @@ import java.io.IOException
 class FinancialViewModelTest {
 
     @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
+
+    @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Mock
     private lateinit var pemanfaatanRepository: PemanfaatanRepository
 
+    private val eventBus = EventBus()
+
     @Mock
-    private lateinit var eventBus: EventBus
+    private lateinit var transactionRepository: TransactionRepository
 
     private lateinit var viewModel: FinancialViewModel
 
-    private val testDispatcher = StandardTestDispatcher()
 
     @Before
     fun setup() {
-        Dispatchers.setMain(testDispatcher)
-        viewModel = FinancialViewModel(pemanfaatanRepository, eventBus)
+        viewModel = FinancialViewModel(pemanfaatanRepository, eventBus, transactionRepository)
     }
 
     @After
     fun tearDown() {
-        Dispatchers.resetMain()
     }
 
     @Test
@@ -65,16 +72,17 @@ class FinancialViewModelTest {
             )
         )
         val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
             data = mockData
         )
         Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))
 
-        viewModel.loadFinancialData()
+        // Then: the flow starts at Loading so the UI can show a spinner before any load runs
+        assertTrue(viewModel.financialState.value is FinancialDataState.Loading)
 
-        val loadingState = viewModel.financialState.value
-        assertTrue(loadingState is FinancialDataState.Loading)
+        viewModel.loadFinancialData()
+        advanceUntilIdle()
+
+        assertTrue(viewModel.financialState.value is FinancialDataState.Success)
     }
 
     @Test
@@ -95,8 +103,6 @@ class FinancialViewModelTest {
             )
         )
         val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
             data = mockData
         )
         Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))
@@ -147,23 +153,30 @@ class FinancialViewModelTest {
             )
         )
         val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
             data = mockData
         )
-        Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))
+                // A queued dispatcher keeps the first load in flight, so the second call must be
+        // rejected by the guard instead of racing an already-completed load.
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        try {
+            Mockito.`when`(pemanfaatanRepository.getPemanfaatan())
+                .thenReturn(Result.success(mockResponse))
 
-        viewModel.loadFinancialData()
-        viewModel.loadFinancialData()
+            viewModel.loadFinancialData()
+            viewModel.loadFinancialData()
 
-        Mockito.verify(pemanfaatanRepository).getPemanfaatan()
+            advanceUntilIdle()
+
+            Mockito.verify(pemanfaatanRepository).getPemanfaatan()
+            assertTrue(viewModel.financialState.value is FinancialDataState.Success)
+        } finally {
+            Dispatchers.resetMain()
+        }
     }
 
     @Test
     fun `loadFinancialData should handle empty data correctly`() = runTest {
         val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "No financial data found",
             data = emptyList()
         )
         Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))
@@ -200,8 +213,6 @@ class FinancialViewModelTest {
             )
         )
         val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
             data = invalidData
         )
         Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))

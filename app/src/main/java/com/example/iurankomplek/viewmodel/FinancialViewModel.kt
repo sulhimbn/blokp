@@ -65,8 +65,13 @@ class FinancialViewModel @Inject constructor(
         }
     }
 
+    // In-flight flag rather than a `value is Loading` check: _financialState starts at
+    // FinancialDataState.Loading, which would make the first load a permanent no-op.
+    private var isFinancialLoadInFlight = false
+
     fun loadFinancialData() {
-        if (_financialState.value is FinancialDataState.Loading) return
+        if (isFinancialLoadInFlight) return
+        isFinancialLoadInFlight = true
 
         viewModelScope.launch {
             _financialState.value = FinancialDataState.Loading
@@ -81,6 +86,7 @@ class FinancialViewModel @Inject constructor(
                         exception.message ?: "Unknown error occurred"
                     )
                 }
+            isFinancialLoadInFlight = false
         }
     }
 

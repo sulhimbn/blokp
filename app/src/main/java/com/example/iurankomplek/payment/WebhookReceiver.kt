@@ -65,22 +65,6 @@ class WebhookReceiver(
     }
 
     /**
-     * Handle webhook event without security verification.
-     * WARNING: This method is insecure and should only be used for testing.
-     * Use handleWebhookEventWithHeaders for production.
-     * 
-     * @deprecated Use handleWebhookEventWithHeaders for production
-     */
-    @Deprecated(
-        message = "Insecure method - use handleWebhookEventWithHeaders for production",
-        ReplaceWith("handleWebhookEventWithHeaders(payload, signature, timestamp)")
-    )
-    fun handleWebhookEvent(payload: String) {
-        Log.w(TAG, "Using insecure handleWebhookEvent - consider migrating to handleWebhookEventWithHeaders")
-        processWebhookEvent(payload)
-    }
-
-    /**
      * Internal method to process webhook event after verification.
      */
     private fun processWebhookEvent(payload: String) {
@@ -137,15 +121,15 @@ class WebhookReceiver(
     }
 
     private fun extractEventType(payload: String): String {
-        // Simplified extraction - in real implementation, parse JSON properly
-        return if (payload.contains("success")) {
-            "payment.success"
-        } else if (payload.contains("failed")) {
-            "payment.failed"
-        } else if (payload.contains("refunded")) {
-            "payment.refunded"
-        } else {
-            "unknown"
+        // Must read the event field itself: a substring scan would classify any body that merely
+        // mentions "success" as a successful payment.
+        val match = Regex("\"event\"\\s*:\\s*\"([a-zA-Z_.]+)\"").find(payload)
+        val raw = match?.groupValues?.getOrNull(1) ?: return "unknown"
+        return when (raw.substringAfterLast('.')) {
+            "success" -> "payment.success"
+            "failed" -> "payment.failed"
+            "refunded" -> "payment.refunded"
+            else -> "unknown"
         }
     }
 

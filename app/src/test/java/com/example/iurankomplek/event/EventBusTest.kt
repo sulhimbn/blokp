@@ -1,7 +1,10 @@
 package com.example.iurankomplek.event
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -90,39 +93,46 @@ class EventBusTest {
 
     @Test
     fun eventsFlow_emitsPublishedEvents() = runTest {
-        // Given: An event that will be published
+        // Given: A subscriber already attached to the flow
         val testEvent = AppEvent.NewAnnouncement("announce_789")
+        val received = mutableListOf<AppEvent>()
+        val job = backgroundScope.launch { eventBus.events.collect { received.add(it) } }
+        runCurrent()
 
-        // When: Publishing event and collecting
+        // When: Publishing the event
         eventBus.publish(testEvent)
-        val collected = eventBus.events.first()
+        runCurrent()
+        job.cancelAndJoin()
 
         // Then: The collected event matches what was published
-        assertEquals(testEvent, collected)
+        assertEquals(listOf(testEvent), received)
     }
 
     @Test
     fun publish_withDataClasses_passesCorrectData() = runTest {
-        // Given: Events with various data
+        // Given: Events with various data, and a subscriber already attached.
+        // EventBus uses replay = 0, so a subscriber must attach before publish() or it will
+        // never observe the event.
         val paymentEvent = AppEvent.PaymentFailed("Network error")
         val userEvent = AppEvent.UserProfileUpdated("user_999")
         val networkEvent = AppEvent.NetworkStatusChanged(isConnected = false)
+
+        val received = mutableListOf<AppEvent>()
+        val job = backgroundScope.launch { eventBus.events.collect { received.add(it) } }
+        runCurrent()
 
         // When: Publishing events with data
         eventBus.publish(paymentEvent)
         eventBus.publish(userEvent)
         eventBus.publish(networkEvent)
+        runCurrent()
+        job.cancelAndJoin()
 
-        // Then: Events can be collected with correct data
-        val events = listOf(
-            eventBus.events.first(),
-            eventBus.events.first(),
-            eventBus.events.first()
-        )
-
-        assertTrue(events.any { it is AppEvent.PaymentFailed })
-        assertTrue(events.any { it is AppEvent.UserProfileUpdated })
-        assertTrue(events.any { it is AppEvent.NetworkStatusChanged })
+        // Then: All events are delivered with their payload intact
+        assertEquals(listOf(paymentEvent, userEvent, networkEvent), received)
+        assertTrue(received.any { it is AppEvent.PaymentFailed })
+        assertTrue(received.any { it is AppEvent.UserProfileUpdated })
+        assertTrue(received.any { it is AppEvent.NetworkStatusChanged })
     }
 
     @Test
@@ -201,12 +211,30 @@ class EventBusTest {
 
     @Test
     fun events_providesSharedFlow() = runTest {
-        // Given: EventBus provides SharedFlow
+        // Given: EventBus exposes its event stream as a SharedFlow
 
-        // When: Accessing the events flow
+        // When: Inspecting the flow type and replay semantics
         val flow = eventBus.events
 
-        // Then: It's a SharedFlow (replay=0, extraBufferCapacity=64)
-        assertEquals(0, flow.replay)
+        // Then: It is a SharedFlow...
+        assertTrue(flow is kotlinx.coroutines.flow.SharedFlow)
+        // ...configured with replay = 0, so a subscriber that attaches AFTER a publish does
+        // not receive the already-published event. (SharedFlow exposes no public `replay`
+        // property, so the contract is asserted through observable behaviour.)
+        val received = mutableListOf<AppEvent>()
+        val job = backgroundScope.launch { eventBus.events.collect { received.add(it) } }
+        runCurrent()
+        eventBus.publish(AppEvent.RefreshAllData)
+        runCurrent()
+        job.cancelAndJoin()
+
+        received.clear()
+
+        val late = mutableListOf<AppEvent>()
+        val lateJob = backgroundScope.launch { eventBus.events.collect { late.add(it) } }
+        runCurrent()
+
+        assertTrue("Late subscribers must not replay earlier events", late.isEmpty())
+        lateJob.cancelAndJoin()
     }
 }

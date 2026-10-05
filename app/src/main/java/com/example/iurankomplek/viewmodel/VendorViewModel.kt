@@ -31,8 +31,14 @@ class VendorViewModel @Inject constructor(
     private val _workOrderDetailState = MutableStateFlow<UiState<SingleWorkOrderResponse>>(UiState.Loading)
     val workOrderDetailState: StateFlow<UiState<SingleWorkOrderResponse>> = _workOrderDetailState
     
+    // In-flight flags, not state checks: the flows start at UiState.Loading, so a
+    // `value is Loading` guard would block the first load as well as genuine duplicates.
+    private var isVendorsInFlight = false
+    private var isWorkOrdersInFlight = false
+
     fun loadVendors() {
-        if (_vendorState.value is UiState.Loading) return // Prevent duplicate calls
+        if (isVendorsInFlight) return
+        isVendorsInFlight = true // Prevent duplicate calls
         
         viewModelScope.launch {
             _vendorState.value = UiState.Loading
@@ -47,7 +53,8 @@ class VendorViewModel @Inject constructor(
     }
     
     fun loadWorkOrders() {
-        if (_workOrderState.value is UiState.Loading) return // Prevent duplicate calls
+        if (isWorkOrdersInFlight) return
+        isWorkOrdersInFlight = true // Prevent duplicate calls
         
         viewModelScope.launch {
             _workOrderState.value = UiState.Loading

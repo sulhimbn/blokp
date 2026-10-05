@@ -2,8 +2,12 @@ package com.example.iurankomplek
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
+import com.example.iurankomplek.data.repository.PemanfaatanRepository
+import com.example.iurankomplek.data.repository.TransactionRepository
+import com.example.iurankomplek.event.EventBus
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.viewmodel.FinancialViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import org.junit.Before
@@ -18,6 +22,7 @@ import org.mockito.junit.MockitoJUnitRunner
 /**
  * Unit tests for FinancialViewModel
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(MockitoJUnitRunner::class)
 class FinancialViewModelTest {
 
@@ -28,12 +33,29 @@ class FinancialViewModelTest {
     @Mock
     private lateinit var mockUserObserver: Observer<String>
 
+    @Mock
+    private lateinit var pemanfaatanRepository: PemanfaatanRepository
+
+    // Real instance: FinancialViewModel.init collects eventBus.events, which a mock
+    // returns as null, throwing from a viewModelScope coroutine that outlives this test.
+    private val eventBus = EventBus()
+
+    @Mock
+    private lateinit var transactionRepository: TransactionRepository
+
     private lateinit var viewModel: FinancialViewModel
+
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
 
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        viewModel = FinancialViewModel()
+        viewModel = FinancialViewModel(
+            pemanfaatanRepository,
+            eventBus,
+            transactionRepository
+        )
     }
 
     @Test

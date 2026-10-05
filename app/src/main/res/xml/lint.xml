@@ -86,6 +86,11 @@
     <issue id="MissingId" severity="warning" />
     <issue id="MissingImport" severity="warning" />
     <issue id="MissingPermission" severity="warning" />
+    <!-- NotificationPermission fires on the debug-only Chucker library, whose in-app traffic
+         inspector posts a notification. Chucker is a debugImplementation dependency, so it is
+         absent from release builds and requesting POST_NOTIFICATIONS would ship an unused
+         runtime permission to end users. -->
+    <issue id="NotificationPermission" severity="warning" />
     <issue id="MissingPrefix" severity="warning" />
     <issue id="MissingQuantity" severity="warning" />
     <issue id="MissingSuperCall" severity="warning" />

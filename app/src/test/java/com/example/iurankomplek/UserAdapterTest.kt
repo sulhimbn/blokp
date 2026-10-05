@@ -2,13 +2,19 @@ package com.example.iurankomplek
 
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.presentation.adapter.UserAdapter
-
-import com.example.iurankomplek.model.DataItem
+import kotlinx.coroutines.CoroutineScope
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.Assert.*
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
+@RunWith(RobolectricTestRunner::class)
 class UserAdapterTest {
+
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
 
     private lateinit var adapter: UserAdapter
     private lateinit var testUsers: MutableList<DataItem>
@@ -16,7 +22,7 @@ class UserAdapterTest {
     @Before
     fun setup() {
         testUsers = mutableListOf()
-        adapter = UserAdapter(testUsers)
+        adapter = UserAdapter(testUsers, CoroutineScope(mainDispatcherRule.dispatcher))
     }
 
     @Test
@@ -52,9 +58,12 @@ class UserAdapterTest {
 
         adapter.setUsers(newUsers)
 
+        awaitCondition("adapter to receive ${newUsers.size} users") {
+            adapter.itemCount == newUsers.size
+        }
         assertEquals(newUsers.size, adapter.itemCount)
-        assertEquals("John", adapter.users[0].first_name)
-        assertEquals("jane.smith@example.com", adapter.users[1].email)
+        assertEquals("John", testUsers[0].first_name)
+        assertEquals("jane.smith@example.com", testUsers[1].email)
     }
 
     @Test
@@ -77,7 +86,7 @@ class UserAdapterTest {
         adapter.addUser(validUser)
 
         assertEquals(initialSize + 1, adapter.itemCount)
-        assertEquals("Test", adapter.users.last().first_name)
+        assertEquals("Test", testUsers.last().first_name)
     }
 
     @Test
@@ -172,6 +181,7 @@ class UserAdapterTest {
             )
         )
         adapter.setUsers(users)
+        awaitCondition("adapter to receive 1 user") { adapter.itemCount == 1 }
         assertEquals(1, adapter.itemCount)
 
         adapter.clear()
@@ -189,6 +199,7 @@ class UserAdapterTest {
         )
         adapter.setUsers(users)
 
+        awaitCondition("adapter to receive 2 users") { adapter.itemCount == 2 }
         assertEquals(2, adapter.itemCount)
     }
 

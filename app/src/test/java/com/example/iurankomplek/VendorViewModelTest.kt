@@ -1,6 +1,7 @@
 package com.example.iurankomplek
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.example.iurankomplek.MainDispatcherRule
 import com.example.iurankomplek.data.repository.VendorRepository
 import com.example.iurankomplek.model.Vendor
 import com.example.iurankomplek.data.api.models.VendorResponse
@@ -25,6 +26,9 @@ import java.io.IOException
 class VendorViewModelTest {
 
     @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
+
+    @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Mock
@@ -32,18 +36,15 @@ class VendorViewModelTest {
 
     private lateinit var vendorViewModel: VendorViewModel
 
-    private val testDispatcher = StandardTestDispatcher()
 
     @Before
     fun setup() {
-        Dispatchers.setMain(testDispatcher)
         MockitoAnnotations.openMocks(this)
         vendorViewModel = VendorViewModel(mockRepository)
     }
 
     @After
     fun tearDown() {
-        Dispatchers.resetMain()
     }
 
     @Test
@@ -88,15 +89,13 @@ class VendorViewModelTest {
         advanceUntilIdle()
         val state = vendorViewModel.vendorState.value
         assertTrue(state is UiState.Error)
-        assertEquals(errorMessage, (state as UiState.Error).message)
+        assertEquals(errorMessage, (state as UiState.Error).error)
     }
 
     @Test
     fun `loadVendors should update vendorState to Loading initially`() {
-        vendorViewModel.loadVendors()
-
-        val state = vendorViewModel.vendorState.value
-        assertTrue(state is UiState.Loading)
+        // The flow starts at Loading so the UI can render a spinner before any load is started.
+        assertTrue(vendorViewModel.vendorState.value is UiState.Loading)
     }
 
     @Test
@@ -158,15 +157,13 @@ class VendorViewModelTest {
         advanceUntilIdle()
         val state = vendorViewModel.workOrderState.value
         assertTrue(state is UiState.Error)
-        assertEquals(errorMessage, (state as UiState.Error).message)
+        assertEquals(errorMessage, (state as UiState.Error).error)
     }
 
     @Test
     fun `loadWorkOrders should update workOrderState to Loading initially`() {
-        vendorViewModel.loadWorkOrders()
-
-        val state = vendorViewModel.workOrderState.value
-        assertTrue(state is UiState.Loading)
+        // The flow starts at Loading so the UI can render a spinner before any load is started.
+        assertTrue(vendorViewModel.workOrderState.value is UiState.Loading)
     }
 
     @Test

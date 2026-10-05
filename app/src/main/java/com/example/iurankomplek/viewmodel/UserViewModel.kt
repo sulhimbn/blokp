@@ -38,18 +38,28 @@ class UserViewModel @Inject constructor(
         }
     }
 
+    // Guards against re-entrant loads. This cannot be inferred from _usersState: the flow starts
+    // at UiState.Loading, so a `value is Loading` check would also block the very first load
+    // and leave the screen spinning forever.
+    private var isLoadInFlight = false
+
     fun loadUsers() {
-        if (_usersState.value is UiState.Loading) return
+        if (isLoadInFlight) return
+        isLoadInFlight = true
 
         viewModelScope.launch {
-            _usersState.value = UiState.Loading
-            userRepository.getUsers()
-                .onSuccess { response ->
-                    _usersState.value = UiState.Success(response)
-                }
-                .onFailure { exception ->
-                    _usersState.value = UiState.Error(exception.message ?: "Unknown error occurred")
-                }
+            try {
+                _usersState.value = UiState.Loading
+                userRepository.getUsers()
+                    .onSuccess { response ->
+                        _usersState.value = UiState.Success(response)
+                    }
+                    .onFailure { exception ->
+                        _usersState.value = UiState.Error(exception.message ?: "Unknown error occurred")
+                    }
+            } finally {
+                isLoadInFlight = false
+            }
         }
     }
 }

@@ -1,9 +1,42 @@
 package com.example.iurankomplek.utils
 
+import org.junit.After
 import org.junit.Assert.*
+import org.junit.Before
 import org.junit.Test
 
 class WebhookSecurityUtilTest {
+
+    @Before
+    fun setUp() {
+        // Verification fails closed without a configured secret, so the happy-path tests must
+        // inject one rather than relying on a constant that ships inside the APK.
+        WebhookSecurityUtil.secretOverride = "unit-test-secret"
+    }
+
+    @After
+    fun tearDown() {
+        WebhookSecurityUtil.secretOverride = null
+    }
+
+    @Test
+    fun verifyWebhook_withoutConfiguredSecret_failsClosed() {
+        WebhookSecurityUtil.secretOverride = null
+        val payload = "{\"event\":\"payment.success\"}"
+        val timestamp = System.currentTimeMillis() / 1000
+
+        val result = WebhookSecurityUtil.verifyWebhook(
+            payload = payload,
+            signature = "sha256=deadbeef",
+            timestamp = timestamp.toString()
+        )
+
+        assertTrue(result is WebhookSecurityUtil.VerificationResult.Error)
+        assertEquals(
+            "Webhook secret not configured",
+            (result as WebhookSecurityUtil.VerificationResult.Error).reason
+        )
+    }
 
     @Test
     fun verifyWebhook_withValidSignature_returnsSuccess() {
