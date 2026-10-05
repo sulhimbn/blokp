@@ -11,6 +11,9 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.*
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verifyBlocking
 import java.math.BigDecimal
 import java.util.Date
 
@@ -55,8 +58,8 @@ class PaymentProcessingTest {
         
         // Assert
         assertTrue(result.isSuccess)
-        verify(mockTransactionDao, times(2)).insert(any(Transaction::class.java)) // Once for initial, once for update
-        verify(mockTransactionDao).update(any(Transaction::class.java))
+        verifyBlocking(mockTransactionDao, times(2)) { mockTransactionDao.insert(anyOrNull()) } // Once for initial, once for update
+        verifyBlocking(mockTransactionDao) { mockTransactionDao.update(anyOrNull()) }
     }
 
     @Test
@@ -77,8 +80,8 @@ class PaymentProcessingTest {
         
         // Assert
         assertTrue(result.isFailure)
-        verify(mockTransactionDao, times(1)).insert(any(Transaction::class.java)) // Initial insert
-        verify(mockTransactionDao).update(any(Transaction::class.java)) // Status update to FAILED
+        verifyBlocking(mockTransactionDao, times(1)) { mockTransactionDao.insert(anyOrNull()) } // Initial insert
+        verifyBlocking(mockTransactionDao) { mockTransactionDao.update(anyOrNull()) } // Status update to FAILED
     }
 
     @Test
@@ -146,7 +149,7 @@ class PaymentProcessingTest {
 
         // Assert
         assertTrue(result.isSuccess)
-        verify(mockTransactionDao).update(any(Transaction::class.java))
+        verifyBlocking(mockTransactionDao) { mockTransactionDao.update(anyOrNull()) }
     }
 
     @Test

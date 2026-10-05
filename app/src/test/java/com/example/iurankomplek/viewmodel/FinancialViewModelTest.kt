@@ -2,6 +2,7 @@ package com.example.iurankomplek.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.iurankomplek.data.repository.PemanfaatanRepository
+import com.example.iurankomplek.data.repository.TransactionRepository
 import com.example.iurankomplek.event.EventBus
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.model.PemanfaatanResponse
@@ -29,8 +30,10 @@ class FinancialViewModelTest {
     @Mock
     private lateinit var pemanfaatanRepository: PemanfaatanRepository
 
+    private val eventBus: EventBus = EventBus()
+
     @Mock
-    private lateinit var eventBus: EventBus
+    private lateinit var transactionRepository: TransactionRepository
 
     private lateinit var viewModel: FinancialViewModel
 
@@ -39,7 +42,7 @@ class FinancialViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        viewModel = FinancialViewModel(pemanfaatanRepository, eventBus)
+        viewModel = FinancialViewModel(pemanfaatanRepository, eventBus, transactionRepository)
     }
 
     @After
@@ -65,8 +68,6 @@ class FinancialViewModelTest {
             )
         )
         val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
             data = mockData
         )
         Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))
@@ -95,8 +96,6 @@ class FinancialViewModelTest {
             )
         )
         val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
             data = mockData
         )
         Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))
@@ -147,8 +146,6 @@ class FinancialViewModelTest {
             )
         )
         val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
             data = mockData
         )
         Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))
@@ -162,8 +159,6 @@ class FinancialViewModelTest {
     @Test
     fun `loadFinancialData should handle empty data correctly`() = runTest {
         val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "No financial data found",
             data = emptyList()
         )
         Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))
@@ -200,8 +195,6 @@ class FinancialViewModelTest {
             )
         )
         val mockResponse = PemanfaatanResponse(
-            success = true,
-            message = "Financial data fetched successfully",
             data = invalidData
         )
         Mockito.`when`(pemanfaatanRepository.getPemanfaatan()).thenReturn(Result.success(mockResponse))

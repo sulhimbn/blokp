@@ -16,6 +16,7 @@ espresso-core = "3.5.1"
 espresso-intents = "3.5.1"
 androidx-test-runner = "1.5.2"
 androidx-test-rules = "1.5.0"
+androidx-test-core = "1.5.0"
 mockwebserver = "4.12.0"
 recyclerview = "1.3.2"
 glide = "4.16.0"
@@ -52,6 +53,7 @@ espresso-contrib = { group = "androidx.test.espresso", name = "espresso-contrib"
 espresso-intents = { group = "androidx.test.espresso", name = "espresso-intents", version.ref = "espresso-intents" }
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidx-test-runner" }
 androidx-test-rules = { group = "androidx.test", name = "rules", version.ref = "androidx-test-rules" }
+androidx-test-core = { group = "androidx.test", name = "core", version.ref = "androidx-test-core" }
 mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "mockwebserver" }
 androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }

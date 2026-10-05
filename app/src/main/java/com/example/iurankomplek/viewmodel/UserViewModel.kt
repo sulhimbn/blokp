@@ -20,6 +20,7 @@ class UserViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _usersState = MutableStateFlow<UiState<UserResponse>>(UiState.Loading)
+    private var _loadInFlight = false
     val usersState: StateFlow<UiState<UserResponse>> = _usersState
 
     init {
@@ -39,17 +40,22 @@ class UserViewModel @Inject constructor(
     }
 
     fun loadUsers() {
-        if (_usersState.value is UiState.Loading) return
+        if (_loadInFlight) return
 
+        _loadInFlight = true
         viewModelScope.launch {
-            _usersState.value = UiState.Loading
-            userRepository.getUsers()
-                .onSuccess { response ->
-                    _usersState.value = UiState.Success(response)
-                }
-                .onFailure { exception ->
-                    _usersState.value = UiState.Error(exception.message ?: "Unknown error occurred")
-                }
+            try {
+                _usersState.value = UiState.Loading
+                userRepository.getUsers()
+                    .onSuccess { response ->
+                        _usersState.value = UiState.Success(response)
+                    }
+                    .onFailure { exception ->
+                        _usersState.value = UiState.Error(exception.message ?: "Unknown error occurred")
+                    }
+            } finally {
+                _loadInFlight = false
+            }
         }
     }
 }

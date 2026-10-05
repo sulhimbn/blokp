@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.model.UserResponse
+import com.example.iurankomplek.presentation.adapter.UserAdapter
 import com.example.iurankomplek.utils.UiState
 import com.example.iurankomplek.viewmodel.UserViewModel
 import com.example.iurankomplek.data.repository.UserRepository
@@ -22,6 +23,7 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
 import org.robolectric.android.controller.ActivityController
+import android.app.Application
 import org.robolectric.annotation.Config
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,7 +31,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import org.junit.Assert.*
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [28]) // Target API level 28 for testing
+@Config(application = Application::class)
 class MainActivityTest {
 
     @Mock
@@ -167,9 +169,8 @@ class MainActivityTest {
     }
 
     @Test
-    fun `MainActivity should handle null response data correctly`() {
-        // Test case where response.data is null
-        val testResponse = UserResponse(data = null)
+    fun `MainActivity should handle an empty response list correctly`() {
+        val testResponse = UserResponse(data = emptyList())
         val testStateFlow = MutableStateFlow<UiState<UserResponse>>(UiState.Success(testResponse))
         
         // Create activity

@@ -25,6 +25,10 @@ import java.util.Locale
 
 class ReportExporter(private val context: Context) {
 
+    companion object {
+        internal val FORMULA_TRIGGER_CHARS = setOf('=', '+', '-', '@', '\t', '\r')
+    }
+
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.getDefault())
     private val displayDateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
 
@@ -167,20 +171,26 @@ class ReportExporter(private val context: Context) {
             
             csvPrinter.printRecord("DETAIL PEMANFAATAN IURAN")
             csvPrinter.printRecord("Nama", "Email", "Pemanfaatan", "Pengeluaran")
-            
+
             dataItems.forEach { item ->
                 csvPrinter.printRecord(
-                    "${item.first_name} ${item.last_name}",
-                    item.email,
-                    item.pemanfaatan_iuran,
+                    csvCell("${item.first_name} ${item.last_name}"),
+                    csvCell(item.email),
+                    csvCell(item.pemanfaatan_iuran),
                     item.pengeluaran_iuran_warga
                 )
             }
-            
+
             csvPrinter.flush()
         }
-        
+
         return file
+    }
+
+    internal fun csvCell(value: Any?): String {
+        val text = value?.toString().orEmpty()
+        if (text.isEmpty()) return text
+        return if (text.first() in FORMULA_TRIGGER_CHARS) "'$text" else text
     }
 
     fun createShareIntent(uri: Uri, format: ExportFormat): android.content.Intent {

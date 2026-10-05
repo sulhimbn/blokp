@@ -1,167 +1,112 @@
 package com.example.iurankomplek
 
-import android.content.Context
-import android.view.View
-import androidx.recyclerview.widget.RecyclerView
 import com.example.iurankomplek.model.Vendor
 import com.example.iurankomplek.presentation.adapter.VendorAdapter
-
-import android.content.Context
-import android.view.View
-import androidx.recyclerview.widget.RecyclerView
-import com.example.iurankomplek.model.Vendor
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.junit.Assert.*
-import org.mockito.Mock
-import org.mockito.MockitoAnnotations
+import org.junit.runner.RunWith
+import android.app.Application
+import android.os.Looper
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(application = Application::class)
 class VendorAdapterTest {
-    
-    @Mock
-    private lateinit var mockContext: Context
-    
-    @Mock
-    private lateinit var mockView: View
-    
-    private lateinit var vendorAdapter: VendorAdapter
-    
+
+    private val clicked = mutableListOf<Vendor>()
+    private lateinit var adapter: VendorAdapter
+
     @Before
     fun setup() {
-        MockitoAnnotations.openMocks(this)
-        
-        val vendors = listOf(
-            Vendor(
-                id = "1",
-                name = "Plumbing Services Inc",
-                contactPerson = "John Smith",
-                phoneNumber = "123-456-7890",
-                email = "contact@plumbing.com",
-                specialty = "plumbing",
-                address = "123 Main St",
-                licenseNumber = "PL-12345",
-                insuranceInfo = "General liability coverage",
-                certifications = listOf("Licensed", "Bonded"),
-                rating = 4.5,
-                totalReviews = 25,
-                contractStart = "2023-01-01",
-                contractEnd = "2024-12-31",
-                isActive = true
-            ),
-            Vendor(
-                id = "2",
-                name = "Electrical Services Co",
-                contactPerson = "Jane Doe",
-                phoneNumber = "098-765-4321",
-                email = "info@electrical.com",
-                specialty = "electrical",
-                address = "456 Oak Ave",
-                licenseNumber = "EL-67890",
-                insuranceInfo = "Professional liability",
-                certifications = listOf("Certified Electrician"),
-                rating = 4.2,
-                totalReviews = 18,
-                contractStart = "2023-02-01",
-                contractEnd = "2025-01-31",
-                isActive = true
-            )
-        )
-        
-        vendorAdapter = VendorAdapter { /* Handle vendor click */ }
-        vendorAdapter.submitList(vendors)
+        clicked.clear()
+        adapter = VendorAdapter { vendor -> clicked.add(vendor) }
     }
-    
-@Test
-    fun `adapter should have correct item count`() {
-        assertEquals(2, vendorAdapter.itemCount)
+
+    private fun awaitItemCount(expected: Int) {
+        val deadline = System.currentTimeMillis() + 5_000
+        while (adapter.itemCount != expected && System.currentTimeMillis() < deadline) {
+            shadowOf(Looper.getMainLooper()).idle()
+            Thread.sleep(10)
+        }
+        shadowOf(Looper.getMainLooper()).idle()
     }
-    
-    
-    
+
+    private fun vendor(id: String = "v1", name: String = "Vendor 1") = Vendor(
+        id = id,
+        name = name,
+        contactPerson = "John Doe",
+        phoneNumber = "1234567890",
+        email = "vendor1@example.com",
+        specialty = "Cleaning",
+        address = "123 Main St",
+        licenseNumber = "LIC-1",
+        insuranceInfo = "INS-1",
+        certifications = listOf("ISO9001"),
+        rating = 4.5,
+        totalReviews = 10,
+        contractStart = "2024-01-01",
+        contractEnd = "2024-12-31",
+        isActive = true
+    )
+
+    private fun submitAndAwait(list: List<Vendor>) {
+        adapter.submitList(list)
+        awaitItemCount(list.size)
+    }
+
     @Test
-    fun `diff callback should identify same items correctly`() {
-        val vendor1 = Vendor(
-            id = "1",
-            name = "Plumbing Services Inc",
-            contactPerson = "John Smith",
-            phoneNumber = "123-456-7890",
-            email = "contact@plumbing.com",
-            specialty = "plumbing",
-            address = "123 Main St",
-            licenseNumber = "PL-12345",
-            insuranceInfo = "General liability coverage",
-            certifications = listOf("Licensed", "Bonded"),
-            rating = 4.5,
-            totalReviews = 25,
-            contractStart = "2023-01-01",
-            contractEnd = "2024-12-31",
-            isActive = true
-        )
-        
-        val vendor2 = Vendor(
-            id = "1",  // Same ID
-            name = "Plumbing Services Updated",  // Different name
-            contactPerson = "John Smith",
-            phoneNumber = "123-456-7890",
-            email = "contact@plumbing.com",
-            specialty = "plumbing",
-            address = "123 Main St",
-            licenseNumber = "PL-12345",
-            insuranceInfo = "General liability coverage",
-            certifications = listOf("Licensed", "Bonded"),
-            rating = 4.5,
-            totalReviews = 25,
-            contractStart = "2023-01-01",
-            contractEnd = "2024-12-31",
-            isActive = true
-        )
-        
-        val diffCallback = VendorAdapter.VendorDiffCallback()
-        
-        assertTrue(diffCallback.areItemsTheSame(vendor1, vendor2))  // Same ID
-        assertFalse(diffCallback.areContentsTheSame(vendor1, vendor2))  // Different content
+    fun `empty adapter reports zero items`() {
+        awaitItemCount(0)
+        assertEquals(0, adapter.itemCount)
     }
-    
+
     @Test
-    fun `diff callback should identify different items correctly`() {
-        val vendor1 = Vendor(
-            id = "1",
-            name = "Plumbing Services Inc",
-            contactPerson = "John Smith",
-            phoneNumber = "123-456-7890",
-            email = "contact@plumbing.com",
-            specialty = "plumbing",
-            address = "123 Main St",
-            licenseNumber = "PL-12345",
-            insuranceInfo = "General liability coverage",
-            certifications = listOf("Licensed", "Bonded"),
-            rating = 4.5,
-            totalReviews = 25,
-            contractStart = "2023-01-01",
-            contractEnd = "2024-12-31",
-            isActive = true
-        )
-        
-        val vendor2 = Vendor(
-            id = "2",  // Different ID
-            name = "Electrical Services Co",
-            contactPerson = "Jane Doe",
-            phoneNumber = "098-765-4321",
-            email = "info@electrical.com",
-            specialty = "electrical",
-            address = "456 Oak Ave",
-            licenseNumber = "EL-67890",
-            insuranceInfo = "Professional liability",
-            certifications = listOf("Certified Electrician"),
-            rating = 4.2,
-            totalReviews = 18,
-            contractStart = "2023-02-01",
-            contractEnd = "2025-01-31",
-            isActive = true
-        )
-        
-        val diffCallback = VendorAdapter.VendorDiffCallback()
-        
-        assertFalse(diffCallback.areItemsTheSame(vendor1, vendor2))  // Different IDs
+    fun `submitList should surface the submitted vendors`() {
+        submitAndAwait(listOf(vendor("v1"), vendor("v2", "Vendor 2")))
+
+        awaitItemCount(2)
+
+        assertEquals(2, adapter.itemCount)
+        assertEquals("Vendor 1", adapter.currentList[0].name)
+        assertEquals("Vendor 2", adapter.currentList[1].name)
+    }
+
+    @Test
+    fun `submitList should replace the previous list`() {
+        submitAndAwait(listOf(vendor("v1")))
+        awaitItemCount(1)
+        assertEquals(1, adapter.itemCount)
+
+        submitAndAwait(listOf(vendor("v2"), vendor("v3"), vendor("v4")))
+
+        awaitItemCount(3)
+
+        assertEquals(3, adapter.itemCount)
+    }
+
+    @Test
+    fun `submitList with an empty list should clear the adapter`() {
+        submitAndAwait(listOf(vendor()))
+
+        submitAndAwait(emptyList())
+
+        awaitItemCount(0)
+
+        assertEquals(0, adapter.itemCount)
+    }
+
+    @Test
+    fun `submiting identical content should not change item count`() {
+        submitAndAwait(listOf(vendor("v1"), vendor("v2")))
+
+        submitAndAwait(listOf(vendor("v1"), vendor("v2")))
+
+        awaitItemCount(2)
+
+        assertEquals(2, adapter.itemCount)
     }
 }

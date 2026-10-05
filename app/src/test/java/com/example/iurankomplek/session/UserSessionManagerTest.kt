@@ -1,5 +1,6 @@
 package com.example.iurankomplek.session
 
+import android.app.Application
 import android.content.Context
 import com.example.iurankomplek.model.User
 import org.junit.Assert.*
@@ -17,7 +18,7 @@ import org.robolectric.annotation.Config
  * Uses Robolectric for Android Context.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
+@Config(application = Application::class, manifest = Config.NONE)
 class UserSessionManagerTest {
 
     private lateinit var context: Context

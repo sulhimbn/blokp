@@ -3,6 +3,8 @@ package com.example.iurankomplek.data.repository
 import com.example.iurankomplek.model.DataItem
 import com.example.iurankomplek.model.UserResponse
 import com.example.iurankomplek.network.ApiService
+import com.example.iurankomplek.session.UserSessionManager
+import com.example.iurankomplek.utils.CacheManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
@@ -12,7 +14,10 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.*
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verifyBlocking
 import org.mockito.MockitoAnnotations
+import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.Response
 import java.io.IOException
 import java.net.SocketTimeoutException
@@ -25,6 +30,9 @@ class UserRepositoryImplTest {
     @Mock
     private lateinit var apiService: ApiService
 
+    @Mock
+    private lateinit var sessionManager: UserSessionManager
+
     private lateinit var repository: UserRepositoryImpl
     private val testDispatcher = StandardTestDispatcher()
 
@@ -32,11 +40,15 @@ class UserRepositoryImplTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
-        repository = UserRepositoryImpl(apiService)
+        repository = UserRepositoryImpl(apiService, sessionManager)
+        CacheManager.getInstance().clearSync()
+        CacheManager.getInstance().clearSync()
     }
 
     @After
     fun tearDown() {
+        CacheManager.getInstance().clearSync()
+        CacheManager.getInstance().clearSync()
         Dispatchers.resetMain()
     }
 
@@ -58,8 +70,6 @@ class UserRepositoryImplTest {
             )
         )
         val mockResponse = UserResponse(
-            success = true,
-            message = "Users fetched successfully",
             data = mockData
         )
 
@@ -85,15 +95,18 @@ class UserRepositoryImplTest {
 
     @Test
     fun `getUsers should retry on SocketTimeoutException`() = runTest {
-        `when`(apiService.getUsers())
-            .thenThrow(SocketTimeoutException())
-            .thenThrow(SocketTimeoutException())
-            .thenReturn(Response.success(UserResponse(success = true, message = "Success", data = emptyList())))
+        val mockResponse = UserResponse(data = emptyList())
+        var attempts = 0
+        doAnswer {
+            attempts++
+            if (attempts < 3) throw SocketTimeoutException()
+            Response.success(mockResponse)
+        }.`when`(apiService).getUsers()
 
         val result = repository.getUsers()
 
         assertTrue(result.isSuccess)
-        verify(apiService, times(3)).getUsers()
+        verifyBlocking(apiService, times(3)) { apiService.getUsers() }
     }
 
     @Test
@@ -111,171 +124,193 @@ class UserRepositoryImplTest {
             pemanfaatan_iuran = "Maintenance",
             avatar = "https://example.com/avatar.jpg"
         ))
-        val mockResponse = UserResponse(success = true, message = "Success", data = mockData)
+        val mockResponse = UserResponse(data = mockData)
 
-        `when`(apiService.getUsers())
-            .thenThrow(UnknownHostException())
-            .thenReturn(Response.success(mockResponse))
+        var attempts = 0
+        doAnswer {
+            attempts++
+            if (attempts == 1) throw UnknownHostException()
+            Response.success(mockResponse)
+        }.`when`(apiService).getUsers()
 
         val result = repository.getUsers()
 
         assertTrue(result.isSuccess)
-        verify(apiService, times(2)).getUsers()
+        verifyBlocking(apiService, times(2)) { apiService.getUsers() }
     }
 
     @Test
     fun `getUsers should retry on SSLException`() = runTest {
-        val mockResponse = UserResponse(success = true, message = "Success", data = emptyList())
+        val mockResponse = UserResponse(data = emptyList())
 
-        `when`(apiService.getUsers())
-            .thenThrow(SSLException("SSL error"))
-            .thenReturn(Response.success(mockResponse))
+        var attempts = 0
+        doAnswer {
+            attempts++
+            if (attempts == 1) throw SSLException("SSL error")
+            Response.success(mockResponse)
+        }.`when`(apiService).getUsers()
 
         val result = repository.getUsers()
 
         assertTrue(result.isSuccess)
-        verify(apiService, times(2)).getUsers()
+        verifyBlocking(apiService, times(2)) { apiService.getUsers() }
     }
 
     @Test
     fun `getUsers should return failure after max retries on SocketTimeoutException`() = runTest {
-        `when`(apiService.getUsers())
-            .thenThrow(SocketTimeoutException())
+        doAnswer { throw SocketTimeoutException() }.`when`(apiService).getUsers()
 
         val result = repository.getUsers()
 
         assertTrue(result.isFailure)
-        verify(apiService, times(4)).getUsers()
+        verifyBlocking(apiService, times(4)) { apiService.getUsers() }
     }
 
     @Test
     fun `getUsers should not retry on non-retryable exception`() = runTest {
-        `when`(apiService.getUsers()).thenThrow(IOException("File not found"))
+        doAnswer { throw IOException("File not found") }.`when`(apiService).getUsers()
 
         val result = repository.getUsers()
 
         assertTrue(result.isFailure)
-        verify(apiService, times(1)).getUsers()
+        verifyBlocking(apiService, times(1)) { apiService.getUsers() }
     }
 
     @Test
     fun `getUsers should retry on 500 error`() = runTest {
-        val mockResponse = UserResponse(success = true, message = "Success", data = emptyList())
+        val mockResponse = UserResponse(data = emptyList())
 
-        `when`(apiService.getUsers())
-            .thenReturn(Response.error(500, okhttp3.ResponseBody.create(null, "Internal Server Error")))
-            .thenReturn(Response.success(mockResponse))
+        var attempts = 0
+        doAnswer {
+            attempts++
+            if (attempts == 1) Response.error<UserResponse>(500, "Internal Server Error".toResponseBody())
+            else Response.success(mockResponse)
+        }.`when`(apiService).getUsers()
 
         val result = repository.getUsers()
 
         assertTrue(result.isSuccess)
-        verify(apiService, times(2)).getUsers()
+        verifyBlocking(apiService, times(2)) { apiService.getUsers() }
     }
 
     @Test
     fun `getUsers should retry on 503 error`() = runTest {
-        val mockResponse = UserResponse(success = true, message = "Success", data = emptyList())
+        val mockResponse = UserResponse(data = emptyList())
 
-        `when`(apiService.getUsers())
-            .thenReturn(Response.error(503, okhttp3.ResponseBody.create(null, "Service Unavailable")))
-            .thenReturn(Response.success(mockResponse))
+        var attempts = 0
+        doAnswer {
+            attempts++
+            if (attempts == 1) Response.error<UserResponse>(503, "Service Unavailable".toResponseBody())
+            else Response.success(mockResponse)
+        }.`when`(apiService).getUsers()
 
         val result = repository.getUsers()
 
         assertTrue(result.isSuccess)
-        verify(apiService, times(2)).getUsers()
+        verifyBlocking(apiService, times(2)) { apiService.getUsers() }
     }
 
     @Test
     fun `getUsers should retry on 408 Request Timeout error`() = runTest {
-        val mockResponse = UserResponse(success = true, message = "Success", data = emptyList())
+        val mockResponse = UserResponse(data = emptyList())
 
-        `when`(apiService.getUsers())
-            .thenReturn(Response.error(408, okhttp3.ResponseBody.create(null, "Request Timeout")))
-            .thenReturn(Response.success(mockResponse))
+        var attempts = 0
+        doAnswer {
+            attempts++
+            if (attempts == 1) Response.error<UserResponse>(408, "Request Timeout".toResponseBody())
+            else Response.success(mockResponse)
+        }.`when`(apiService).getUsers()
 
         val result = repository.getUsers()
 
         assertTrue(result.isSuccess)
-        verify(apiService, times(2)).getUsers()
+        verifyBlocking(apiService, times(2)) { apiService.getUsers() }
     }
 
     @Test
     fun `getUsers should retry on 429 Too Many Requests error`() = runTest {
-        val mockResponse = UserResponse(success = true, message = "Success", data = emptyList())
+        val mockResponse = UserResponse(data = emptyList())
 
-        `when`(apiService.getUsers())
-            .thenReturn(Response.error(429, okhttp3.ResponseBody.create(null, "Too Many Requests")))
-            .thenReturn(Response.success(mockResponse))
+        var attempts = 0
+        doAnswer {
+            attempts++
+            if (attempts == 1) Response.error<UserResponse>(429, "Too Many Requests".toResponseBody())
+            else Response.success(mockResponse)
+        }.`when`(apiService).getUsers()
 
         val result = repository.getUsers()
 
         assertTrue(result.isSuccess)
-        verify(apiService, times(2)).getUsers()
+        verifyBlocking(apiService, times(2)) { apiService.getUsers() }
     }
 
     @Test
     fun `getUsers should not retry on 400 Bad Request error`() = runTest {
         `when`(apiService.getUsers())
-            .thenReturn(Response.error(400, okhttp3.ResponseBody.create(null, "Bad Request")))
+            .thenReturn(Response.error<UserResponse>(400, "Bad Request".toResponseBody()))
 
         val result = repository.getUsers()
 
         assertTrue(result.isFailure)
-        verify(apiService, times(1)).getUsers()
+        verifyBlocking(apiService, times(1)) { apiService.getUsers() }
     }
 
     @Test
     fun `getUsers should not retry on 404 Not Found error`() = runTest {
         `when`(apiService.getUsers())
-            .thenReturn(Response.error(404, okhttp3.ResponseBody.create(null, "Not Found")))
+            .thenReturn(Response.error<UserResponse>(404, "Not Found".toResponseBody()))
 
         val result = repository.getUsers()
 
         assertTrue(result.isFailure)
-        verify(apiService, times(1)).getUsers()
+        verifyBlocking(apiService, times(1)) { apiService.getUsers() }
     }
 
     @Test
     fun `getUsers should return failure after max retries on server error`() = runTest {
         `when`(apiService.getUsers())
-            .thenReturn(Response.error(500, okhttp3.ResponseBody.create(null, "Internal Server Error")))
+            .thenReturn(Response.error<UserResponse>(500, "Internal Server Error".toResponseBody()))
 
         val result = repository.getUsers()
 
         assertTrue(result.isFailure)
-        verify(apiService, times(4)).getUsers()
+        verifyBlocking(apiService, times(4)) { apiService.getUsers() }
     }
 
     @Test
     fun `getUsers should return failure after max retries on 503 error`() = runTest {
         `when`(apiService.getUsers())
-            .thenReturn(Response.error(503, okhttp3.ResponseBody.create(null, "Service Unavailable")))
+            .thenReturn(Response.error<UserResponse>(503, "Service Unavailable".toResponseBody()))
 
         val result = repository.getUsers()
 
         assertTrue(result.isFailure)
-        verify(apiService, times(4)).getUsers()
+        verifyBlocking(apiService, times(4)) { apiService.getUsers() }
     }
 
     @Test
     fun `getUsers should handle mixed retry scenarios with eventual success`() = runTest {
-        val mockResponse = UserResponse(success = true, message = "Success", data = emptyList())
+        val mockResponse = UserResponse(data = emptyList())
 
-        `when`(apiService.getUsers())
-            .thenThrow(SocketTimeoutException())
-            .thenReturn(Response.error(500, okhttp3.ResponseBody.create(null, "Internal Server Error")))
-            .thenReturn(Response.success(mockResponse))
+        var attempts = 0
+        doAnswer {
+            attempts++
+            when {
+                attempts == 1 -> throw SocketTimeoutException()
+                attempts == 2 -> Response.error<UserResponse>(500, "Internal Server Error".toResponseBody())
+                else -> Response.success(mockResponse)
+            }
+        }.`when`(apiService).getUsers()
 
         val result = repository.getUsers()
 
         assertTrue(result.isSuccess)
-        verify(apiService, times(3)).getUsers()
+        verifyBlocking(apiService, times(3)) { apiService.getUsers() }
     }
 
     @Test
     fun `getUsers should return empty list successfully`() = runTest {
-        val mockResponse = UserResponse(success = true, message = "No users", data = emptyList())
+        val mockResponse = UserResponse(data = emptyList())
 
         `when`(apiService.getUsers()).thenReturn(Response.success(mockResponse))
 
@@ -288,7 +323,7 @@ class UserRepositoryImplTest {
 
     @Test
     fun `getUsers should return failure on IOException`() = runTest {
-        `when`(apiService.getUsers()).thenThrow(IOException("Network error"))
+        doAnswer { throw IOException("Network error") }.`when`(apiService).getUsers()
 
         val result = repository.getUsers()
 
@@ -297,7 +332,7 @@ class UserRepositoryImplTest {
 
     @Test
     fun `getUsers exponential backoff with jitter works correctly`() = runTest {
-        val mockResponse = UserResponse(success = true, message = "Success", data = emptyList())
+        val mockResponse = UserResponse(data = emptyList())
         val callTimes = mutableListOf<Long>()
 
         `when`(apiService.getUsers()).thenAnswer {
