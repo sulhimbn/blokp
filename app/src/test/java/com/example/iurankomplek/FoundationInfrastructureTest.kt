@@ -6,7 +6,8 @@ import com.example.iurankomplek.utils.*
 import com.example.iurankomplek.viewmodel.BaseViewModel
 import org.junit.Test
 import org.junit.Assert.*
-import java.util.concurrent.TimeUnit
+import com.example.iurankomplek.network.SecurityConfig
+import java.lang.reflect.Modifier
 
 /**
  * Test suite to verify foundation infrastructure components are properly implemented
@@ -16,14 +17,16 @@ class FoundationInfrastructureTest {
 
     @Test
     fun `test security configuration is properly implemented`() {
-        // Verify certificate pinning is configured
         val apiService = ApiConfig.getApiService()
         assertNotNull("API service should be created with security configuration", apiService)
-        
-        // Verify timeouts are configured appropriately
-        val okHttpClient = ApiConfig::class.java.declaredMethods
-            .find { it.name == "getCertificatePinner" }
-        assertNotNull("Security configuration should be present", okHttpClient)
+
+        val client = SecurityConfig.getSecureOkHttpClient()
+        assertNotNull("Secure client should be built", client)
+        assertTrue("Secure client should add interceptors", client.interceptors.isNotEmpty())
+        assertEquals(
+            Constants.Network.CONNECT_TIMEOUT * 1000L,
+            client.connectTimeoutMillis.toLong()
+        )
     }
 
     @Test
@@ -31,14 +34,23 @@ class FoundationInfrastructureTest {
         // Verify BaseRepository interface exists and has required methods
         assertTrue("BaseRepository should extend interface", BaseRepository::class.java.isInterface)
         
-        val methods = BaseRepository::class.java.declaredMethods
-        assertEquals("BaseRepository should have 5 required methods", 5, methods.size)
+        // Kotlin mangles generic interface methods with a signature hash, e.g.
+        // getAll-IoAF18A, so compare on the part before the dash.
+        val methodNames = BaseRepository::class.java.declaredMethods
+            .map { it.name.substringBefore('-') }
+            .toSet()
+        listOf("getAll", "getById", "create", "update", "delete", "observeAll").forEach {
+            assertTrue("BaseRepository should declare $it", methodNames.contains(it))
+        }
     }
 
     @Test
     fun `test base viewmodel abstract class exists`() {
         // Verify BaseViewModel abstract class exists
-        assertTrue("BaseViewModel should be an abstract class", BaseViewModel::class.java.isAbstract)
+        assertTrue(
+            "BaseViewModel should be an abstract class",
+            Modifier.isAbstract(BaseViewModel::class.java.modifiers)
+        )
     }
 
     @Test
@@ -101,13 +113,13 @@ class FoundationInfrastructureTest {
     @Test
     fun `test UI state companion object functions`() {
         // Test that UiState companion object functions work correctly
-        val successState = UiState.success("test data")
-        assertTrue("Success state should be created", successState is UiState.Success)
+        val successState = UiState.success<String>("test data")
+        assertTrue("Success state should be created", successState is UiState.Success<*>)
         
-        val errorState = UiState.error("test error")
+        val errorState = UiState.error<String>("test error")
         assertTrue("Error state should be created", errorState is UiState.Error)
         
-        val loadingState = UiState.loading()
+        val loadingState = UiState.loading<String>()
         assertTrue("Loading state should be created", loadingState is UiState.Loading)
     }
 

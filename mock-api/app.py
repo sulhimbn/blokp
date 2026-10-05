@@ -6,9 +6,14 @@ import os
 app = Flask(__name__)
 CORS(app)
 
+# Fixtures must resolve from __file__, not the process CWD, or the service 500s when
+# started from anywhere other than mock-api/.
+DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'mock-data')
+
 # Load mock data
 def load_mock_data(filename):
-    with open(f'mock-data/{filename}', 'r') as f:
+    path = os.path.join(DATA_DIR, filename)
+    with open(path, 'r') as f:
         return json.load(f)
 
 @app.route('/data/QjX6hB1ST2IDKaxB/', methods=['GET'])

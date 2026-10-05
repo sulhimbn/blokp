@@ -21,15 +21,18 @@ import org.robolectric.annotation.Config
 class UserSessionManagerTest {
 
     private lateinit var context: Context
+    private lateinit var prefs: android.content.SharedPreferences
     private lateinit var userSessionManager: UserSessionManager
 
     @Before
     fun setup() {
-        // Create Robolectric context
         context = Robolectric.buildActivity(android.app.Activity::class.java).get()
-        
-        // Create fresh instance for each test
-        userSessionManager = UserSessionManager(context)
+        // EncryptedSharedPreferences needs the hardware-backed AndroidKeyStore, which the
+        // JVM has no equivalent for; inject a plain store so the session logic itself
+        // (what is persisted, restored and cleared) can be asserted.
+        prefs = context.getSharedPreferences("test_session_prefs", Context.MODE_PRIVATE)
+        prefs.edit().clear().commit()
+        userSessionManager = UserSessionManager.forTesting(context, prefs)
     }
 
     @Test
